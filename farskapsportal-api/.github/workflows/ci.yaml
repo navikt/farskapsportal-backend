@@ -1,0 +1,134 @@
+name: continious integration
+on:
+  push:
+    branches:
+      - '**'
+
+env:
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-dokument-journalpost:${{ github.sha }}
+
+jobs:
+  build:
+    name: Build with maven and docker
+    runs-on: self-hosted
+    needs: restart-testdata
+
+    steps:
+      - uses: navikt/bidrag-docker/local-exists@v1
+        id: dockerimage
+        with:
+          image_id: ${{ env.IMAGE }}
+      - run: echo ::set-env name=NOT_FOUND::${{ steps.dockerimage.outputs.not_found }}
+      - run: env
+      - run: sudo rm -rf *
+      - uses: actions/checkout@v2
+        if: env.NOT_FOUND == 'true'
+      - uses: navikt/bidrag-maven/verify-dependencies@v1
+        if: env.NOT_FOUND == 'true'
+        with:
+          maven_image: maven:3.6.3-jdk-14
+      - run: docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-14 mvn install -B -e
+        if: env.NOT_FOUND == 'true'
+      - name: Build and publish Docker image
+        if: env.NOT_FOUND == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker build --tag ${IMAGE} .
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+          docker push ${IMAGE}
+
+  deploy_dev:
+    runs-on: ubuntu-latest
+    name: Deploy docker image to dev
+    if: github.ref != 'refs/heads/release'
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
+      - name: Deploy to dev-gcp, default namespace
+        if: github.ref == 'refs/heads/main'
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/.nais/naiserator.yml
+          VARS: deploy/nais/q0.json
+      - name: Deploy to dev-gcp, namespace q1
+        if: github.ref != 'refs/heads/main'
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/.nais/naiserator.yml
+          VARS: deploy/nais/q1.json
+
+  bump_dev_version:
+    runs-on: ubuntu-latest
+    name: Bump SNAPSHOT version
+    if: github.ref == 'refs/heads/main'
+    needs: run_cucumber
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: navikt/bidrag-maven/setup@v4
+      - run: mvn release:update-versions
+      - run: |
+          BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo ::set-output name=version::${BUMPED_VERSION}
+        id: snapshot
+      - uses: navikt/bidrag-git/commit@v3
+        with:
+          commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
+          pattern: "pom.xml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy_prod:
+    runs-on: ubuntu-latest
+    name: Deploy docker image to prod
+    if: github.ref == 'refs/heads/release'
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: deploy/nais/nais-p.yml
+          VAR: namespace=default
+
+  tag_prod_deploy:
+    runs-on: ubuntu-latest
+    name: Tag latest deploy to prod
+    needs: deploy_prod
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: |
+          TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          echo ::set-output name=tag::${TAG_VERSION}
+        id: release
+      - uses: navikt/bidrag-git/tag@v3
+        with:
+          tag_message: Releasing version ${{ steps.release.outputs.tag }}
+          tag: ${{ steps.release.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
