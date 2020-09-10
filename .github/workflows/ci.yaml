@@ -10,8 +10,7 @@ env:
 jobs:
   build:
     name: Build with maven and docker
-    runs-on: self-hosted
-    needs: restart-testdata
+    runs-on: ubuntu-latest
 
     steps:
       - uses: navikt/bidrag-docker/exists@v1
