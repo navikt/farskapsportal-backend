@@ -1,0 +1,67 @@
+package no.nav.farskapsportal.consumer.pdl;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import no.nav.farskapsportal.api.graphql.GraphQLResponse;
+import no.nav.farskapsportal.consumer.sts.nav.NavSts;
+import no.nav.farskapsportal.properties.UrlProperties;
+import org.springframework.http.RequestEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.retry.annotation.Retryable;
+import no.nav.farskapsportal.api.graphql.GraphQLRequest;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class PdlApiConsumer {
+
+  private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
+  private static final String TEMA = "Tema";
+  private static final String TEMA_FAR = "FAR";
+
+  private final NavSts sts;
+  private final RestTemplate restTemplate;
+  private final UrlProperties properties;
+
+  @Retryable
+  public GraphQLResponse fetchPersondokument(String ident, String query) {
+    val graphQlRequest = GraphQLRequest.builder()
+        .query(query)
+        .variables(Map.of(
+            "historikk", false,
+            "ident", ident))
+        .build();
+
+    val requestEntity = RequestEntity.post(URI.create(properties.getPdlApi().getGraphql()))
+        .header(AUTHORIZATION, sts.getBearerToken())
+        .header(NAV_CONSUMER_TOKEN, sts.getBearerToken())
+        .header(TEMA, TEMA_FAR)
+        .body(graphQlRequest);
+
+    GraphQLResponse response = restTemplate.exchange(requestEntity, GraphQLResponse.class).getBody();
+
+    return checkForPdlApiErrors(response);
+  }
+
+  private GraphQLResponse checkForPdlApiErrors(GraphQLResponse response) {
+    Optional.ofNullable(response)
+        .map(GraphQLResponse::getErrors)
+        .ifPresent(errorJsonNodes -> {
+              List<String> errors = errorJsonNodes.stream()
+                  .map(jsonNode -> jsonNode.get("message") + "(feilkode: " + jsonNode.path("extensions").path("code") + ")")
+                  .collect(Collectors.toList());
+              throw new PdlApiErrorsException(errors);
+            }
+        );
+    return response;
+  }
+}

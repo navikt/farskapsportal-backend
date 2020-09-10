@@ -1,4 +1,4 @@
-name: continious integration
+name: continuous integration
 on:
   push:
     branches:
