@@ -5,7 +5,7 @@ on:
       - '**'
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-dokument-journalpost:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
     needs: restart-testdata
 
     steps:
-      - uses: navikt/bidrag-docker/local-exists@v1
+      - uses: navikt/bidrag-docker/exists@v1
         id: dockerimage
         with:
           image_id: ${{ env.IMAGE }}
@@ -28,7 +28,7 @@ jobs:
         with:
           maven_image: maven:3.6.3-jdk-14
       - run: docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-14 mvn install -B -e
-        if: env.NOT_FOUND == 'true'
+         if: env.NOT_FOUND == 'true'
       - name: Build and publish Docker image
         if: env.NOT_FOUND == 'true'
         env:
@@ -48,28 +48,28 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: deploy
-      - name: Deploy to dev-gcp, default namespace
+      - name: Deploy to dev-gcp, for main.json
         if: github.ref == 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/naiserator.yml
-          VARS: deploy/nais/q0.json
-      - name: Deploy to dev-gcp, namespace q1
+          VARS: deploy/nais/main.json
+      - name: Deploy to dev-gcp for feature.json
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/naiserator.yml
-          VARS: deploy/nais/q1.json
+          VARS: deploy/nais/feature.json
 
   bump_dev_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/main'
-    needs: run_cucumber
+    needs: deploy_dev
 
     steps:
       - uses: actions/checkout@v2
