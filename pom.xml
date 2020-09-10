@@ -27,6 +27,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- navikt -->
+        <bidrag-commons.version>0.4.2</bidrag-commons.version>
         <boot-conditionals.version>1.0.20200824135201-5568111</boot-conditionals.version>
         <token-support.version>1.3.0</token-support.version>
 
@@ -125,6 +126,12 @@
         </dependency>
 
         <!-- navikt -->
+        <dependency>
+            <groupId>no.nav.bidrag</groupId>
+            <artifactId>bidrag-commons</artifactId>
+            <version>${bidrag-commons.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>boot-conditionals</artifactId>

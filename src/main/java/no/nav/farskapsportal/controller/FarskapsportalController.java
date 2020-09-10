@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskap.farskapsportalapi.api.*;
 import no.nav.farskapsportal.FarskapsportalApiApplication;
 import no.nav.farskapsportal.api.*;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;

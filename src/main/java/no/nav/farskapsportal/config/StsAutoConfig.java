@@ -1,7 +1,9 @@
-package no.nav.farskapsportal.consumer.sts.nav;
+package no.nav.farskapsportal.config;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.pdl.libs.utils.common.sts.TokenSupplier;
+import no.nav.farskapsportal.consumer.sts.TokenSupplier;
+import no.nav.farskapsportal.consumer.sts.nav.NavSts;
+import no.nav.farskapsportal.consumer.sts.nav.NavStsTokenSupplier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
