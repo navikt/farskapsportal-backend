@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConstructorBinding
 @AllArgsConstructor
-@ConfigurationProperties(prefix = "pdl.utils.urls")
+@ConfigurationProperties(prefix = "farskapsportal-api.urls")
 public class UrlProperties {
     @NotNull
     @NestedConfigurationProperty

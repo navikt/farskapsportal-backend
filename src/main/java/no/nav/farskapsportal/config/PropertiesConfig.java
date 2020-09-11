@@ -10,15 +10,15 @@ import org.springframework.context.annotation.PropertySource;
 public class PropertiesConfig {
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnProperty(value = "pdl.libs.utils.common.app.load-properties", matchIfMissing = true)
-    @PropertySource(value = "common-app.yaml", factory = YamlPropertySourceFactory.class)
-    public static class CommonAppConfig {
+    @ConditionalOnProperty(value = "farskapsportal-api.app.load-properties", matchIfMissing = true)
+    @PropertySource(value = "application.yml", factory = YamlPropertySourceFactory.class)
+    public static class AppConfig {
     }
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnProperty(value = "pdl.libs.utils.common.urls.load-properties", matchIfMissing = true)
-    @PropertySource(value = "common-urls.yaml", factory = YamlPropertySourceFactory.class)
+    @PropertySource(value = "urls.yml", factory = YamlPropertySourceFactory.class)
     @EnableConfigurationProperties(UrlProperties.class)
-    public static class CommonUrlConfig {
+    public static class UrlConfig {
     }
 }

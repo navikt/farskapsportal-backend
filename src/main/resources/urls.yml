@@ -1,0 +1,8 @@
+farskapsportal-api.urls:
+  pdl-api: 
+    base-url: http://pdl-api.default.svc.nais.local
+    graphql: ${farskapsportal-api.urls.pdl-api.base-url}/graphql
+    identhendelser: ${farskapsportal-api.urls.pdl-api.base-url}/private/identhendelser
+  nav-sts:
+    base-url: http://security-token-service.default.svc.nais.local
+    jwt: ${farskapsportal-api.urls.nav-sts.base-url}/rest/v1/sts/token?grant_type=client_credentials&scope=openid
