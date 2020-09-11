@@ -69,7 +69,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/farskapsportal-api/naiserator.yml
+          RESOURCE: deploy/nais/naiserator.yml
           VARS: deploy/nais/feature.json
 
   bump_dev_version:
