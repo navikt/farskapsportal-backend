@@ -17,6 +17,8 @@ jobs:
         id: dockerimage
         with:
           image_name: farskapsportal-api
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo ::set-env name=NOT_FOUND::${{ steps.dockerimage.outputs.not_found }}
       - run: env
       - run: sudo rm -rf *
