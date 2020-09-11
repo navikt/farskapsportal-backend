@@ -10,7 +10,7 @@
     </parent>
     <groupId>no.nav.farskap</groupId>
     <artifactId>farskapsportal-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>farskapsportal-api</name>
     <description>API for farskapsportal</description>
 
