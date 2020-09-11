@@ -16,7 +16,7 @@ jobs:
       - uses: navikt/bidrag-docker/exists@v1
         id: dockerimage
         with:
-          image_name: farskapsportal-api
+          image_id: ${{ env.IMAGE }}
       - run: echo ::set-env name=NOT_FOUND::${{ steps.dockerimage.outputs.not_found }}
       - run: env
       - run: sudo rm -rf *
