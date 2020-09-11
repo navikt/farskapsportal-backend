@@ -1,5 +1,5 @@
 {
-  "namespace": "q1",
+  "namespace": "farskapsportal",
   "ingress_preprod": "https://bfarskapsportal-api.nais.preprod.local/",
   "ingress_nais": "https://bfarskapsportal-api.dev-fss.nais.io/",
   "pdl-api_url": "https://pdl-api.nais.preprod.local/graphql"
