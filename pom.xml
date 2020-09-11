@@ -37,6 +37,34 @@
 
     </properties>
 
+    <repositories>
+        <!-- Mirror foran Maven Central (brukes kun internt) -->
+        <repository>
+            <id>nexus-internal-mirror</id>
+            <url>https://repo.adeo.no/repository/maven-public</url>
+        </repository>
+        <!-- Det generelle interne Nexus-repoet til NAV (brukes kun internt) -->
+        <repository>
+            <id>nexus-internal-releases</id>
+            <url>https://repo.adeo.no/repository/maven-releases</url>
+        </repository>
+        <!-- Skal brukes hvis bygget kjører internt (f.eks. Jenkins, fra utviklerimage, eller via ScaleFT) -->
+        <repository>
+            <id>internal-mirror-github-navikt</id>
+            <url>https://repo.adeo.no/repository/github-package-registry-navikt/</url>
+        </repository>
+        <!-- Skal brukes hvis bygget kjøres fra en Github Action -->
+        <repository>
+            <id>github-package-registry-navikt</id>
+            <url>https://maven.pkg.github.com/navikt/maven-release</url>
+        </repository>
+        <!-- Skal brukes hvis bygget kjører utenfor NAV (f.eks. en ekstern maskin, eller Circle CI) -->
+        <repository>
+            <id>external-mirror-github-navikt</id>
+            <url>https://github-package-registry-mirror-sr4qwz23da-ew.a.run.app/cached/maven-release</url>
+        </repository>
+    </repositories>
+
     <distributionManagement>
         <repository>
             <id>maven-release</id>
