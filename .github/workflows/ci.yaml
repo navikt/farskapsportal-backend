@@ -61,7 +61,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/.nais/naiserator.yml
+          RESOURCE: deploy/nais/naiserator.yml
           VARS: deploy/nais/main.json
       - name: Deploy to dev-gcp for feature.json
         if: github.ref != 'refs/heads/main'
@@ -69,8 +69,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/.nais/naiserator.yml
-          VARS: deploy/.nais/feature.json
+          RESOURCE: deployfarskapsportal-api/naiserator.yml
+          VARS: deploy/nais/feature.json
 
   bump_dev_version:
     runs-on: ubuntu-latest
