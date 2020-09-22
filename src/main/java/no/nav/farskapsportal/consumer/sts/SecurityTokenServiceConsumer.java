@@ -16,6 +16,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.farskapsportal.config.FarskapsportalApiConfig.X_API_KEY;
+
 @AllArgsConstructor
 @Slf4j
 public class SecurityTokenServiceConsumer {

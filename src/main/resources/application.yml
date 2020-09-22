@@ -7,13 +7,14 @@ management:
   endpoint.health.show-details: always
 
 urls:
+  apigw: ${APIGW_URL}
   pdl-api:
-    base-url: ${PDL_API_BASE_URL}
-    graphql-endpoint-path: /graphql
+    graphql-endpoint: ${pdl_api_endpoint"}
   sts:
-    base-url: ${STS_BASE_URL}
-    system-oidc-token-endpoint-path: /rest/v1/sts/token
-    jwt: /rest/v1/sts/token?grant_type=client_credentials&scope=openid
+    security-token-service-endpoint: ${security_token_service_endpoint}
+
+farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
+farskapsportal-api.servicebruker.passord: ${srvfarskapsportal-pwd}
 
 ---
 spring.profiles: test, local

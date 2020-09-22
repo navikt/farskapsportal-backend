@@ -1,6 +1,8 @@
 {
   "namespace": "farskapsportal",
-  "ingress_preprod": "https://bfarskapsportal-api.nais.preprod.local/",
-  "ingress_nais": "https://bfarskapsportal-api.dev-fss.nais.io/",
-  "pdl-api_url": "https://pdl-api.nais.preprod.local/graphql"
+  "name": "farskapsportal-api-feature",
+  "ingress_": "https://farskapsportal-api.dev.adeo.no/",
+  "api_gateway_url": "https://api-gw-q1.oera.no",
+  "pdl_api_endpoint": "/graphql",
+  "security_token_service_endpoint:": "/rest/v1/sts/token"
 }

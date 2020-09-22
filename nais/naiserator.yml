@@ -6,7 +6,7 @@ metadata:
   labels:
     team: farskapsportal
 spec:
-  image: {{ image }}
+  image: { { image } }
   liveness:
     path: /actuator/health
     initialDelay: 35
@@ -28,8 +28,16 @@ spec:
       cpu: 500m
       memory: 512Mi
   ingresses:
-    - {{ ingress_preprod }}
-    - {{ ingress_nais }}
+    - { { ingress } }
+  envFrom:
+    - secret: xApiKey-pdlApi-fp
+    - secret: xApiKey-sts-fp
+    - secret: srvfarskapsportal-pwd
+  env:
+    - name: PDL_API_ENDPOINT
+      value: { { pdl_api_endpoint_path } }
+    - name: SECURITY_TOKEN_SERVICE_ENDPOINT
+      value: { { security_token_service_endpoint } }
   gcp:
     sqlInstances:
       - type: POSTGRES_11

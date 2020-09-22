@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 
+import static no.nav.farskapsportal.config.FarskapsportalApiConfig.X_API_KEY;
+
 @Configuration
 public class RestTemplateConfig {
 
@@ -25,7 +27,19 @@ public class RestTemplateConfig {
     @Scope("prototype")
     public HttpHeaderRestTemplate restTemplate() {
         HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
-        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER,
+                CorrelationIdFilter::fetchCorrelationIdForThread);
+        return httpHeaderRestTemplate;
+    }
+
+    @Bean
+    @Qualifier("sts")
+    @Scope
+    public HttpHeaderRestTemplate restTemplate(
+            @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+            @Value("${xApiKey-sts-fp}") String xApiKeySts
+    ) {
+        httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeySts);
         return httpHeaderRestTemplate;
     }
 
@@ -35,10 +49,13 @@ public class RestTemplateConfig {
     public HttpHeaderRestTemplate pdlApiRestTemplate(
             @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
             @Value("${farskapsportal-api.servicebruker.brukernavn}") String farskapsportalApiBrukernavn,
-            @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord) {
-        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
-        httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalApiBrukernavn, farskapsportalApiPassord));
+            @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord,
+            @Value("${xApiKey-pdlApi-fp}") String xApiKeyPdlApi) {
+        httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION,
+                () -> "Bearer " + securityTokenServiceConsumer
+                        .hentIdTokenForServicebruker(farskapsportalApiBrukernavn, farskapsportalApiPassord));
         httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
+        httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeyPdlApi);
         return httpHeaderRestTemplate;
     }
 

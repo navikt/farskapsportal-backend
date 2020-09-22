@@ -25,6 +25,7 @@ import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointNam
 public class FarskapsportalApiConfig {
 
     public static final String ISSUER = "issuer";
+    public static final String X_API_KEY = "X-Nav-ApiKey";
 
     @Bean
     public ConsumerEndpoint consumerEndpoint() {
@@ -33,9 +34,9 @@ public class FarskapsportalApiConfig {
 
     @Bean
     SecurityTokenServiceConsumer securityTokenServiceConsumer(
-            @Qualifier("base") HttpHeaderRestTemplate restTemplate,
-            @Value("${urls.sts.base-url}") String baseUrl,
-            @Value("${urls.sts.system-oidc-token-endpoint-path}") String endpoint,
+            @Qualifier("sts") HttpHeaderRestTemplate restTemplate,
+            @Value("${urls.apigw}") String baseUrl,
+            @Value("${urls.sts.security-token-service-endpoint}") String endpoint,
             ConsumerEndpoint consumerEndpoint) {
         log.info("Oppretter SecurityTokenServiceConsumer med url {}", baseUrl);
         consumerEndpoint.addEndpoint(HENTE_IDTOKEN_FOR_SERVICEUSER, endpoint);
@@ -46,12 +47,12 @@ public class FarskapsportalApiConfig {
     @Bean
     public PdlApiConsumer pdlApiConsumer(
             @Qualifier("pdl-api") RestTemplate restTemplate,
-            @Value("${urls.pdl-api.base-url}") String pdlApiUrl,
-            @Value("${urls.pdl-api.graphql-endpoint-path}") String pdlApiEndpoint,
+            @Value("${urls.apigw}") String baseUrl,
+            @Value("${urls.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
             ConsumerEndpoint consumerEndpoint) {
         consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
-        restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(pdlApiUrl));
-        log.info("Oppretter PdlApiConsumer med url {}", pdlApiUrl);
+        restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+        log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
         return PdlApiConsumer.builder().restTemplate(restTemplate).pdlApiGraphqlEndpoint(consumerEndpoint).build();
     }
 
