@@ -1,6 +1,49 @@
+spring.devtools.add-properties: false
+
+management:
+  endpoints.web:
+    exposure.include: info, health, metrics, prometheus
+    base-path: /internal/actuator
+  endpoint.health.show-details: always
+
+urls:
+  pdl-api:
+    base-url: ${PDL_API_BASE_URL}
+    graphql-endpoint-path: /graphql
+  sts:
+    base-url: ${STS_BASE_URL}
+    system-oidc-token-endpoint-path: /rest/v1/sts/token
+    jwt: /rest/v1/sts/token?grant_type=client_credentials&scope=openid
+
+---
+spring.profiles: test, local
+
+PDL_API_BASE_URL: http://localhost:8096
+STS_BASE_URL: http://localhost:8096
+
+
+---
+spring.profiles: live
+
 no.nav.security.jwt:
+    issuer.isso:
+      discoveryurl: https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration
+      accepted_audience: 38e07d31-659d-4595-939a-f18dce3446c5
+      cookiename: isso-idtoken
+      #proxyurl: http://webproxy.nais:8088
+
+---
+########## Mock props ##########
+spring.profiles: test, local
+
+no.nav.security.jwt:
+  issuers: isso
   issuer.isso:
-    discoveryurl: https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration
-    accepted_audience: 38e07d31-659d-4595-939a-f18dce3446c5
-    cookiename: isso-idtoken
-    proxyurl: http://webproxy.nais:8088
+    discoveryurl: http://metadata
+    acceptedaudience: aud-localhost
+    cookie_name: localhost-idtoken
+
+farskapsportal-api.servicebruker.brukernavn: se-vault
+farskapsportal-api.servicebruker.passord: se-vault
+
+

@@ -34,6 +34,10 @@
         <!-- other -->
         <guava.version>28.2-jre</guava.version>
         <springfox-swagger.version>2.9.2</springfox-swagger.version>
+        <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
+
+        <!-- test -->
+        <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
 
     </properties>
 
@@ -129,6 +133,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.11</version>
+        </dependency>
 
         <dependency>
             <groupId>io.springfox</groupId>
@@ -168,14 +177,43 @@
 
         <dependency>
             <groupId>no.nav.security</groupId>
-            <artifactId>token-validation-test-support</artifactId>
+            <artifactId>token-validation-spring</artifactId>
             <version>${token-support.version}</version>
-            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
             <version>1.1.2.RELEASE</version>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>no.nav.bidrag</groupId>
+            <artifactId>bidrag-commons-test</artifactId>
+            <version>${bidrag-commons-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+            <version>${springframework-cloud.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-validation-test-support</artifactId>
+            <version>${token-support.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

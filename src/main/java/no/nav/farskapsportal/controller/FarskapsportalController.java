@@ -6,15 +6,37 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.FarskapsportalApiApplication;
 import no.nav.farskapsportal.api.*;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER)
+@RequestMapping("/api/v1/farskapsportal")
 @Slf4j
 public class FarskapsportalController {
+
+    @Autowired
+    private FarskapsportalService farskapsportalService;
+
+    @GetMapping("/kjoenn/{foedselsnummer}")
+    @ApiOperation("Avgjør kjønn til person")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Ingen feil ved henting av kjønn"),
+            @ApiResponse(code = 400, message = "Ugyldig fødselsnummer"),
+            @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+            @ApiResponse(code = 404, message = "Fant ikke fødselsnummer"),
+            @ApiResponse(code = 503, message = "Henting av kjønn for fødselsnummer feilet")
+    })
+    public ResponseEntity<Kjoenn> henteKjonn(
+            @PathVariable String foedselsnummer    ) {
+        log.info("Henter kjønn til person");
+        return farskapsportalService.henteKjoenn(foedselsnummer).getResponseEntity();
+    }
 
     @PostMapping("/personopplysinger/kontroll")
     @ApiOperation("Kontrollerer om fødeslnummer stemmer med navn")

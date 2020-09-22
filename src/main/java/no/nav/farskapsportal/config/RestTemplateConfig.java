@@ -1,24 +1,45 @@
 package no.nav.farskapsportal.config;
 
-
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
+import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpHeaders;
 
 @Configuration
 public class RestTemplateConfig {
 
-  @Bean
-  @Qualifier("base")
-  @Scope("prototype")
-  public HttpHeaderRestTemplate restTemplate() {
-    HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
-    httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
-    return httpHeaderRestTemplate;
-  }
+    private static final String TEMA = "Tema";
+    private static final String TEMA_FAR = "FAR";
 
+    @Autowired
+    private SecurityTokenServiceConsumer securityTokenServiceConsumer;
+
+    @Bean
+    @Qualifier("base")
+    @Scope("prototype")
+    public HttpHeaderRestTemplate restTemplate() {
+        HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
+        return httpHeaderRestTemplate;
+    }
+
+    @Bean
+    @Qualifier("pdl-api")
+    @Scope("prototype")
+    public HttpHeaderRestTemplate pdlApiRestTemplate(
+            @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+            @Value("${farskapsportal-api.servicebruker.brukernavn}") String farskapsportalApiBrukernavn,
+            @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord) {
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
+        httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalApiBrukernavn, farskapsportalApiPassord));
+        httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
+        return httpHeaderRestTemplate;
+    }
 
 }

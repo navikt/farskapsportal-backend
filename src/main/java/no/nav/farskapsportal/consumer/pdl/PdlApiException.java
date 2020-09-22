@@ -3,11 +3,11 @@ package no.nav.farskapsportal.consumer.pdl;
 import java.util.List;
 import java.util.StringJoiner;
 
-public class PdlApiErrorsException extends RuntimeException {
+public class PdlApiException extends RuntimeException {
 
     private String message;
 
-    public PdlApiErrorsException(List<String> errors) {
+    public PdlApiException(List<String> errors) {
         super();
         StringJoiner stringJoiner = new StringJoiner("\n");
         stringJoiner.add("Error i respons fra pdl-api: ");

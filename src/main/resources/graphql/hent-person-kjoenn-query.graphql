@@ -1,0 +1,8 @@
+query($ident: ID!, $historikk: Boolean!) {
+    hentPerson(ident: $ident) {
+        kjoenn(historikk: $historikk){
+            kjoenn
+            metadata {opplysningsId, master}
+        }
+    }
+}

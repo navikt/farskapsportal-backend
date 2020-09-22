@@ -1,8 +1,9 @@
-package no.nav.farskapsportal.api.graphql;
+package no.nav.farskapsportal.consumer.pdl.graphql;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 
 @Value
