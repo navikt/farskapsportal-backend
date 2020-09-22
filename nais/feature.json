@@ -1,6 +1,6 @@
 {
   "namespace": "farskapsportal",
   "name": "farskapsportal-api-feature",
-  "ingress_": "https://farskapsportal-api.dev.adeo.no/",
+  "ingress_": "https://farskapsportal-api-feature.dev.adeo.no/",
   "api_gateway_url": "https://api-gw-q1.oera.no"
 }
