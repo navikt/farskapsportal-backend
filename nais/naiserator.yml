@@ -33,11 +33,6 @@ spec:
     - secret: xApiKey-pdlApi-fp
     - secret: xApiKey-sts-fp
     - secret: srvfarskapsportal-pwd
-  env:
-    - name: PDL_API_ENDPOINT
-      value: { { pdl_api_endpoint_path } }
-    - name: SECURITY_TOKEN_SERVICE_ENDPOINT
-      value: { { security_token_service_endpoint } }
   gcp:
     sqlInstances:
       - type: POSTGRES_11
