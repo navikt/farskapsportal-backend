@@ -9,18 +9,18 @@ management:
 urls:
   apigw: ${APIGW_URL}
   pdl-api:
-    graphql-endpoint: ${pdl_api_endpoint"}
+    graphql-endpoint: "/rest/v1/sts/token"
   sts:
-    security-token-service-endpoint: ${security_token_service_endpoint}
+    security-token-service-endpoint: "/graphql"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
 farskapsportal-api.servicebruker.passord: ${srvfarskapsportal-pwd}
 
 ---
 spring.profiles: test, local
-
-PDL_API_BASE_URL: http://localhost:8096
-STS_BASE_URL: http://localhost:8096
+APIGW_URL: http://localhost:8096
+xApiKey-pdlApi-fp: keyForZoneCrossing
+xApiKey-sts-fp: keyForZoneCrossing
 
 
 ---

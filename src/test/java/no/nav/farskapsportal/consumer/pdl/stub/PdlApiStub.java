@@ -13,7 +13,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 @Component
 public class PdlApiStub {
 
-    @Value("${urls.pdl-api.graphql-endpoint-path}")
+    @Value("${urls.pdl-api.graphql-endpoint}")
     private String pdlApiGraphqlEndpoint;
 
     private static String stubHentPerson(List<HentPersonSubQuery> subQueries) {

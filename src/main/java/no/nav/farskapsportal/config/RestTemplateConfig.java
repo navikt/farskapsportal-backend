@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 
@@ -18,9 +19,6 @@ public class RestTemplateConfig {
 
     private static final String TEMA = "Tema";
     private static final String TEMA_FAR = "FAR";
-
-    @Autowired
-    private SecurityTokenServiceConsumer securityTokenServiceConsumer;
 
     @Bean
     @Qualifier("base")
@@ -34,8 +32,8 @@ public class RestTemplateConfig {
 
     @Bean
     @Qualifier("sts")
-    @Scope
-    public HttpHeaderRestTemplate restTemplate(
+    @Scope("prototype")
+    public HttpHeaderRestTemplate stsRestTemplate(
             @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
             @Value("${xApiKey-sts-fp}") String xApiKeySts
     ) {
@@ -50,7 +48,8 @@ public class RestTemplateConfig {
             @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
             @Value("${farskapsportal-api.servicebruker.brukernavn}") String farskapsportalApiBrukernavn,
             @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord,
-            @Value("${xApiKey-pdlApi-fp}") String xApiKeyPdlApi) {
+            @Value("${xApiKey-pdlApi-fp}") String xApiKeyPdlApi,
+            @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
         httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION,
                 () -> "Bearer " + securityTokenServiceConsumer
                         .hentIdTokenForServicebruker(farskapsportalApiBrukernavn, farskapsportalApiPassord));

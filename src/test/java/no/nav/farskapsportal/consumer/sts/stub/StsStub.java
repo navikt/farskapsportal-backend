@@ -14,7 +14,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 @Component
 public class StsStub {
 
-    @Value("${urls.sts.system-oidc-token-endpoint-path}")
+    @Value("${urls.sts.security-token-service-endpoint}")
     private String hentIdTokenForServicebrukerEndpoint;
 
     public void runSecurityTokenServiceStub(String mockedIdtoken) {

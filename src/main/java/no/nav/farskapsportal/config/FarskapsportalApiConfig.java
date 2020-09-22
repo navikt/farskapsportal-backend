@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.config;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -34,7 +34,7 @@ public class FarskapsportalApiConfig {
 
     @Bean
     SecurityTokenServiceConsumer securityTokenServiceConsumer(
-            @Qualifier("sts") HttpHeaderRestTemplate restTemplate,
+            @Qualifier("sts") RestTemplate restTemplate,
             @Value("${urls.apigw}") String baseUrl,
             @Value("${urls.sts.security-token-service-endpoint}") String endpoint,
             ConsumerEndpoint consumerEndpoint) {
