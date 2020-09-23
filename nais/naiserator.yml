@@ -14,7 +14,7 @@ spec:
     periodSeconds: 5
     failureThreshold: 10
   readiness:
-    path: /insternal/actuator/health
+    path: /internal/actuator/health
     initialDelay: 30
     timeout: 1
   prometheus:
