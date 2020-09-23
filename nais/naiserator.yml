@@ -39,3 +39,8 @@ spec:
       - type: POSTGRES_11
         databases:
           - name: farskapsportal
+
+  accesspolicy:
+    outbound:
+      external:
+        - host: api-gw-q1.oera.no
