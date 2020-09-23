@@ -30,8 +30,8 @@ spec:
   ingresses:
     - {{ ingress }}
   envFrom:
-    - secret: xApiKey-pdlApi-fp
-    - secret: xApiKey-sts-fp
+    - secret: apikey-pdlApi-fp
+    - secret: apikey-sts-fp
     - secret: srvfarskapsportal-pwd
   env:
     - name: APIGW_URL

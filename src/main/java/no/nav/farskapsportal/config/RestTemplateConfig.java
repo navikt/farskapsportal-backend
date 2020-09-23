@@ -35,7 +35,7 @@ public class RestTemplateConfig {
     @Scope("prototype")
     public HttpHeaderRestTemplate stsRestTemplate(
             @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-            @Value("${xApiKey-sts-fp}") String xApiKeySts
+            @Value("${apikey-sts-fp}") String xApiKeySts
     ) {
         httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeySts);
         return httpHeaderRestTemplate;
@@ -48,7 +48,7 @@ public class RestTemplateConfig {
             @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
             @Value("${farskapsportal-api.servicebruker.brukernavn}") String farskapsportalApiBrukernavn,
             @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord,
-            @Value("${xApiKey-pdlApi-fp}") String xApiKeyPdlApi,
+            @Value("${apikey-pdlapi-fp}") String xApiKeyPdlApi,
             @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
         httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION,
                 () -> "Bearer " + securityTokenServiceConsumer
