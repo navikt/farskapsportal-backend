@@ -31,10 +31,11 @@ spec:
     - {{ ingress }}
   envFrom:
     - secret: farskapsportal-api-secret
-    - secret: fp-serviceusers
   env:
     - name: APIGW_URL
       value: {{ api_gateway_url }}
+    - name: SRVFARSKAPSPORTAL_PWD
+      value: {{ srvfarskapsportal-pwd }}
   gcp:
     sqlInstances:
       - type: POSTGRES_11

@@ -14,7 +14,7 @@ urls:
     security-token-service-endpoint: "/graphql"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
-farskapsportal-api.servicebruker.passord: ${SRVFP_PWD}
+farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
 
 ---
 spring.profiles: test, local
