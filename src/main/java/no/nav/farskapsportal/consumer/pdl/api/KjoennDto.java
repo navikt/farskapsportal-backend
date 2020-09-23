@@ -1,6 +1,10 @@
 package no.nav.farskapsportal.consumer.pdl.api;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Data
 @Getter
@@ -8,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KjoennDto implements PdlDto {
-    KjoennTypeDto kjoenn;
-    FolkeregistermetadataDto folkeregistermetadata;
-    MetadataDto metadata;
+  KjoennTypeDto kjoenn;
+  FolkeregistermetadataDto folkeregistermetadata;
+  MetadataDto metadata;
 }

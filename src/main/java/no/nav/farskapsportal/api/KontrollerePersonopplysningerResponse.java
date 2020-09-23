@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KontrollerePersonopplysningerResponse {
-    private boolean riktigKombinasjonAvFodselnummerOgNavn;
-    private String feilmelding;
+  private boolean riktigKombinasjonAvFodselnummerOgNavn;
+  private String feilmelding;
 }

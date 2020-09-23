@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KontrollerePersonopplysningerRequest {
-    private String fodselsnummer;
-    private String fornavnOgEtternavn;
+  private String fodselsnummer;
+  private String fornavnOgEtternavn;
 }

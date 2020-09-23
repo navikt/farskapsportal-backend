@@ -10,9 +10,9 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 @Slf4j
 public class FarskapsportalService {
 
-    private final PdlApiConsumer pdlApiConsumer;
+  private final PdlApiConsumer pdlApiConsumer;
 
-    public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
-        return pdlApiConsumer.henteKjoenn(foedselsnummer);
-    }
+  public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
+    return pdlApiConsumer.henteKjoenn(foedselsnummer);
+  }
 }

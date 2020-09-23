@@ -1,5 +1,10 @@
 package no.nav.farskapsportal.consumer.sts;
 
+import static no.nav.farskapsportal.FarskapsportalApiApplicationLocal.PROFILE_TEST;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import no.nav.farskapsportal.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
@@ -12,47 +17,47 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
-import static no.nav.farskapsportal.FarskapsportalApiApplicationLocal.PROFILE_TEST;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(
-        classes = {FarskapsportalApiApplicationLocal.class},
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+    classes = {FarskapsportalApiApplicationLocal.class},
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("SecurityTokenServiceConsumer")
 @AutoConfigureWireMock(port = 8096)
 public class SecurityTokenServiceConsumerTest {
 
-    @Autowired
-    private SecurityTokenServiceConsumer securityTokenServiceConsumer;
+  @Autowired private SecurityTokenServiceConsumer securityTokenServiceConsumer;
 
-    @Autowired
-    private PdlApiStub pdlApiStub;
+  @Autowired private PdlApiStub pdlApiStub;
 
-    @Autowired
-    private StsStub stsStub;
+  @Autowired private StsStub stsStub;
 
-    @Test
-    @DisplayName("Feiler hvis brukernavn/ passord mangler")
-    void feilerHvisBrukernavnEllerPassordMangler() {
-        assertAll(
-                () -> assertThatIllegalArgumentException().as("brukernvan mangler")
-                        .isThrownBy(() -> securityTokenServiceConsumer.hentIdTokenForServicebruker(null, "hemmelig")),
-                () -> assertThatIllegalArgumentException().as("passord mangler")
-                        .isThrownBy(() -> securityTokenServiceConsumer.hentIdTokenForServicebruker("srvbdarkivering", null)));
-    }
+  @Test
+  @DisplayName("Feiler hvis brukernavn/ passord mangler")
+  void feilerHvisBrukernavnEllerPassordMangler() {
+    assertAll(
+        () ->
+            assertThatIllegalArgumentException()
+                .as("brukernvan mangler")
+                .isThrownBy(
+                    () ->
+                        securityTokenServiceConsumer.hentIdTokenForServicebruker(null, "hemmelig")),
+        () ->
+            assertThatIllegalArgumentException()
+                .as("passord mangler")
+                .isThrownBy(
+                    () ->
+                        securityTokenServiceConsumer.hentIdTokenForServicebruker(
+                            "srvbdarkivering", null)));
+  }
 
-    @Test
-    @DisplayName("Skal hente token for servicebruker")
-    void skalHenteTokenForServicebruker() {
-        var idTokenMock = "eyAgakjgaalkjag";
-        stsStub.runSecurityTokenServiceStub(idTokenMock);
-        var returnertIdToken = securityTokenServiceConsumer.hentIdTokenForServicebruker("srvtest", "hemmelig");
-        assertThat(returnertIdToken).isEqualTo(idTokenMock);
-
-    }
+  @Test
+  @DisplayName("Skal hente token for servicebruker")
+  void skalHenteTokenForServicebruker() {
+    var idTokenMock = "eyAgakjgaalkjag";
+    stsStub.runSecurityTokenServiceStub(idTokenMock);
+    var returnertIdToken =
+        securityTokenServiceConsumer.hentIdTokenForServicebruker("srvtest", "hemmelig");
+    assertThat(returnertIdToken).isEqualTo(idTokenMock);
+  }
 }

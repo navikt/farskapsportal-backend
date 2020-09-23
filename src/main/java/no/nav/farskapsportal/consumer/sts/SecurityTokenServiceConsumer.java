@@ -1,5 +1,9 @@
 package no.nav.farskapsportal.consumer.sts;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
@@ -11,13 +15,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.farskapsportal.config.FarskapsportalApiConfig.X_API_KEY;
-
 @AllArgsConstructor
 @Slf4j
 public class SecurityTokenServiceConsumer {
@@ -26,12 +23,13 @@ public class SecurityTokenServiceConsumer {
 
   private final ConsumerEndpoint consumerEndpoint;
 
-  private static final MultiValueMap<String, String> PARAMETERS = new LinkedMultiValueMap<>(2) {
-    {
-      add("grant_type", "client_credentials");
-      add("scope", "openid");
-    }
-  };
+  private static final MultiValueMap<String, String> PARAMETERS =
+      new LinkedMultiValueMap<>(2) {
+        {
+          add("grant_type", "client_credentials");
+          add("scope", "openid");
+        }
+      };
 
   public String hentIdTokenForServicebruker(String brukernavn, String passord) {
 
@@ -41,19 +39,28 @@ public class SecurityTokenServiceConsumer {
     log.info("Henter id-token for servicebruker {}", brukernavn);
 
     var headers = new HttpHeaders();
-    headers.put(HttpHeaders.AUTHORIZATION, List.of("Basic " + base64EncodeCredentials(brukernavn, passord)));
+    headers.put(
+        HttpHeaders.AUTHORIZATION,
+        List.of("Basic " + base64EncodeCredentials(brukernavn, passord)));
 
-    var response = restTemplate.exchange(
-        consumerEndpoint.retrieveEndpoint(SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER), HttpMethod.POST, new HttpEntity<>(PARAMETERS, headers), SecurityTokenServiceResponse.class
-    );
+    var response =
+        restTemplate.exchange(
+            consumerEndpoint.retrieveEndpoint(
+                SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER),
+            HttpMethod.POST,
+            new HttpEntity<>(PARAMETERS, headers),
+            SecurityTokenServiceResponse.class);
 
     var securityTokenServiceResponse = response.getBody();
 
     return Optional.ofNullable(securityTokenServiceResponse)
         .map(SecurityTokenServiceResponse::getIdToken)
-        .orElseThrow(() -> new IllegalStateException(
-            String.format("Kunne ikke hente token fra '%s', response: %s", consumerEndpoint, response.getStatusCode())
-        ));
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    String.format(
+                        "Kunne ikke hente token fra '%s', response: %s",
+                        consumerEndpoint, response.getStatusCode())));
   }
 
   private static String base64EncodeCredentials(String username, String password) {

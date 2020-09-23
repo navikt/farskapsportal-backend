@@ -1,6 +1,14 @@
 package no.nav.farskapsportal.consumer.pdl;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName.PDL_API_GRAPHQL;
+import static no.nav.farskapsportal.consumer.pdl.PdlDtoUtils.isMasterPdlOrFreg;
+import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -15,75 +23,72 @@ import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName.PDL_API_GRAPHQL;
-import static no.nav.farskapsportal.consumer.pdl.PdlDtoUtils.isMasterPdlOrFreg;
-import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
-
 @Slf4j
 @Builder
 public class PdlApiConsumer {
 
-    private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
-    private static final String TEMA = "Tema";
-    private static final String TEMA_FAR = "FAR";
+  private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
+  private static final String TEMA = "Tema";
+  private static final String TEMA_FAR = "FAR";
 
-    @NonNull
-    private final RestTemplate restTemplate;
-    @NonNull
-    private final ConsumerEndpoint pdlApiGraphqlEndpoint;
+  @NonNull private final RestTemplate restTemplate;
+  @NonNull private final ConsumerEndpoint pdlApiGraphqlEndpoint;
 
-    public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
+  public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
 
-        var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJØNN);
-        var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
+    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJØNN);
+    var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
 
-        var kjoennFraPdl = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(Collectors.toList());
+    var kjoennFraPdl = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(Collectors.toList());
 
-        if (kjoennFraPdl.isEmpty()) {
-            return HttpResponse.from(HttpStatus.NOT_FOUND);
-        }
-
-        var kjoenn = kjoennFraPdl.stream()
-                .filter(Objects::nonNull)
-                .map(k -> Kjoenn.valueOf(k.getKjoenn().name()))
-                .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av kjønn, forventet bare et registrert kjønn på person")));
-
-        return HttpResponse.from(HttpStatus.OK, kjoenn);
+    if (kjoennFraPdl.isEmpty()) {
+      return HttpResponse.from(HttpStatus.NOT_FOUND);
     }
 
-    @Retryable(maxAttempts = 10)
+    var kjoenn =
+        kjoennFraPdl.stream()
+            .filter(Objects::nonNull)
+            .map(k -> Kjoenn.valueOf(k.getKjoenn().name()))
+            .collect(
+                toSingletonOrThrow(
+                    new UnrecoverableException(
+                        "Feil ved mapping av kjønn, forventet bare et registrert kjønn på person")));
 
+    return HttpResponse.from(HttpStatus.OK, kjoenn);
+  }
 
-    private GraphQLResponse hentPersondokument(String ident, String query) {
-        val graphQlRequest = GraphQLRequest.builder()
-                .query(query)
-                .operationName("hentPerson")
-                .variables(Map.of(
-                        "historikk", false,
-                                "ident", ident)).build();
+  @Retryable(maxAttempts = 10)
+  private GraphQLResponse hentPersondokument(String ident, String query) {
+    val graphQlRequest =
+        GraphQLRequest.builder()
+            .query(query)
+            .operationName("hentPerson")
+            .variables(Map.of("historikk", false, "ident", ident))
+            .build();
 
-        var endpoint = pdlApiGraphqlEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);
-        var response = restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
+    var endpoint = pdlApiGraphqlEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);
+    var response =
+        restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
 
-        return checkForPdlApiErrors(response);
-    }
+    return checkForPdlApiErrors(response);
+  }
 
-    private GraphQLResponse checkForPdlApiErrors(GraphQLResponse response) {
-        Optional.ofNullable(response)
-                .map(GraphQLResponse::getErrors)
-                .ifPresent(errorJsonNodes -> {
-                            List<String> errors = errorJsonNodes.stream()
-                                    .map(jsonNode -> jsonNode.get("message") + "(feilkode: " + jsonNode.path("extensions").path("code") + ")")
-                                    .collect(Collectors.toList());
-                            throw new PdlApiException(errors);
-                        }
-                );
-        return response;
-    }
+  private GraphQLResponse checkForPdlApiErrors(GraphQLResponse response) {
+    Optional.ofNullable(response)
+        .map(GraphQLResponse::getErrors)
+        .ifPresent(
+            errorJsonNodes -> {
+              List<String> errors =
+                  errorJsonNodes.stream()
+                      .map(
+                          jsonNode ->
+                              jsonNode.get("message")
+                                  + "(feilkode: "
+                                  + jsonNode.path("extensions").path("code")
+                                  + ")")
+                      .collect(Collectors.toList());
+              throw new PdlApiException(errors);
+            });
+    return response;
+  }
 }

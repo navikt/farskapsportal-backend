@@ -1,4 +1,3 @@
 package no.nav.farskapsportal.consumer;
 
-public interface ConsumerEndpointName {
-}
+public interface ConsumerEndpointName {}

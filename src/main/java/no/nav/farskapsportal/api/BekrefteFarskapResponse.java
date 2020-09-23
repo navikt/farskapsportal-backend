@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BekrefteFarskapResponse {
-    private boolean farskapBekreftet;
-    private String feilmelding;
+  private boolean farskapBekreftet;
+  private String feilmelding;
 }

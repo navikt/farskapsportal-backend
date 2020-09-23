@@ -1,13 +1,6 @@
 package no.nav.farskapsportal;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-
 class FarskapsportalApiApplicationTests {
 
-
-    void contextLoads() {
-    }
-
+  void contextLoads() {}
 }

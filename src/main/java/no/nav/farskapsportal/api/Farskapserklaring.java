@@ -12,9 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Farskapserklaring {
-    private String termindato;
-    private String fodselsnummerBarn;
-    private String fodselsnummerMor;
-    private String fodselsnummerFar;
-
+  private String termindato;
+  private String fodselsnummerBarn;
+  private String fodselsnummerMor;
+  private String fodselsnummerFar;
 }

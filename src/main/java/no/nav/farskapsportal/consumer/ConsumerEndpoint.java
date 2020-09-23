@@ -7,7 +7,7 @@ public class ConsumerEndpoint {
 
   private Map<ConsumerEndpointName, String> endpointMap = new HashMap<>();
 
-  public void addEndpoint(ConsumerEndpointName endpointName, String endpointPath){
+  public void addEndpoint(ConsumerEndpointName endpointName, String endpointPath) {
     this.endpointMap.put(endpointName, endpointPath);
   }
 

@@ -1,12 +1,12 @@
 apiVersion: "nais.io/v1alpha1"
 kind: Application
 metadata:
-  name: {{ name }}
-  namespace: {{ namespace }}
+  name: { { name } }
+  namespace: { { namespace } }
   labels:
     team: farskapsportal
 spec:
-  image: {{ image }}
+  image: { { image } }
   liveness:
     path: /internal/actuator/health
     initialDelay: 35
@@ -28,12 +28,12 @@ spec:
       cpu: 500m
       memory: 512Mi
   ingresses:
-    - {{ ingress }}
+    - { { ingress } }
   envFrom:
     - secret: farskapsportal-api-secret
   env:
     - name: APIGW_URL
-      value: {{ api_gateway_url }}
+      value: { { api_gateway_url } }
   gcp:
     sqlInstances:
       - type: POSTGRES_11

@@ -1,6 +1,10 @@
 {
-  "external-hosts": ["login.microsoftonline.com"],
-  "ingress": ["https://farskapsportal-api.dev-adeo.no/"],
+  "external-hosts": [
+    "login.microsoftonline.com"
+  ],
+  "ingress": [
+    "https://farskapsportal-api.dev-adeo.no/"
+  ],
   "envs": [
     {
       "name": "AZURE_OPENID_CONNECT_CONFIGURATION",
