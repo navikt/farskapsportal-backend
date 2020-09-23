@@ -1,4 +1,4 @@
-FROM navikt/java:15
+FROM navikt/java:14
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
