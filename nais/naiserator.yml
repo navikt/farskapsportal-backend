@@ -30,9 +30,7 @@ spec:
   ingresses:
     - {{ ingress }}
   envFrom:
-    - secret: apikey-pdlapi-fp
-    - secret: apikey-sts-fp
-    - secret: srvfarskapsportal-pwd
+    - secret: farskapsportal-api-secret
   env:
     - name: APIGW_URL
       value: {{ api_gateway_url }}
