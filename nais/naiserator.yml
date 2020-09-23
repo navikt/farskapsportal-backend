@@ -6,7 +6,7 @@ metadata:
   labels:
     team: farskapsportal
 spec:
-  image: { { image } }
+  image: {{ image }}
   liveness:
     path: /actuator/health
     initialDelay: 35
@@ -28,7 +28,7 @@ spec:
       cpu: 500m
       memory: 512Mi
   ingresses:
-    - { { ingress } }
+    - {{ ingress }}
   envFrom:
     - secret: xApiKey-pdlApi-fp
     - secret: xApiKey-sts-fp
