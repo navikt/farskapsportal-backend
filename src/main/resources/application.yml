@@ -24,7 +24,7 @@ no.nav.security.jwt:
     discoveryurl: https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration
     accepted_audience: ${AUD_FP}
     cookiename: isso-idtoken
-    proxyurl: http://webproxy.nais:8088
+    #proxyurl: http://webproxy.nais:8088
 
 ---
 ########## Mock props ##########
