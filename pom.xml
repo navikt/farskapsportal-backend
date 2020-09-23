@@ -149,10 +149,6 @@
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>org.mapstruct</groupId>
-          <artifactId>mapstruct</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
 
