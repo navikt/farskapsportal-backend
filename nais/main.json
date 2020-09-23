@@ -1,7 +1,7 @@
 {
   "namespace": "farskapsportal",
   "name": "farskapsportal-api",
-  "ingress_": "https://farskapsportal-api.dev.adeo.no/",
+  "ingress": "https://farskapsportal-api.dev.adeo.no/",
   "api_gateway_url": "https://api-gw-q1.oera.no",
   "pdl_api_endpoint_path": "/graphql",
   "security_token_service_endpoint:": "/rest/v1/sts/token"

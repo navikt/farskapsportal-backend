@@ -35,7 +35,7 @@ spec:
     - secret: srvfarskapsportal-pwd
   env:
     - name: APIGW_URL
-      value: {{api_gateway_url}}
+      value: {{ api_gateway_url }}
   gcp:
     sqlInstances:
       - type: POSTGRES_11
