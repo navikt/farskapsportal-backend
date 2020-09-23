@@ -19,8 +19,8 @@ farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
 ---
 spring.profiles: test, local
 APIGW_URL: http://localhost:8096
-apikey-pdlapi-fp: keyForZoneCrossing
-apikey-sts-fp: keyForZoneCrossing
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
 
 
 ---

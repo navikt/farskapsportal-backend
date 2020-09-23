@@ -34,8 +34,6 @@ spec:
   env:
     - name: APIGW_URL
       value: {{ api_gateway_url }}
-    - name: SRVFARSKAPSPORTAL_PWD
-      value: {{ srvfarskapsportal-pwd }}
   gcp:
     sqlInstances:
       - type: POSTGRES_11
