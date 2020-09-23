@@ -1,8 +1,8 @@
 apiVersion: "nais.io/v1alpha1"
 kind: Application
 metadata:
-  name: farskapsportal-api
-  namespace: farskapsportal
+  name: {{ name }}
+  namespace: {{ namespace }}
   labels:
     team: farskapsportal
 spec:
@@ -33,6 +33,9 @@ spec:
     - secret: xApiKey-pdlApi-fp
     - secret: xApiKey-sts-fp
     - secret: srvfarskapsportal-pwd
+  env:
+    - name: APIGW_URL
+      value: {{api_gateway_url}}
   gcp:
     sqlInstances:
       - type: POSTGRES_11
