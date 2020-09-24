@@ -1,9 +1,10 @@
-package no.nav.farskapsportal;
+package no.nav.farskapsportal.config;
 
 import static springfox.documentation.builders.PathSelectors.regex;
 
 import java.util.ArrayList;
 import java.util.List;
+import no.nav.farskapsportal.FarskapsportalApiApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;

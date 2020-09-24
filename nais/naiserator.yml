@@ -7,6 +7,9 @@ metadata:
     team: farskapsportal
 spec:
   image: {{ image }}
+  azure:
+    application:
+      enabled: true
   liveness:
     path: /internal/actuator/health
     initialDelay: 35
@@ -39,8 +42,8 @@ spec:
       - type: POSTGRES_11
         databases:
           - name: farskapsportal
-
   accesspolicy:
     outbound:
       external:
         - host: api-gw-q1.oera.no
+        - host: login.microsoftonline.com

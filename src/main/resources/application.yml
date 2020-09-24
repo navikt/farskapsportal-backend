@@ -19,12 +19,10 @@ farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
 ---
 spring.profiles: live
 
-no.nav.security.jwt:
-  issuer.isso:
-    discoveryurl: https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration
+no.nav:
+  security.jwt.issuer.selvbetjening:
+    discoveryurl: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
     accepted_audience: ${AUD_FP}
-    cookiename: isso-idtoken
-    #proxyurl: http://webproxy.nais:8088
 
 ---
 ########## Mock props ##########
@@ -35,10 +33,9 @@ APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 
 no.nav.security.jwt:
-  issuers: isso
-  issuer.isso:
+  issuer.selvbetjening :
     discoveryurl: http://metadata
-    acceptedaudience: aud-localhost
+    accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
 
 farskapsportal-api.servicebruker.brukernavn: se-vault
