@@ -5,9 +5,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@EnableJwtTokenValidation
+@EnableJwtTokenValidation(
+    ignore = {
+      "springfox.documentation.swagger.web.ApiResourceController",
+      "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController"
+    })
 public class FarskapsportalApiApplication {
-  public static final String ISSUER = "issuer";
+  public static final String ISSUER = "isso";
   public static final String PROFILE_LIVE = "live";
 
   public static void main(String[] args) {

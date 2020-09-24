@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.controller;
 
+import static no.nav.farskapsportal.FarskapsportalApiApplication.ISSUER;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -24,8 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER)
 @RequestMapping("/api/v1/farskapsportal")
+@ProtectedWithClaims(issuer = ISSUER)
 @Slf4j
 public class FarskapsportalController {
 
