@@ -39,14 +39,14 @@ public class PdlApiConsumer {
     var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJØNN);
     var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
 
-    var kjoennFraPdl = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(Collectors.toList());
+    var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(Collectors.toList());
 
-    if (kjoennFraPdl.isEmpty()) {
+    if (kjoennFraPdlEllerFreg.isEmpty()) {
       return HttpResponse.from(HttpStatus.NOT_FOUND);
     }
 
     var kjoenn =
-        kjoennFraPdl.stream()
+        kjoennFraPdlEllerFreg.stream()
             .filter(Objects::nonNull)
             .map(k -> Kjoenn.valueOf(k.getKjoenn().name()))
             .collect(

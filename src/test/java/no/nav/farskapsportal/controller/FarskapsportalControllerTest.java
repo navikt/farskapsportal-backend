@@ -8,7 +8,6 @@ import java.util.List;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.api.Kjoenn;
-import no.nav.farskapsportal.api.KontrollerePersonopplysningerResponse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
@@ -51,14 +50,11 @@ public class FarskapsportalControllerTest {
 
     var respons =
         httpHeaderTestRestTemplate.exchange(
-            initHenteKjoennUrl(foedselsnummerMor),
-            HttpMethod.GET,
-            null,
-            KontrollerePersonopplysningerResponse.class);
+            initHenteKjoennUrl(foedselsnummerMor), HttpMethod.GET, null, String.class);
 
     assertAll(
         () -> assertThat(HttpStatus.OK.equals(respons.getStatusCode())),
-        () -> assertThat(respons.getBody().isRiktigKombinasjonAvFodselnummerOgNavn()));
+        () -> assertThat(respons.getBody().equals(Kjoenn.KVINNE.name())));
   }
 
   private String initHenteKjoennUrl(String foedselsnummer) {
