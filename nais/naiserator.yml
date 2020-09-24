@@ -34,6 +34,7 @@ spec:
     - {{ ingress }}
   envFrom:
     - secret: farskapsportal-api-secret
+    - secret: farskapsportal-api-aud
   env:
     - name: APIGW_URL
       value: {{ api_gateway_url }}
