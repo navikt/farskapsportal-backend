@@ -38,7 +38,7 @@ spec:
     - name: PDL_API_BASE_URL
       value: {{ api_gateway_url }}
     - name: STS_BASE_URL
-      value: { { api_gateway_url } }
+      value: {{ api_gateway_url }}
     - name: DISCOVERY_URL
       value: {{ discovery_url }}
     - name: AUD_FP
