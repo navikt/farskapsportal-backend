@@ -17,7 +17,7 @@
 
   <properties>
     <!-- language -->
-    <java.version>15</java.version>
+    <java.version>11</java.version>
 
     <!-- build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
@@ -95,6 +95,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>${java.version}</release>
+          <source>14</source>
+          <target>14</target>
         </configuration>
       </plugin>
 

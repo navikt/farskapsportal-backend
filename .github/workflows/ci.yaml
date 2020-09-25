@@ -33,8 +33,8 @@ jobs:
       - uses: navikt/bidrag-maven/verify-dependencies@v1
         if: env.NOT_FOUND == 'true'
         with:
-          maven_image: maven:3.6.3-openjdk-15
-      - run: docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-openjdk-15 mvn install -B -e
+          maven_image: maven:3.6.3-jdk-11
+      - run: docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-11 mvn install -B -e
         if: env.NOT_FOUND == 'true'
       - name: Build and publish Docker image
         if: env.NOT_FOUND == 'true'
