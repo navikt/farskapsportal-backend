@@ -33,7 +33,7 @@ public class FarskapsportalApiConfig {
   @Bean
   SecurityTokenServiceConsumer securityTokenServiceConsumer(
       @Qualifier("sts") RestTemplate restTemplate,
-      @Value("${urls.apigw}") String baseUrl,
+      @Value("${urls.sts.base-url}") String baseUrl,
       @Value("${urls.sts.security-token-service-endpoint}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     log.info("Oppretter SecurityTokenServiceConsumer med url {}", baseUrl);
@@ -45,7 +45,7 @@ public class FarskapsportalApiConfig {
   @Bean
   public PdlApiConsumer pdlApiConsumer(
       @Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${urls.apigw}") String baseUrl,
+      @Value("${urls.pdl-api.base-url}") String baseUrl,
       @Value("${urls.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);

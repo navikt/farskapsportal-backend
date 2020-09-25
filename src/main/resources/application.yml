@@ -7,11 +7,12 @@ management:
   endpoint.health.show-details: always
 
 urls:
-  apigw: ${APIGW_URL}
   pdl-api:
-    graphql-endpoint: "/rest/v1/sts/token"
+    base-url: ${PDL_API_BASE_URL}
+    graphql-endpoint: "/graphql"
   sts:
-    security-token-service-endpoint: "/graphql"
+    base-url: ${STS_BASE_URL}
+    security-token-service-endpoint: "/rest/v1/sts/token"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
 farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
@@ -25,18 +26,21 @@ no.nav:
     accepted_audience: ${AUD_FP}
 
 ---
-########## Mock props ##########
-spring.profiles: test, local
-
-APIGW_URL: http://localhost:8096
-APIKEY_PDLAPI_FP: keyForZoneCrossing
-APIKEY_STS_FP: keyForZoneCrossing
+spring.profiles: test, local, integration-test
 
 no.nav.security.jwt:
   issuer.selvbetjening :
     discoveryurl: http://metadata
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
+
+---
+########## Mock props ##########
+spring.profiles: test, local
+
+APIGW_URL: http://localhost:8096
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
 
 farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault

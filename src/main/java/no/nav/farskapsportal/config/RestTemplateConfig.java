@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 @Configuration
 public class RestTemplateConfig {
 
+  private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
 
@@ -49,12 +50,12 @@ public class RestTemplateConfig {
       @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord,
       @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
-    httpHeaderRestTemplate.addHeaderGenerator(
-        HttpHeaders.AUTHORIZATION,
-        () ->
-            "Bearer "
-                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
-                    farskapsportalApiBrukernavn, farskapsportalApiPassord));
+
+    var systemtoken = securityTokenServiceConsumer.hentIdTokenForServicebruker(
+        farskapsportalApiBrukernavn, farskapsportalApiPassord);
+
+    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + systemtoken);
+    httpHeaderRestTemplate.addHeaderGenerator(NAV_CONSUMER_TOKEN, () -> "Bearer " + systemtoken);
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
     httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeyPdlApi);
     return httpHeaderRestTemplate;

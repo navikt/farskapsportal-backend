@@ -27,7 +27,6 @@ import org.springframework.web.client.RestTemplate;
 @Builder
 public class PdlApiConsumer {
 
-  private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
 
