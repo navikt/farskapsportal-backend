@@ -38,7 +38,9 @@ no.nav.security.jwt:
 ########## Mock props ##########
 spring.profiles: test, local
 
-APIGW_URL: http://localhost:8096
+STUB_URL: http://localhost:8096
+STS_BASE_URL: ${STUB_URL}
+PDL_API_BASE_URL: ${STUB_URL}
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 
