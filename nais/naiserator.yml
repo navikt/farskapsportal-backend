@@ -34,10 +34,13 @@ spec:
     - {{ ingress }}
   envFrom:
     - secret: farskapsportal-api-secret
-    - secret: farskapsportal-api-aud
   env:
     - name: APIGW_URL
       value: {{ api_gateway_url }}
+    - name: DISCOVERY_URL
+      value: {{ discovery_url }}
+    - name: AUD_FP
+      value: {{ aud }}
   gcp:
     sqlInstances:
       - type: POSTGRES_11
