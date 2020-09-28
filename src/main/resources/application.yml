@@ -9,10 +9,10 @@ management:
 urls:
   pdl-api:
     base-url: ${APIGW_URL}
-    graphql-endpoint: "/rest/v1/sts/token"
+    graphql-endpoint: "/graphql"
   sts:
     base-url: ${APIGW_URL}
-    security-token-service-endpoint: "/graphql"
+    security-token-service-endpoint: "/rest/v1/sts/token"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
 farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
@@ -41,4 +41,19 @@ no.nav.security.jwt:
 
 farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
+
+---
+spring.profiles: integration-test
+
+no.nav.security.jwt:
+  issuer.selvbetjening :
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+urls:
+  pdl-api:
+    base-url: https://pdl-api.nais.preprod.local
+  sts:
+    base-url: https://security-token-service.nais.preprod.local
 
