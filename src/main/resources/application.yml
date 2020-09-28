@@ -7,10 +7,11 @@ management:
   endpoint.health.show-details: always
 
 urls:
-  apigw: ${APIGW_URL}
   pdl-api:
+    base-url: ${APIGW_URL}
     graphql-endpoint: "/rest/v1/sts/token"
   sts:
+    base-url: ${APIGW_URL}
     security-token-service-endpoint: "/graphql"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
