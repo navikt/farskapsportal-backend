@@ -16,6 +16,7 @@ import no.nav.farskapsportal.api.KontrollerePersonopplysningerResponse;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,6 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
+
+  @RequestMapping(value="/pdlApiIsAlive", method = RequestMethod.OPTIONS)
+  public ResponseEntity<Boolean> pdlApiIsAlive() {
+    return farskapsportalService.pdlApiIsAlive().getResponseEntity();
+  }
 
   @GetMapping("/kjoenn/{foedselsnummer}")
   @ApiOperation("Avgjør kjønn til person")

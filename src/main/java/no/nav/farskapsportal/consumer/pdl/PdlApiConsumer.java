@@ -39,7 +39,8 @@ public class PdlApiConsumer {
     var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJØNN);
     var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
 
-    var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(Collectors.toList());
+    var kjoennFraPdlEllerFreg =
+        kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(Collectors.toList());
 
     if (kjoennFraPdlEllerFreg.isEmpty()) {
       return HttpResponse.from(HttpStatus.NOT_FOUND);
@@ -90,5 +91,12 @@ public class PdlApiConsumer {
               throw new PdlApiException(errors);
             });
     return response;
+  }
+
+  public HttpResponse<Boolean> pdlApiIsAlive() {
+    var respons =
+        restTemplate.optionsForAllow(pdlApiGraphqlEndpoint.retrieveEndpoint(PDL_API_GRAPHQL));
+
+    return HttpResponse.from(HttpStatus.OK, Boolean.TRUE);
   }
 }

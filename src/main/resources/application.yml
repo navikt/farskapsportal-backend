@@ -53,7 +53,7 @@ no.nav.security.jwt:
 
 urls:
   pdl-api:
-    base-url: https://pdl-api.nais.preprod.local
+    base-url: https://api-gw-q1.oera.no
   sts:
-    base-url: https://security-token-service.nais.preprod.local
+    base-url: https://api-gw-q1.oera.no
 
