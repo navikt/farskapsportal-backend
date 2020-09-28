@@ -4,6 +4,8 @@ import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointNam
 
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
@@ -77,5 +79,15 @@ public class FarskapsportalApiConfig {
   @FunctionalInterface
   public interface OidcTokenManager {
     String hentIdToken();
+  }
+
+  @Bean
+  public ExceptionLogger exceptionLogger() {
+    return new ExceptionLogger(FarskapsportalApiConfig.class.getSimpleName());
+  }
+
+  @Bean
+  public CorrelationIdFilter correlationIdFilter() {
+    return new CorrelationIdFilter();
   }
 }
