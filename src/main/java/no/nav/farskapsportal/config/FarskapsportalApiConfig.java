@@ -29,7 +29,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class FarskapsportalApiConfig {
 
-  public static final String X_API_KEY = "X-Nav-ApiKey";
+  public static final String X_API_KEY = "x-nav-apiKey";
 
   public static String hentPaaloggetPerson(String idToken) {
     log.info("Skal finne pålogget person fra id-token ");
