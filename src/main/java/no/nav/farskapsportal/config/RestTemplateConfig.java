@@ -2,9 +2,11 @@ package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.config.FarskapsportalApiConfig.X_API_KEY;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 
 @Configuration
+@Slf4j
 public class RestTemplateConfig {
 
   private static final String TEMA = "Tema";
@@ -36,6 +39,7 @@ public class RestTemplateConfig {
   public HttpHeaderRestTemplate stsRestTemplate(
       @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
       @Value("${APIKEY_STS_FP}") String xApiKeySts) {
+    log.info("Setter {} for STS", X_API_KEY);
     httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeySts);
     return httpHeaderRestTemplate;
   }
@@ -56,6 +60,11 @@ public class RestTemplateConfig {
                 + securityTokenServiceConsumer.hentIdTokenForServicebruker(
                     farskapsportalApiBrukernavn, farskapsportalApiPassord));
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
+
+    log.info("Setter {} for pdl-api", X_API_KEY);
+    Validate.isTrue(xApiKeyPdlApi != null);
+    Validate.isTrue(!xApiKeyPdlApi.isBlank());
+
     httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeyPdlApi);
     return httpHeaderRestTemplate;
   }
