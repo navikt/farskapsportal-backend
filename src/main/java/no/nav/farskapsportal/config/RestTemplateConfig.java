@@ -21,6 +21,7 @@ public class RestTemplateConfig {
 
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
+  private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
 
   @Bean
   @Qualifier("base")
@@ -53,12 +54,15 @@ public class RestTemplateConfig {
       @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord,
       @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
+
+    var bearerTokenServiceUser =
+        "Bearer "
+            + securityTokenServiceConsumer.hentIdTokenForServicebruker(
+                farskapsportalApiBrukernavn, farskapsportalApiPassord);
+
     httpHeaderRestTemplate.addHeaderGenerator(
-        HttpHeaders.AUTHORIZATION,
-        () ->
-            "Bearer "
-                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
-                    farskapsportalApiBrukernavn, farskapsportalApiPassord));
+        HttpHeaders.AUTHORIZATION, () -> bearerTokenServiceUser);
+    httpHeaderRestTemplate.addHeaderGenerator(NAV_CONSUMER_TOKEN, () -> bearerTokenServiceUser);
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 
     log.info("Setter {} for pdl-api", X_API_KEY);
