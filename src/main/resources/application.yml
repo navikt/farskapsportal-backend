@@ -12,7 +12,7 @@ urls:
     graphql-endpoint: "/pdl-api/graphql"
   sts:
     base-url: ${APIGW_URL}
-    security-token-service-endpoint: "/security-token-service-token/rest/v1/sts/token"
+    security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
 farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
