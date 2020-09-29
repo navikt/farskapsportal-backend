@@ -92,7 +92,7 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(
-      @Qualifier("base") RestTemplate restTemplate,
+      @Qualifier("pdl-api") RestTemplate restTemplate,
       @Value("${urls.pdl-api.base-url}") String baseUrl,
       @Value("${urls.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
