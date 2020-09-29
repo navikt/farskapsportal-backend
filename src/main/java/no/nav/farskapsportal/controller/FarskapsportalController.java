@@ -35,10 +35,6 @@ public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
 
-  @RequestMapping(value="/pdlApiIsAlive", method = RequestMethod.OPTIONS)
-  public ResponseEntity<Boolean> pdlApiIsAlive() {
-    return farskapsportalService.pdlApiIsAlive().getResponseEntity();
-  }
 
   @GetMapping("/kjoenn/{foedselsnummer}")
   @ApiOperation("Avgjør kjønn til person")

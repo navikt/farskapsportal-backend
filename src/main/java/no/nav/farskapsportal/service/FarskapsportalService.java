@@ -15,8 +15,4 @@ public class FarskapsportalService {
   public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
     return pdlApiConsumer.henteKjoenn(foedselsnummer);
   }
-
-  public HttpResponse<Boolean> pdlApiIsAlive() {
-    return pdlApiConsumer.pdlApiIsAlive();
-  }
 }

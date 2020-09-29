@@ -32,7 +32,7 @@ public class PdlApiConsumer {
   private static final String TEMA_FAR = "FAR";
 
   @NonNull private final RestTemplate restTemplate;
-  @NonNull private final ConsumerEndpoint pdlApiGraphqlEndpoint;
+  @NonNull private final ConsumerEndpoint consumerEndpoint;
 
   public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
 
@@ -67,7 +67,7 @@ public class PdlApiConsumer {
             .variables(Map.of("historikk", false, "ident", ident))
             .build();
 
-    var endpoint = pdlApiGraphqlEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);
+    var endpoint = consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);
     var response =
         restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
 
@@ -91,12 +91,5 @@ public class PdlApiConsumer {
               throw new PdlApiException(errors);
             });
     return response;
-  }
-
-  public HttpResponse<Boolean> pdlApiIsAlive() {
-    var respons =
-        restTemplate.optionsForAllow(pdlApiGraphqlEndpoint.retrieveEndpoint(PDL_API_GRAPHQL));
-
-    return HttpResponse.from(HttpStatus.OK, Boolean.TRUE);
   }
 }

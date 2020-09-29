@@ -9,6 +9,7 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
+import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
@@ -55,7 +56,20 @@ public class FarskapsportalApiConfig {
     log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
     return PdlApiConsumer.builder()
         .restTemplate(restTemplate)
-        .pdlApiGraphqlEndpoint(consumerEndpoint)
+        .consumerEndpoint(consumerEndpoint)
+        .build();
+  }
+
+  @Bean
+  public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(
+      @Qualifier("base") RestTemplate restTemplate,
+      @Value("${urls.pdl-api.base-url}") String baseUrl,
+      @Value("${urls.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
+      ConsumerEndpoint consumerEndpoint) {
+    log.info("Oppretter PdlApiHelsesjekkConsumer med url {}", baseUrl);
+    return PdlApiHelsesjekkConsumer.builder()
+        .restTemplate(restTemplate)
+        .consumerEndpoint(consumerEndpoint)
         .build();
   }
 
@@ -76,11 +90,6 @@ public class FarskapsportalApiConfig {
             .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }
 
-  @FunctionalInterface
-  public interface OidcTokenManager {
-    String hentIdToken();
-  }
-
   @Bean
   public ExceptionLogger exceptionLogger() {
     return new ExceptionLogger(FarskapsportalApiConfig.class.getSimpleName());
@@ -89,5 +98,10 @@ public class FarskapsportalApiConfig {
   @Bean
   public CorrelationIdFilter correlationIdFilter() {
     return new CorrelationIdFilter();
+  }
+
+  @FunctionalInterface
+  public interface OidcTokenManager {
+    String hentIdToken();
   }
 }
