@@ -51,6 +51,8 @@ public class SecurityTokenServiceConsumer {
             new HttpEntity<>(PARAMETERS, headers),
             SecurityTokenServiceResponse.class);
 
+    log.info("Respons fra STS: {}", response);
+
     var securityTokenServiceResponse = response.getBody();
 
     return Optional.ofNullable(securityTokenServiceResponse)
