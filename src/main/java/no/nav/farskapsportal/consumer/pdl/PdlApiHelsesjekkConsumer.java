@@ -20,7 +20,7 @@ public class PdlApiHelsesjekkConsumer {
   @NonNull private final ConsumerEndpoint consumerEndpoint;
 
   public HttpResponse<Boolean> pdlApiGraphqlErILive() {
-    
+
     var respons = restTemplate.optionsForAllow(consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL));
 
     Validate.isTrue(respons.size() == 2);

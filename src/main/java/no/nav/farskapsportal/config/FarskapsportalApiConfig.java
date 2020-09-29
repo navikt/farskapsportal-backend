@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.config;
 
+import static no.nav.farskapsportal.FarskapsportalApiApplication.ISSUER;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
 import com.nimbusds.jwt.JWTParser;
@@ -28,7 +29,6 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class FarskapsportalApiConfig {
 
-  public static final String ISSUER = "issuer";
   public static final String X_API_KEY = "X-Nav-ApiKey";
 
   public static String hentPaaloggetPerson(String idToken) {
@@ -126,7 +126,7 @@ public class FarskapsportalApiConfig {
     return () ->
         Optional.ofNullable(tokenValidationContextHolder)
             .map(TokenValidationContextHolder::getTokenValidationContext)
-            .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
+                    .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
             .map(Optional::get)
             .map(JwtToken::getTokenAsString)
             .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
