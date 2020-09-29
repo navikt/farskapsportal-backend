@@ -100,7 +100,7 @@ public class FarskapsportalController {
     return new ResponseEntity<>(bekrefteFarskapResponse, HttpStatus.OK);
   }
 
-  @GetMapping("/far/{fodselsnummer}/termindato/{termindato}")
+  @GetMapping("/erklaering/termindato/{termindato}")
   @ApiOperation("Henter farskapserklæring under behandling som venter på fars signatur")
   @ApiResponses(
       value = {
