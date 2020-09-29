@@ -2,6 +2,11 @@ package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.SignedJWT;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.Base64;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
@@ -79,18 +84,6 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  public OidcTokenManager oidcTokenManager(
-      TokenValidationContextHolder tokenValidationContextHolder) {
-    return () ->
-        Optional.ofNullable(tokenValidationContextHolder)
-            .map(TokenValidationContextHolder::getTokenValidationContext)
-            .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
-            .map(Optional::get)
-            .map(JwtToken::getTokenAsString)
-            .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
-  }
-
-  @Bean
   public ExceptionLogger exceptionLogger() {
     return new ExceptionLogger(FarskapsportalApiConfig.class.getSimpleName());
   }
@@ -100,8 +93,55 @@ public class FarskapsportalApiConfig {
     return new CorrelationIdFilter();
   }
 
+  @Bean
+  public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
+    return () -> Optional.ofNullable(tokenValidationContextHolder)
+        .map(TokenValidationContextHolder::getTokenValidationContext)
+        .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
+        .map(Optional::get)
+        .map(JwtToken::getTokenAsString)
+        .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  }
+
+  @Bean
+  public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
+    return () -> hentPaaloggetPerson(oidcTokenManager.hentIdToken());
+  }
+
   @FunctionalInterface
   public interface OidcTokenManager {
     String hentIdToken();
+  }
+
+  @FunctionalInterface
+  public interface OidcTokenSubjectExtractor{
+    String hentPaaloggetPerson();
+  }
+
+  public static String hentPaaloggetPerson(String idToken) {
+    log.info("Skal finne pålogget person fra id-token ");
+
+    try {
+      return hentPaaloggetPerson(parseIdToken(idToken));
+    } catch (Exception e) {
+      log.error("Klarte ikke parse " + idToken, e);
+
+      if (e instanceof RuntimeException) {
+        throw ((RuntimeException) e);
+      }
+      throw new IllegalArgumentException("Klarte ikke å parse " + idToken, e);
+    }
+  }
+
+  private static String hentPaaloggetPerson(SignedJWT signedJWT) {
+    try {
+      return signedJWT.getJWTClaimsSet().getSubject();
+    } catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente pålogget person fra id-token", e);
+    }
+  }
+
+  public static SignedJWT parseIdToken(String idToken) throws ParseException {
+    return (SignedJWT) JWTParser.parse(idToken);
   }
 }

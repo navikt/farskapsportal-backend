@@ -43,22 +43,21 @@ public class FarskapsportalControllerTest {
   @Test
   @DisplayName("Skal finne kjønn til person")
   void skalFinneKjoennTilPerson() {
-    var foedselsnummerMor = "01018912345";
 
     stsStub.runSecurityTokenServiceStub("jalla");
     pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(Kjoenn.KVINNE)));
 
     var respons =
         httpHeaderTestRestTemplate.exchange(
-            initHenteKjoennUrl(foedselsnummerMor), HttpMethod.GET, null, String.class);
+            initHenteKjoennUrl(), HttpMethod.GET, null, String.class);
 
     assertAll(
         () -> assertThat(HttpStatus.OK.equals(respons.getStatusCode())),
-        () -> assertThat(respons.getBody().equals(Kjoenn.KVINNE.name())));
+        () -> assertThat(Kjoenn.KVINNE.name().equals(respons.getBody())));
   }
 
-  private String initHenteKjoennUrl(String foedselsnummer) {
-    return getBaseUrlForStubs() + "/api/v1/farskapsportal/kjoenn/" + foedselsnummer;
+  private String initHenteKjoennUrl() {
+    return getBaseUrlForStubs() + "/api/v1/farskapsportal/kjoenn";
   }
 
   private String getBaseUrlForStubs() {

@@ -13,6 +13,7 @@ import no.nav.farskapsportal.api.Farskapserklaring;
 import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerResponse;
+import no.nav.farskapsportal.config.FarskapsportalApiConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +36,10 @@ public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
 
+  @Autowired private OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
 
-  @GetMapping("/kjoenn/{foedselsnummer}")
+
+  @GetMapping("/kjoenn")
   @ApiOperation("Avgjør kjønn til person")
   @ApiResponses(
       value = {
@@ -48,9 +51,9 @@ public class FarskapsportalController {
         @ApiResponse(code = 404, message = "Fant ikke fødselsnummer"),
         @ApiResponse(code = 503, message = "Henting av kjønn for fødselsnummer feilet")
       })
-  public ResponseEntity<Kjoenn> henteKjonn(@PathVariable String foedselsnummer) {
+  public ResponseEntity<Kjoenn> henteKjonn() {
     log.info("Henter kjønn til person");
-    return farskapsportalService.henteKjoenn(foedselsnummer).getResponseEntity();
+    return farskapsportalService.henteKjoenn(oidcTokenSubjectExtractor.hentPaaloggetPerson()).getResponseEntity();
   }
 
   @PostMapping("/personopplysinger/kontroll")
