@@ -4,9 +4,7 @@ import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointNam
 
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.Base64;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
@@ -32,6 +30,33 @@ public class FarskapsportalApiConfig {
 
   public static final String ISSUER = "issuer";
   public static final String X_API_KEY = "X-Nav-ApiKey";
+
+  public static String hentPaaloggetPerson(String idToken) {
+    log.info("Skal finne pålogget person fra id-token ");
+
+    try {
+      return hentPaaloggetPerson(parseIdToken(idToken));
+    } catch (Exception e) {
+      log.error("Klarte ikke parse " + idToken, e);
+
+      if (e instanceof RuntimeException) {
+        throw ((RuntimeException) e);
+      }
+      throw new IllegalArgumentException("Klarte ikke å parse " + idToken, e);
+    }
+  }
+
+  private static String hentPaaloggetPerson(SignedJWT signedJWT) {
+    try {
+      return signedJWT.getJWTClaimsSet().getSubject();
+    } catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente pålogget person fra id-token", e);
+    }
+  }
+
+  public static SignedJWT parseIdToken(String idToken) throws ParseException {
+    return (SignedJWT) JWTParser.parse(idToken);
+  }
 
   @Bean
   public ConsumerEndpoint consumerEndpoint() {
@@ -71,6 +96,8 @@ public class FarskapsportalApiConfig {
       @Value("${urls.pdl-api.base-url}") String baseUrl,
       @Value("${urls.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
+    consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter PdlApiHelsesjekkConsumer med url {}", baseUrl);
     return PdlApiHelsesjekkConsumer.builder()
         .restTemplate(restTemplate)
@@ -94,13 +121,15 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
-    return () -> Optional.ofNullable(tokenValidationContextHolder)
-        .map(TokenValidationContextHolder::getTokenValidationContext)
-        .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
-        .map(Optional::get)
-        .map(JwtToken::getTokenAsString)
-        .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  public OidcTokenManager oidcTokenManager(
+      TokenValidationContextHolder tokenValidationContextHolder) {
+    return () ->
+        Optional.ofNullable(tokenValidationContextHolder)
+            .map(TokenValidationContextHolder::getTokenValidationContext)
+            .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
+            .map(Optional::get)
+            .map(JwtToken::getTokenAsString)
+            .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }
 
   @Bean
@@ -114,34 +143,7 @@ public class FarskapsportalApiConfig {
   }
 
   @FunctionalInterface
-  public interface OidcTokenSubjectExtractor{
+  public interface OidcTokenSubjectExtractor {
     String hentPaaloggetPerson();
-  }
-
-  public static String hentPaaloggetPerson(String idToken) {
-    log.info("Skal finne pålogget person fra id-token ");
-
-    try {
-      return hentPaaloggetPerson(parseIdToken(idToken));
-    } catch (Exception e) {
-      log.error("Klarte ikke parse " + idToken, e);
-
-      if (e instanceof RuntimeException) {
-        throw ((RuntimeException) e);
-      }
-      throw new IllegalArgumentException("Klarte ikke å parse " + idToken, e);
-    }
-  }
-
-  private static String hentPaaloggetPerson(SignedJWT signedJWT) {
-    try {
-      return signedJWT.getJWTClaimsSet().getSubject();
-    } catch (ParseException e) {
-      throw new IllegalStateException("Kunne ikke hente pålogget person fra id-token", e);
-    }
-  }
-
-  public static SignedJWT parseIdToken(String idToken) throws ParseException {
-    return (SignedJWT) JWTParser.parse(idToken);
   }
 }
