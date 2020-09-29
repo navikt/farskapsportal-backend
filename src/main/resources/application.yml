@@ -9,10 +9,10 @@ management:
 urls:
   pdl-api:
     base-url: ${APIGW_URL}
-    graphql-endpoint: "/graphql"
+    graphql-endpoint: "/pdl-api/graphql"
   sts:
     base-url: ${APIGW_URL}
-    security-token-service-endpoint: "/rest/v1/sts/token"
+    security-token-service-endpoint: "/security-token-service-token/rest/v1/sts/token"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
 farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
