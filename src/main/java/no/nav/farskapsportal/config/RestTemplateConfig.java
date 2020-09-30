@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.config.FarskapsportalApiConfig.X_API_KEY;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpHeaders;
 
 @Configuration
 @Slf4j
@@ -21,6 +21,7 @@ public class RestTemplateConfig {
 
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
+  private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
 
   @Bean
   @Qualifier("base")
@@ -53,12 +54,14 @@ public class RestTemplateConfig {
       @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord,
       @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
-    httpHeaderRestTemplate.addHeaderGenerator(
-        HttpHeaders.AUTHORIZATION,
-        () ->
-            "Bearer "
-                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
-                    farskapsportalApiBrukernavn, farskapsportalApiPassord));
+
+    var bearerTokenServiceUser =
+        "Bearer "
+            + securityTokenServiceConsumer.hentIdTokenForServicebruker(
+                farskapsportalApiBrukernavn, farskapsportalApiPassord);
+
+    httpHeaderRestTemplate.addHeaderGenerator(AUTHORIZATION, () -> bearerTokenServiceUser);
+    httpHeaderRestTemplate.addHeaderGenerator(NAV_CONSUMER_TOKEN, () -> bearerTokenServiceUser);
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 
     log.info("Setter {} for pdl-api", X_API_KEY);

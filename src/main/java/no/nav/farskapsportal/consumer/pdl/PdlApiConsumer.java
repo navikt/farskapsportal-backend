@@ -63,7 +63,6 @@ public class PdlApiConsumer {
     val graphQlRequest =
         GraphQLRequest.builder()
             .query(query)
-            .operationName("hentPerson")
             .variables(Map.of("historikk", false, "ident", ident))
             .build();
 
