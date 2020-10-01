@@ -1,0 +1,32 @@
+query($ident: ID!, $historikk: Boolean!) {
+    hentPerson(ident: $ident) {
+        navn(historikk: $historikk) {
+            fornavn,
+            mellomnavn,
+            etternavn,
+            forkortetNavn,
+            originaltNavn {
+                fornavn,
+                mellomnavn,
+                etternavn
+            },
+            gyldigFraOgMed,
+            folkeregisrermetada {
+                ajourholdstidspunkt,
+                gyldighetstidspunkt,
+                opphoerstidspunkt,
+                kilde,
+                aarsak,
+                sekvens
+            },
+            metadata {
+                opplysningsId,
+                master,
+                endringer {
+                    type,
+                    registrert,
+                }
+            }
+        }
+    }
+}

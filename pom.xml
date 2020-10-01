@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.3.3.RELEASE</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+  <groupId>no.nav.farskap</groupId>
+  <artifactId>farskapsportal-api</artifactId>
+  <version>0.0.2-SNAPSHOT</version>
+  <name>farskapsportal-api</name>
+  <description>API for farskapsportal</description>
+
+  <properties>
+    <!-- language -->
+    <java.version>14</java.version>
+
+    <!-- build -->
+    <build-helper-maven.version>3.1.0</build-helper-maven.version>
+    <maven.compiler.version>3.8.0</maven.compiler.version>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+    <maven.surefire.version>2.22.0</maven.surefire.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- navikt -->
+    <bidrag-commons.version>0.4.2</bidrag-commons.version>
+    <boot-conditionals.version>1.0.20200824135201-5568111</boot-conditionals.version>
+    <token-support.version>1.3.0</token-support.version>
+
+    <!-- other -->
+    <guava.version>28.2-jre</guava.version>
+    <springfox-swagger.version>2.9.2</springfox-swagger.version>
+    <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
+
+    <!-- test -->
+    <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
+
+  </properties>
+
+  <repositories>
+    <!-- Mirror foran Maven Central (brukes kun internt) -->
+    <repository>
+      <id>nexus-internal-mirror</id>
+      <url>https://repo.adeo.no/repository/maven-public</url>
+    </repository>
+    <!-- Det generelle interne Nexus-repoet til NAV (brukes kun internt) -->
+    <repository>
+      <id>nexus-internal-releases</id>
+      <url>https://repo.adeo.no/repository/maven-releases</url>
+    </repository>
+    <!-- Skal brukes hvis bygget kjører internt (f.eks. Jenkins, fra utviklerimage, eller via ScaleFT) -->
+    <repository>
+      <id>internal-mirror-github-navikt</id>
+      <url>https://repo.adeo.no/repository/github-package-registry-navikt/</url>
+    </repository>
+    <!-- Skal brukes hvis bygget kjøres fra en Github Action -->
+    <repository>
+      <id>github-package-registry-navikt</id>
+      <url>https://maven.pkg.github.com/navikt/maven-release</url>
+    </repository>
+    <!-- Skal brukes hvis bygget kjører utenfor NAV (f.eks. en ekstern maskin, eller Circle CI) -->
+    <repository>
+      <id>external-mirror-github-navikt</id>
+      <url>https://github-package-registry-mirror-sr4qwz23da-ew.a.run.app/cached/maven-release</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>maven-release</id>
+      <name>GitHub felles Apache Maven Packages for navikt</name>
+      <url>https://maven.pkg.github.com/navikt/maven-release/</url>
+    </repository>
+  </distributionManagement>
+
+  <!-- build -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <release>${java.version}</release>
+          <source>14</source>
+          <target>14</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven.version}</version>
+        <executions>
+          <execution>
+            <id>remove-old-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>remove-project-artifact</goal>
+            </goals>
+            <configuration>
+              <removeAll>true</removeAll>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <!-- spring -->
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- other -->
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>${springfox-swagger.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.11</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>${springfox-swagger.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+
+    <!-- guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+
+    <!-- navikt -->
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons</artifactId>
+      <version>${bidrag-commons.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>no.nav.foreldrepenger</groupId>
+      <artifactId>boot-conditionals</artifactId>
+      <version>${boot-conditionals.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-validation-spring</artifactId>
+      <version>${token-support.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.retry</groupId>
+      <artifactId>spring-retry</artifactId>
+      <version>1.1.2.RELEASE</version>
+    </dependency>
+
+    <!-- test -->
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons-test</artifactId>
+      <version>${bidrag-commons-test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+      <version>${springframework-cloud.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-validation-test-support</artifactId>
+      <version>${token-support.version}</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

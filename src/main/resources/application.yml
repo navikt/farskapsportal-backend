@@ -1,0 +1,58 @@
+spring.devtools.add-properties: false
+
+management:
+  endpoints.web:
+    exposure.include: info, health, metrics, prometheus
+    base-path: /internal/actuator
+  endpoint.health.show-details: always
+
+urls:
+  pdl-api:
+    base-url: ${APIGW_URL}
+    graphql-endpoint: "/pdl-api/graphql"
+  sts:
+    base-url: ${APIGW_URL}
+    security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
+
+farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
+farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
+
+---
+spring.profiles: live
+
+no.nav:
+  security.jwt.issuer.selvbetjening:
+    discoveryurl: ${DISCOVERY_URL}
+    accepted_audience: ${AUD_FP}
+
+---
+########## Mock props ##########
+spring.profiles: test, local
+
+APIGW_URL: http://localhost:8096
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
+
+no.nav.security.jwt:
+  issuer.selvbetjening :
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+farskapsportal-api.servicebruker.brukernavn: se-vault
+farskapsportal-api.servicebruker.passord: se-vault
+
+---
+spring.profiles: integration-test
+
+no.nav:
+  security.jwt.issuer.selvbetjening:
+    discoveryurl: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+    accepted_audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+
+urls:
+  pdl-api:
+    base-url: https://api-gw-q1.oera.no
+  sts:
+    base-url: https://api-gw-q1.oera.no
+
