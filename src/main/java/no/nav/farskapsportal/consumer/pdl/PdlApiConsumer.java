@@ -35,7 +35,7 @@ public class PdlApiConsumer {
 
   public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
 
-    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJØNN);
+    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN);
     var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
 
     var kjoennFraPdlEllerFreg =
