@@ -43,6 +43,15 @@ farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
 ---
+spring:
+  profiles: local
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+
+---
+
 spring.profiles: integration-test
 
 no.nav:

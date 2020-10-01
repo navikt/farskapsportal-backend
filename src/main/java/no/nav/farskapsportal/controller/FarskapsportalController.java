@@ -49,11 +49,6 @@ public class FarskapsportalController {
       })
   public ResponseEntity<Kjoenn> henteKjonn() {
     log.info("Henter kjønn til person");
-    try {
-      oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
 
     return farskapsportalService
         .henteKjoenn(oidcTokenSubjectExtractor.hentPaaloggetPerson())

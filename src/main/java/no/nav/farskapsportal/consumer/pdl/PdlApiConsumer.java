@@ -66,8 +66,13 @@ public class PdlApiConsumer {
             .build();
 
     var endpoint = consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);
-    var response =
-        restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
+    GraphQLResponse response = null;
+    try {
+      response =
+          restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     log.info("Respons fra pdl-api: {}", response);
 
