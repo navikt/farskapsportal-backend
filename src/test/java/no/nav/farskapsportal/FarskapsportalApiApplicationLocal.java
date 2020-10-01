@@ -1,12 +1,8 @@
 package no.nav.farskapsportal;
 
-import static no.nav.farskapsportal.FarskapsportalApiApplicationLocal.PROFILE_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.google.common.net.HttpHeaders;
-import java.io.IOException;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
@@ -15,12 +11,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.cloud.contract.wiremock.WireMockSpring;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootApplication
 @ComponentScan(

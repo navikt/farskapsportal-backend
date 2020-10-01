@@ -34,7 +34,7 @@ APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 
 no.nav.security.jwt:
-  issuer.selvbetjening :
+  issuer.selvbetjening:
     discoveryurl: http://metadata
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
