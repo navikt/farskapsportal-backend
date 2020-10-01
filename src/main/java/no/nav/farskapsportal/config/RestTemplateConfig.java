@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpHeaders;
 
 @Configuration
 @Slf4j
@@ -57,14 +56,18 @@ public class RestTemplateConfig {
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
 
     httpHeaderRestTemplate.addHeaderGenerator(
-        AUTHORIZATION, () -> "Bearer "
-            + securityTokenServiceConsumer.hentIdTokenForServicebruker(
-            farskapsportalApiBrukernavn, farskapsportalApiPassord));
+        AUTHORIZATION,
+        () ->
+            "Bearer "
+                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
+                    farskapsportalApiBrukernavn, farskapsportalApiPassord));
 
     httpHeaderRestTemplate.addHeaderGenerator(
-        NAV_CONSUMER_TOKEN, () -> "Bearer "
-            + securityTokenServiceConsumer.hentIdTokenForServicebruker(
-            farskapsportalApiBrukernavn, farskapsportalApiPassord));
+        NAV_CONSUMER_TOKEN,
+        () ->
+            "Bearer "
+                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
+                    farskapsportalApiBrukernavn, farskapsportalApiPassord));
 
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 

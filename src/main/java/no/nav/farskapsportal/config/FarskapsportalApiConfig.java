@@ -126,7 +126,7 @@ public class FarskapsportalApiConfig {
     return () ->
         Optional.ofNullable(tokenValidationContextHolder)
             .map(TokenValidationContextHolder::getTokenValidationContext)
-                    .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
+            .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
             .map(Optional::get)
             .map(JwtToken::getTokenAsString)
             .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));

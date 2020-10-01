@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     ignore = {
       "springfox.documentation.swagger.web.ApiResourceController",
       "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController"
-
     })
 public class FarskapsportalApiApplication {
   public static final String ISSUER = "selvbetjening";
