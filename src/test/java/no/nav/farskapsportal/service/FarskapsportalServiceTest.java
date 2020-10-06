@@ -159,8 +159,8 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-  @DisplayName("PersonIkkeFunnetException")
-  void skalKastePersonIkkeFunnetException(){
+  @DisplayName("Skal kaste PersonIkkeFunnetException dersom respons fra PDL er tom")
+  void skalKastePersonIkkeFunnetExceptionDersomResponsFraPdlErTom(){
 
     // given
       var request =
