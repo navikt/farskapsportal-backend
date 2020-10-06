@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.config;
 
-import static no.nav.farskapsportal.FarskapsportalApiApplication.ISSUER;
+import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
 import com.nimbusds.jwt.JWTParser;
@@ -27,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
-public class FarskapsportalApiConfig {
+public class FarskapsportalConfig {
 
   public static final String X_API_KEY = "x-nav-apiKey";
 
@@ -112,7 +112,7 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public ExceptionLogger exceptionLogger() {
-    return new ExceptionLogger(FarskapsportalApiConfig.class.getSimpleName());
+    return new ExceptionLogger(FarskapsportalConfig.class.getSimpleName());
   }
 
   @Bean

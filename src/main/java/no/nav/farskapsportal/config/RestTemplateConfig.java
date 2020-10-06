@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.config;
 
-import static no.nav.farskapsportal.config.FarskapsportalApiConfig.X_API_KEY;
+import static no.nav.farskapsportal.config.FarskapsportalConfig.X_API_KEY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import lombok.extern.slf4j.Slf4j;

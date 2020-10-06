@@ -1,22 +1,15 @@
 package no.nav.farskapsportal.consumer.pdl.api;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.Singular;
+import lombok.Value;
 
-@Data
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Value
 public class PersonDto {
 
   @Singular("kjoenn")
   List<KjoennDto> kjoenn;
+
+  @Singular("navn")
+  List<NavnDto> navn;
 }

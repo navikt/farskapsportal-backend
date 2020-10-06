@@ -34,7 +34,7 @@ APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 
 no.nav.security.jwt:
-  issuer.selvbetjening :
+  issuer.selvbetjening:
     discoveryurl: http://metadata
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
@@ -43,6 +43,14 @@ farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
 ---
+spring:
+  profiles: local
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+---
+
 spring.profiles: integration-test
 
 no.nav:

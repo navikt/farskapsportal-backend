@@ -2,6 +2,7 @@ package no.nav.farskapsportal.consumer.pdl;
 
 import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName.PDL_API_GRAPHQL;
 
+import java.util.Set;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,13 @@ public class PdlApiHelsesjekkConsumer {
 
   public HttpResponse<Boolean> pdlApiGraphqlErILive() {
 
-    var respons = restTemplate.optionsForAllow(consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL));
+    Set<HttpMethod> respons = null;
+
+    try {
+      respons = restTemplate.optionsForAllow(consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     Validate.isTrue(respons.size() == 2);
     Validate.isTrue(respons.contains(HttpMethod.POST));

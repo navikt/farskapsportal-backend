@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
       "springfox.documentation.swagger.web.ApiResourceController",
       "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController"
     })
-public class FarskapsportalApiApplication {
+public class FarskapsportalApplication {
   public static final String ISSUER = "selvbetjening";
   public static final String PROFILE_LIVE = "live";
 
@@ -18,7 +18,7 @@ public class FarskapsportalApiApplication {
 
     String profile = args.length < 1 ? PROFILE_LIVE : args[0];
 
-    SpringApplication app = new SpringApplication(FarskapsportalApiApplication.class);
+    SpringApplication app = new SpringApplication(FarskapsportalApplication.class);
     app.setAdditionalProfiles(profile);
     app.run(profile);
   }
