@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.api;
 
 import io.swagger.annotations.ApiModel;
-<<<<<<< HEAD
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Value;
@@ -23,19 +22,4 @@ public class KontrollerePersonopplysningerRequest {
 
   @ApiModelProperty(value = "Personens etternavn, alltid påkrevd", position = 4)
   String etternavn;
-=======
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-@ApiModel
-@Builder
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-public class KontrollerePersonopplysningerRequest {
-  private String fodselsnummer;
-  private String fornavnOgEtternavn;
->>>>>>> main
 }

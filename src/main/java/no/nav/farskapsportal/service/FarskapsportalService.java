@@ -1,48 +1,41 @@
 package no.nav.farskapsportal.service;
 
-<<<<<<< HEAD
 import java.util.HashMap;
 import java.util.Map;
-=======
->>>>>>> main
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.farskapsportal.api.Kjoenn;
-<<<<<<< HEAD
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.exception.FeilKjoennPaaOppgittFarException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
+import no.nav.farskapsportal.exception.PersonIkkeFunnetException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.http.HttpStatus;
-=======
-import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
->>>>>>> main
 
 @Builder
 @Slf4j
 public class FarskapsportalService {
 
-<<<<<<< HEAD
   public static final String FEIL_NAVN =
       "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret";
-=======
->>>>>>> main
   private final PdlApiConsumer pdlApiConsumer;
 
   public HttpResponse<Kjoenn> henteKjoenn(String foedselsnummer) {
     return pdlApiConsumer.henteKjoenn(foedselsnummer);
   }
-<<<<<<< HEAD
 
-  public HttpResponse<?> riktigNavnOppgittForFar(
-      KontrollerePersonopplysningerRequest request) {
+  public HttpResponse<?> riktigNavnOppgittForFar(KontrollerePersonopplysningerRequest request) {
     Validate.isTrue(request.getFoedselsnummer() != null);
 
     var responsMedNavn = pdlApiConsumer.hentNavnTilPerson(request.getFoedselsnummer());
     var navnDto = responsMedNavn.getResponseEntity().getBody();
+
+    if (navnDto == null){
+      throw new PersonIkkeFunnetException("Responsen fra PDL mangler informasjon om person");
+    }
 
     // Validere input
     Validate.isTrue(request.getFornavn() != null);
@@ -97,6 +90,4 @@ public class FarskapsportalService {
       sb.append(navnedel);
     }
   }
-=======
->>>>>>> main
 }
