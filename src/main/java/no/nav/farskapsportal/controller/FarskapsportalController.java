@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.controller;
 
-import static no.nav.farskapsportal.FarskapsportalApiApplication.ISSUER;
+import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -12,7 +12,7 @@ import no.nav.farskapsportal.api.Farskapserklaring;
 import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerResponse;
-import no.nav.farskapsportal.config.FarskapsportalApiConfig.OidcTokenSubjectExtractor;
+import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,24 +55,27 @@ public class FarskapsportalController {
         .getResponseEntity();
   }
 
-  @PostMapping("/personopplysinger/kontroll")
-  @ApiOperation("Kontrollerer om fødeslnummer stemmer med navn")
+  @PostMapping("/kontrollere/far")
+  @ApiOperation("Kontrollerer om fødeslnummer til oppgitt far stemmer med navn")
   @ApiResponses(
       value = {
         @ApiResponse(code = 200, message = "Oppgitt fødselsnummer stemmer med navn"),
         @ApiResponse(
             code = 400,
-            message = "Ugyldig fødselsnummer, eller kombinasjon av fødselsnummer og navn"),
+            message =
+                "Ugyldig fødselsnummer, kombinasjon av fødselsnummer og navn, eller at personen ikke er hankjønn"),
         @ApiResponse(
             code = 401,
             message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
         @ApiResponse(code = 404, message = "Fant ikke fødselsnummer eller navn"),
         @ApiResponse(code = 503, message = "Kontroll av fødselsnummer mot navn feilet")
       })
-  public ResponseEntity<KontrollerePersonopplysningerResponse> kontrollerePersonopplysninger(
+  public ResponseEntity<KontrollerePersonopplysningerResponse> kontrollereOpplysningerFar(
       @RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
     var kontrollerePersonopplysningerResponse = new KontrollerePersonopplysningerResponse();
+
+    farskapsportalService.riktigNavnOppgittForFar(request);
 
     log.info("Kontroll av personopplysninger fullført");
     return new ResponseEntity<>(kontrollerePersonopplysningerResponse, HttpStatus.OK);

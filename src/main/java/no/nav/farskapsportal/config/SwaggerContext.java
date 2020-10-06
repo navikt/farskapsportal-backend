@@ -4,7 +4,7 @@ import static springfox.documentation.builders.PathSelectors.regex;
 
 import java.util.ArrayList;
 import java.util.List;
-import no.nav.farskapsportal.FarskapsportalApiApplication;
+import no.nav.farskapsportal.FarskapsportalApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +30,7 @@ public class SwaggerContext {
         .select()
         .apis(
             RequestHandlerSelectors.basePackage(
-                FarskapsportalApiApplication.class.getPackage().getName()))
+                FarskapsportalApplication.class.getPackage().getName()))
         .paths(regex("/api.*"))
         .build()
         .securitySchemes(addSecuritySchemes())

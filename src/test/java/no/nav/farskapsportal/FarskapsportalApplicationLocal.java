@@ -18,12 +18,12 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication
 @ComponentScan(
     excludeFilters = {
-      @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = FarskapsportalApiApplication.class)
+      @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = FarskapsportalApplication.class)
     })
 @EnableJwtTokenValidation(
     ignore = {"springfox.documentation.swagger.web.ApiResourceController", "org.springframework"})
 @Import(TokenGeneratorConfiguration.class)
-public class FarskapsportalApiApplicationLocal {
+public class FarskapsportalApplicationLocal {
 
   public static final String PROFILE_LOCAL = "local";
   public static final String PROFILE_TEST = "test";
@@ -32,7 +32,7 @@ public class FarskapsportalApiApplicationLocal {
 
     String profile = args.length < 1 ? PROFILE_LOCAL : args[0];
 
-    SpringApplication app = new SpringApplication(FarskapsportalApiApplicationLocal.class);
+    SpringApplication app = new SpringApplication(FarskapsportalApplicationLocal.class);
     app.setAdditionalProfiles(profile);
     app.run(args);
   }
@@ -43,7 +43,7 @@ public class FarskapsportalApiApplicationLocal {
     HttpHeaderTestRestTemplate httpHeaderTestRestTemplate =
         new HttpHeaderTestRestTemplate(testRestTemplate);
     httpHeaderTestRestTemplate.add(
-        HttpHeaders.AUTHORIZATION, FarskapsportalApiApplicationLocal::generateTestToken);
+        HttpHeaders.AUTHORIZATION, FarskapsportalApplicationLocal::generateTestToken);
 
     return httpHeaderTestRestTemplate;
   }

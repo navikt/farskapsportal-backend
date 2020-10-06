@@ -11,7 +11,7 @@ query($ident: ID!, $historikk: Boolean!) {
                 etternavn
             },
             gyldigFraOgMed,
-            folkeregisrermetada {
+            folkeregistermetadata {
                 ajourholdstidspunkt,
                 gyldighetstidspunkt,
                 opphoerstidspunkt,

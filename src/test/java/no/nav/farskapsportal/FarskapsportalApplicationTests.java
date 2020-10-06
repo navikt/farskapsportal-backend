@@ -1,6 +1,6 @@
 package no.nav.farskapsportal;
 
-class FarskapsportalApiApplicationTests {
+class FarskapsportalApplicationTests {
 
   void contextLoads() {}
 }

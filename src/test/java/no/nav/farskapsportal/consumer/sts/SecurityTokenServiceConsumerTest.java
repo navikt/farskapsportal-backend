@@ -1,11 +1,11 @@
 package no.nav.farskapsportal.consumer.sts;
 
-import static no.nav.farskapsportal.FarskapsportalApiApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import no.nav.farskapsportal.FarskapsportalApiApplicationLocal;
+import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(
-    classes = {FarskapsportalApiApplicationLocal.class},
+    classes = {FarskapsportalApplicationLocal.class},
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("SecurityTokenServiceConsumer")
 @AutoConfigureWireMock(port = 8096)

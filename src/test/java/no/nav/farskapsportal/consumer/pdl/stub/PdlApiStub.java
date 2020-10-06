@@ -8,6 +8,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.contract.spec.internal.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ public class PdlApiStub {
 
     var closingElements = String.join("\n", "}", "}", "}");
 
-    var stubResponse = new StringBuffer();
+    var stubResponse = new StringBuilder();
     stubResponse.append(startingElements);
 
     var count = 0;
@@ -47,7 +48,42 @@ public class PdlApiStub {
             .willReturn(
                 aResponse()
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withStatus(200)
+                    .withStatus(HttpStatus.OK)
                     .withBody(stubHentPerson(subQueries))));
+  }
+
+  public void runPdlApiHentPersonFantIkkePersonenStub() {
+    stubFor(
+        post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withStatus(HttpStatus.OK)
+                    .withBody(
+                        String.join(
+                            "\n",
+                            " {",
+                            "\"errors\": [",
+                            "{",
+                            "\"message\": \"Fant ikke person\",",
+                            "\"locations\": [",
+                            "{",
+                            "\"line\": 8,",
+                            "\"column\": 3",
+                            "}",
+                            "],",
+                            "\"path\": [",
+                            "\"hentPerson\"",
+                            "],",
+                            "\"extensions\": {",
+                            "\"code\": \"not_found\",",
+                            "\"classification\": \"ExecutionAborted\"",
+                            "}",
+                            "}",
+                            "],",
+                            "\"data\": {",
+                            "\"hentPerson\": null",
+                            "}",
+                            "}"))));
   }
 }

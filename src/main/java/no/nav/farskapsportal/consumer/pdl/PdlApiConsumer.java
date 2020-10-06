@@ -16,6 +16,7 @@ import lombok.val;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.exception.UnrecoverableException;
@@ -55,6 +56,28 @@ public class PdlApiConsumer {
                         "Feil ved mapping av kjønn, forventet bare et registrert kjønn på person")));
 
     return HttpResponse.from(HttpStatus.OK, kjoenn);
+  }
+
+  public HttpResponse<NavnDto> hentNavnTilPerson(String foedselsnummer) {
+    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN);
+    var navnDtos = respons.getData().getHentPerson().getNavn();
+
+    var navnFraPdlEllerFreg =
+        navnDtos.stream().filter(isMasterPdlOrFreg()).collect(Collectors.toList());
+
+    if (navnFraPdlEllerFreg.isEmpty()) {
+      return HttpResponse.from(HttpStatus.NOT_FOUND);
+    }
+
+    var navnDto =
+        navnFraPdlEllerFreg.stream()
+            .filter(Objects::nonNull)
+            .collect(
+                toSingletonOrThrow(
+                    new UnrecoverableException(
+                        "Feil ved mapping av kjønn, forventet bare et registrert kjønn på person")));
+
+    return HttpResponse.from(HttpStatus.OK, navnDto);
   }
 
   @Retryable(maxAttempts = 10)

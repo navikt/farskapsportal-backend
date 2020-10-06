@@ -1,6 +1,6 @@
 package no.nav.farskapsportal;
 
-import static no.nav.farskapsportal.FarskapsportalApiApplicationLocal.PROFILE_LOCAL;
+import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_LOCAL;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 @Profile(PROFILE_LOCAL)
 @Configuration
 @AutoConfigureWireMock(port = 8096)
-public class FarskapsportalApiLocalConfig {
+public class FarskapsportalLocalConfig {
 
   @Bean
   public Options wireMockOptions() {
