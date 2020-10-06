@@ -33,7 +33,7 @@ public class FarskapsportalService {
     var responsMedNavn = pdlApiConsumer.hentNavnTilPerson(request.getFoedselsnummer());
     var navnDto = responsMedNavn.getResponseEntity().getBody();
 
-    if (navnDto == null){
+    if (navnDto == null) {
       throw new PersonIkkeFunnetException("Responsen fra PDL mangler informasjon om person");
     }
 

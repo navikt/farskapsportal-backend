@@ -1,19 +1,13 @@
 package no.nav.farskapsportal.api;
 
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
 @ApiModel
-@Builder
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Value
 public class Farskapserklaring {
-  private String termindato;
-  private String fodselsnummerBarn;
-  private String fodselsnummerMor;
-  private String fodselsnummerFar;
+  String termindato;
+  String fodselsnummerBarn;
+  String fodselsnummerMor;
+  String fodselsnummerFar;
 }

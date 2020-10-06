@@ -96,10 +96,9 @@ public class FarskapsportalController {
   public ResponseEntity<BekrefteFarskapResponse> bekrefteFarskap(
       @RequestBody BekrefteFarskapRequest request) {
     log.info("Starter kontroll av personopplysninger");
-    var bekrefteFarskapResponse = new BekrefteFarskapResponse();
 
     log.info("Kontroll av personopplysninger fullført");
-    return new ResponseEntity<>(bekrefteFarskapResponse, HttpStatus.OK);
+    return new ResponseEntity<>(null, HttpStatus.OK);
   }
 
   @GetMapping("/erklaering/termindato/{termindato}")
@@ -118,8 +117,6 @@ public class FarskapsportalController {
       @PathVariable String fodselsnummer, @PathVariable String termindato) {
     log.info("Hente farskapserklæring for barn med termindato {}", termindato);
 
-    var farskapserklaring = new Farskapserklaring();
-
-    return new ResponseEntity<>(farskapserklaring, HttpStatus.OK);
+    return new ResponseEntity<>(null, HttpStatus.OK);
   }
 }

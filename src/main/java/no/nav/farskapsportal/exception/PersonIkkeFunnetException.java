@@ -9,6 +9,4 @@ public class PersonIkkeFunnetException extends UnrecoverableException {
   public PersonIkkeFunnetException(String message) {
     super(message);
   }
-
-
 }
