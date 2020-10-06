@@ -49,7 +49,6 @@ wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
 
-
 ---
 
 spring.profiles: integration-test

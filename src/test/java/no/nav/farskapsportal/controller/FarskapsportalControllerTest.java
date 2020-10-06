@@ -10,7 +10,6 @@ import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.api.KontrollerePersonopplysningerResponse;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
@@ -29,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 @ExtendWith(MockitoExtension.class)
@@ -121,7 +121,7 @@ public class FarskapsportalControllerTest {
                     .fornavn("Borat")
                     .etternavn("Sagdiyev")
                     .build()),
-            KontrollerePersonopplysningerResponse.class);
+            HttpStatus.class);
 
     // then
     assertTrue(respons.getStatusCode().is2xxSuccessful());
@@ -148,7 +148,7 @@ public class FarskapsportalControllerTest {
                     .fornavn("Natalya")
                     .etternavn("Sagdiyev")
                     .build()),
-            KontrollerePersonopplysningerResponse.class);
+            String.class);
 
     // then
     assertTrue(respons.getStatusCode().is4xxClientError());
@@ -176,7 +176,7 @@ public class FarskapsportalControllerTest {
                     .mellomnavn("Nicolai")
                     .etternavn("Sagdiyev")
                     .build()),
-            KontrollerePersonopplysningerResponse.class);
+            String.class);
 
     // then
     assertTrue(respons.getStatusCode().is4xxClientError());
@@ -186,7 +186,7 @@ public class FarskapsportalControllerTest {
   @DisplayName("Skal gi internal server error dersom person ikke eksisterer i PDL")
   void skalGiInternalServerErrorDersomPersonIkkeEksistererIPdl() {
 
-    //given
+    // given
     stsStub.runSecurityTokenServiceStub("jalla");
     pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
@@ -201,7 +201,7 @@ public class FarskapsportalControllerTest {
                     .fornavn("Borat")
                     .etternavn("Sagdiyev")
                     .build()),
-            KontrollerePersonopplysningerResponse.class);
+            String.class);
 
     // then
     assertTrue(respons.getStatusCode().is5xxServerError());

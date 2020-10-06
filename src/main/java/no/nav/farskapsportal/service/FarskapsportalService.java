@@ -26,7 +26,7 @@ public class FarskapsportalService {
     return pdlApiConsumer.henteKjoenn(foedselsnummer);
   }
 
-  public HttpResponse<Boolean> riktigNavnOppgittForFar(
+  public HttpResponse<?> riktigNavnOppgittForFar(
       KontrollerePersonopplysningerRequest request) {
     Validate.isTrue(request.getFoedselsnummer() != null);
 
@@ -49,7 +49,9 @@ public class FarskapsportalService {
       throw new FeilKjoennPaaOppgittFarException("Oppgitt far er ikke mann!");
     }
 
-    return HttpResponse.from(HttpStatus.OK, true);
+    log.info("Sjekk av oppgitt fars fødselsnummer, navn, og kjønn er gjennomført uten feil");
+
+    return HttpResponse.from(HttpStatus.OK);
   }
 
   private void navnekontroll(
@@ -70,7 +72,8 @@ public class FarskapsportalService {
       StringBuffer sb = new StringBuffer();
       navnesjekk.forEach((k, v) -> leggeTil(!fornavnStemmer, k, sb));
 
-      log.error("Navnekontroll feilet, {}, ");
+      log.error("Navnekontroll feilet. Status navnesjekk (false = feilet): {}", navnesjekk);
+
       throw new OppgittNavnStemmerIkkeMedRegistrertNavnException(
           "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret");
     }

@@ -11,7 +11,6 @@ import no.nav.farskapsportal.api.BekrefteFarskapResponse;
 import no.nav.farskapsportal.api.Farskapserklaring;
 import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.api.KontrollerePersonopplysningerResponse;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
@@ -56,29 +55,29 @@ public class FarskapsportalController {
   }
 
   @PostMapping("/kontrollere/far")
-  @ApiOperation("Kontrollerer om fødeslnummer til oppgitt far stemmer med navn")
+  @ApiOperation("Kontrollerer om fødeslnummer til oppgitt far stemmer med navn; samt at far er mann")
   @ApiResponses(
       value = {
-        @ApiResponse(code = 200, message = "Oppgitt fødselsnummer stemmer med navn"),
+        @ApiResponse(code = 200, message = "Oppgitt far er mann. Navn og fødselsnummer stemmer"),
         @ApiResponse(
             code = 400,
             message =
-                "Ugyldig fødselsnummer, kombinasjon av fødselsnummer og navn, eller at personen ikke er hankjønn"),
+                "Ugyldig fødselsnummer, feil kombinasjon av fødselsnummer og navn, eller oppgitt far ikke er mann"),
         @ApiResponse(
             code = 401,
             message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
         @ApiResponse(code = 404, message = "Fant ikke fødselsnummer eller navn"),
         @ApiResponse(code = 503, message = "Kontroll av fødselsnummer mot navn feilet")
       })
-  public ResponseEntity<KontrollerePersonopplysningerResponse> kontrollereOpplysningerFar(
+  public ResponseEntity<?> kontrollereOpplysningerFar(
       @RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
-    var kontrollerePersonopplysningerResponse = new KontrollerePersonopplysningerResponse();
 
     farskapsportalService.riktigNavnOppgittForFar(request);
 
-    log.info("Kontroll av personopplysninger fullført");
-    return new ResponseEntity<>(kontrollerePersonopplysningerResponse, HttpStatus.OK);
+    log.info("Kontroll av personopplysninger fullført uten feil");
+
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @PostMapping("/farskap/bekreft")
