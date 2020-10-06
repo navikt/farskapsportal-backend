@@ -3,7 +3,10 @@ package no.nav.farskapsportal.exception;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
+<<<<<<< HEAD
 import no.nav.farskapsportal.consumer.pdl.PdlApiException;
+=======
+>>>>>>> main
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,7 @@ public class RestResponseExceptionResolver {
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.SERVICE_UNAVAILABLE));
   }
+<<<<<<< HEAD
 
   @ResponseBody
   @ExceptionHandler(IllegalArgumentException.class)
@@ -90,4 +94,6 @@ public class RestResponseExceptionResolver {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.INTERNAL_SERVER_ERROR));
   }
+=======
+>>>>>>> main
 }

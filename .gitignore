@@ -30,6 +30,9 @@ build/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
 
 ### Maven ###
 /.mvn/
+=======
+>>>>>>> main

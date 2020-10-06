@@ -15,6 +15,7 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.exception.FeilKjoennPaaOppgittFarException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
+import no.nav.farskapsportal.exception.PersonIkkeFunnetException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,6 +155,31 @@ public class FarskapsportalServiceTest {
 
     // when, then
     assertThrows(FeilKjoennPaaOppgittFarException.class, () -> farskapsportalService.riktigNavnOppgittForFar(request));
+
+    }
+
+    @Test
+  @DisplayName("PersonIkkeFunnetException")
+  void skalKastePersonIkkeFunnetException(){
+
+    // given
+      var request =
+          KontrollerePersonopplysningerRequest.builder()
+              .foedselsnummer("01018512340")
+              .fornavn("Ole")
+              .mellomnavn("Idolet")
+              .etternavn("Brum")
+              .build();
+
+
+      when(pdlApiConsumerMock.henteKjoenn(request.getFoedselsnummer()))
+          .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.MANN));
+
+      when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer()))
+          .thenReturn(HttpResponse.from(HttpStatus.OK, null));
+
+      // when, then
+      assertThrows(PersonIkkeFunnetException.class, () -> farskapsportalService.riktigNavnOppgittForFar(request));
 
     }
 }

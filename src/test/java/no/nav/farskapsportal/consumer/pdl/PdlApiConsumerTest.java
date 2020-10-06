@@ -121,7 +121,7 @@ public class PdlApiConsumerTest {
 
   @Test
   @DisplayName("Skal kaste PdlApiException hvis person ikke eksisterer")
-  void skalKastePdlApiExceptionHvisPersonIkkeEksisterer(){
+  void skalKastePdlApiExceptionHvisPersonIkkeEksisterer() {
 
     // given
     var fnrMor = "111222240280";
@@ -130,6 +130,5 @@ public class PdlApiConsumerTest {
 
     // when, then
     assertThrows(PdlApiException.class, () -> pdlApiConsumer.henteKjoenn(fnrMor));
-
   }
 }

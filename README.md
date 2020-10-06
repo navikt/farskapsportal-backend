@@ -21,6 +21,7 @@ https://vault.adeo.no/ui/vault/secrets/apikey/show/apigw/dev/security-token-serv
  
 ##### Secret name farskapsportal-api-aud
  - AUD_FP: Angir gyldig publikum for farskapsportal-apis OIDC-token.
+<<<<<<< HEAD
  
 ### testing av endepunkter
 Endepunktene er dokumentert med Swagger, og kan testes lokalt og på GCP dev:
@@ -51,4 +52,6 @@ konstruktør, og gi feil "(no Creators, like default construct, exist)" ved kjø
  
 
 
+=======
+>>>>>>> main
 

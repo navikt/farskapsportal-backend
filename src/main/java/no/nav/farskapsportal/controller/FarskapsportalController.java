@@ -55,7 +55,8 @@ public class FarskapsportalController {
   }
 
   @PostMapping("/kontrollere/far")
-  @ApiOperation("Kontrollerer om fødeslnummer til oppgitt far stemmer med navn; samt at far er mann")
+  @ApiOperation(
+      "Kontrollerer om fødeslnummer til oppgitt far stemmer med navn; samt at far er mann")
   @ApiResponses(
       value = {
         @ApiResponse(code = 200, message = "Oppgitt far er mann. Navn og fødselsnummer stemmer"),

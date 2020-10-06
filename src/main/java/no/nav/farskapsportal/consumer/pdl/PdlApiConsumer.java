@@ -16,7 +16,10 @@ import lombok.val;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+<<<<<<< HEAD
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+=======
+>>>>>>> main
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.exception.UnrecoverableException;
@@ -58,6 +61,7 @@ public class PdlApiConsumer {
     return HttpResponse.from(HttpStatus.OK, kjoenn);
   }
 
+<<<<<<< HEAD
   public HttpResponse<NavnDto> hentNavnTilPerson(String foedselsnummer) {
     var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN);
     var navnDtos = respons.getData().getHentPerson().getNavn();
@@ -80,6 +84,8 @@ public class PdlApiConsumer {
     return HttpResponse.from(HttpStatus.OK, navnDto);
   }
 
+=======
+>>>>>>> main
   @Retryable(maxAttempts = 10)
   private GraphQLResponse hentPersondokument(String ident, String query) {
     val graphQlRequest =
@@ -89,6 +95,7 @@ public class PdlApiConsumer {
             .build();
 
     var endpoint = consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);
+<<<<<<< HEAD
     GraphQLResponse response = null;
     try {
       response =
@@ -96,6 +103,10 @@ public class PdlApiConsumer {
     } catch (Exception e) {
       e.printStackTrace();
     }
+=======
+    var response =
+        restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
+>>>>>>> main
 
     log.info("Respons fra pdl-api: {}", response);
 

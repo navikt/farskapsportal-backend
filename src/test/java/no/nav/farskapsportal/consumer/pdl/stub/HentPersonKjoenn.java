@@ -8,6 +8,10 @@ public class HentPersonKjoenn implements HentPersonSubQuery {
 
   private String query;
 
+  public HentPersonKjoenn() {
+    buildQuery(Kjoenn.KVINNE, "szagg, aog");
+  }
+
   public HentPersonKjoenn(Kjoenn kjoenn) {
     buildQuery(kjoenn, "sagga-dagga");
   }
