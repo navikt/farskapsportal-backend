@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(
     origins = {
       "https://farskapsportal.nav.no",
+      "https://farskapsportal.dev.nav.no",
       "https://farskapsportal.dev.adeo.no",
       "https://farskapsportal-feature.dev.adeo.no"
     })
