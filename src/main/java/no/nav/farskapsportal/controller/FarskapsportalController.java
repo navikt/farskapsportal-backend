@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/farskapsportal")
 @ProtectedWithClaims(issuer = ISSUER)
 @CrossOrigin(
+    allowCredentials = "true",
     origins = {
       "https://farskapsportal.nav.no",
       "https://farskapsportal.dev.nav.no",
