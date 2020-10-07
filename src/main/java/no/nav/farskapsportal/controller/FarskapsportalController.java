@@ -28,7 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/farskapsportal")
 @ProtectedWithClaims(issuer = ISSUER)
-@CrossOrigin(origins = "https://farskapsportal.*.no")
+@CrossOrigin(
+    origins = {
+      "https://farskapsportal.nav.no",
+      "https://farskapsportal.dev.adeo.no",
+      "https://farskapsportal-feature.dev.adeo.no"
+    })
 @Slf4j
 public class FarskapsportalController {
 
