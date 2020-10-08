@@ -120,6 +120,42 @@ public class PdlApiConsumerTest {
   }
 
   @Test
+  @DisplayName("Skal kaste nullpointerexception dersom fornavn mangler i retur fra PDL")
+  public void skalKasteNullpointerExceptionDersomFornavnManglerIReturFraPdl() {
+
+    // given
+    var fnrOppgittFar =
+        "01018512345() -> assertTrue(registrertNavn.getFornavn().equals(returnertNavn.getFornavn())";
+    stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
+    var registrertNavn =
+        NavnDto.builder().mellomnavn("Parafin").etternavn("Olsen").build();
+    List<HentPersonSubQuery> subQueries = List.of(new HentPersonNavn(registrertNavn));
+    pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+    // when, then
+    assertThrows(NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
+
+  }
+
+  @Test
+  @DisplayName("Skal kaste nullpointerexception dersom fornavn mangler i retur fra PDL")
+  public void skalKasteNullpointerExceptionDersomEtternavnManglerIReturFraPdl() {
+
+    // given
+    var fnrOppgittFar =
+        "01018512345() -> assertTrue(registrertNavn.getFornavn().equals(returnertNavn.getFornavn())";
+    stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
+    var registrertNavn =
+        NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").build();
+    List<HentPersonSubQuery> subQueries = List.of(new HentPersonNavn(registrertNavn));
+    pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+    // when, then
+    assertThrows(NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
+
+  }
+
+  @Test
   @DisplayName("Skal kaste PdlApiException hvis person ikke eksisterer")
   void skalKastePdlApiExceptionHvisPersonIkkeEksisterer() {
 

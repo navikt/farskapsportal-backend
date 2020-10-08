@@ -15,9 +15,12 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
+import no.nav.farskapsportal.persistence.PersistenceService;
+import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -106,6 +109,11 @@ public class FarskapsportalConfig {
   }
 
   @Bean
+  public PersistenceService persistenceService(FarskapserklaeringDao farskapserklaeringDao, ModelMapper modelMapper) {
+    return new PersistenceService(farskapserklaeringDao, modelMapper);
+  }
+
+  @Bean
   public FarskapsportalService farskapsportalService(PdlApiConsumer pdlApiConsumer) {
     return FarskapsportalService.builder().pdlApiConsumer(pdlApiConsumer).build();
   }
@@ -135,6 +143,11 @@ public class FarskapsportalConfig {
   @Bean
   public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
     return () -> hentPaaloggetPerson(oidcTokenManager.hentIdToken());
+  }
+
+  @Bean
+  public ModelMapper modelMapper() {
+    return new ModelMapper();
   }
 
   @FunctionalInterface

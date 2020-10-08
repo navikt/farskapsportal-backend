@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.exception.UnrecoverableException;
+import org.apache.commons.lang3.Validate;
 import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.RestTemplate;
@@ -58,6 +60,7 @@ public class PdlApiConsumer {
     return HttpResponse.from(HttpStatus.OK, kjoenn);
   }
 
+  @NotNull
   public HttpResponse<NavnDto> hentNavnTilPerson(String foedselsnummer) {
     var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN);
     var navnDtos = respons.getData().getHentPerson().getNavn();
@@ -76,6 +79,9 @@ public class PdlApiConsumer {
                 toSingletonOrThrow(
                     new UnrecoverableException(
                         "Feil ved mapping av kjønn, forventet bare et registrert kjønn på person")));
+
+    Validate.notNull(navnDto.getFornavn(), "Fornavn mangler i retur fra PDL!");
+    Validate.notNull(navnDto.getEtternavn(), "Etternavn mangler i retur fra PDL!");
 
     return HttpResponse.from(HttpStatus.OK, navnDto);
   }

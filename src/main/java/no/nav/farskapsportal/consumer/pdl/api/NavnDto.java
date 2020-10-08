@@ -1,7 +1,9 @@
 package no.nav.farskapsportal.consumer.pdl.api;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
+import org.springframework.validation.annotation.Validated;
 
 @Value
 @Builder

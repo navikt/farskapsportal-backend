@@ -42,6 +42,11 @@ no.nav.security.jwt:
 farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
+### H2 config ###
+spring.datasource.url: jdbc:h2:mem:default
+
+spring.h2.console.enabled: true
+
 ---
 spring:
   profiles: local

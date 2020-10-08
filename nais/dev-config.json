@@ -3,7 +3,7 @@
     "login.microsoftonline.com"
   ],
   "ingress": [
-    "https://farskapsportal-api.dev-adeo.no/"
+    "https://farskapsportal-api.dev.adeo.no/"
   ],
   "envs": [
     {

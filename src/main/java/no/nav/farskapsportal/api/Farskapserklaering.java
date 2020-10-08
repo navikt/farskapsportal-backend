@@ -5,7 +5,7 @@ import lombok.Value;
 
 @ApiModel
 @Value
-public class Farskapserklaring {
+public class Farskapserklaering {
   String termindato;
   String fodselsnummerBarn;
   String fodselsnummerMor;

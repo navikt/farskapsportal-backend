@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.controller;
+package no.nav.farskapsportal.api;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;

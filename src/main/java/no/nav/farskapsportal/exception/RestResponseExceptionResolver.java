@@ -3,6 +3,7 @@ package no.nav.farskapsportal.exception;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.farskapsportal.consumer.esignering.ESigneringFeiletException;
 import no.nav.farskapsportal.consumer.pdl.PdlApiException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -78,8 +79,8 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler(PdlApiException.class)
-  protected ResponseEntity<?> handlePdlApiException(PdlApiException e) {
+  @ExceptionHandler({PdlApiException.class, ESigneringFeiletException.class})
+  protected ResponseEntity<?> handlePdlApiException(Exception e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     var feilmelding = "Restkall feilet!";
