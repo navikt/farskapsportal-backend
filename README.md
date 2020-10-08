@@ -26,7 +26,7 @@ https://vault.adeo.no/ui/vault/secrets/apikey/show/apigw/dev/security-token-serv
 Endepunktene er dokumentert med Swagger, og kan testes lokalt og på GCP dev:
 
  - LOKALT: http://localhost:8080/swagger-ui.html 
- - DEV: https://farskapsportal-api-feature.dev.adeo.no/swagger-ui.html
+ - DEV: https://farskapsportal-api-feature.dev.nav.no/swagger-ui.html
  
 ### lokal kjøring
 Ved lokal kjøring brukes Spring-boot-instansen FarskapsportalApplicationLocal. Denne er satt opp med 
