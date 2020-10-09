@@ -41,7 +41,7 @@ public class FarskapsportalService {
     Validate.isTrue(request.getFornavn() != null);
     Validate.isTrue(request.getEtternavn() != null);
     if (navnDto.getMellomnavn() != null) {
-      Validate.isTrue(navnDto.getMellomnavn().equals(request.getMellomnavn()));
+      Validate.isTrue(navnDto.getMellomnavn().equalsIgnoreCase(request.getMellomnavn()));
     } else {
       Validate.isTrue(request.getMellomnavn() == null);
     }
@@ -60,12 +60,12 @@ public class FarskapsportalService {
 
   private void navnekontroll(
       KontrollerePersonopplysningerRequest navnOppgitt, NavnDto navnFraRegister) {
-    boolean fornavnStemmer = navnFraRegister.getFornavn().equals(navnOppgitt.getFornavn());
+    boolean fornavnStemmer = navnFraRegister.getFornavn().equalsIgnoreCase(navnOppgitt.getFornavn());
     boolean mellomnavnStemmer =
         navnFraRegister.getMellomnavn() == null
             ? navnOppgitt.getMellomnavn() == null
-            : navnOppgitt.getMellomnavn().equals(navnOppgitt.getMellomnavn());
-    boolean etternavnStemmer = navnFraRegister.getEtternavn().equals(navnOppgitt.getEtternavn());
+            : navnOppgitt.getMellomnavn().equalsIgnoreCase(navnOppgitt.getMellomnavn());
+    boolean etternavnStemmer = navnFraRegister.getEtternavn().equalsIgnoreCase(navnOppgitt.getEtternavn());
 
     if (!fornavnStemmer || !mellomnavnStemmer || !etternavnStemmer) {
       Map<String, Boolean> navnesjekk = new HashMap<>();
