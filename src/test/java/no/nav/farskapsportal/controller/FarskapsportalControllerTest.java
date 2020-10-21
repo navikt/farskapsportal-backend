@@ -117,8 +117,7 @@ public class FarskapsportalControllerTest {
             initHttpEntity(
                 KontrollerePersonopplysningerRequest.builder()
                     .foedselsnummer("01057244444")
-                    .fornavn("Borat")
-                    .etternavn("Sagdiyev")
+                    .navn("Borat Sagdiyev")
                     .build()),
             HttpStatus.class);
 
@@ -144,8 +143,7 @@ public class FarskapsportalControllerTest {
             initHttpEntity(
                 KontrollerePersonopplysningerRequest.builder()
                     .foedselsnummer("01058011444")
-                    .fornavn("Natalya")
-                    .etternavn("Sagdiyev")
+                    .navn("Natalya Sagdiyev")
                     .build()),
             String.class);
 
@@ -171,9 +169,7 @@ public class FarskapsportalControllerTest {
             initHttpEntity(
                 KontrollerePersonopplysningerRequest.builder()
                     .foedselsnummer("01058011444")
-                    .fornavn("Borat")
-                    .mellomnavn("Nicolai")
-                    .etternavn("Sagdiyev")
+                    .navn("Borat Nicolai Sagdiyev")
                     .build()),
             String.class);
 
@@ -197,8 +193,7 @@ public class FarskapsportalControllerTest {
             initHttpEntity(
                 KontrollerePersonopplysningerRequest.builder()
                     .foedselsnummer("01058011444")
-                    .fornavn("Borat")
-                    .etternavn("Sagdiyev")
+                    .navn("Borat Sagdiyev")
                     .build()),
             String.class);
 

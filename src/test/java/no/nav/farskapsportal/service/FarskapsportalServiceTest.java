@@ -76,8 +76,7 @@ public class FarskapsportalServiceTest {
     var request =
         KontrollerePersonopplysningerRequest.builder()
             .foedselsnummer("01018512340")
-            .fornavn("Charlie")
-            .etternavn("Sheen")
+            .navn("Charlie Sheen")
             .build();
 
     var navnIFolkeregisteret =
@@ -104,16 +103,14 @@ public class FarskapsportalServiceTest {
     var request =
         KontrollerePersonopplysningerRequest.builder()
             .foedselsnummer("01018512340")
-            .fornavn("Ole")
-            .mellomnavn("Idolet")
-            .etternavn("Brum")
+            .navn("Ole Idolet Brum")
             .build();
 
     var navnIFolkeregisteret =
         NavnDto.builder()
-            .fornavn(request.getFornavn())
-            .mellomnavn(request.getMellomnavn())
-            .etternavn(request.getEtternavn()).build();
+            .fornavn("Ole")
+            .mellomnavn("Idolet")
+            .etternavn("Brum").build();
 
     when(pdlApiConsumerMock.henteKjoenn(request.getFoedselsnummer()))
         .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.MANN));
@@ -135,13 +132,10 @@ public class FarskapsportalServiceTest {
   void kontrollAvNavnSkalGiOkSelvOmNavnOppgisMedSmaaBokstaver() {
 
     // given
-    // given
     var request =
         KontrollerePersonopplysningerRequest.builder()
             .foedselsnummer("01018512340")
-            .fornavn("tom")
-            .mellomnavn("richard")
-            .etternavn("jones")
+            .navn("tom richard jones")
             .build();
 
     var navnIFolkeregisteret =
@@ -173,14 +167,13 @@ public class FarskapsportalServiceTest {
     var request =
         KontrollerePersonopplysningerRequest.builder()
             .foedselsnummer("01018512340")
-            .fornavn("Dolly")
-            .etternavn("Duck")
+            .navn("Dolly Duck")
             .build();
 
     var navnDto =
         NavnDto.builder()
-            .fornavn(request.getFornavn())
-            .etternavn(request.getEtternavn()).build();
+            .fornavn("Dolly")
+            .etternavn("Duck").build();
 
     when(pdlApiConsumerMock.henteKjoenn(request.getFoedselsnummer()))
         .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.KVINNE));
@@ -201,11 +194,8 @@ public class FarskapsportalServiceTest {
       var request =
           KontrollerePersonopplysningerRequest.builder()
               .foedselsnummer("01018512340")
-              .fornavn("Ole")
-              .mellomnavn("Idolet")
-              .etternavn("Brum")
+              .navn("Ole Idolet Brum")
               .build();
-
 
       when(pdlApiConsumerMock.henteKjoenn(request.getFoedselsnummer()))
           .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.MANN));
@@ -215,6 +205,5 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(PersonIkkeFunnetException.class, () -> farskapsportalService.riktigNavnOppgittForFar(request));
-
     }
 }
