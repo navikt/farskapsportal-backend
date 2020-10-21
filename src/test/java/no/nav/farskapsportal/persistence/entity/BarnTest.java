@@ -42,8 +42,8 @@ public class BarnTest {
             .dokumentnavn("signertErklaeringMor.pdf")
             .signertDokument(
                 String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
+                        "Mor signerer farskapserklæring for barn med termindato %s",
+                        barn.getTermindato())
                     .getBytes())
             .build();
 
@@ -52,7 +52,7 @@ public class BarnTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     barn.setFarskapserklaering(farskapserklaering);
@@ -74,7 +74,7 @@ public class BarnTest {
             .barn(barn)
             .mor(mor)
             .far(annenFar)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     var annetBarnMedSammeTermindato =
@@ -123,8 +123,8 @@ public class BarnTest {
             .dokumentnavn("signertErklaeringMor.pdf")
             .signertDokument(
                 String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
+                        "Mor signerer farskapserklæring for barn med termindato %s",
+                        barn.getTermindato())
                     .getBytes())
             .build();
 
@@ -135,7 +135,7 @@ public class BarnTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     var farskapserklaeringMedKopiAvBarn =
@@ -143,7 +143,7 @@ public class BarnTest {
             .barn(barnFunksjonellKopi)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     barn.setFarskapserklaering(farskapserklaering);
@@ -153,7 +153,8 @@ public class BarnTest {
     assertAll(
         () ->
             assertTrue(
-                barn.getFarskapserklaering().equals(barnFunksjonellKopi.getFarskapserklaering()), "Farskapserklæeringene skal være like"),
+                barn.getFarskapserklaering().equals(barnFunksjonellKopi.getFarskapserklaering()),
+                "Farskapserklæeringene skal være like"),
         () -> assertTrue(barn.equals(barnFunksjonellKopi), "Barna skal være like"));
   }
 
@@ -184,8 +185,8 @@ public class BarnTest {
             .dokumentnavn("signertErklaeringMor.pdf")
             .signertDokument(
                 String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
+                        "Mor signerer farskapserklæring for barn med termindato %s",
+                        barn.getTermindato())
                     .getBytes())
             .build();
 
@@ -194,7 +195,7 @@ public class BarnTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     barn.setFarskapserklaering(farskapserklaeringForEtBarn);
@@ -221,7 +222,7 @@ public class BarnTest {
             .barn(annetBarnMedSammeTermindato)
             .mor(annenMor)
             .far(annenFar)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     barn.setFarskapserklaering(farskapserklaeringForEtAnnetBarn);
@@ -259,8 +260,8 @@ public class BarnTest {
             .dokumentnavn("signertErklaeringMor.pdf")
             .signertDokument(
                 String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    detEneBarnet.getTermindato())
+                        "Mor signerer farskapserklæring for barn med termindato %s",
+                        detEneBarnet.getTermindato())
                     .getBytes())
             .build();
 
@@ -271,7 +272,7 @@ public class BarnTest {
             .barn(detEneBarnet)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     detEneBarnet.setFarskapserklaering(farskapserklaeringForDetEneBarnet);
@@ -281,7 +282,7 @@ public class BarnTest {
             .barn(detAndreBarnet)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     detAndreBarnet.setFarskapserklaering(farskapserklaeringForDetAndreBarnet);
@@ -296,45 +297,47 @@ public class BarnTest {
   @DisplayName("Barnets termindato skal være representert i streng-versjonen av en barn-instans")
   void barnetsTermindatoSkalVaereRepresentertIStrengversjonenAvEnBarninstans() {
 
-  // given
-  var mor =
-      Forelder.builder()
-          .fornavn("Petra")
-          .etternavn("Buskerud")
-          .foedselsnummer("01018912345")
-          .build();
+    // given
+    var mor =
+        Forelder.builder()
+            .fornavn("Petra")
+            .etternavn("Buskerud")
+            .foedselsnummer("01018912345")
+            .build();
 
-  var far =
-      Forelder.builder()
-          .fornavn("Smørjan")
-          .etternavn("Telemark")
-          .foedselsnummer("01018532415")
-          .build();
+    var far =
+        Forelder.builder()
+            .fornavn("Smørjan")
+            .etternavn("Telemark")
+            .foedselsnummer("01018532415")
+            .build();
 
-  var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
+    var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
 
     var signertErklaeringMor =
         SignertDokument.builder()
             .dokumentnavn("signertErklaeringMor.pdf")
             .signertDokument(
                 String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
+                        "Mor signerer farskapserklæring for barn med termindato %s",
+                        barn.getTermindato())
                     .getBytes())
             .build();
 
-  var farskapserklaeringForDetEneBarnet =
-      Farskapserklaering.builder()
-          .barn(barn)
-          .mor(mor)
-          .far(far)
-          .signertErklaeringMor(signertErklaeringMor)
-          .build();
+    var farskapserklaeringForDetEneBarnet =
+        Farskapserklaering.builder()
+            .barn(barn)
+            .mor(mor)
+            .far(far)
+            .signertErklaering(signertErklaeringMor)
+            .build();
 
     barn.setFarskapserklaering(farskapserklaeringForDetEneBarnet);
 
     var barnToString = barn.toString();
 
-    assertEquals(String.format("Barn knyttet til termindato: %s", barn.getTermindato().toString()),  barnToString);
- }
+    assertEquals(
+        String.format("Barn knyttet til termindato: %s", barn.getTermindato().toString()),
+        barnToString);
+  }
 }

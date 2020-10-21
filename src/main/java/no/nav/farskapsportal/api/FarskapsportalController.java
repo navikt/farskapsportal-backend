@@ -13,7 +13,6 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,12 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/farskapsportal")
 @ProtectedWithClaims(issuer = ISSUER)
-@CrossOrigin(
-    origins = {
-      "https://farskapsportal.nav.no",
-      "https://farskapsportal.dev.adeo.no",
-      "https://farskapsportal-feature.dev.adeo.no"
-    })
 @Slf4j
 public class FarskapsportalController {
 
@@ -62,13 +55,13 @@ public class FarskapsportalController {
   @ApiOperation("Bestemmer rolle til person")
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "Ingen feil ved bestemming av rolle"),
-          @ApiResponse(code = 400, message = "Ugyldig fødselsnummer"),
-          @ApiResponse(
-              code = 401,
-              message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-          @ApiResponse(code = 404, message = "Fant ikke fødselsnummer"),
-          @ApiResponse(code = 503, message = "Bestemming av rolle for fødselsnummer feilet")
+        @ApiResponse(code = 200, message = "Ingen feil ved bestemming av rolle"),
+        @ApiResponse(code = 400, message = "Ugyldig fødselsnummer"),
+        @ApiResponse(
+            code = 401,
+            message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+        @ApiResponse(code = 404, message = "Fant ikke fødselsnummer"),
+        @ApiResponse(code = 503, message = "Bestemming av rolle for fødselsnummer feilet")
       })
   public ResponseEntity<Kjoenn> bestemmeRolle() {
     log.info("Bestemmer rolle til person");
@@ -130,16 +123,15 @@ public class FarskapsportalController {
   @ApiOperation("Far erklærer farskap til barn")
   @ApiResponses(
       value = {
-          @ApiResponse(code = 200, message = "E"),
-          @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
-          @ApiResponse(
-              code = 401,
-              message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-          @ApiResponse(code = 404, message = "Fant ikke ventende farskapserklæring"),
-          @ApiResponse(code = 503, message = "Erklæring av farskap feilet")
+        @ApiResponse(code = 200, message = "E"),
+        @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
+        @ApiResponse(
+            code = 401,
+            message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+        @ApiResponse(code = 404, message = "Fant ikke ventende farskapserklæring"),
+        @ApiResponse(code = 503, message = "Erklæring av farskap feilet")
       })
-  public ResponseEntity<Void> erklaereFarskap(
-      @RequestBody BarnDto barnDto) {
+  public ResponseEntity<Void> erklaereFarskap(@RequestBody BarnDto barnDto) {
     log.info("Oppretter farskap");
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     farskapsportalService.erklaereFarskap(fnrPaaloggetPerson, barnDto);

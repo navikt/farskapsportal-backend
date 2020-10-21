@@ -1,7 +1,5 @@
 package no.nav.farskapsportal.service;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.HttpResponse;
@@ -46,17 +44,10 @@ public class FarskapsportalService {
 
     log.info("Sjekker fars kjønn");
     kontrollereKjoennFar(request.getFoedselsnummer());
-
     NavnDto navnDto = hentNavnTilPerson(request);
 
     // Validere input
-    Validate.isTrue(request.getFornavn() != null);
-    Validate.isTrue(request.getEtternavn() != null);
-    if (navnDto.getMellomnavn() != null) {
-      Validate.isTrue(navnDto.getMellomnavn().equals(request.getMellomnavn()));
-    } else {
-      Validate.isTrue(request.getMellomnavn() == null);
-    }
+    Validate.isTrue(request.getNavn() != null);
 
     navnekontroll(request, navnDto);
 
@@ -108,9 +99,7 @@ public class FarskapsportalService {
           ForelderDto.builder()
               .forelderRolle(ForelderRolle.FAR)
               .foedselsnummer(request.getOpplysningerOmFar().getFoedselsnummer())
-              .fornavn(request.getOpplysningerOmFar().getFornavn())
-              .mellomnavn(request.getOpplysningerOmFar().getMellomnavn())
-              .etternavn(request.getOpplysningerOmFar().getEtternavn())
+              .fornavn(request.getOpplysningerOmFar().getNavn())
               .build();
 
       var farskapserklaeringDto =
@@ -148,29 +137,28 @@ public class FarskapsportalService {
 
   private void navnekontroll(
       KontrollerePersonopplysningerRequest navnOppgitt, NavnDto navnFraRegister) {
-    boolean fornavnStemmer = navnFraRegister.getFornavn().equals(navnOppgitt.getFornavn());
-    boolean mellomnavnStemmer =
-        navnFraRegister.getMellomnavn() == null
-            ? navnOppgitt.getMellomnavn() == null
-            : navnOppgitt.getMellomnavn().equals(navnFraRegister.getMellomnavn());
-    boolean etternavnStemmer = navnFraRegister.getEtternavn().equals(navnOppgitt.getEtternavn());
 
-    if (!fornavnStemmer || !mellomnavnStemmer || !etternavnStemmer) {
-      Map<String, Boolean> navnesjekk = new HashMap<>();
-      navnesjekk.put("fornavn", fornavnStemmer);
-      navnesjekk.put("mellomnavn", mellomnavnStemmer);
-      navnesjekk.put("etternavn", etternavnStemmer);
+    var sammenslaattNavnFraRegister =
+        navnFraRegister.getFornavn()
+            + hentMellomnavnHvisFinnes(navnFraRegister)
+            + navnFraRegister.getEtternavn();
 
-      StringBuffer sb = new StringBuffer();
-      navnesjekk.forEach((k, v) -> leggeTil(!fornavnStemmer, k, sb));
+    boolean navnStemmer =
+        sammenslaattNavnFraRegister.equalsIgnoreCase(navnOppgitt.getNavn().replaceAll("\\s+", ""));
 
-      log.error("Navnekontroll feilet. Status navnesjekk (false = feilet): {}", navnesjekk);
-
+    if (!navnStemmer) {
+      log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
       throw new OppgittNavnStemmerIkkeMedRegistrertNavnException(
           "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret");
     }
 
     log.info("Navnekontroll gjennomført uten feil");
+  }
+
+  private String hentMellomnavnHvisFinnes(NavnDto navnFraRegister) {
+    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1
+        ? ""
+        : navnFraRegister.getMellomnavn();
   }
 
   private void leggeTil(boolean skalLeggesTil, String navnedel, StringBuffer sb) {

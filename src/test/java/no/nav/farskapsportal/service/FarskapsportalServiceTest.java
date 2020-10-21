@@ -82,8 +82,7 @@ public class FarskapsportalServiceTest {
       var request =
           KontrollerePersonopplysningerRequest.builder()
               .foedselsnummer("01018512340")
-              .fornavn("Charlie")
-              .etternavn("Sheen")
+              .navn("Charlie Sheen")
               .build();
 
       var navnDto = NavnDto.builder().fornavn("Tom").etternavn("Jones").build();
@@ -108,23 +107,17 @@ public class FarskapsportalServiceTest {
       var request =
           KontrollerePersonopplysningerRequest.builder()
               .foedselsnummer("01018512340")
-              .fornavn("Ole")
-              .mellomnavn("Idolet")
-              .etternavn("Brum")
+              .navn("Ole Idolet Brum")
               .build();
 
-      var navnDto =
-          NavnDto.builder()
-              .fornavn(request.getFornavn())
-              .mellomnavn(request.getMellomnavn())
-              .etternavn(request.getEtternavn())
-              .build();
+      var navnIFolkeregisteret =
+          NavnDto.builder().fornavn("Ole").mellomnavn("Idolet").etternavn("Brum").build();
 
       when(pdlApiConsumerMock.henteKjoenn(request.getFoedselsnummer()))
           .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.MANN));
 
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer()))
-          .thenReturn(HttpResponse.from(HttpStatus.OK, navnDto));
+          .thenReturn(HttpResponse.from(HttpStatus.OK, navnIFolkeregisteret));
 
       // when
       var respons = farskapsportalService.riktigNavnOgKjoennOppgittForFar(request);
@@ -132,37 +125,62 @@ public class FarskapsportalServiceTest {
       // then
       assertAll(() -> assertTrue(respons.getResponseEntity().getStatusCode().is2xxSuccessful()));
     }
-  }
-
-  @Nested
-  @DisplayName("RiktigNavnOgKjoennOppgittForFar")
-  class RiktigNavnOgKjoennOppgittForFar {
 
     @Test
-    @DisplayName("Skal gi bad request dersom oppgitt far ikke er mann")
-    void skalGiBadRequestDersomOppgittFarIkkeErMann() {
+    @DisplayName("Kontroll av navn skal gi OK selv om navn oppgis med små bokstaver")
+    void kontrollAvNavnSkalGiOkSelvOmNavnOppgisMedSmaaBokstaver() {
 
       // given
       var request =
           KontrollerePersonopplysningerRequest.builder()
               .foedselsnummer("01018512340")
-              .fornavn("Dolly")
-              .etternavn("Duck")
+              .navn("tom richard jones")
               .build();
 
-      var navnDto =
-          NavnDto.builder().fornavn(request.getFornavn()).etternavn(request.getEtternavn()).build();
+      var navnIFolkeregisteret =
+          NavnDto.builder().fornavn("TOM").mellomnavn("RICHARD").etternavn("JONES").build();
 
       when(pdlApiConsumerMock.henteKjoenn(request.getFoedselsnummer()))
-          .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.KVINNE));
+          .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.MANN));
 
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer()))
-          .thenReturn(HttpResponse.from(HttpStatus.NOT_FOUND, navnDto));
+          .thenReturn(HttpResponse.from(HttpStatus.OK, navnIFolkeregisteret));
 
-      // when, then
-      assertThrows(
-          FeilKjoennPaaOppgittFarException.class,
-          () -> farskapsportalService.riktigNavnOgKjoennOppgittForFar(request));
+      // when
+      var respons = farskapsportalService.riktigNavnOgKjoennOppgittForFar(request);
+
+      // then
+      assertAll(() -> assertTrue(respons.getResponseEntity().getStatusCode().is2xxSuccessful()));
+    }
+
+    @Nested
+    @DisplayName("RiktigNavnOgKjoennOppgittForFar")
+    class RiktigNavnOgKjoennOppgittForFar {
+
+      @Test
+      @DisplayName("Skal gi bad request dersom oppgitt far ikke er mann")
+      void skalGiBadRequestDersomOppgittFarIkkeErMann() {
+
+        // given
+        var request =
+            KontrollerePersonopplysningerRequest.builder()
+                .foedselsnummer("01018512340")
+                .navn("Dolly Duck")
+                .build();
+
+        var navnDto = NavnDto.builder().fornavn("Dolly").etternavn("Duck").build();
+
+        when(pdlApiConsumerMock.henteKjoenn(request.getFoedselsnummer()))
+            .thenReturn(HttpResponse.from(HttpStatus.OK, Kjoenn.KVINNE));
+
+        when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer()))
+            .thenReturn(HttpResponse.from(HttpStatus.NOT_FOUND, navnDto));
+
+        // when, then
+        assertThrows(
+            FeilKjoennPaaOppgittFarException.class,
+            () -> farskapsportalService.riktigNavnOgKjoennOppgittForFar(request));
+      }
     }
   }
 }

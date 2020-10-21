@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.persistence.dao;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Set;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
@@ -15,7 +16,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Farskapserklaering hentFarskapserklaeringFar(String fnrFar, String fnrBarn);
 
   @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.barn.termindato = :termindato")
-  Farskapserklaering hentFarskapserklaeringFar(String fnrFar, LocalDate termindato);
+  Farskapserklaering hentFarskapserklaeringFar(String fnrFar, Date termindato);
 
   @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor")
   Set<Farskapserklaering> hentFarskapserklaeringerMor(String fnrMor);
@@ -23,6 +24,6 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor and fe.barn.foedselsnummer = :fnrBarn")
   Farskapserklaering hentFarskapserklaeringMor(String fnrMor, String fnrBarn);
 
-  @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor and fe.barn.foedselsnummer = :termindato")
+  @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor and fe.barn.termindato = :termindato")
   Farskapserklaering hentFarskapserklaeringMor(String fnrMor, LocalDate termindatos);
 }

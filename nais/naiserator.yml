@@ -47,6 +47,9 @@ spec:
         databases:
           - name: farskapsportal
   accesspolicy:
+    inbound:
+      rules:
+        - application: {{ allow_inbound_apps }}
     outbound:
       external:
         - host: api-gw-q1.oera.no

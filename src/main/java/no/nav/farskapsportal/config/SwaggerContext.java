@@ -55,7 +55,6 @@ public class SwaggerContext {
   }
 
   private List<SecurityReference> defaultAuth() {
-    List<SecurityReference> list = new ArrayList<>();
     AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
     AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
     authorizationScopes[0] = authorizationScope;

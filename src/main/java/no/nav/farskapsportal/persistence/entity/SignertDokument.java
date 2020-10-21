@@ -34,11 +34,8 @@ public class SignertDokument implements Serializable  {
   @NotNull
   private byte[] signertDokument;
 
-  @OneToOne(mappedBy = "signertErklaeringMor", cascade = CascadeType.ALL)
-  private Farskapserklaering signerterklaeringMor;
-
-  @OneToOne(mappedBy = "signertErklaeringFar", cascade = CascadeType.ALL)
-  private Farskapserklaering signertErklaeringFar;
+  @OneToOne(mappedBy = "signertErklaering", cascade = CascadeType.ALL)
+  private Farskapserklaering signerterklaering;
 
   @Override
   public String toString() {

@@ -42,7 +42,7 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
@@ -54,7 +54,7 @@ public class FarskapserklaeringTest {
             .barn(etAnnetBarn)
             .mor(enAnnenMor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     // when, then
@@ -84,7 +84,7 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     var barnMedSammeTermindato = Barn.builder().termindato(barn.getTermindato()).build();
@@ -106,7 +106,7 @@ public class FarskapserklaeringTest {
             .barn(barnMedSammeTermindato)
             .mor(sammeMor)
             .far(sammeFar)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     // when, then
@@ -139,7 +139,7 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
@@ -151,7 +151,7 @@ public class FarskapserklaeringTest {
             .barn(etAnnetBarn)
             .mor(enAnnenMor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     // when, then
@@ -183,7 +183,7 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     barn.setFarskapserklaering(farskapserklaering);
@@ -209,7 +209,7 @@ public class FarskapserklaeringTest {
             .barn(barnMedSammeTermindato)
             .mor(sammeMor)
             .far(sammeFar)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     barnMedSammeTermindato.setFarskapserklaering(enAnnenFarskapserklaeringMedSammeParter);
@@ -245,7 +245,7 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaeringMor(signertErklaeringMor)
+            .signertErklaering(signertErklaeringMor)
             .build();
 
     barn.setFarskapserklaering(farskapserklaering);

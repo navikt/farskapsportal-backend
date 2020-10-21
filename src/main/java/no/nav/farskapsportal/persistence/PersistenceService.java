@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.persistence;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -46,13 +47,13 @@ public class PersistenceService {
           barn.getFoedselsnummer() != null && barn.getFoedselsnummer().length() > 10
               ? farskapserklaeringDao.hentFarskapserklaeringFar(
                   fnrForelder, barn.getFoedselsnummer())
-              : farskapserklaeringDao.hentFarskapserklaeringFar(fnrForelder, barn.getTermindato());
+              : farskapserklaeringDao.hentFarskapserklaeringFar(fnrForelder, barn.getTermindato().);
     } else {
       farskapserklaering =
           barn.getFoedselsnummer() != null && barn.getFoedselsnummer().length() > 10
               ? farskapserklaeringDao.hentFarskapserklaeringMor(
                   fnrForelder, barn.getFoedselsnummer())
-              : farskapserklaeringDao.hentFarskapserklaeringMor(fnrForelder, barn.getTermindato());
+              : farskapserklaeringDao.hentFarskapserklaeringMor(fnrForelder, LocalDate.barn.getTermindato());
     }
 
     return Optional.of(modelMapper.map(farskapserklaering, FarskapserklaeringDto.class));
