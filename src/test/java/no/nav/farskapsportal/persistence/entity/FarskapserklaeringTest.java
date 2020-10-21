@@ -4,6 +4,8 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +20,8 @@ public class FarskapserklaeringTest {
 
   @Test
   @DisplayName("Skal gi ulike hashkoder dersom to farskapserklæringer ikke gjelder samme parter")
-  void skalGiUlikeHashkoderDersomToFarskapserklaeringerIkkeGjelderSammeParter() {
+  void skalGiUlikeHashkoderDersomToFarskapserklaeringerIkkeGjelderSammeParter()
+      throws URISyntaxException {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
@@ -27,34 +30,39 @@ public class FarskapserklaeringTest {
     var far =
         Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
 
-    var signertErklaeringMor =
-        SignertDokument.builder()
+    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
+    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+
+    var etDokument =
+        Dokument.builder()
             .dokumentnavn("signertErklaeringMor.pdf")
-            .signertDokument(
-                String.format(
-                        "Mor signerer farskapserklæring for barn med termindato %s",
-                        barn.getTermindato())
-                    .getBytes())
+            .dokumentStatusUrl(new URI(""))
+            .redirectUrlFar(redirectUrlFar)
+            .redirectUrlMor(redirectUrlMor)
+            .padesUrl(new URI(""))
             .build();
 
     var farskapserklaering =
-        Farskapserklaering.builder()
-            .barn(barn)
-            .mor(mor)
-            .far(far)
-            .signertErklaering(signertErklaeringMor)
-            .build();
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(etDokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
     var enAnnenMor =
         Forelder.builder().foedselsnummer("31019123450").fornavn("Greta").etternavn("Xyz").build();
+    var etAnnetDokument =
+        Dokument.builder()
+            .padesUrl(new URI(""))
+            .redirectUrlMor(redirectUrlMor)
+            .redirectUrlFar(redirectUrlFar)
+            .dokumentStatusUrl(new URI(""))
+            .dokumentnavn("EtAnnetDokument.pdf")
+            .build();
 
     var enAnnenFarskapserklaering =
         Farskapserklaering.builder()
             .barn(etAnnetBarn)
             .mor(enAnnenMor)
             .far(far)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(etAnnetDokument)
             .build();
 
     // when, then
@@ -63,28 +71,32 @@ public class FarskapserklaeringTest {
 
   @Test
   @DisplayName("Skal gi like hashkoder dersom to farskapserklæringer gjelder samme parter")
-  void skalGiLikeHashkoderDersomToFarskapserklaeringerGjelderSammeParter() {
+  void skalGiLikeHashkoderDersomToFarskapserklaeringerGjelderSammeParter()
+      throws URISyntaxException {
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
     var mor =
         Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
     var far =
         Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
-    var signertErklaeringMor =
-        SignertDokument.builder()
-            .dokumentnavn("signertErklaeringMor.pdf")
-            .signertDokument(
-                String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
-                    .getBytes())
+    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
+    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+
+    var dokument =
+        Dokument.builder()
+            .padesUrl(new URI(""))
+            .redirectUrlMor(redirectUrlMor)
+            .redirectUrlFar(redirectUrlFar)
+            .dokumentStatusUrl(new URI(""))
+            .dokumentnavn("farskapserklaering.pdf")
             .build();
+
 
     var farskapserklaering =
         Farskapserklaering.builder()
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(dokument)
             .build();
 
     var barnMedSammeTermindato = Barn.builder().termindato(barn.getTermindato()).build();
@@ -106,7 +118,7 @@ public class FarskapserklaeringTest {
             .barn(barnMedSammeTermindato)
             .mor(sammeMor)
             .far(sammeFar)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(dokument)
             .build();
 
     // when, then
@@ -116,7 +128,7 @@ public class FarskapserklaeringTest {
   @Test
   @DisplayName(
       "To farskapserklæringer skal ikke kategoriseres som like dersom partene ikke er de samme")
-  void farskapserklaeringerMedUlikeParterSkalKategoriseresSomUlike() {
+  void farskapserklaeringerMedUlikeParterSkalKategoriseresSomUlike() throws URISyntaxException {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
@@ -124,14 +136,16 @@ public class FarskapserklaeringTest {
         Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
     var far =
         Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
-    var signertErklaeringMor =
-        SignertDokument.builder()
-            .dokumentnavn("signertErklaeringMor.pdf")
-            .signertDokument(
-                String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
-                    .getBytes())
+    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
+    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+
+    var dokument =
+        Dokument.builder()
+            .padesUrl(new URI(""))
+            .redirectUrlMor(redirectUrlMor)
+            .redirectUrlFar(redirectUrlFar)
+            .dokumentStatusUrl(new URI(""))
+            .dokumentnavn("farskapserklaering.pdf")
             .build();
 
     var farskapserklaering =
@@ -139,7 +153,7 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(dokument)
             .build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
@@ -151,7 +165,7 @@ public class FarskapserklaeringTest {
             .barn(etAnnetBarn)
             .mor(enAnnenMor)
             .far(far)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(dokument)
             .build();
 
     // when, then
@@ -160,7 +174,7 @@ public class FarskapserklaeringTest {
 
   @Test
   @DisplayName("To farskapserklæringer skal kategoriseres som like dersom alle parter er like")
-  void farskapserklaeringerMedLikeParterSkalKategoriseresSomLike() {
+  void farskapserklaeringerMedLikeParterSkalKategoriseresSomLike() throws URISyntaxException {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
@@ -168,14 +182,17 @@ public class FarskapserklaeringTest {
         Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
     var far =
         Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
-    var signertErklaeringMor =
-        SignertDokument.builder()
-            .dokumentnavn("signertErklaeringMor.pdf")
-            .signertDokument(
-                String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
-                    .getBytes())
+
+    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
+    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+
+    var dokument =
+        Dokument.builder()
+            .padesUrl(new URI(""))
+            .redirectUrlMor(redirectUrlMor)
+            .redirectUrlFar(redirectUrlFar)
+            .dokumentStatusUrl(new URI(""))
+            .dokumentnavn("farskapserklaering.pdf")
             .build();
 
     var farskapserklaering =
@@ -183,10 +200,10 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(dokument)
             .build();
 
-    barn.setFarskapserklaering(farskapserklaering);
+    //barn.setFarskapserklaering(farskapserklaering);
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));
 
@@ -209,10 +226,10 @@ public class FarskapserklaeringTest {
             .barn(barnMedSammeTermindato)
             .mor(sammeMor)
             .far(sammeFar)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(dokument)
             .build();
 
-    barnMedSammeTermindato.setFarskapserklaering(enAnnenFarskapserklaeringMedSammeParter);
+    //barnMedSammeTermindato.setFarskapserklaering(enAnnenFarskapserklaeringMedSammeParter);
     sammeMor.setErklaeringerMor(Set.of(enAnnenFarskapserklaeringMedSammeParter));
     sammeFar.setErklaeringerFar(Set.of(enAnnenFarskapserklaeringMedSammeParter));
 
@@ -222,7 +239,7 @@ public class FarskapserklaeringTest {
 
   @Test
   @DisplayName("Teste toString")
-  void testeToString() {
+  void testeToString() throws URISyntaxException {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
@@ -230,14 +247,16 @@ public class FarskapserklaeringTest {
         Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
     var far =
         Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
-    var signertErklaeringMor =
-        SignertDokument.builder()
-            .dokumentnavn("signertErklaeringMor.pdf")
-            .signertDokument(
-                String.format(
-                    "Mor signerer farskapserklæring for barn med termindato %s",
-                    barn.getTermindato())
-                    .getBytes())
+    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
+    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+
+    var dokument =
+        Dokument.builder()
+            .padesUrl(new URI(""))
+            .redirectUrlMor(redirectUrlMor)
+            .redirectUrlFar(redirectUrlFar)
+            .dokumentStatusUrl(new URI(""))
+            .dokumentnavn("farskapserklaering.pdf")
             .build();
 
     var farskapserklaering =
@@ -245,10 +264,10 @@ public class FarskapserklaeringTest {
             .barn(barn)
             .mor(mor)
             .far(far)
-            .signertErklaering(signertErklaeringMor)
+            .dokument(dokument)
             .build();
 
-    barn.setFarskapserklaering(farskapserklaering);
+    //barn.setFarskapserklaering(farskapserklaering);
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));
 

@@ -9,21 +9,15 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering, Integer> {
 
-  @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer = :fnrFar")
-  Set<Farskapserklaering> hentFarskapserklaeringerFar(String fnrFar);
+  @Query("select fe from Farskapserklaering fe where (fe.far.foedselsnummer = :fnr or fe.mor.foedselsnummer = :fnr) and fe.dokument.padesUrl is not null")
+  Set<Farskapserklaering> hentFarskapserklaeringerMedPadeslenke(String fnr);
 
-  @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.barn.foedselsnummer = :fnrBarn")
-  Farskapserklaering hentFarskapserklaeringFar(String fnrFar, String fnrBarn);
+  @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.mor.foedselsnummer =:fnrMor and fe.barn.termindato = :termindato and fe.dokument.padesUrl is not null")
+  Set<Farskapserklaering> hentFarskapserklaeringMedPadeslenke(String fnrFar, String fnrMor, Date termindato);
 
-  @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.barn.termindato = :termindato")
-  Farskapserklaering hentFarskapserklaeringFar(String fnrFar, Date termindato);
+  @Query("select fe from Farskapserklaering fe where (fe.far.foedselsnummer =:fnrForelder or fe.mor.foedselsnummer = :fnrForelder)  and fe.barn.foedselsnummer = :fnrBarn and fe.dokument.padesUrl is not null")
+  Farskapserklaering hentFarskapserklaeringMedPadeslenke(String fnrForelder, String fnrBarn);
 
-  @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor")
-  Set<Farskapserklaering> hentFarskapserklaeringerMor(String fnrMor);
-
-  @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor and fe.barn.foedselsnummer = :fnrBarn")
-  Farskapserklaering hentFarskapserklaeringMor(String fnrMor, String fnrBarn);
-
-  @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor and fe.barn.termindato = :termindato")
-  Farskapserklaering hentFarskapserklaeringMor(String fnrMor, LocalDate termindatos);
+  @Query("select fe from Farskapserklaering  fe where fe.mor.foedselsnummer = :fnrMor and fe.dokument.padesUrl is null")
+ Set<Farskapserklaering> hentFarskapserklaeringerMorUtenPadeslenke(String fnrMor);
 }

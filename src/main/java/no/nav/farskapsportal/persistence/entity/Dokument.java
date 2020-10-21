@@ -1,6 +1,8 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,24 +24,30 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignertDokument implements Serializable  {
+public class Dokument implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private String id;
+  private int id;
 
-  @NotNull
   private String dokumentnavn;
 
-  @NotNull
-  private byte[] signertDokument;
+  private URI dokumentStatusUrl;
 
-  @OneToOne(mappedBy = "signertErklaering", cascade = CascadeType.ALL)
-  private Farskapserklaering signerterklaering;
+  private URI padesUrl;
+
+  private LocalDateTime signertAvMor;
+
+  private LocalDateTime signertAvFar;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  private RedirectUrl redirectUrlMor;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  private RedirectUrl redirectUrlFar;
 
   @Override
   public String toString() {
     return "Dokumentnavn: " + dokumentnavn;
   }
-
 }

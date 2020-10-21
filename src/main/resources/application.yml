@@ -43,9 +43,10 @@ farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
 ### H2 config ###
-spring.datasource.url: jdbc:h2:mem:default
-
-spring.h2.console.enabled: true
+spring:
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
 
 ---
 spring:

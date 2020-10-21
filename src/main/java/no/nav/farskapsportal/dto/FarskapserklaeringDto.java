@@ -9,9 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FarskapserklaeringDto {
-
   private @Setter(AccessLevel.NONE) BarnDto barn;
   private @Setter(AccessLevel.NONE) ForelderDto mor;
   private @Setter(AccessLevel.NONE) ForelderDto far;
-  private DokumentDto signertErklaering;
+  private DokumentDto dokument;
 }

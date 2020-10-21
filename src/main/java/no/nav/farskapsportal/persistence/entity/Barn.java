@@ -2,19 +2,16 @@ package no.nav.farskapsportal.persistence.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
-import org.springframework.validation.annotation.Validated;
 
 @Entity
 @Builder
@@ -26,14 +23,11 @@ public class Barn implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private String id;
+  private int id;
 
   private LocalDate termindato;
 
   @NaturalId private String foedselsnummer;
-
-  @OneToOne(mappedBy = "barn", cascade = CascadeType.ALL)
-  private Farskapserklaering farskapserklaering;
 
   @Override
   public int hashCode() {
@@ -42,13 +36,7 @@ public class Barn implements Serializable {
     result =
         prime * result
             + (termindato == null ? 0 : termindato.hashCode())
-            + (foedselsnummer == null ? 0 : foedselsnummer.hashCode())
-            + (farskapserklaering == null
-                ? 0
-                : farskapserklaering.getMor().getFoedselsnummer().hashCode())
-            + (farskapserklaering == null
-                ? 0
-                : farskapserklaering.getFar().getFoedselsnummer().hashCode());
+            + (foedselsnummer == null ? 0 : foedselsnummer.hashCode());
 
     return result;
   }
@@ -68,25 +56,13 @@ public class Barn implements Serializable {
       if (other.foedselsnummer != null) return false;
     } else if (!foedselsnummer.equals(other.foedselsnummer)) return false;
 
-    if (farskapserklaering == null) {
-      if (other.farskapserklaering != null) return false;
-    } else if (other.farskapserklaering == null) return false;
-    else if (!farskapserklaering
-            .getMor()
-            .getFoedselsnummer()
-            .equals(other.farskapserklaering.getMor().getFoedselsnummer())
-        || !farskapserklaering
-            .getFar()
-            .getFoedselsnummer()
-            .equals(other.farskapserklaering.getFar().getFoedselsnummer())) return false;
-
-    return true;
+    return foedselsnummer == null
+        ? termindato.equals(other.termindato)
+        : foedselsnummer.equals(other.foedselsnummer);
   }
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
-    builder.append("Barn knyttet til termindato: ").append(termindato);
-    return builder.toString();
+    return "Barn knyttet til termindato: " + termindato.toString();
   }
 }

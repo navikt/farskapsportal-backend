@@ -7,7 +7,8 @@ import lombok.Value;
 @Value
 public class PersonDto {
 
-  @Singular("kjoenn")
+  List<FamilierelasjonerDto> familierelasjoner;
+  List<FoedselDto> foedsel;
   List<KjoennDto> kjoenn;
 
   @Singular("navn")

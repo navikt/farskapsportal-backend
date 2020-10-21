@@ -20,7 +20,6 @@ import org.hibernate.annotations.NaturalId;
 import org.springframework.validation.annotation.Validated;
 
 @Entity
-@Validated
 @Builder
 @Getter
 @Setter
@@ -30,20 +29,21 @@ public class Forelder implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private String id;
+  private int id;
 
-  @NaturalId @NonNull private String foedselsnummer;
-  @NonNull private String fornavn;
+  @NaturalId private String foedselsnummer;
+  private String fornavn;
 
   private String mellomnavn;
 
-  @NonNull private String etternavn;
+  private String etternavn;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mor", cascade = CascadeType.ALL)
   private Set<Farskapserklaering> erklaeringerMor = new HashSet<>();
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "far", cascade = CascadeType.ALL)
   private Set<Farskapserklaering> erklaeringerFar = new HashSet<>();
+
 
   @Override
   public int hashCode() {

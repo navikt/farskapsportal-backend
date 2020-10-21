@@ -11,13 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
-import no.nav.farskapsportal.persistence.PersistenceService;
+import no.nav.farskapsportal.persistence.dao.BarnDao;
+import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
+import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.RedirectUrlDao;
 import no.nav.farskapsportal.service.FarskapsportalService;
+import no.nav.farskapsportal.service.PersistenceService;
+import no.nav.farskapsportal.service.PersonopplysningService;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.modelmapper.ModelMapper;
@@ -109,13 +116,29 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PersistenceService persistenceService(FarskapserklaeringDao farskapserklaeringDao, ModelMapper modelMapper) {
-    return new PersistenceService(farskapserklaeringDao, modelMapper);
+  public PersistenceService persistenceService(
+      FarskapserklaeringDao farskapserklaeringDao, ModelMapper modelMapper, BarnDao barnDao, RedirectUrlDao redirectUrlDao, ForelderDao forelderDao, DokumentDao dokumentDao) {
+    return new PersistenceService(farskapserklaeringDao, barnDao, forelderDao, redirectUrlDao, dokumentDao,  modelMapper );
   }
 
   @Bean
-  public FarskapsportalService farskapsportalService(PdlApiConsumer pdlApiConsumer) {
-    return FarskapsportalService.builder().pdlApiConsumer(pdlApiConsumer).build();
+  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer) {
+    return PersonopplysningService.builder().pdlApiConsumer(pdlApiConsumer).build();
+  }
+
+  @Bean
+  public FarskapsportalService farskapsportalService(
+      DifiESignaturConsumer difiESignaturConsumer,
+      PdfGeneratorConsumer pdfGeneratorConsumer,
+      PersistenceService persistenceService,
+      PersonopplysningService personopplysningService) {
+
+    return FarskapsportalService.builder()
+        .difiESignaturConsumer(difiESignaturConsumer)
+        .pdfGeneratorConsumer(pdfGeneratorConsumer)
+        .persistenceService(persistenceService)
+        .personopplysningService(personopplysningService)
+        .build();
   }
 
   @Bean

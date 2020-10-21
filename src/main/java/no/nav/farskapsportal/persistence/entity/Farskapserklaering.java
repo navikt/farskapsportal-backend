@@ -2,7 +2,6 @@ package no.nav.farskapsportal.persistence.entity;
 
 import java.io.Serializable;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,23 +27,19 @@ public class Farskapserklaering implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private String id;
+  private int id;
 
-  @NonNull
   @OneToOne(cascade = CascadeType.ALL)
   private Barn barn;
 
-  @NonNull
   @ManyToOne(cascade = CascadeType.ALL)
   private Forelder mor;
 
-  @NonNull
   @ManyToOne(cascade = CascadeType.ALL)
   private Forelder far;
 
-  @NonNull
   @OneToOne(cascade = CascadeType.ALL)
-  private SignertDokument signertErklaering;
+  private Dokument dokument;
 
   @Override
   public int hashCode() {
@@ -68,27 +63,22 @@ public class Farskapserklaering implements Serializable {
 
     if (!barn.equals(other.barn)) return false;
     if (!mor.equals(other.mor)) return false;
-    if (!far.equals(other.far)) return false;
-
-    return true;
+    return far.equals(other.far);
   }
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
-    builder
-        .append("Farskapserklaering gjelder barn med termindato ")
-        .append(barn.getTermindato().toString())
-        .append("\n")
-        .append("Mor: ")
-        .append(mor.getFornavn())
-        .append(" ")
-        .append(mor.getEtternavn())
-        .append("\n")
-        .append("Far: ")
-        .append(far.getFornavn())
-        .append(" ")
-        .append(far.getEtternavn());
-    return builder.toString();
+    return "Farskapserklaering gjelder barn med termindato "
+        + barn.getTermindato().toString()
+        + "\n"
+        + "Mor: "
+        + mor.getFornavn()
+        + " "
+        + mor.getEtternavn()
+        + "\n"
+        + "Far: "
+        + far.getFornavn()
+        + " "
+        + far.getEtternavn();
   }
 }

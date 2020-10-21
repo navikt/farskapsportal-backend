@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.consumer.pdf;
 
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -12,9 +13,11 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class PdfGeneratorConsumer {
 
   public DokumentDto genererePdf(FarskapserklaeringDto dto) {
+    log.info("Oppretter dokument for farskapserklæring");
 
     var dokumentnavn = "Farskapsportal.pdf";
 
@@ -71,7 +74,7 @@ public class PdfGeneratorConsumer {
 
       return DokumentDto.builder()
           .dokumentnavn(dokumentnavn)
-          .dokument(pdStream.toByteArray())
+          .innhold(pdStream.toByteArray())
           .build();
 
     } catch (IOException ioe) {

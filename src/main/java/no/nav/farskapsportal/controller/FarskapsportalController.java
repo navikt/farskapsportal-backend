@@ -1,23 +1,31 @@
-package no.nav.farskapsportal.api;
+package no.nav.farskapsportal.controller;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.api.BrukerinformasjonResponse;
+import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.api.Kjoenn;
+import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
+import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
-import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.service.FarskapsportalService;
+import no.nav.farskapsportal.service.PersonopplysningService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,31 +36,13 @@ public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
 
+  @Autowired private PersonopplysningService personopplysningService;
+
   @Autowired private OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
 
-  @Deprecated
-  @GetMapping("/kjoenn")
-  @ApiOperation("Avgjør kjønn til person")
-  @ApiResponses(
-      value = {
-        @ApiResponse(code = 200, message = "Ingen feil ved henting av kjønn"),
-        @ApiResponse(code = 400, message = "Ugyldig fødselsnummer"),
-        @ApiResponse(
-            code = 401,
-            message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-        @ApiResponse(code = 404, message = "Fant ikke fødselsnummer"),
-        @ApiResponse(code = 503, message = "Henting av kjønn for fødselsnummer feilet")
-      })
-  public ResponseEntity<Kjoenn> henteKjonn() {
-    log.info("Henter kjønn til person");
-
-    return farskapsportalService
-        .henteKjoenn(oidcTokenSubjectExtractor.hentPaaloggetPerson())
-        .getResponseEntity();
-  }
-
-  @GetMapping("/rolle")
-  @ApiOperation("Bestemmer rolle til person")
+  @GetMapping("/brukerinformasjon")
+  @ApiOperation(
+      "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn")
   @ApiResponses(
       value = {
         @ApiResponse(code = 200, message = "Ingen feil ved bestemming av rolle"),
@@ -61,17 +51,19 @@ public class FarskapsportalController {
             code = 401,
             message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
         @ApiResponse(code = 404, message = "Fant ikke fødselsnummer"),
-        @ApiResponse(code = 503, message = "Bestemming av rolle for fødselsnummer feilet")
+        @ApiResponse(code = 500, message = "Serverfeil"),
+        @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")
       })
-  public ResponseEntity<Kjoenn> bestemmeRolle() {
-    log.info("Bestemmer rolle til person");
+  public ResponseEntity<BrukerinformasjonResponse> henteBrukerinformasjon() {
+    log.info("Henter brukerinformasjon");
+    var brukerinformasjon =
+        farskapsportalService.henteBrukerinformasjon(
+            oidcTokenSubjectExtractor.hentPaaloggetPerson());
 
-    return farskapsportalService
-        .henteKjoenn(oidcTokenSubjectExtractor.hentPaaloggetPerson())
-        .getResponseEntity();
+    return new ResponseEntity<>(brukerinformasjon, HttpStatus.OK);
   }
 
-  @PostMapping("/kontrollere/far")
+  @PostMapping("/personopplysninger/far")
   @ApiOperation(
       "Kontrollerer om fødeslnummer til oppgitt far stemmer med navn; samt at far er mann")
   @ApiResponses(
@@ -85,21 +77,19 @@ public class FarskapsportalController {
             code = 401,
             message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
         @ApiResponse(code = 404, message = "Fant ikke fødselsnummer eller navn"),
-        @ApiResponse(code = 503, message = "Kontroll av fødselsnummer mot navn feilet")
+        @ApiResponse(code = 500, message = "Serverfeil"),
+        @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")
       })
   public ResponseEntity<Void> kontrollereOpplysningerFar(
       @RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
-
-    farskapsportalService.riktigNavnOgKjoennOppgittForFar(request);
-
+    personopplysningService.riktigNavnOgRolle(request, Forelderrolle.FAR);
     log.info("Kontroll av personopplysninger fullført uten feil");
-
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PostMapping("/farskap/opprette")
-  @ApiOperation("Opprette erklæring om farskap til barn")
+  @PostMapping("/farskapserklaering/ny")
+  @ApiOperation("Oppretter farskapserklæring")
   @ApiResponses(
       value = {
         @ApiResponse(code = 200, message = "Farskapserklæring opprettet"),
@@ -108,53 +98,46 @@ public class FarskapsportalController {
             code = 401,
             message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
         @ApiResponse(code = 404, message = "Fant ikke fødselsnummer eller navn"),
-        @ApiResponse(code = 503, message = "Oppretting av farskap feilet")
+        @ApiResponse(code = 500, message = "Serverfeil"),
+        @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")
       })
-  public ResponseEntity<Void> oppretteFarskapserklaering(
+  public ResponseEntity<String> nyFarskapserklaering(
       @RequestBody OppretteFarskaperklaeringRequest request) {
-    log.info("Oppretter farskap");
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var respons = farskapsportalService.oppretteFarskapserklaering(fnrPaaloggetPerson, request);
-    log.info("Erklæring av farskap fullført");
-    return new ResponseEntity<>(HttpStatus.OK);
+    String redirectUrlMor = respons.getRedirectUrlForSigneringMor();
+
+    return new ResponseEntity<>(redirectUrlMor, HttpStatus.OK);
   }
 
-  @PostMapping("/farskap/erklaere")
-  @ApiOperation("Far erklærer farskap til barn")
+  @PutMapping("/farskapserklaering/redirect")
+  @ApiOperation(
+      "Kalles etter redirect fra singeringsløsningen. Henter kopi av signert dokument fra "
+          + "dokumentlager for pålogget person. Lagrer padeslenke. Oppdaterer signeringsstatus.")
   @ApiResponses(
       value = {
-        @ApiResponse(code = 200, message = "E"),
+        @ApiResponse(code = 200, message = "Dokumentet ble hentet, og padeslenke lagret uten feil"),
         @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
         @ApiResponse(
             code = 401,
             message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-        @ApiResponse(code = 404, message = "Fant ikke ventende farskapserklæring"),
-        @ApiResponse(code = 503, message = "Erklæring av farskap feilet")
+        @ApiResponse(code = 404, message = "Fant ikke dokument"),
+        @ApiResponse(code = 500, message = "Serverfeil"),
+        @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")
       })
-  public ResponseEntity<Void> erklaereFarskap(@RequestBody BarnDto barnDto) {
-    log.info("Oppretter farskap");
+  public ResponseEntity<byte[]> henteDokumentEtterRedirect(
+      @ApiParam(
+              name = "statusQueryToken",
+              type = "String",
+              value = "status_query_token som mottatt fra e-signeringsløsningen i redirect-url",
+              required = true)
+          @RequestParam(name = "status_query_token")
+          String statusQuerytoken) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    farskapsportalService.erklaereFarskap(fnrPaaloggetPerson, barnDto);
-    log.info("Erklæring av farskap fullført");
-    return new ResponseEntity<>(HttpStatus.OK);
+    var signertDokument =
+        farskapsportalService.henteSignertDokumentEtterRedirect(
+            fnrPaaloggetPerson, statusQuerytoken);
+    return new ResponseEntity<>(signertDokument, HttpStatus.OK);
   }
 
-  @GetMapping("/erklaering/termindato/{termindato}")
-  @ApiOperation("Henter farskapserklæring under behandling som venter på fars signatur")
-  @ApiResponses(
-      value = {
-        @ApiResponse(code = 200, message = "Farskapserklæring hentet"),
-        @ApiResponse(code = 400, message = "Feil opplysinger angitt"),
-        @ApiResponse(
-            code = 401,
-            message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-        @ApiResponse(code = 404, message = "Fant ikke fødselsnummer eller navn"),
-        @ApiResponse(code = 503, message = "Bekrefting av farskap feilet")
-      })
-  public ResponseEntity<Farskapserklaering> henteFarskapserklaeringUnderBehandling(
-      @PathVariable String fodselsnummer, @PathVariable String termindato) {
-    log.info("Hente farskapserklæring for barn med termindato {}", termindato);
-
-    return new ResponseEntity<>(null, HttpStatus.OK);
-  }
 }

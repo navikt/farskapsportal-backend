@@ -1,37 +1,69 @@
 package no.nav.farskapsportal.consumer.pdl.stub;
 
+import java.util.List;
 import lombok.Getter;
+import lombok.Value;
 import no.nav.farskapsportal.api.Kjoenn;
 
+@Value
 @Getter
 public class HentPersonKjoenn implements HentPersonSubQuery {
 
-  private String query;
-
-  public HentPersonKjoenn() {
-    buildQuery(Kjoenn.KVINNE, "szagg, aog");
-  }
+  String query;
 
   public HentPersonKjoenn(Kjoenn kjoenn) {
-    buildQuery(kjoenn, "sagga-dagga");
+    this.query = buildQueryKjoenn(kjoenn, "sagga-dagga");
   }
 
-  private void buildQuery(Kjoenn kjoenn, String opplysningsId) {
-    if (kjoenn == null) {
-      this.query = String.join("\n", " \"kjoenn\": [", "]");
+  public HentPersonKjoenn(List<Kjoenn> kjoennshistorikk) {
+    this.query = buildQueryKjoennMedHistorikk(kjoennshistorikk);
+  }
+
+  private String buildQueryKjoennMedHistorikk(List<Kjoenn> input) {
+    if (input == null || input.isEmpty()) {
+      return String.join("\n", " \"kjoenn\": [", "]");
     } else {
-      this.query =
-          String.join(
-              "\n",
-              " \"kjoenn\": [",
-              " {",
-              " \"kjoenn\": \"" + kjoenn + "\",",
-              " \"metadata\": {",
-              " \"opplysningsId\": \"" + opplysningsId + "\",",
-              " \"master\": \"Freg\"",
-              " }",
-              " }",
-              "]");
+
+      var startingElements = String.join("\n", " \"kjoenn\": [");
+      var closingElements = String.join("\n", "]");
+
+      var kjoennshistorikk = new StringBuilder();
+      kjoennshistorikk.append(startingElements);
+
+      var count = 0;
+      for (Kjoenn kjoenn : input) {
+        kjoennshistorikk.append(hentKjoennElement(kjoenn, "123"));
+        if (input.size() > 1 && (count == 0 || count > input.size() - 1)) {
+          kjoennshistorikk.append(",");
+        }
+        count++;
+      }
+
+      kjoennshistorikk.append(closingElements);
+      return kjoennshistorikk.toString();
     }
+  }
+
+  private String buildQueryKjoenn(Kjoenn kjoenn, String opplysningsId) {
+    if (kjoenn == null) {
+      return String.join("\n", " \"kjoenn\": [", "]");
+    } else {
+      var startingElements = String.join("\n", " \"kjoenn\": [");
+      var closingElements = String.join("\n", "]");
+
+      return startingElements + hentKjoennElement(kjoenn, opplysningsId) + closingElements;
+    }
+  }
+
+  private String hentKjoennElement(Kjoenn kjoenn, String opplysningsId) {
+    return String.join(
+        "\n",
+        " {",
+        " \"kjoenn\": \"" + kjoenn + "\",",
+        " \"metadata\": {",
+        " \"opplysningsId\": \"" + opplysningsId + "\",",
+        " \"master\": \"Freg\"",
+        " }",
+        " }");
   }
 }
