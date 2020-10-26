@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - '**'
-
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
 
