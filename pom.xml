@@ -6,7 +6,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.3.3.RELEASE</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>no.nav.farskap</groupId>
@@ -30,7 +30,7 @@
     <!-- navikt -->
     <bidrag-commons.version>0.4.2</bidrag-commons.version>
     <boot-conditionals.version>1.0.20200824135201-5568111</boot-conditionals.version>
-    <token-support.version>1.3.0</token-support.version>
+    <token-support.version>1.3.1</token-support.version>
 
     <!-- other -->
     <guava.version>30.0-android</guava.version>
