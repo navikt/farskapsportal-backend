@@ -11,7 +11,7 @@
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.10-SNAPSHOT</version>
+  <version>0.0.13-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -33,7 +33,7 @@
     <token-support.version>1.3.0</token-support.version>
 
     <!-- other -->
-    <guava.version>28.2-jre</guava.version>
+    <guava.version>30.0-jre</guava.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <spring-retry.version>1.3.0</spring-retry.version>
