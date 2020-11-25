@@ -99,11 +99,11 @@ jobs:
             ${{ runner.os }}-maven-
 
       - uses: navikt/bidrag-maven/setup@v5
-      if: env.NOT_FOUND == 'true'
-      with:
-        repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: env.NOT_FOUND == 'true'
+        with:
+          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - run: mvn release:update-versions
 
