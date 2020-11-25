@@ -6,12 +6,12 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.3.3.RELEASE</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.9-SNAPSHOT</version>
+  <version>0.0.14-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -30,14 +30,18 @@
     <!-- navikt -->
     <bidrag-commons.version>0.4.2</bidrag-commons.version>
     <boot-conditionals.version>1.0.20200824135201-5568111</boot-conditionals.version>
-    <token-support.version>1.3.0</token-support.version>
+    <token-support.version>1.3.1</token-support.version>
 
     <!-- other -->
+<<<<<<< HEAD
     <guava.version>28.2-jre</guava.version>
     <apache.commons-lang.version>3.11</apache.commons-lang.version>
     <apache.commons-io.version>2.6</apache.commons-io.version>
     <apache.pdfbox.version>2.0.4</apache.pdfbox.version>
     <modelmapper.version>2.3.8</modelmapper.version>
+=======
+    <guava.version>30.0-jre</guava.version>
+>>>>>>> main
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <springframework-retry.version>1.3.0</springframework-retry.version>
@@ -184,6 +188,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -225,6 +230,11 @@
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
     </dependency>
 
     <!-- guava -->

@@ -22,8 +22,8 @@ spring.profiles: live
 
 no.nav:
   security.jwt.issuer.selvbetjening:
-    discoveryurl: ${DISCOVERY_URL}
-    accepted_audience: ${AUD_FP}
+    discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+    accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
 ---
 ########## Mock props ##########
@@ -61,7 +61,7 @@ spring.profiles: integration-test
 
 no.nav:
   security.jwt.issuer.selvbetjening:
-    discoveryurl: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+    discoveryurl: https://navtestb2c.b2clogin.com/navtestb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
     accepted_audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
 
 urls:
