@@ -4,13 +4,17 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
@@ -57,14 +61,14 @@ public class PdlApiConsumerTest {
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubQuery> subQueries =
-          List.of(new HentPersonKjoenn(no.nav.farskapsportal.api.Kjoenn.KVINNE));
+          List.of(new HentPersonKjoenn(KjoennTypeDto.KVINNE));
       pdlApiStub.runPdlApiHentPersonStub(subQueries);
 
       // when
       var kjoenn = pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor);
 
       // then
-      Assertions.assertEquals(no.nav.farskapsportal.api.Kjoenn.KVINNE, kjoenn);
+      Assertions.assertEquals(KjoennTypeDto.KVINNE, kjoenn.getKjoenn());
     }
 
     @Test
@@ -102,12 +106,19 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries =
-          List.of(
-              new HentPersonKjoenn(
-                  List.of(
-                      no.nav.farskapsportal.api.Kjoenn.KVINNE,
-                      no.nav.farskapsportal.api.Kjoenn.MANN)));
+
+      Map<KjoennTypeDto, LocalDateTime> map =
+          Stream.of(
+                  new Object[][] {
+                    {KjoennTypeDto.KVINNE, LocalDateTime.now()},
+                    {KjoennTypeDto.MANN, LocalDateTime.now()}
+                  })
+              .collect(
+                  Collectors.toMap(
+                      data -> (KjoennTypeDto) data[0],
+                      data -> (LocalDateTime) data[1]));
+
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(map));
       pdlApiStub.runPdlApiHentPersonStub(subQueries);
 
       // when
@@ -118,8 +129,8 @@ public class PdlApiConsumerTest {
           () -> assertEquals(historikk.size(), 2, "Historikken skal inneholde to elementer"),
           () ->
               Assertions.assertEquals(
-                  no.nav.farskapsportal.api.Kjoenn.KVINNE,
-                  historikk.stream().findFirst().get(),
+                 KjoennTypeDto.KVINNE,
+                  historikk.stream().findFirst().get().getKjoenn(),
                   "Første element i historikken er kvinne"));
     }
 
@@ -240,10 +251,15 @@ public class PdlApiConsumerTest {
       // given
       var fnrFar = "13108411111";
       var fnrBarn = "01112009091";
-      var familierelasjonerDto = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrBarn).relatertPersonsRolle(
-          FamilierelasjonRolle.BARN).minRolleForPerson(FamilierelasjonRolle.FAR).build();
+      var familierelasjonerDto =
+          FamilierelasjonerDto.builder()
+              .relatertPersonsIdent(fnrBarn)
+              .relatertPersonsRolle(FamilierelasjonRolle.BARN)
+              .minRolleForPerson(FamilierelasjonRolle.FAR)
+              .build();
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonFamilierelasjoner(familierelasjonerDto, "1234"));
+      List<HentPersonSubQuery> subQueries =
+          List.of(new HentPersonFamilierelasjoner(familierelasjonerDto, "1234"));
       pdlApiStub.runPdlApiHentPersonStub(subQueries);
 
       // when
@@ -251,10 +267,27 @@ public class PdlApiConsumerTest {
 
       // then
       assertAll(
-          () -> assertEquals(fnrBarn, farsFamilierelasjoner.stream().map(FamilierelasjonerDto::getRelatertPersonsIdent).findAny().get()),
-          () -> assertEquals(familierelasjonerDto.getMinRolleForPerson(), farsFamilierelasjoner.stream().map(FamilierelasjonerDto::getMinRolleForPerson).findAny().get()),
-          () -> assertEquals(familierelasjonerDto.getRelatertPersonsRolle(), farsFamilierelasjoner.stream().map(FamilierelasjonerDto::getRelatertPersonsRolle).findAny().get())
-      );
+          () ->
+              assertEquals(
+                  fnrBarn,
+                  farsFamilierelasjoner.stream()
+                      .map(FamilierelasjonerDto::getRelatertPersonsIdent)
+                      .findAny()
+                      .get()),
+          () ->
+              assertEquals(
+                  familierelasjonerDto.getMinRolleForPerson(),
+                  farsFamilierelasjoner.stream()
+                      .map(FamilierelasjonerDto::getMinRolleForPerson)
+                      .findAny()
+                      .get()),
+          () ->
+              assertEquals(
+                  familierelasjonerDto.getRelatertPersonsRolle(),
+                  farsFamilierelasjoner.stream()
+                      .map(FamilierelasjonerDto::getRelatertPersonsRolle)
+                      .findAny()
+                      .get()));
     }
   }
 }

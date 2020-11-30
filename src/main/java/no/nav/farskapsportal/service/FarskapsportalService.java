@@ -13,6 +13,7 @@ import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
@@ -21,6 +22,7 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.FarskapserklaeringIkkeFunnetException;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
+import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -52,7 +54,8 @@ public class FarskapsportalService {
 
     // Henter påbegynte farskapserklæringer som venter på mors signatur
     Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaMor =
-        persistenceService.henteFarskapserklaeringerSomManglerMorsSignatur(foedselsnummer, brukersForelderrolle);
+        persistenceService.henteFarskapserklaeringerSomManglerMorsSignatur(
+            foedselsnummer, brukersForelderrolle);
 
     // Henter påbegynte farskapserklæringer som venter på fars signatur
     Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaFar =
@@ -88,6 +91,8 @@ public class FarskapsportalService {
     }
 
     var navnMor = personopplysningService.henteNavn(fnrMor);
+    var navnFar =
+        personopplysningService.henteNavn(request.getOpplysningerOmFar().getFoedselsnummer());
 
     var mor =
         ForelderDto.builder()
@@ -101,7 +106,9 @@ public class FarskapsportalService {
         ForelderDto.builder()
             .forelderRolle(Forelderrolle.FAR)
             .foedselsnummer(request.getOpplysningerOmFar().getFoedselsnummer())
-            .fornavn(request.getOpplysningerOmFar().getNavn())
+            .fornavn(navnFar.getFornavn())
+            .mellomnavn(navnFar.getMellomnavn())
+            .etternavn(navnFar.getEtternavn())
             .build();
 
     var farskapserklaeringDto =
@@ -114,8 +121,7 @@ public class FarskapsportalService {
     persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
 
     return OppretteFarskapserklaeringResponse.builder()
-        .redirectUrlForSigneringMor(
-            dokumentDto.getDokumentRedirectMor().getRedirectUrl().toString())
+        .redirectUrlForSigneringMor(dokumentDto.getDokumentRedirectMor().getRedirectUrl())
         .build();
   }
 
@@ -129,11 +135,7 @@ public class FarskapsportalService {
   public byte[] henteSignertDokumentEtterRedirect(
       String fnrPaaloggetPerson, String statusQueryToken) {
 
-    var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-
-    var farskapserklaeringer =
-        persistenceService.henteFarskapserklaeringerSomManglerMorsSignatur(
-            fnrPaaloggetPerson, brukersForelderrolle);
+    var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
 
     if (farskapserklaeringer.size() < 1) {
       throw new FarskapserklaeringIkkeFunnetException(
@@ -188,6 +190,27 @@ public class FarskapsportalService {
 
     // returnerer kopi av signert dokument
     return difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
+  }
+
+  private Set<FarskapserklaeringDto> henteFarskapserklaeringerEtterRedirect(
+      String fnrPaaloggetPerson) {
+
+    var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
+    var gjeldendeKjoenn = personopplysningService.henteGjeldendeKjoenn(fnrPaaloggetPerson);
+
+    if ((Forelderrolle.MOR.equals(brukersForelderrolle)
+            || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle))
+        && KjoennTypeDto.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
+      return persistenceService.henteFarskapserklaeringerSomManglerMorsSignatur(
+          fnrPaaloggetPerson, brukersForelderrolle);
+
+    } else if ((Forelderrolle.FAR.equals(brukersForelderrolle))
+        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)
+            && KjoennTypeDto.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
+     return  persistenceService.henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
+    }
+
+    throw new PersonHarFeilRolleException("Pålogget person kan verken opptre som mor eller far i løsningen!");
   }
 
   private DokumentStatusDto henteDokumentstatus(

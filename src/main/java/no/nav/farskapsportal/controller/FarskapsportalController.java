@@ -6,14 +6,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.api.Forelderrolle;
-import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
-import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersonopplysningService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
@@ -101,11 +100,11 @@ public class FarskapsportalController {
         @ApiResponse(code = 500, message = "Serverfeil"),
         @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")
       })
-  public ResponseEntity<String> nyFarskapserklaering(
+  public ResponseEntity<URI> nyFarskapserklaering(
       @RequestBody OppretteFarskaperklaeringRequest request) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var respons = farskapsportalService.oppretteFarskapserklaering(fnrPaaloggetPerson, request);
-    String redirectUrlMor = respons.getRedirectUrlForSigneringMor();
+    var redirectUrlMor = respons.getRedirectUrlForSigneringMor();
 
     return new ResponseEntity<>(redirectUrlMor, HttpStatus.OK);
   }
@@ -139,5 +138,4 @@ public class FarskapsportalController {
             fnrPaaloggetPerson, statusQuerytoken);
     return new ResponseEntity<>(signertDokument, HttpStatus.OK);
   }
-
 }

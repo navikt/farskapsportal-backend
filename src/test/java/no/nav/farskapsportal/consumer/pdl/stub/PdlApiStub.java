@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.consumer.pdl.stub;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -43,8 +44,13 @@ public class PdlApiStub {
   }
 
   public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries) {
+    runPdlApiHentPersonStub(subQueries,  "");
+  }
+
+  public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries, String ident) {
     stubFor(
         post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .withRequestBody(containing(ident))
             .willReturn(
                 aResponse()
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)

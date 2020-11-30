@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.api;
 
+import java.net.URI;
 import lombok.Builder;
 import lombok.Value;
 
@@ -7,5 +8,5 @@ import lombok.Value;
 @Builder
 public class OppretteFarskapserklaeringResponse {
 
-  String redirectUrlForSigneringMor;
+  URI redirectUrlForSigneringMor;
 }

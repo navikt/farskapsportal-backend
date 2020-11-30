@@ -26,7 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = FarskapsportalApplicationLocal.class)
 @ActiveProfiles(PROFILE_TEST)
-public class FarskapserklaeringServiceTest {
+public class FarskapsportalServiceTest {
 
   @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
   @MockBean DifiESignaturConsumer difiESignaturConsumer;

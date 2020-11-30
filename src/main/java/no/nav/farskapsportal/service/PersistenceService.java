@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
@@ -21,6 +22,7 @@ import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.RedirectUrl;
+import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import org.modelmapper.ModelMapper;
 
 @RequiredArgsConstructor
@@ -43,18 +45,30 @@ public class PersistenceService {
     barnDao.save(entity);
   }
 
-  public  BarnDto henteBarn(int id) {
-    var barn = barnDao.findById(id).get();
+  public BarnDto henteBarn(int id) {
+    var barn =
+        barnDao
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new FantIkkeEntititetException(
+                        String.format("Fant ikke barn med id %d i databasen", id)));
     return modelMapper.map(barn, BarnDto.class);
   }
 
-  public void lagreForelder(ForelderDto forelderDto){
+  public void lagreForelder(ForelderDto forelderDto) {
     var forelder = modelMapper.map(forelderDto, Forelder.class);
     forelderDao.save(forelder);
   }
 
   public ForelderDto henteForelder(int id) {
-    var forelder = forelderDao.findById(1).get();
+    var forelder =
+        forelderDao
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new FantIkkeEntititetException(
+                        String.format("Fant ingen forelder med id %d i databasen", id)));
     return modelMapper.map(forelder, ForelderDto.class);
   }
 
@@ -64,7 +78,13 @@ public class PersistenceService {
   }
 
   public RedirectUrlDto henteRedirectUrl(int id) {
-    var redirectUrl = redirectUrlDao.findById(id).get();
+    var redirectUrl =
+        redirectUrlDao
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new FantIkkeEntititetException(
+                        String.format("Fant ikke redirectUrl med id %d i databasen", id)));
     return modelMapper.map(redirectUrl, RedirectUrlDto.class);
   }
 
@@ -74,7 +94,12 @@ public class PersistenceService {
   }
 
   public DokumentDto henteDokument(int id) {
-    var dokument = dokumentDao.findById(id).get();
+    var dokument =
+        dokumentDao
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new FantIkkeEntititetException(String.format("Fant ikke dokument med id %d i databasen", id)));
     return modelMapper.map(dokument, DokumentDto.class);
   }
 
@@ -93,8 +118,8 @@ public class PersistenceService {
         .collect(Collectors.toSet());
   }
 
-  public Set<FarskapserklaeringDto> henteFarskapserklaeringerSomManglerMorsSignatur(
-      String fnrForelder, Forelderrolle forelderrolle) {
+  public Set<FarskapserklaeringDto> henteFarskapserklaeringerEtterRedirect(
+      String fnrForelder, Forelderrolle forelderrolle, KjoennTypeDto gjeldendeKjoenn) {
     switch (forelderrolle) {
       case MOR:
         return mapTilDto(
@@ -102,7 +127,14 @@ public class PersistenceService {
       case FAR:
         return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
       case MOR_ELLER_FAR:
-        return henteFarskapserklaeringVedRedirectMorEllerFar(fnrForelder);
+        if (KjoennTypeDto.KVINNE.equals(gjeldendeKjoenn)) {
+          return mapTilDto(
+              farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
+        } else if (KjoennTypeDto.MANN.equals(gjeldendeKjoenn)) {
+          return mapTilDto(
+              farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
+        }
+
       default:
         throw new PersonHarFeilRolleException(
             String.format(
@@ -116,7 +148,6 @@ public class PersistenceService {
         .map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
         .collect(Collectors.toSet());
   }
-
   private Set<FarskapserklaeringDto> henteFarskapserklaeringVedRedirectMorEllerFar(
       String fnrForelder) {
     var farskapserklaeringer =
@@ -126,5 +157,6 @@ public class PersistenceService {
     } else {
       return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
     }
+
   }
 }

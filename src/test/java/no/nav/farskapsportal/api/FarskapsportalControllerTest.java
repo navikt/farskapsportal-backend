@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
@@ -69,7 +70,7 @@ public class FarskapsportalControllerTest {
 
       // given
       stsStub.runSecurityTokenServiceStub("jalla");
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(Kjoenn.KVINNE)));
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(KjoennTypeDto.KVINNE)));
 
       // when
       var respons =
@@ -88,7 +89,7 @@ public class FarskapsportalControllerTest {
 
       // given
       stsStub.runSecurityTokenServiceStub("jalla");
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(Kjoenn.KVINNE)));
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(KjoennTypeDto.KVINNE)));
 
       // when
       var respons =
@@ -109,7 +110,7 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonKjoenn(Kjoenn.MANN), new HentPersonNavn(registrertNavn)));
+          List.of(new HentPersonKjoenn(KjoennTypeDto.MANN), new HentPersonNavn(registrertNavn)));
 
       // when
       var respons =
@@ -139,7 +140,7 @@ public class FarskapsportalControllerTest {
       var oppgittNavn = NavnDto.builder().fornavn("Natalya").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonKjoenn(Kjoenn.KVINNE), new HentPersonNavn(oppgittNavn)));
+          List.of(new HentPersonKjoenn(KjoennTypeDto.KVINNE), new HentPersonNavn(oppgittNavn)));
 
       // when
       var respons =
@@ -165,7 +166,7 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonKjoenn(Kjoenn.MANN), new HentPersonNavn(registrertNavn)));
+          List.of(new HentPersonKjoenn(KjoennTypeDto.MANN), new HentPersonNavn(registrertNavn)));
 
       // when
       var respons =
