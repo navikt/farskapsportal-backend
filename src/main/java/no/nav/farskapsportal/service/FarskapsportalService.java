@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Objects;
@@ -53,20 +54,20 @@ public class FarskapsportalService {
     }
 
     // Henter påbegynte farskapserklæringer som venter på mors signatur
-    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaMor =
-        persistenceService.henteFarskapserklaeringerSomManglerMorsSignatur(
-            foedselsnummer, brukersForelderrolle);
+    var farskapserklaeringerSomVenterPaaMor =
+        persistenceService.henteFarskapserklaeringerEtterRedirect(
+            foedselsnummer, Forelderrolle.MOR, KjoennTypeDto.KVINNE);
 
     // Henter påbegynte farskapserklæringer som venter på fars signatur
-    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaFar =
+    var farskapserklaeringerSomVenterPaaFar =
         persistenceService.henteFarskapserklaeringer(foedselsnummer);
 
-    Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
+    var nyligFoedteBarnSomManglerFar = new HashSet<String>();
 
     // har mor noen nyfødte barn uten registrert far?
     if (!Forelderrolle.FAR.equals(brukersForelderrolle)) {
       nyligFoedteBarnSomManglerFar =
-          personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
+          (HashSet<String>) personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
     }
 
     return BrukerinformasjonResponse.builder()
@@ -142,7 +143,7 @@ public class FarskapsportalService {
           "Fant ingen påbegynt farskapserklæring for pålogget bruker");
     }
 
-    var dokumentStatusDto = henteDokumentstatus(statusQueryToken, farskapserklaeringer);
+    var dokumentStatusDto = henteDokumentstatusEtterRedirect(statusQueryToken, farskapserklaeringer);
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
     var aktuellFarskapserklaeringDto =
@@ -201,19 +202,21 @@ public class FarskapsportalService {
     if ((Forelderrolle.MOR.equals(brukersForelderrolle)
             || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle))
         && KjoennTypeDto.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
-      return persistenceService.henteFarskapserklaeringerSomManglerMorsSignatur(
-          fnrPaaloggetPerson, brukersForelderrolle);
+      return persistenceService.henteFarskapserklaeringerEtterRedirect(
+          fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
 
     } else if ((Forelderrolle.FAR.equals(brukersForelderrolle))
         || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)
             && KjoennTypeDto.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
-     return  persistenceService.henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
+      return persistenceService.henteFarskapserklaeringerEtterRedirect(
+          fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
     }
 
-    throw new PersonHarFeilRolleException("Pålogget person kan verken opptre som mor eller far i løsningen!");
+    throw new PersonHarFeilRolleException(
+        "Pålogget person kan verken opptre som mor eller far i løsningen!");
   }
 
-  private DokumentStatusDto henteDokumentstatus(
+  private DokumentStatusDto henteDokumentstatusEtterRedirect(
       String statusQueryToken, Set<FarskapserklaeringDto> farskapserklaeringer) {
 
     Set<URI> dokumentStatuslenker =

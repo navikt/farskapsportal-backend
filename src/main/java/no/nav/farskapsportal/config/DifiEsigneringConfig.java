@@ -31,6 +31,7 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
+  @Profile(PROFILE_LIVE)
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
     // TODO: Miljøstyre valg av sertifkat og serviceUrl
     return ClientConfiguration.builder(keyStoreConfig)

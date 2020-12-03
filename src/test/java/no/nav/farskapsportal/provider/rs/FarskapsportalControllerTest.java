@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.controller;
+package no.nav.farskapsportal.provider.rs;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,12 +11,13 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
@@ -34,8 +35,11 @@ import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
+import no.nav.farskapsportal.dto.DokumentStatusDto;
+import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.RedirectUrlDto;
+import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.service.PersistenceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -167,7 +171,7 @@ public class FarskapsportalControllerTest {
 
   @Nested
   @DisplayName("Teste kontrollereOpplysningerFar")
-  class kontrollereOpplysningerFar {
+  class KontrollereOpplysningerFar {
 
     @Test
     @DisplayName("Skal gi Ok dersom navn og kjønn er riktig")
@@ -299,7 +303,7 @@ public class FarskapsportalControllerTest {
 
     @Test
     @DisplayName("Skal opprette farskapserklaering for barn med termindato")
-    void skalOppretteFarskapserklaeringForBarnMedTermindato() throws URISyntaxException {
+    void skalOppretteFarskapserklaeringForBarnMedTermindato() {
 
       // given
       var fnrMor = "11111112345";
@@ -359,7 +363,7 @@ public class FarskapsportalControllerTest {
 
       when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
-      doNothing().when(persistenceService).lagreFarskapserklaering(any());
+      when(persistenceService.lagreFarskapserklaering(any())).thenReturn(null);
 
       // when
       var respons =
@@ -383,17 +387,30 @@ public class FarskapsportalControllerTest {
   @DisplayName("Teste henteDokumentEtterRedirect")
   class HenteDokumentEtterRedirect {
 
+    @SneakyThrows
     @Test
     @DisplayName("Skal hente signert dokument for far etter redirect")
     void skalHenteSignertDokumentForFarEtterRedirect() {
 
       // given
-      var fnrFar = "00001122111";
       var registrertNavnFar = NavnDto.builder().fornavn("Jessie").etternavn("James").build();
-      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrFar);
+      var far =
+          ForelderDto.builder()
+              .foedselsnummer("00001122111")
+              .fornavn(registrertNavnFar.getFornavn())
+              .etternavn(registrertNavnFar.getEtternavn())
+              .build();
+
+      var mor =
+          ForelderDto.builder()
+              .foedselsnummer("11001122110")
+              .fornavn("Dolly")
+              .etternavn("Duck")
+              .build();
+
+      var statuslenke = "https://hvaskjera.no/";
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(far.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-
-
       var kjoennshistorikkFar =
           Stream.of(new Object[][] {{KjoennTypeDto.MANN, LocalDateTime.now()}})
               .collect(
@@ -402,13 +419,56 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
-          fnrFar);
+          far.getFoedselsnummer());
+
+      var farskapserklaering =
+          FarskapserklaeringDto.builder()
+              .mor(mor)
+              .far(far)
+              .dokument(
+                  DokumentDto.builder()
+                      .dokumentRedirectFar(
+                          RedirectUrlDto.builder()
+                              .redirectUrl(new URI("https://take-me-to-the-doc.no/"))
+                              .build())
+                      .innhold("Jeg erklærer herved farskap til dette barnet..".getBytes())
+                      .dokumentnavn("farskapserklæring.pdf")
+                      .dokumentStatusUrl(new URI(statuslenke))
+                      .build())
+              .build();
+
+      when(persistenceService.henteFarskapserklaeringerEtterRedirect(
+              far.getFoedselsnummer(), Forelderrolle.FAR, KjoennTypeDto.MANN))
+          .thenReturn(Set.of(farskapserklaering));
+
+      when(persistenceService.lagreFarskapserklaering(any())).thenReturn(null);
+
+      when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any()))
+          .thenReturn(
+              DokumentStatusDto.builder()
+                  .statuslenke(new URI(statuslenke))
+                  .erSigneringsjobbenFerdig(true)
+                  .padeslenke(new URI("https://permanent-pades-url.no/"))
+                  .signaturer(
+                      List.of(
+                          SignaturDto.builder()
+                              .signatureier(far.getFoedselsnummer())
+                              .harSignert(true)
+                              .tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
+                              .build()))
+                  .build());
+
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(farskapserklaering.getDokument().getInnhold());
 
       // when
       var respons =
           httpHeaderTestRestTemplate.exchange(
               UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
-                  .queryParam("status_query_token", "Sjalalala-lala").build().encode().toString(),
+                  .queryParam("status_query_token", "Sjalalala-lala")
+                  .build()
+                  .encode()
+                  .toString(),
               HttpMethod.PUT,
               initHttpEntity("innhold til signert dokument".getBytes()),
               byte[].class);

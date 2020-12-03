@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
@@ -60,8 +60,7 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries =
-          List.of(new HentPersonKjoenn(KjoennTypeDto.KVINNE));
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(KjoennTypeDto.KVINNE));
       pdlApiStub.runPdlApiHentPersonStub(subQueries);
 
       // when
@@ -107,18 +106,18 @@ public class PdlApiConsumerTest {
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
 
-      Map<KjoennTypeDto, LocalDateTime> map =
+      var map =
           Stream.of(
                   new Object[][] {
-                    {KjoennTypeDto.KVINNE, LocalDateTime.now()},
-                    {KjoennTypeDto.MANN, LocalDateTime.now()}
+                    {KjoennTypeDto.KVINNE, LocalDateTime.now().minusYears(30)},
+                    {KjoennTypeDto.MANN, LocalDateTime.now().minusYears(4)}
                   })
               .collect(
                   Collectors.toMap(
-                      data -> (KjoennTypeDto) data[0],
-                      data -> (LocalDateTime) data[1]));
+                      data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
 
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(map));
+      var sortedMap = new TreeMap<KjoennTypeDto, LocalDateTime>(map);
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(sortedMap));
       pdlApiStub.runPdlApiHentPersonStub(subQueries);
 
       // when
@@ -128,10 +127,23 @@ public class PdlApiConsumerTest {
       assertAll(
           () -> assertEquals(historikk.size(), 2, "Historikken skal inneholde to elementer"),
           () ->
-              Assertions.assertEquals(
-                 KjoennTypeDto.KVINNE,
-                  historikk.stream().findFirst().get().getKjoenn(),
-                  "Første element i historikken er kvinne"));
+              Assertions.assertTrue(
+                  historikk.stream()
+                      .filter(k -> k.getKjoenn().equals(KjoennTypeDto.MANN))
+                      .findFirst()
+                      .get()
+                      .getMetadata()
+                      .getHistorisk(),
+                  "Personen har mann som historisk kjønn"),
+          () ->
+              Assertions.assertFalse(
+                  historikk.stream()
+                      .filter(k -> k.getKjoenn().equals(KjoennTypeDto.KVINNE))
+                      .findFirst()
+                      .get()
+                      .getMetadata()
+                      .getHistorisk(),
+                  "Personen har kvinne som gjeldende kjønn"));
     }
 
     @Test

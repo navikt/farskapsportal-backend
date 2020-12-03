@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 
 @Builder
 @Getter
@@ -15,9 +14,10 @@ import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BarnDto {
-  @ApiModelProperty("Barnets termindato")
+  @ApiModelProperty(value = "Barnets termindato", example = "2021-05-02")
   private LocalDate termindato;
-  @ApiModelProperty("Barnets fødselsnummer hvis tilgjengelig")
+
+  @ApiModelProperty(value = "Barnets fødselsnummer hvis tilgjengelig", example = "01010112345")
   private String foedselsnummer;
 
   @Override

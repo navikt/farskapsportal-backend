@@ -21,54 +21,50 @@ public class PdfGeneratorConsumer {
 
     var dokumentnavn = "Farskapsportal.pdf";
 
-    var pdf = new PDDocument();
+    try (var pdf = new PDDocument()) {
     var side = new PDPage();
     pdf.addPage(side);
-    try {
       var innhold = new PDPageContentStream(pdf, side);
       innhold.setFont(PDType1Font.COURIER, 12);
       innhold.beginText();
-      innhold.showText("Farskapserklæring\n");
-
-      innhold.showText("\nBarn");
+      innhold.showText("Farskapserklæring");
+      innhold.showText("Barn");
       if (dto.getBarn().getFoedselsnummer() != null
           && dto.getBarn().getFoedselsnummer().length() > 0) {
-        innhold.showText("\nFødselsnummer: " + dto.getBarn().getFoedselsnummer());
+        innhold.showText("Fødselsnummer: " + dto.getBarn().getFoedselsnummer());
       } else {
-        innhold.showText("\nTermindato: " + dto.getBarn().getTermindato().toString());
+        innhold.showText("Termindato: " + dto.getBarn().getTermindato().toString());
       }
 
       for (int i = 0; i < 25; i++) {
         innhold.showText("-");
       }
 
-      innhold.showText("\nMor");
-      innhold.showText("\nFødselsnummer: " + dto.getMor().getFoedselsnummer());
-      innhold.showText("\nNavn: " + slaaSammenNavn(dto.getMor()));
-      innhold.showText("\n");
+      innhold.showText("Mor");
+      innhold.showText("Fødselsnummer: " + dto.getMor().getFoedselsnummer());
+      innhold.showText("Navn: " + slaaSammenNavn(dto.getMor()));
+      innhold.showText("");
 
       for (int i = 0; i < 25; i++) {
         innhold.showText("-");
       }
 
-      innhold.showText("\nMor:");
-      innhold.showText("\nFødselsnummer: " + dto.getMor().getFoedselsnummer());
-      innhold.showText("\nNavn: " + slaaSammenNavn(dto.getMor()));
-      innhold.showText("\n");
+      innhold.showText("Mor:");
+      innhold.showText("Fødselsnummer: " + dto.getMor().getFoedselsnummer());
+      innhold.showText("Navn: " + slaaSammenNavn(dto.getMor()));
+      innhold.showText("");
 
       for (int i = 0; i < 25; i++) {
         innhold.showText("-");
       }
 
-      innhold.showText("\nFar");
-      innhold.showText("\nFødselsnummer: " + dto.getFar().getFoedselsnummer());
+      innhold.showText("Far");
+      innhold.showText("Fødselsnummer: " + dto.getFar().getFoedselsnummer());
       innhold.showText("Navn: " + slaaSammenNavn(dto.getFar()));
-      innhold.showText("\n");
-
+      innhold.showText("");
       innhold.endText();
       innhold.close();
       pdf.save(dokumentnavn);
-      pdf.close();
 
       PDStream pdStream = new PDStream(pdf);
 
@@ -87,7 +83,7 @@ public class PdfGeneratorConsumer {
     return forelder.getFornavn()
         + " "
         + forelder.getMellomnavn()
-        + (forelder.getMellomnavn().length() > 0 ? " " : "")
+        + (forelder.getMellomnavn() != null && forelder.getMellomnavn().length() > 0 ? " " : "")
         + forelder.getEtternavn();
   }
 }

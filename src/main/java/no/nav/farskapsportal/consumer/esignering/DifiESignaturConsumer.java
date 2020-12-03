@@ -70,8 +70,12 @@ public class DifiESignaturConsumer {
 
     var directJob =
         DirectJob.builder(document, exitUrls, List.of(morSignerer, farSignerer)).build();
-
-    var directJobResponse = client.create(directJob);
+    DirectJobResponse directJobResponse = null;
+    try {
+    directJobResponse = client.create(directJob);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl());
 
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {

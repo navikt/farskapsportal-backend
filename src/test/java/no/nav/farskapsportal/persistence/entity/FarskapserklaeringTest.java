@@ -99,7 +99,6 @@ public class FarskapserklaeringTest {
             .dokument(dokument)
             .build();
 
-    var barnMedSammeTermindato = Barn.builder().termindato(barn.getTermindato()).build();
     var sammeMor =
         Forelder.builder()
             .foedselsnummer(mor.getFoedselsnummer())
@@ -115,7 +114,7 @@ public class FarskapserklaeringTest {
 
     var enAnnenFarskapserklaeringMedSammeParter =
         Farskapserklaering.builder()
-            .barn(barnMedSammeTermindato)
+            .barn(barn)
             .mor(sammeMor)
             .far(sammeFar)
             .dokument(dokument)
@@ -203,17 +202,16 @@ public class FarskapserklaeringTest {
             .dokument(dokument)
             .build();
 
-    //barn.setFarskapserklaering(farskapserklaering);
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));
 
-    var barnMedSammeTermindato = Barn.builder().termindato(barn.getTermindato()).build();
     var sammeMor =
         Forelder.builder()
             .foedselsnummer(mor.getFoedselsnummer())
             .fornavn(mor.getFornavn())
             .etternavn(mor.getEtternavn())
             .build();
+
     var sammeFar =
         Forelder.builder()
             .foedselsnummer(far.getFoedselsnummer())
@@ -223,13 +221,12 @@ public class FarskapserklaeringTest {
 
     var enAnnenFarskapserklaeringMedSammeParter =
         Farskapserklaering.builder()
-            .barn(barnMedSammeTermindato)
+            .barn(barn)
             .mor(sammeMor)
             .far(sammeFar)
             .dokument(dokument)
             .build();
 
-    //barnMedSammeTermindato.setFarskapserklaering(enAnnenFarskapserklaeringMedSammeParter);
     sammeMor.setErklaeringerMor(Set.of(enAnnenFarskapserklaeringMedSammeParter));
     sammeFar.setErklaeringerFar(Set.of(enAnnenFarskapserklaeringMedSammeParter));
 
@@ -267,7 +264,6 @@ public class FarskapserklaeringTest {
             .dokument(dokument)
             .build();
 
-    //barn.setFarskapserklaering(farskapserklaering);
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));
 

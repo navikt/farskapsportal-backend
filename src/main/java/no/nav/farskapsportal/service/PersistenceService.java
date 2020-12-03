@@ -3,6 +3,7 @@ package no.nav.farskapsportal.service;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
@@ -40,9 +41,9 @@ public class PersistenceService {
 
   private final ModelMapper modelMapper;
 
-  public void lagreBarn(BarnDto dto) {
+  public Barn lagreBarn(BarnDto dto) {
     var entity = modelMapper.map(dto, Barn.class);
-    barnDao.save(entity);
+    return barnDao.save(entity);
   }
 
   public BarnDto henteBarn(int id) {
@@ -56,9 +57,9 @@ public class PersistenceService {
     return modelMapper.map(barn, BarnDto.class);
   }
 
-  public void lagreForelder(ForelderDto forelderDto) {
+  public Forelder lagreForelder(ForelderDto forelderDto) {
     var forelder = modelMapper.map(forelderDto, Forelder.class);
-    forelderDao.save(forelder);
+    return forelderDao.save(forelder);
   }
 
   public ForelderDto henteForelder(int id) {
@@ -72,9 +73,9 @@ public class PersistenceService {
     return modelMapper.map(forelder, ForelderDto.class);
   }
 
-  public void lagreRedirectUrl(RedirectUrlDto redirectUrlDto) {
+  public RedirectUrl lagreRedirectUrl(RedirectUrlDto redirectUrlDto) {
     var redirectUrl = modelMapper.map(redirectUrlDto, RedirectUrl.class);
-    redirectUrlDao.save(redirectUrl);
+    return redirectUrlDao.save(redirectUrl);
   }
 
   public RedirectUrlDto henteRedirectUrl(int id) {
@@ -88,9 +89,9 @@ public class PersistenceService {
     return modelMapper.map(redirectUrl, RedirectUrlDto.class);
   }
 
-  public void lagreDokument(DokumentDto dto) {
+  public Dokument lagreDokument(DokumentDto dto) {
     var dokument = modelMapper.map(dto, Dokument.class);
-    dokumentDao.save(dokument);
+    return dokumentDao.save(dokument);
   }
 
   public DokumentDto henteDokument(int id) {
@@ -99,13 +100,15 @@ public class PersistenceService {
             .findById(id)
             .orElseThrow(
                 () ->
-                    new FantIkkeEntititetException(String.format("Fant ikke dokument med id %d i databasen", id)));
+                    new FantIkkeEntititetException(
+                        String.format("Fant ikke dokument med id %d i databasen", id)));
     return modelMapper.map(dokument, DokumentDto.class);
   }
 
-  public void lagreFarskapserklaering(FarskapserklaeringDto dto) {
+  @Transactional
+  public Farskapserklaering lagreFarskapserklaering(FarskapserklaeringDto dto) {
     var entity = modelMapper.map(dto, Farskapserklaering.class);
-    farskapserklaeringDao.save(entity);
+    return farskapserklaeringDao.save(entity);
   }
 
   public Set<FarskapserklaeringDto> henteFarskapserklaeringer(String foedselsnummer) {
@@ -148,6 +151,7 @@ public class PersistenceService {
         .map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
         .collect(Collectors.toSet());
   }
+
   private Set<FarskapserklaeringDto> henteFarskapserklaeringVedRedirectMorEllerFar(
       String fnrForelder) {
     var farskapserklaeringer =
@@ -157,6 +161,5 @@ public class PersistenceService {
     } else {
       return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
     }
-
   }
 }

@@ -31,7 +31,8 @@ public class Forelder implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @NaturalId private String foedselsnummer;
+  private String foedselsnummer;
+
   private String fornavn;
 
   private String mellomnavn;

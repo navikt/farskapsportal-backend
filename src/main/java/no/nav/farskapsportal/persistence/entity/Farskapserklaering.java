@@ -61,7 +61,9 @@ public class Farskapserklaering implements Serializable {
     if (getClass() != obj.getClass()) return false;
     final Farskapserklaering other = (Farskapserklaering) obj;
 
-    if (!barn.equals(other.barn)) return false;
+    if (!barn.equals(other.barn)) {
+      return false;
+    }
     if (!mor.equals(other.mor)) return false;
     return far.equals(other.far);
   }

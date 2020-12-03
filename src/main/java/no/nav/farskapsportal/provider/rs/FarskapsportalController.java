@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.controller;
+package no.nav.farskapsportal.provider.rs;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 
