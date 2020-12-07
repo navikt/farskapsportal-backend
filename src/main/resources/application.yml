@@ -8,10 +8,10 @@ management:
 
 urls:
   pdl-api:
-    base-url: ${WIREMOCK_URL}
+    base-url: ${APIGW_URL}
     graphql-endpoint: "/pdl-api/graphql"
   sts:
-    base-url: ${WIREMOCK_URL}
+    base-url: ${APIGW_URL}
     security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
 
 farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
@@ -40,6 +40,10 @@ spring.profiles: test, local
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
+
+urls:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
 
 no.nav.security.jwt:
   issuer.selvbetjening:
