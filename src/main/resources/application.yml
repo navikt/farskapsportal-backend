@@ -25,6 +25,14 @@ no.nav:
     discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
     accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
+
+### Temporary H2 setup, to be replaced by hosted PostgreSql ###
+### H2 config ###
+spring:
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
+
 ---
 ########## Mock props ##########
 spring.profiles: test, local
