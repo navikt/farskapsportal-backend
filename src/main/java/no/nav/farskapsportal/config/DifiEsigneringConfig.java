@@ -1,5 +1,11 @@
 package no.nav.farskapsportal.config;
 
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
@@ -23,7 +29,7 @@ public class DifiEsigneringConfig {
 
   @Bean
   @Profile("TO_BE_LIVE")
-  public KeyStoreConfig keyStoreConfig(
+  public KeyStoreConfig keyStoreConfig_tempDisabled(
       @Value("${SERTIFIKAT_ESIGNERING}") String sertifikatEsignering) {
     return KeyStoreConfig.fromOrganizationCertificate(
         IOUtils.toInputStream(sertifikatEsignering, Charset.defaultCharset()), "");
@@ -31,11 +37,37 @@ public class DifiEsigneringConfig {
 
   @Bean
   @Profile("TO_BE_LIVE")
-  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
+  public ClientConfiguration clientConfiguration_tempDisabled(KeyStoreConfig keyStoreConfig) {
     // TODO: Miljøstyre valg av sertifkat og serviceUrl
     return ClientConfiguration.builder(keyStoreConfig)
         .trustStore(Certificates.TEST)
         .serviceUri(ServiceUri.DIFI_TEST)
+        .globalSender(new Sender(NAV_ORGNR))
+        .build();
+  }
+
+  // TODO: replace by TO_BE_LIVE when Difi test environment is ready
+  @Bean
+  @Profile(PROFILE_LIVE)
+  public KeyStoreConfig keyStoreConfig() throws IOException {
+    var classLoader = getClass().getClassLoader();
+    try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
+      if (inputStream == null) {
+        throw new IllegalArgumentException("Fant ikke esigneringkeystore.jceks");
+      } else {
+        return KeyStoreConfig.fromJavaKeyStore(inputStream, "selfsigned", "changeit", "changeit");
+      }
+    }
+  }
+
+  // TODO: replace by TO_BE_LIVE when Difi test environment is ready
+  @Bean
+  @Profile(PROFILE_LIVE)
+  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig)
+      throws URISyntaxException {
+    return ClientConfiguration.builder(keyStoreConfig)
+        .trustStore(Certificates.TEST)
+        .serviceUri(new URI(wiremockUrl + "/esignering"))
         .globalSender(new Sender(NAV_ORGNR))
         .build();
   }
