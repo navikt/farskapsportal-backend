@@ -1,7 +1,5 @@
 package no.nav.farskapsportal.config;
 
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
-
 import java.nio.charset.Charset;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
@@ -17,13 +15,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+// TODO: Fikse difi-oppsett
 @Configuration
 public class DifiEsigneringConfig {
 
   private static final String NAV_ORGNR = "123456789";
 
   @Bean
-  @Profile(PROFILE_LIVE)
+  @Profile("TO_BE_LIVE")
   public KeyStoreConfig keyStoreConfig(
       @Value("${SERTIFIKAT_ESIGNERING}") String sertifikatEsignering) {
     return KeyStoreConfig.fromOrganizationCertificate(
@@ -31,7 +30,7 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
-  @Profile(PROFILE_LIVE)
+  @Profile("TO_BE_LIVE")
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
     // TODO: Miljøstyre valg av sertifkat og serviceUrl
     return ClientConfiguration.builder(keyStoreConfig)
