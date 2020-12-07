@@ -72,7 +72,7 @@ public class DifiESignaturConsumer {
         DirectJob.builder(document, exitUrls, List.of(morSignerer, farSignerer)).build();
     DirectJobResponse directJobResponse = null;
     try {
-    directJobResponse = client.create(directJob);
+      directJobResponse = client.create(directJob);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -81,11 +81,11 @@ public class DifiESignaturConsumer {
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
       Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra PDL!");
       if (signer.getPersonalIdentificationNumber().equals(mor.getFoedselsnummer())) {
-        dokument.setDokumentRedirectMor(
-            modelMapper.map(signer.getRedirectUrl(), RedirectUrlDto.class));
+        dokument.setRedirectUrlMor(
+            RedirectUrlDto.builder().redirectUrl(signer.getRedirectUrl()).signerer(mor).build());
       } else if (signer.getPersonalIdentificationNumber().equals(far.getFoedselsnummer())) {
-        dokument.setDokumentRedirectFar(
-            modelMapper.map(signer.getRedirectUrl(), RedirectUrlDto.class));
+        dokument.setRedirectUrlFar(
+            RedirectUrlDto.builder().redirectUrl(signer.getRedirectUrl()).signerer(far).build());
       } else {
         throw new ESigneringFeilException(
             "Redirecturl for ukjent part mottatt fra signeringsløsningen!");

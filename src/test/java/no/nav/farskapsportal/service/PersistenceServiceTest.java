@@ -70,8 +70,8 @@ public class PersistenceServiceTest {
         DokumentDto.builder()
             .dokumentnavn("farskapserklaering.pdf")
             .padesUrl(defaultUrl)
-            .dokumentRedirectMor(redirectUrlMor)
-            .dokumentRedirectFar(redirectUrlFar)
+            .redirectUrlMor(redirectUrlMor)
+            .redirectUrlFar(redirectUrlFar)
             .build();
 
     return FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
@@ -176,8 +176,8 @@ public class PersistenceServiceTest {
           DokumentDto.builder()
               .dokumentnavn("farskapserklaring.pdf")
               .padesUrl(new URI(""))
-              .dokumentRedirectMor(redirectUrlMor)
-              .dokumentRedirectFar(redirectUrlFar)
+              .redirectUrlMor(redirectUrlMor)
+              .redirectUrlFar(redirectUrlFar)
               .build();
 
       // when
@@ -185,7 +185,7 @@ public class PersistenceServiceTest {
 
       var hentetDokument = dokumentDao.findById(lagretDokument.getId()).get();
       assertEquals(
-          dokument.getDokumentRedirectFar().getSignerer().getFoedselsnummer(),
+          dokument.getRedirectUrlFar().getSignerer().getFoedselsnummer(),
           hentetDokument.getRedirectUrlFar().getSignerer().getFoedselsnummer());
     }
 

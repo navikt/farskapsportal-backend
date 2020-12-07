@@ -328,10 +328,16 @@ public class PersonopplysningServiceTest {
     void skalHenteNyfoedtBarnUtenRegistrertFarDersomRelasjonMellomMorOgBarnEksisterer() {
 
       // given
-      var fnrMor = "13039313130";
       var personnummerTvilling1 = "12345";
       var personnummerTvilling2 = "12344";
       var foedselsdatoTvillinger = LocalDate.now().minusMonths(2).minusDays(13);
+      var fnrMor =
+          foedselsdatoTvillinger
+                  .plusYears(29)
+                  .plusMonths(2)
+                  .plusDays(13)
+                  .format(DateTimeFormatter.ofPattern("ddMMyy"))
+              + "24680";
       var fnrNyfoedtTvilling1 =
           foedselsdatoTvillinger.format(DateTimeFormatter.ofPattern("ddMMyy"))
               + personnummerTvilling1;
@@ -345,6 +351,7 @@ public class PersonopplysningServiceTest {
               .minRolleForPerson(FamilierelasjonRolle.MOR)
               .relatertPersonsRolle(FamilierelasjonRolle.BARN)
               .build();
+
       var tvilling2 =
           FamilierelasjonerDto.builder()
               .relatertPersonsIdent(fnrNyfoedtTvilling2)
@@ -370,6 +377,62 @@ public class PersonopplysningServiceTest {
               assertTrue(
                   nyligFoedteBarnUtenRegistrertFar.contains(fnrNyfoedtTvilling2),
                   "Nyfødt tvilling 2 skal være med i lista "));
+    }
+
+    @Test
+    @DisplayName("Skal ikke inkludere spedbarn med registrert far")
+    void skalIkkeInkludereSpedbarnMedRegistrertFar() {
+
+      // given
+      var foedselsdatoSpedbarn = LocalDate.now().minusMonths(2).minusDays(13);
+      var fnrSpedbarn =
+          foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
+      var fnrMor =
+          foedselsdatoSpedbarn
+                  .plusYears(29)
+                  .plusMonths(2)
+                  .plusDays(13)
+                  .format(DateTimeFormatter.ofPattern("ddMMyy"))
+              + "24680";
+      var fnrFar =
+          foedselsdatoSpedbarn
+                  .plusYears(31)
+                  .plusMonths(7)
+                  .plusDays(5)
+                  .format(DateTimeFormatter.ofPattern("ddMMyy"))
+              + "24680";
+
+      var morsRelasjonTilSpedbarn =
+          FamilierelasjonerDto.builder()
+              .relatertPersonsIdent(fnrSpedbarn)
+              .minRolleForPerson(FamilierelasjonRolle.MOR)
+              .relatertPersonsRolle(FamilierelasjonRolle.BARN)
+              .build();
+
+      var spedbarnsRelasjonTilFar =
+          FamilierelasjonerDto.builder()
+              .relatertPersonsIdent(fnrFar)
+              .minRolleForPerson(FamilierelasjonRolle.BARN)
+              .relatertPersonsRolle(FamilierelasjonRolle.FAR)
+              .build();
+
+      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor))
+          .thenReturn(List.of(morsRelasjonTilSpedbarn));
+
+      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrSpedbarn))
+          .thenReturn(List.of(spedbarnsRelasjonTilFar));
+
+      when(pdlApiConsumerMock.henteFoedselsdato(fnrSpedbarn)).thenReturn(foedselsdatoSpedbarn);
+
+      // when
+      var nyligFoedteBarnUtenRegistrertFar =
+          personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
+
+      // then
+      assertEquals(
+          0,
+          nyligFoedteBarnUtenRegistrertFar.size(),
+          "Spedbarn med registrert far skal ikke returneres");
     }
   }
 

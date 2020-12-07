@@ -167,6 +167,7 @@ public class FarskapsportalControllerTest {
           () -> assertThat(HttpStatus.OK.equals(respons.getStatusCode())),
           () -> assertThat(Kjoenn.KVINNE.name().equals(respons.getBody())));
     }
+
   }
 
   @Nested
@@ -346,7 +347,7 @@ public class FarskapsportalControllerTest {
           DokumentDto.builder()
               .dokumentnavn("Farskapserklæering.pdf")
               .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-              .dokumentRedirectMor(
+              .redirectUrlMor(
                   RedirectUrlDto.builder()
                       // Legger for enkelhetsskyld inn detaljer fra opprettelse av signeringsjobb
                       // her
@@ -427,7 +428,7 @@ public class FarskapsportalControllerTest {
               .far(far)
               .dokument(
                   DokumentDto.builder()
-                      .dokumentRedirectFar(
+                      .redirectUrlFar(
                           RedirectUrlDto.builder()
                               .redirectUrl(new URI("https://take-me-to-the-doc.no/"))
                               .build())

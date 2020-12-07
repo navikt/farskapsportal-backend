@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.service;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Objects;
@@ -43,6 +42,9 @@ public class FarskapsportalService {
 
     // hente rolle
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
+    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaFarsSignatur = null;
+    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaMorsSignatur = null;
+    var kanOppretteFarskapserklaering = false;
 
     if (Forelderrolle.MEDMOR.equals(brukersForelderrolle)
         || Forelderrolle.UKJENT.equals(brukersForelderrolle)) {
@@ -54,26 +56,40 @@ public class FarskapsportalService {
     }
 
     // Henter påbegynte farskapserklæringer som venter på mors signatur
-    var farskapserklaeringerSomVenterPaaMor =
-        persistenceService.henteFarskapserklaeringerEtterRedirect(
-            foedselsnummer, Forelderrolle.MOR, KjoennTypeDto.KVINNE);
+    if (Forelderrolle.MOR.equals(brukersForelderrolle)
+        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
+
+      farskapserklaeringerSomVenterPaaMorsSignatur =
+          (HashSet<FarskapserklaeringDto>)
+              persistenceService.henteFarskapserklaeringerEtterRedirect(
+                  foedselsnummer, Forelderrolle.MOR, KjoennTypeDto.KVINNE);
+      kanOppretteFarskapserklaering = true;
+    }
 
     // Henter påbegynte farskapserklæringer som venter på fars signatur
-    var farskapserklaeringerSomVenterPaaFar =
-        persistenceService.henteFarskapserklaeringer(foedselsnummer);
+    if (Forelderrolle.FAR.equals(brukersForelderrolle)
+        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
+      farskapserklaeringerSomVenterPaaFarsSignatur =
+              persistenceService.henteFarskapserklaeringer(foedselsnummer);
+    }
 
     var nyligFoedteBarnSomManglerFar = new HashSet<String>();
 
     // har mor noen nyfødte barn uten registrert far?
-    if (!Forelderrolle.FAR.equals(brukersForelderrolle)) {
+    if (Forelderrolle.MOR.equals(brukersForelderrolle)
+        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
       nyligFoedteBarnSomManglerFar =
-          (HashSet<String>) personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
+          (HashSet<String>)
+              personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
     }
 
     return BrukerinformasjonResponse.builder()
-        .morsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaMor)
-        .farsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaFar)
+        .forelderrolle(brukersForelderrolle)
+        .farsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaFarsSignatur)
         .fnrNyligFoedteBarnUtenRegistrertFar(nyligFoedteBarnSomManglerFar)
+        .gyldigForelderrolle(true)
+        .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering)
+        .morsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaMorsSignatur)
         .build();
   }
 
@@ -118,11 +134,13 @@ public class FarskapsportalService {
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-url-ers
     difiESignaturConsumer.oppretteSigneringsjobb(dokumentDto, mor, far);
+    farskapserklaeringDto.setDokument(dokumentDto);
+
     log.info("Lagre farskapserklæring");
-    persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
+    var fe = persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
 
     return OppretteFarskapserklaeringResponse.builder()
-        .redirectUrlForSigneringMor(dokumentDto.getDokumentRedirectMor().getRedirectUrl())
+        .redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor().getRedirectUrl())
         .build();
   }
 
@@ -143,7 +161,8 @@ public class FarskapsportalService {
           "Fant ingen påbegynt farskapserklæring for pålogget bruker");
     }
 
-    var dokumentStatusDto = henteDokumentstatusEtterRedirect(statusQueryToken, farskapserklaeringer);
+    var dokumentStatusDto =
+        henteDokumentstatusEtterRedirect(statusQueryToken, farskapserklaeringer);
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
     var aktuellFarskapserklaeringDto =

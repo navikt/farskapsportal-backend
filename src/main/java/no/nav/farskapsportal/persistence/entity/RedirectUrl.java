@@ -4,19 +4,15 @@ import java.io.Serializable;
 import java.net.URI;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
-import org.springframework.validation.annotation.Validated;
 
 @Entity
 @Builder
@@ -33,5 +29,4 @@ public class RedirectUrl implements Serializable {
 
   @ManyToOne(cascade = CascadeType.ALL)
   private Forelder signerer;
-
 }

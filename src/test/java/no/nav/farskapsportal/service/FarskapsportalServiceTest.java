@@ -121,7 +121,7 @@ public class FarskapsportalServiceTest {
           DokumentDto.builder()
               .dokumentnavn("Farskapserklæering.pdf")
               .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-              .dokumentRedirectMor(
+              .redirectUrlMor(
                   RedirectUrlDto.builder()
                       .redirectUrl(new URI("https://til-signering-mor.no/"))
                       .signerer(
@@ -151,7 +151,7 @@ public class FarskapsportalServiceTest {
 
       // then
       assertEquals(
-          pdf.getDokumentRedirectMor().getRedirectUrl(), respons.getRedirectUrlForSigneringMor());
+          pdf.getRedirectUrlMor().getRedirectUrl(), respons.getRedirectUrlForSigneringMor());
     }
   }
 
@@ -188,7 +188,7 @@ public class FarskapsportalServiceTest {
               .far(far)
               .dokument(
                   DokumentDto.builder()
-                      .dokumentRedirectFar(
+                      .redirectUrlFar(
                           RedirectUrlDto.builder()
                               .redirectUrl(new URI("https://take-me-to-the-doc.no/"))
                               .build())

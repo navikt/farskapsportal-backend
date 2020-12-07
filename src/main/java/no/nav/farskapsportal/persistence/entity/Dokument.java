@@ -32,19 +32,21 @@ public class Dokument implements Serializable {
 
   private String dokumentnavn;
 
+  private byte[] innhold;
+
   private URI dokumentStatusUrl;
 
   private URI padesUrl;
-
-  private LocalDateTime signertAvMor;
-
-  private LocalDateTime signertAvFar;
 
   @OneToOne(cascade = CascadeType.ALL)
   private RedirectUrl redirectUrlMor;
 
   @OneToOne(cascade = CascadeType.ALL)
   private RedirectUrl redirectUrlFar;
+
+  private LocalDateTime signertAvMor;
+
+  private LocalDateTime signertAvFar;
 
   @Override
   public String toString() {

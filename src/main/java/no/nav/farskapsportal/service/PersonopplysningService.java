@@ -35,7 +35,7 @@ public class PersonopplysningService {
   private final PdlApiConsumer pdlApiConsumer;
 
   public Set<String> henteNyligFoedteBarnUtenRegistrertFar(String fnrMor) {
-    Set<String> nyligFoedteBarn = new HashSet<>();
+    Set<String> spedbarnUtenFar = new HashSet<>();
     List<FamilierelasjonerDto> familierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrMor);
 
     var registrerteBarn =
@@ -49,11 +49,15 @@ public class PersonopplysningService {
     for (String fnrBarn : registrerteBarn) {
       var fd = henteFoedselsdato(fnrBarn);
       if (fd.isAfter(LocalDate.now().minusMonths(MAKS_ALDER_I_MND_FOR_BARN_UTEN_FAR))) {
-        nyligFoedteBarn.add(fnrBarn);
+        List<FamilierelasjonerDto> spedbarnetsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrBarn);
+        var spedbarnetsFarsrelasjon = spedbarnetsFamilierelasjoner.stream().filter(f -> f.getRelatertPersonsRolle().name().equals(Forelderrolle.FAR.toString())).findFirst();
+        if (spedbarnetsFarsrelasjon.isEmpty()) {
+          spedbarnUtenFar.add(fnrBarn);
+        }
       }
     }
 
-    return nyligFoedteBarn;
+    return spedbarnUtenFar;
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
