@@ -63,7 +63,6 @@ public class DifiESignaturConsumerTest {
     void skalLeggeTilRedirectUrlVedOpprettelseAvSigneringsoppdrag() {
 
       // given
-
       var morsRedirectUrl = "https://mors-redirect-url.no/";
       var farsRedirectUrl = "https://fars-redirect-url.no/";
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);

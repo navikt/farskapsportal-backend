@@ -23,7 +23,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
 @ComponentScan(
@@ -39,8 +38,8 @@ public class FarskapsportalApplicationLocal {
   public static final String PROFILE_TEST = "test";
   private static final String NAV_ORGNR = "123456789";
 
-  @Value("${WIREMOCK_URL}")
-  private String wiremockUrl;
+  @Value("${url.esignering}")
+  private String esigneringUrl;
 
   public static void main(String... args) {
 
@@ -80,12 +79,11 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_LOCAL, PROFILE_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig)
       throws URISyntaxException {
     return ClientConfiguration.builder(keyStoreConfig)
         .trustStore(Certificates.TEST)
-        .serviceUri(new URI(wiremockUrl + "/esignering"))
+        .serviceUri(new URI(esigneringUrl + "/esignering"))
         .globalSender(new Sender(NAV_ORGNR))
         .build();
   }

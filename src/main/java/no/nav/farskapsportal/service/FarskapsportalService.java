@@ -70,7 +70,7 @@ public class FarskapsportalService {
     if (Forelderrolle.FAR.equals(brukersForelderrolle)
         || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
       farskapserklaeringerSomVenterPaaFarsSignatur =
-              persistenceService.henteFarskapserklaeringer(foedselsnummer);
+          persistenceService.henteFarskapserklaeringer(foedselsnummer);
     }
 
     var nyligFoedteBarnSomManglerFar = new HashSet<String>();
@@ -137,7 +137,7 @@ public class FarskapsportalService {
     farskapserklaeringDto.setDokument(dokumentDto);
 
     log.info("Lagre farskapserklæring");
-    var fe = persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
+    persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
 
     return OppretteFarskapserklaeringResponse.builder()
         .redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor().getRedirectUrl())

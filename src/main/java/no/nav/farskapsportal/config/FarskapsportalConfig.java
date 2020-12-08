@@ -76,8 +76,8 @@ public class FarskapsportalConfig {
   @Bean
   SecurityTokenServiceConsumer securityTokenServiceConsumer(
       @Qualifier("sts") RestTemplate restTemplate,
-      @Value("${urls.sts.base-url}") String baseUrl,
-      @Value("${urls.sts.security-token-service-endpoint}") String endpoint,
+      @Value("${url.sts.base-url}") String baseUrl,
+      @Value("${url.sts.security-token-service-endpoint}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     log.info("Oppretter SecurityTokenServiceConsumer med url {}", baseUrl);
     consumerEndpoint.addEndpoint(HENTE_IDTOKEN_FOR_SERVICEUSER, endpoint);
@@ -88,8 +88,8 @@ public class FarskapsportalConfig {
   @Bean
   public PdlApiConsumer pdlApiConsumer(
       @Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${urls.pdl-api.base-url}") String baseUrl,
-      @Value("${urls.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
+      @Value("${url.pdl-api.base-url}") String baseUrl,
+      @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
@@ -103,8 +103,8 @@ public class FarskapsportalConfig {
   @Bean
   public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(
       @Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${urls.pdl-api.base-url}") String baseUrl,
-      @Value("${urls.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
+      @Value("${url.pdl-api.base-url}") String baseUrl,
+      @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
@@ -117,8 +117,14 @@ public class FarskapsportalConfig {
 
   @Bean
   public PersistenceService persistenceService(
-      FarskapserklaeringDao farskapserklaeringDao, ModelMapper modelMapper, BarnDao barnDao, RedirectUrlDao redirectUrlDao, ForelderDao forelderDao, DokumentDao dokumentDao) {
-    return new PersistenceService(farskapserklaeringDao, barnDao, forelderDao, redirectUrlDao, dokumentDao,  modelMapper );
+      FarskapserklaeringDao farskapserklaeringDao,
+      ModelMapper modelMapper,
+      BarnDao barnDao,
+      RedirectUrlDao redirectUrlDao,
+      ForelderDao forelderDao,
+      DokumentDao dokumentDao) {
+    return new PersistenceService(
+        farskapserklaeringDao, barnDao, forelderDao, redirectUrlDao, dokumentDao, modelMapper);
   }
 
   @Bean

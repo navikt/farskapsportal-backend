@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PdlApiStub {
 
-  @Value("${urls.pdl-api.graphql-endpoint}")
+  @Value("${url.pdl-api.graphql-endpoint}")
   private String pdlApiGraphqlEndpoint;
 
   private static String stubHentPerson(List<HentPersonSubQuery> subQueries) {
@@ -44,7 +44,7 @@ public class PdlApiStub {
   }
 
   public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries) {
-    runPdlApiHentPersonStub(subQueries,  "");
+    runPdlApiHentPersonStub(subQueries, "");
   }
 
   public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries, String ident) {
