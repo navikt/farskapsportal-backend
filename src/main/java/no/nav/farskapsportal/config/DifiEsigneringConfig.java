@@ -1,9 +1,12 @@
 package no.nav.farskapsportal.config;
 
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+
 import java.nio.charset.Charset;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.ServiceUri;
+import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
@@ -19,7 +22,7 @@ import org.springframework.context.annotation.Profile;
 public class DifiEsigneringConfig {
 
   @Bean
-  @Profile("PROFILE_LIVE")
+  @Profile(PROFILE_LIVE)
   public KeyStoreConfig keyStoreConfig(
       @Value("${SERTIFIKAT_ESIGNERING}") String sertifikatEsignering) {
     return KeyStoreConfig.fromOrganizationCertificate(
@@ -27,7 +30,7 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
-  @Profile("PROFILE_LIVE")
+  @Profile(PROFILE_LIVE)
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
     // TODO: Miljøstyre valg av sertifkat og serviceUrl
     return ClientConfiguration.builder(keyStoreConfig)
