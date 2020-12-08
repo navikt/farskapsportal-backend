@@ -20,7 +20,7 @@ public class DifiEsigneringConfig {
 
   @Bean
   @Profile("PROFILE_LIVE")
-  public KeyStoreConfig keyStoreConfig_tempDisabled(
+  public KeyStoreConfig keyStoreConfig(
       @Value("${SERTIFIKAT_ESIGNERING}") String sertifikatEsignering) {
     return KeyStoreConfig.fromOrganizationCertificate(
         IOUtils.toInputStream(sertifikatEsignering, Charset.defaultCharset()), "");
@@ -28,7 +28,7 @@ public class DifiEsigneringConfig {
 
   @Bean
   @Profile("PROFILE_LIVE")
-  public ClientConfiguration clientConfiguration_tempDisabled(KeyStoreConfig keyStoreConfig) {
+  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
     // TODO: Miljøstyre valg av sertifkat og serviceUrl
     return ClientConfiguration.builder(keyStoreConfig)
         .trustStore(Certificates.TEST)
