@@ -110,10 +110,15 @@ public class PersistenceServiceTest {
     @Test
     @DisplayName("Lagre barn")
     void lagreBarn() {
-      persistenceService.lagreBarn(BARN);
-      var barnReturnert = barnDao.findById(1).get();
+      // given, when
+      var barn = persistenceService.lagreBarn(BARN);
+      var barnReturnert = barnDao.findById(barn.getId()).get();
 
+      // then
       assertEquals(BARN.getTermindato(), barnReturnert.getTermindato());
+
+      // clean-up test data
+      barnDao.delete(barnReturnert);
     }
 
     @Test
@@ -127,6 +132,9 @@ public class PersistenceServiceTest {
 
       // then
       assertEquals(MOR.getFoedselsnummer(), forelder.getFoedselsnummer());
+
+      // clean-up test data
+      forelderDao.delete(lagretMor);
     }
 
     @Test
@@ -149,14 +157,25 @@ public class PersistenceServiceTest {
       var lagretDokument = persistenceService.lagreDokument(dokument);
 
       var hentetDokument = dokumentDao.findById(lagretDokument.getId()).get();
+
+      // then
       assertEquals(dokument.getDokumentnavn(), hentetDokument.getDokumentnavn());
+
+      // clean up test data
+      dokumentDao.delete(lagretDokument);
     }
 
     @Test
     @DisplayName("Lagre farskapserklæring")
     void lagreFarskapserklaering() {
 
-      // given, when
+      // given
+      var farskapserklaering = farskapserklaeringDao.henteUnikFarskapserklaering(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), FARSKAPSERKLAERING.getFar().getFoedselsnummer(), FARSKAPSERKLAERING.getBarn().getTermindato());
+      if (farskapserklaering != null) {
+        farskapserklaeringDao.delete(farskapserklaering);
+      }
+
+      // when
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(FARSKAPSERKLAERING);
 
       var hentetFarskapserklaering =
@@ -167,6 +186,9 @@ public class PersistenceServiceTest {
           lagretFarskapserklaering,
           hentetFarskapserklaering,
           "Farskapserklæringen som ble lagret er lik den som ble hentet");
+
+      // clean-up test data
+      farskapserklaeringDao.delete(lagretFarskapserklaering);
     }
   }
 
@@ -188,10 +210,10 @@ public class PersistenceServiceTest {
     void skalHenteFarskapserklaeringEtterRedirectForMor() {
 
       // given
-      var farskapserklaeringUtenPadesUrl = FARSKAPSERKLAERING;
-      farskapserklaeringUtenPadesUrl.getDokument().setPadesUrl(null);
-      var lagretFarskapserklaeringUtenPadesUrl =
-          persistenceService.lagreFarskapserklaering(farskapserklaeringUtenPadesUrl);
+      var farskapserklaering = farskapserklaeringDao.henteUnikFarskapserklaering(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), FARSKAPSERKLAERING.getFar().getFoedselsnummer(), FARSKAPSERKLAERING.getBarn().getTermindato());
+      var padesUrl = farskapserklaering.getDokument().getPadesUrl();
+      farskapserklaering.getDokument().setPadesUrl(null);
+      farskapserklaeringDao.save(farskapserklaering);
 
       // when
       var farskapserklaeringerEtterRedirect =
@@ -221,7 +243,9 @@ public class PersistenceServiceTest {
                   FARSKAPSERKLAERING.getBarn().getTermindato(),
                   farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
 
-      farskapserklaeringDao.delete(lagretFarskapserklaeringUtenPadesUrl);
+      // Clean up test data
+      farskapserklaering.getDokument().setPadesUrl(padesUrl);
+      farskapserklaeringDao.save(farskapserklaering);
     }
 
     @Test
