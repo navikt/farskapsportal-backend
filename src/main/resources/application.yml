@@ -69,7 +69,7 @@ spring:
 
 ---
 spring:
-  profiles: local, stub-test
+  profiles: local
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
@@ -89,38 +89,5 @@ url:
   sts:
     base-url: https://api-gw-q1.oera.no
 
-
----
-spring.profiles: stub-test
-
-WIREMOCK_URL: http://localhost:8096
-ESIGNERING_URL: http://localhost:8081/api
-APIKEY_PDLAPI_FP: keyForZoneCrossing
-APIKEY_STS_FP: keyForZoneCrossing
-
-url:
-  pdl-api.base-url: ${WIREMOCK_URL}
-  sts.base-url: ${WIREMOCK_URL}
-  esignering: ${ESIGNERING_URL}
-
-no.nav.security.jwt:
-  issuer.selvbetjening:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
-
-farskapsportal-api.servicebruker.brukernavn: se-vault
-farskapsportal-api.servicebruker.passord: se-vault
-
-wiremock.server:
-  files: classpath:/__files
-  stubs: classpath:/stubs
-
-
-### H2 config ###
-spring:
-  datasource.url: jdbc:h2:mem:default
-  h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
 
 

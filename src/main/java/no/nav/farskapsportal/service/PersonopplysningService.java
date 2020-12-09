@@ -97,6 +97,11 @@ public class PersonopplysningService {
 
   private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(
       List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
+
+    if (kjoennshistorikk.size() == 1) {
+      return kjoennshistorikk.get(0);
+    }
+
     var minsteGyldighetstidspunkt =
         kjoennshistorikk.stream()
             .map(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt())
