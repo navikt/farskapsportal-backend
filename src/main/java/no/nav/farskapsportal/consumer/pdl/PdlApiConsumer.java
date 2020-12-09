@@ -64,10 +64,6 @@ public class PdlApiConsumer {
     var familierelasjonerFraPdlEllerFreg =
         familierelasjonerDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
-    if (familierelasjonerFraPdlEllerFreg.isEmpty()) {
-      throw new PersonIkkeFunnetException(
-          "Respons fra PDL inneholdt ingen informasjon om familierelasjon for oppgitt person...");
-    }
     return familierelasjonerFraPdlEllerFreg;
   }
 

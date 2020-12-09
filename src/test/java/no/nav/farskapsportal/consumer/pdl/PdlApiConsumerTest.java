@@ -3,6 +3,7 @@ package no.nav.farskapsportal.consumer.pdl;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
@@ -255,6 +256,24 @@ public class PdlApiConsumerTest {
   @Nested
   @DisplayName("Hente familierelasjoner")
   class FamilieRelasjoner {
+
+    @Test
+    @DisplayName("Skal ikke feile dersom  mor ikke har noen familierelasjoner før barnet er født")
+    void skalIkkeFeileDersomMorIkkeHarFamilierelasjonerFoerFoedsel() {
+
+      // given
+      var fnrMor = "13108411110";
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubQuery> subQueries =
+          List.of(new HentPersonFamilierelasjoner(null, "1234"));
+      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+      // when
+      var farsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrMor);
+
+      // then
+      assertEquals(farsFamilierelasjoner.size(), 0, "Mor har ingen familierelasjoner før fødsel");
+    }
 
     @Test
     @DisplayName("Skal hente familierelasjoner for far")

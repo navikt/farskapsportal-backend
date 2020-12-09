@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
@@ -433,6 +434,33 @@ public class PersonopplysningServiceTest {
           0,
           nyligFoedteBarnUtenRegistrertFar.size(),
           "Spedbarn med registrert far skal ikke returneres");
+    }
+
+    @Test
+    @DisplayName("Skal ikke gi feilmelding dersom antall barn uten registrert far er 0")
+    void skalIkkeGiFeilmeldingDersomAntallBarnUtenRegistrertFarErNull() {
+
+      // given
+      var foedselsdatoMor = LocalDate.now().minusMonths(2).minusDays(13);
+      var fnrMor =
+          foedselsdatoMor
+                  .plusYears(29)
+                  .plusMonths(2)
+                  .plusDays(13)
+                  .format(DateTimeFormatter.ofPattern("ddMMyy"))
+              + "24680";
+
+      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(new ArrayList<>());
+
+      // when
+      var nyligFoedteBarnUtenRegistrertFar =
+          personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
+
+      // then
+      assertEquals(
+          0,
+          nyligFoedteBarnUtenRegistrertFar.size(),
+          "Mor har ingen registrerte barn som mangler far");
     }
   }
 
