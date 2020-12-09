@@ -2,15 +2,12 @@ package no.nav.farskapsportal.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import no.nav.farskapsportal.persistence.entity.RedirectUrl;
 
 @Builder
 @Getter
@@ -27,9 +24,9 @@ public class DokumentDto {
   @ApiModelProperty("Url for å hente kopi av signert dokument")
   private URI padesUrl;
   @ApiModelProperty("Mors Url for å utføre dokumentsignering hos Posten")
-  private RedirectUrlDto redirectUrlMor;
+  private URI redirectUrlMor;
   @ApiModelProperty("Fars Url for å utføre dokumentsignering hos Posten")
-  private RedirectUrlDto redirectUrlFar;
+  private URI redirectUrlFar;
   @ApiModelProperty("Signeringstidspunkt mor")
   private LocalDateTime signertAvMor;
   @ApiModelProperty("Signeringstidspunkt far")

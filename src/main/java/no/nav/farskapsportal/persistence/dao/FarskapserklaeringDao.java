@@ -3,6 +3,7 @@ package no.nav.farskapsportal.persistence.dao;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Set;
+import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -11,6 +12,12 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
 
   @Query("select fe from Farskapserklaering fe where (fe.far.foedselsnummer = :fnr or fe.mor.foedselsnummer = :fnr) and fe.dokument.padesUrl is not null")
   Set<Farskapserklaering> hentFarskapserklaeringerMedPadeslenke(String fnr);
+
+  @Query("select fe from Farskapserklaering fe where  fe.mor.foedselsnummer = :fnrMor and fe.far.foedselsnummer = :fnrFar and fe.barn.foedselsnummer = :fnrBarn")
+  Farskapserklaering henteUnikFarskapserklaering(String fnrMor, String fnrFar, String fnrBarn);
+
+  @Query("select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor and fe.far.foedselsnummer = :fnrFar and  fe.barn.termindato = :termindato")
+  Farskapserklaering henteUnikFarskapserklaering(String fnrMor, String fnrFar, LocalDate termindato);
 
   @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.mor.foedselsnummer =:fnrMor and fe.barn.termindato = :termindato and fe.dokument.padesUrl is not null")
   Set<Farskapserklaering> hentFarskapserklaeringMedPadeslenke(String fnrFar, String fnrMor, Date termindato);

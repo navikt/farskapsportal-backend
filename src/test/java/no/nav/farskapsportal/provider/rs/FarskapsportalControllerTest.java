@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.provider.rs;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,7 +39,6 @@ import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.dto.RedirectUrlDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.service.PersistenceService;
 import org.junit.jupiter.api.DisplayName;
@@ -167,7 +167,6 @@ public class FarskapsportalControllerTest {
           () -> assertThat(HttpStatus.OK.equals(respons.getStatusCode())),
           () -> assertThat(Kjoenn.KVINNE.name().equals(respons.getBody())));
     }
-
   }
 
   @Nested
@@ -347,19 +346,7 @@ public class FarskapsportalControllerTest {
           DokumentDto.builder()
               .dokumentnavn("Farskapserklæering.pdf")
               .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-              .redirectUrlMor(
-                  RedirectUrlDto.builder()
-                      // Legger for enkelhetsskyld inn detaljer fra opprettelse av signeringsjobb
-                      // her
-                      .redirectUrl(redirectUrlMor)
-                      .signerer(
-                          ForelderDto.builder()
-                              .fornavn(registrertNavnMor.getFornavn())
-                              .etternavn(registrertNavnMor.getEtternavn())
-                              .forelderRolle(Forelderrolle.MOR)
-                              .foedselsnummer(fnrMor)
-                              .build())
-                      .build())
+              .redirectUrlMor(redirectUrlMor)
               .build();
 
       when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
@@ -428,10 +415,7 @@ public class FarskapsportalControllerTest {
               .far(far)
               .dokument(
                   DokumentDto.builder()
-                      .redirectUrlFar(
-                          RedirectUrlDto.builder()
-                              .redirectUrl(new URI("https://take-me-to-the-doc.no/"))
-                              .build())
+                      .redirectUrlFar(lageUrl("redirect-far"))
                       .innhold("Jeg erklærer herved farskap til dette barnet..".getBytes())
                       .dokumentnavn("farskapserklæring.pdf")
                       .dokumentStatusUrl(new URI(statuslenke))

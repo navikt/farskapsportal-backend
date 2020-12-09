@@ -38,11 +38,9 @@ public class Dokument implements Serializable {
 
   private URI padesUrl;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private RedirectUrl redirectUrlMor;
+  private URI redirectUrlMor;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private RedirectUrl redirectUrlFar;
+  private URI redirectUrlFar;
 
   private LocalDateTime signertAvMor;
 

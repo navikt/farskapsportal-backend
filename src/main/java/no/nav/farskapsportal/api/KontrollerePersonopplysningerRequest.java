@@ -9,7 +9,7 @@ import lombok.Value;
 @Value
 @Builder
 public class KontrollerePersonopplysningerRequest {
-  @ApiModelProperty(value = "Fødselsnummer til personen som sjekkes", position = 1, example = "11111122222")
+  @ApiModelProperty(value = "Fødselsnummer til personen som sjekkes", position = 1, example = "\"11111122222\"")
   String foedselsnummer;
 
   @ApiModelProperty(value = "Personens fornavn, mellomnavn (hvis aktuelt), og etternavn", position = 2, example = "Rask Karaffel")

@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,7 +29,6 @@ import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.dto.RedirectUrlDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -121,17 +121,7 @@ public class FarskapsportalServiceTest {
           DokumentDto.builder()
               .dokumentnavn("Farskapserklæering.pdf")
               .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-              .redirectUrlMor(
-                  RedirectUrlDto.builder()
-                      .redirectUrl(new URI("https://til-signering-mor.no/"))
-                      .signerer(
-                          ForelderDto.builder()
-                              .fornavn(registrertNavnMor.getFornavn())
-                              .etternavn(registrertNavnMor.getEtternavn())
-                              .forelderRolle(Forelderrolle.MOR)
-                              .foedselsnummer(fnrMor)
-                              .build())
-                      .build())
+              .redirectUrlMor(lageUrl("redirect-mor"))
               .build();
 
       when(personopplysningService.henteNavn(fnrMor)).thenReturn(registrertNavnMor);
@@ -150,8 +140,7 @@ public class FarskapsportalServiceTest {
                   .build());
 
       // then
-      assertEquals(
-          pdf.getRedirectUrlMor().getRedirectUrl(), respons.getRedirectUrlForSigneringMor());
+      assertEquals(pdf.getRedirectUrlMor(), respons.getRedirectUrlForSigneringMor());
     }
   }
 
@@ -159,7 +148,6 @@ public class FarskapsportalServiceTest {
   @DisplayName("Teste henteSignertDokumentEtterRedirect")
   class HenteSignertDokumentEtterRedirect {
 
-    @SneakyThrows
     @Test
     @DisplayName("Skal hente dokument etter redirect dersom status query token er gyldig")
     void skalHenteDokumentEtterRedirectDersomStatusQueryTokenErGyldig() {
@@ -180,22 +168,13 @@ public class FarskapsportalServiceTest {
               .etternavn("Duck")
               .build();
 
-      var statuslenke = "https://hvaskjera.no/";
+      var statuslenke = lageUrl("status");
 
       var farskapserklaering =
           FarskapserklaeringDto.builder()
               .mor(mor)
               .far(far)
-              .dokument(
-                  DokumentDto.builder()
-                      .redirectUrlFar(
-                          RedirectUrlDto.builder()
-                              .redirectUrl(new URI("https://take-me-to-the-doc.no/"))
-                              .build())
-                      .innhold("Jeg erklærer herved farskap til dette barnet..".getBytes())
-                      .dokumentnavn("farskapserklæring.pdf")
-                      .dokumentStatusUrl(new URI(statuslenke))
-                      .build())
+              .dokument(DokumentDto.builder().dokumentStatusUrl(statuslenke).redirectUrlFar(lageUrl("redirect-far")).build())
               .build();
 
       when(personopplysningService.bestemmeForelderrolle(far.getFoedselsnummer()))
@@ -212,9 +191,9 @@ public class FarskapsportalServiceTest {
       when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any()))
           .thenReturn(
               DokumentStatusDto.builder()
-                  .statuslenke(new URI(statuslenke))
+                  .statuslenke(statuslenke)
                   .erSigneringsjobbenFerdig(true)
-                  .padeslenke(new URI("https://permanent-pades-url.no/"))
+                  .padeslenke(lageUrl("pades"))
                   .signaturer(
                       List.of(
                           SignaturDto.builder()

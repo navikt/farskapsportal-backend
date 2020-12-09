@@ -28,7 +28,6 @@ import no.digipost.signature.client.direct.StatusReference;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.dto.RedirectUrlDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.PadesUrlIkkeTilgjengeligException;
@@ -85,11 +84,9 @@ public class DifiESignaturConsumer {
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
       Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra PDL!");
       if (signer.getPersonalIdentificationNumber().equals(mor.getFoedselsnummer())) {
-        dokument.setRedirectUrlMor(
-            RedirectUrlDto.builder().redirectUrl(signer.getRedirectUrl()).signerer(mor).build());
+        dokument.setRedirectUrlMor(signer.getRedirectUrl());
       } else if (signer.getPersonalIdentificationNumber().equals(far.getFoedselsnummer())) {
-        dokument.setRedirectUrlFar(
-            RedirectUrlDto.builder().redirectUrl(signer.getRedirectUrl()).signerer(far).build());
+        dokument.setRedirectUrlFar(signer.getRedirectUrl());
       } else {
         throw new ESigneringFeilException(
             "Redirecturl for ukjent part mottatt fra signeringsløsningen!");

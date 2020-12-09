@@ -97,12 +97,12 @@ public class DifiESignaturConsumerTest {
           () ->
               assertEquals(
                   morsRedirectUrl,
-                  dokument.getRedirectUrlMor().getRedirectUrl().toString(),
+                  dokument.getRedirectUrlMor().toString(),
                   "Mors redirectUrl er riktig"),
           () ->
               assertEquals(
                   farsRedirectUrl,
-                  dokument.getRedirectUrlFar().getRedirectUrl().toString(),
+                  dokument.getRedirectUrlFar().toString(),
                   "Fars redirectUrl er riktig"));
     }
   }

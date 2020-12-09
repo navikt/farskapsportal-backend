@@ -11,18 +11,16 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.dto.RedirectUrlDto;
+import no.nav.farskapsportal.exception.FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
-import no.nav.farskapsportal.persistence.dao.RedirectUrlDao;
 import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
-import no.nav.farskapsportal.persistence.entity.RedirectUrl;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import org.modelmapper.ModelMapper;
 
@@ -34,8 +32,6 @@ public class PersistenceService {
   private final BarnDao barnDao;
 
   private final ForelderDao forelderDao;
-
-  private final RedirectUrlDao redirectUrlDao;
 
   private final DokumentDao dokumentDao;
 
@@ -73,22 +69,6 @@ public class PersistenceService {
     return modelMapper.map(forelder, ForelderDto.class);
   }
 
-  public RedirectUrl lagreRedirectUrl(RedirectUrlDto redirectUrlDto) {
-    var redirectUrl = modelMapper.map(redirectUrlDto, RedirectUrl.class);
-    return redirectUrlDao.save(redirectUrl);
-  }
-
-  public RedirectUrlDto henteRedirectUrl(int id) {
-    var redirectUrl =
-        redirectUrlDao
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new FantIkkeEntititetException(
-                        String.format("Fant ikke redirectUrl med id %d i databasen", id)));
-    return modelMapper.map(redirectUrl, RedirectUrlDto.class);
-  }
-
   public Dokument lagreDokument(DokumentDto dto) {
     var dokument = modelMapper.map(dto, Dokument.class);
     return dokumentDao.save(dokument);
@@ -108,7 +88,24 @@ public class PersistenceService {
   @Transactional
   public Farskapserklaering lagreFarskapserklaering(FarskapserklaeringDto dto) {
     var entity = modelMapper.map(dto, Farskapserklaering.class);
-    return farskapserklaeringDao.save(entity);
+
+    Farskapserklaering eksisterendeFarskapserklaering =
+        entity.getBarn().getFoedselsnummer() == null
+            ? farskapserklaeringDao.henteUnikFarskapserklaering(
+                entity.getMor().getFoedselsnummer(),
+                entity.getFar().getFoedselsnummer(),
+                entity.getBarn().getTermindato())
+            : farskapserklaeringDao.henteUnikFarskapserklaering(
+                entity.getMor().getFoedselsnummer(),
+                entity.getFar().getFoedselsnummer(),
+                entity.getBarn().getFoedselsnummer());
+
+    if (eksisterendeFarskapserklaering == null) {
+      return farskapserklaeringDao.save(entity);
+    } else {
+      throw new FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(
+          "Farskasperklæring med samme mor far og barn eksisterer allerede i databasen!");
+    }
   }
 
   public Set<FarskapserklaeringDto> henteFarskapserklaeringer(String foedselsnummer) {

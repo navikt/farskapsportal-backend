@@ -14,10 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
-import org.springframework.validation.annotation.Validated;
 
 @Entity
 @Builder
@@ -31,7 +29,7 @@ public class Forelder implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  private String foedselsnummer;
+  @NaturalId private String foedselsnummer;
 
   private String fornavn;
 
@@ -44,7 +42,6 @@ public class Forelder implements Serializable {
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "far", cascade = CascadeType.ALL)
   private Set<Farskapserklaering> erklaeringerFar = new HashSet<>();
-
 
   @Override
   public int hashCode() {

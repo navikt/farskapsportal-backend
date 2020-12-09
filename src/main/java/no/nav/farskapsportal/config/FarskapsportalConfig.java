@@ -21,7 +21,6 @@ import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
-import no.nav.farskapsportal.persistence.dao.RedirectUrlDao;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.service.PersonopplysningService;
@@ -120,11 +119,10 @@ public class FarskapsportalConfig {
       FarskapserklaeringDao farskapserklaeringDao,
       ModelMapper modelMapper,
       BarnDao barnDao,
-      RedirectUrlDao redirectUrlDao,
       ForelderDao forelderDao,
       DokumentDao dokumentDao) {
     return new PersistenceService(
-        farskapserklaeringDao, barnDao, forelderDao, redirectUrlDao, dokumentDao, modelMapper);
+        farskapserklaeringDao, barnDao, forelderDao, dokumentDao, modelMapper);
   }
 
   @Bean

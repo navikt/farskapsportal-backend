@@ -107,4 +107,18 @@ public class RestResponseExceptionResolver {
         .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.NOT_FOUND));
 
   }
+
+  @ResponseBody
+  @ExceptionHandler(FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException.class)
+  protected  ResponseEntity<?> handleFarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(Exception e) {
+    exceptionLogger.logException(e, "RestResponseExceptionResolver");
+
+    var feilmelding = "Restkall feilet!";
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.WARNING, feilmelding);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
+  }
 }

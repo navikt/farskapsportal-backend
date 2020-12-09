@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -30,8 +31,8 @@ public class FarskapserklaeringTest {
     var far =
         Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
 
-    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
-    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+    var redirectUrlMor = lageUrl("redirect-mor");
+    var redirectUrlFar = lageUrl("redirect-far");
 
     var etDokument =
         Dokument.builder()
@@ -78,8 +79,8 @@ public class FarskapserklaeringTest {
         Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
     var far =
         Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
-    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
-    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+    var redirectUrlMor = lageUrl("redirect-mor");
+    var redirectUrlFar = lageUrl("redirect-far");
 
     var dokument =
         Dokument.builder()
@@ -90,14 +91,8 @@ public class FarskapserklaeringTest {
             .dokumentnavn("farskapserklaering.pdf")
             .build();
 
-
     var farskapserklaering =
-        Farskapserklaering.builder()
-            .barn(barn)
-            .mor(mor)
-            .far(far)
-            .dokument(dokument)
-            .build();
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     var sammeMor =
         Forelder.builder()
@@ -135,8 +130,8 @@ public class FarskapserklaeringTest {
         Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
     var far =
         Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
-    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
-    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+    var redirectUrlMor = lageUrl("redirect-mor");
+    var redirectUrlFar = lageUrl("redirect-far");
 
     var dokument =
         Dokument.builder()
@@ -148,12 +143,7 @@ public class FarskapserklaeringTest {
             .build();
 
     var farskapserklaering =
-        Farskapserklaering.builder()
-            .barn(barn)
-            .mor(mor)
-            .far(far)
-            .dokument(dokument)
-            .build();
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
     var enAnnenMor =
@@ -182,8 +172,8 @@ public class FarskapserklaeringTest {
     var far =
         Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
 
-    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
-    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+    var redirectUrlMor = lageUrl("redirect-mor");
+    var redirectUrlFar = lageUrl("redirect-far");
 
     var dokument =
         Dokument.builder()
@@ -195,12 +185,7 @@ public class FarskapserklaeringTest {
             .build();
 
     var farskapserklaering =
-        Farskapserklaering.builder()
-            .barn(barn)
-            .mor(mor)
-            .far(far)
-            .dokument(dokument)
-            .build();
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));
@@ -244,8 +229,8 @@ public class FarskapserklaeringTest {
         Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
     var far =
         Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
-    var redirectUrlMor = RedirectUrl.builder().redirectUrl(new URI("")).signerer(mor).build();
-    var redirectUrlFar = RedirectUrl.builder().redirectUrl(new URI("")).signerer(far).build();
+    var redirectUrlMor = lageUrl("redirect-mor");
+    var redirectUrlFar = lageUrl("redirect-far");
 
     var dokument =
         Dokument.builder()
@@ -257,12 +242,7 @@ public class FarskapserklaeringTest {
             .build();
 
     var farskapserklaering =
-        Farskapserklaering.builder()
-            .barn(barn)
-            .mor(mor)
-            .far(far)
-            .dokument(dokument)
-            .build();
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));

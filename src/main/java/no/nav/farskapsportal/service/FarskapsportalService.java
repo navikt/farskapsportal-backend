@@ -140,7 +140,7 @@ public class FarskapsportalService {
     persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
 
     return OppretteFarskapserklaeringResponse.builder()
-        .redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor().getRedirectUrl())
+        .redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor())
         .build();
   }
 
