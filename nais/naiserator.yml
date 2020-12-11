@@ -44,7 +44,7 @@ spec:
       value: {{ aud }}
   gcp:
     buckets:
-      - name: farskapportal-api-storage-bucket
+        name: farskapportal-api-storage-bucket
         cascadingDelete: false
         retentionPeriodDays: 30
         lifecycleCondition:
@@ -53,17 +53,11 @@ spec:
           numNewerVersions: 2
           withState: ARCHIVED
     sqlInstances:
-      - name: farskapsportal-db-instance
+      - name: FP
         type: POSTGRES_11
-        tier: db-f1-micro
-        diskType: SSD
-        highAvailability: true
-        diskSize: 10
-        diskAutoresize: true
-        autoBackupTime: "03:00"
         databases:
-          - name: farskapsportal-db
-            envVarPrefix: DB
+          - name: DB
+            #envVarPrefix: DB
   accesspolicy:
     inbound:
       rules:
