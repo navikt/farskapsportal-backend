@@ -29,12 +29,12 @@ no.nav:
 
 spring:
   datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: ${DB_URL}
   dataSource.user: ${DB_USERNAME}
   dataSource.password: ${DB_PASSWORD}
   dataSource.databaseName: ${DB}
   dataSource.portNumber: ${DB_PORT}
   dataSource.serverName: ${DB_HOST}
+  datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB}
   flyway.enabled: true
   flyway.schemas: farskapsportal
   flyway.locations: classpath:/db/migration
@@ -141,6 +141,3 @@ url:
     base-url: https://api-gw-q1.oera.no
   sts:
     base-url: https://api-gw-q1.oera.no
-
-
-
