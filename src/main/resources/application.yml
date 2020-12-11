@@ -27,16 +27,23 @@ no.nav:
     discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
     accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
-
-### Temporary H2 setup, to be replaced by hosted PostgreSql ###
-### H2 config ###
 spring:
-  datasource.url: jdbc:h2:mem:default
-  h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: ${DB_URL}
+  dataSource.user: ${DB_USERNAME}
+  dataSource.password: ${DB_PASSWORD}
+  dataSource.databaseName: ${DB}
+  dataSource.portNumber: ${DB_PORT}
+  dataSource.serverName: ${DB_HOST}
+  flyway.enabled: true
+  flyway.schemas: farskapsportal
+  flyway.locations: classpath:/db/migration
+  jpa.hibernate:
+    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
 ---
 spring.profiles: test
+# Lar wiremock håndtere esignering
 farskapsportal-api.disable-esignering: false
 
 ---
@@ -63,6 +70,8 @@ farskapsportal-api.servicebruker.passord: se-vault
 
 ### H2 config ###
 spring:
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
@@ -70,9 +79,53 @@ spring:
 ---
 spring:
   profiles: local
+
+# Lokal profil bruker selvstendige wiremocks
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
+
+---
+spring:
+  profiles: local-postgres
+  # Oppsett for flyway med hikari og postgres
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:postgresql://localhost:5432/postgres
+  dataSource.user: farskapsportal_api
+  dataSource.password: local
+  dataSource.databaseName: postgres
+  dataSource.portNumber: 5432
+  dataSource.serverName: localhost
+  flyway.enabled: true
+  flyway.schemas: farskapsportal
+  flyway.locations: classpath:/db/migration
+  jpa.hibernate:
+    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+
+WIREMOCK_URL: http://localhost:8096
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
+
+url:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+  esignering: ${WIREMOCK_URL}
+
+no.nav.security.jwt:
+  issuer.selvbetjening:
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+farskapsportal-api:
+  servicebruker.brukernavn: se-vault
+  servicebruker.passord: se-vault
+
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+farskapsportal-api.disable-esignering: false
 
 ---
 
