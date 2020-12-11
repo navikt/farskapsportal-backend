@@ -34,7 +34,8 @@ spring:
   dataSource.databaseName: ${DB}
   dataSource.portNumber: ${DB_PORT}
   dataSource.serverName: ${DB_HOST}
-  datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB}
+  #datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB}
+  datasource.url: jdbc://postgresql://${NAIS_DATABASE_FARSKAPSPORTAL_DB_INSTANCE_FARSKAPSPORTAL_DB_HOST}:${NAIS_DATABASE_FARSKAPSPORTAL_DB_INSTANCE_FARSKAPSPORTAL_DB_PORT}/${NAIS_DATABASE_FARSKAPSPORTAL_DB_INSTANCE_FARSKAPSPORTAL_DB_DATABASE}
   flyway.enabled: true
   flyway.schemas: farskapsportal
   flyway.locations: classpath:/db/migration
