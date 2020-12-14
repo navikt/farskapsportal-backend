@@ -53,8 +53,7 @@ spec:
           numNewerVersions: 2
           withState: ARCHIVED
     sqlInstances:
-      - name: FP
-        type: POSTGRES_11
+      - type: POSTGRES_12
         databases:
           - name: DB
   accesspolicy:
