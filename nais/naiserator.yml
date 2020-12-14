@@ -57,7 +57,6 @@ spec:
         type: POSTGRES_11
         databases:
           - name: DB
-            #envVarPrefix: DB
   accesspolicy:
     inbound:
       rules:
