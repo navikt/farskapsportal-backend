@@ -43,15 +43,6 @@ spec:
     - name: AUD_FP
       value: {{ aud }}
   gcp:
-    buckets:
-      - name: farskapportal-api-storage-bucket
-        cascadingDelete: false
-        retentionPeriodDays: 30
-        lifecycleCondition:
-          age: 10
-          createdBefore: 2020-01-01
-          numNewerVersions: 2
-          withState: ARCHIVED
     sqlInstances:
       - instance: FP
         type: POSTGRES_12
