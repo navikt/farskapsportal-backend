@@ -56,7 +56,7 @@ spec:
       - instance: FP
         type: POSTGRES_12
         databases:
-          - name: farskapsportal_db
+          - name: fbdb
             envVarPrefix: DB
   accesspolicy:
     inbound:
