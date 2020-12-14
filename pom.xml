@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.3.3.RELEASE</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>no.nav.farskap</groupId>
@@ -30,13 +32,20 @@
     <!-- navikt -->
     <bidrag-commons.version>0.4.2</bidrag-commons.version>
     <boot-conditionals.version>1.0.20200824135201-5568111</boot-conditionals.version>
-    <token-support.version>1.3.1</token-support.version>
+    <token-validation-spring.version>1.3.1</token-validation-spring.version>
 
     <!-- other -->
+    <guava.version>28.2-jre</guava.version>
+    <apache.commons-lang.version>3.11</apache.commons-lang.version>
+    <apache.commons-io.version>2.6</apache.commons-io.version>
+    <apache.pdfbox.version>2.0.4</apache.pdfbox.version>
+    <modelmapper.version>2.3.8</modelmapper.version>
     <guava.version>30.0-jre</guava.version>
+
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
-    <spring-retry.version>1.3.0</spring-retry.version>
+    <springframework-retry.version>1.3.0</springframework-retry.version>
+    <signature-api-client-java.version>5.0-RC4</signature-api-client-java.version>
 
     <!-- test -->
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
@@ -86,7 +95,10 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
@@ -96,8 +108,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>${java.version}</release>
-          <source>14</source>
-          <target>14</target>
         </configuration>
       </plugin>
 
@@ -131,6 +141,16 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jdbc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
@@ -142,6 +162,29 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -172,7 +215,22 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.11</version>
+      <version>${apache.commons-lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${apache.commons-io.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>${apache.pdfbox.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.modelmapper</groupId>
+      <artifactId>modelmapper</artifactId>
+      <version>${modelmapper.version}</version>
     </dependency>
 
     <dependency>
@@ -225,7 +283,7 @@
     <dependency>
       <groupId>no.nav.security</groupId>
       <artifactId>token-validation-spring</artifactId>
-      <version>${token-support.version}</version>
+      <version>${token-validation-spring.version}</version>
       <exclusions>
         <exclusion>
           <groupId>com.fasterxml.jackson.core</groupId>
@@ -240,7 +298,12 @@
     <dependency>
       <groupId>org.springframework.retry</groupId>
       <artifactId>spring-retry</artifactId>
-      <version>${spring-retry.version}</version>
+      <version>${springframework-retry.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>no.digipost.signature</groupId>
+      <artifactId>signature-api-client-java</artifactId>
+      <version>${signature-api-client-java.version}</version>
     </dependency>
 
     <!-- test -->
@@ -265,8 +328,8 @@
     <dependency>
       <groupId>no.nav.security</groupId>
       <artifactId>token-validation-test-support</artifactId>
-      <version>${token-support.version}</version>
-      <scope>compile</scope>
+      <version>${token-validation-spring.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

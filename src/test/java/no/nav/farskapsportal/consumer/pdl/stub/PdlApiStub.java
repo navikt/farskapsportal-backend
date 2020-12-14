@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.consumer.pdl.stub;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PdlApiStub {
 
-  @Value("${urls.pdl-api.graphql-endpoint}")
+  @Value("${url.pdl-api.graphql-endpoint}")
   private String pdlApiGraphqlEndpoint;
 
   private static String stubHentPerson(List<HentPersonSubQuery> subQueries) {
@@ -43,8 +44,13 @@ public class PdlApiStub {
   }
 
   public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries) {
+    runPdlApiHentPersonStub(subQueries, "");
+  }
+
+  public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries, String ident) {
     stubFor(
         post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .withRequestBody(containing(ident))
             .willReturn(
                 aResponse()
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -84,6 +90,34 @@ public class PdlApiStub {
                             "\"data\": {",
                             "\"hentPerson\": null",
                             "}",
+                            "}"))));
+  }
+
+  public void runPdlApiHentPersonValideringsfeil() {
+    stubFor(
+        post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withStatus(HttpStatus.OK)
+                    .withBody(
+                        String.join(
+                            "\n",
+                            " {",
+                            "\"errors\": [",
+                            "{",
+                            "\"message\": \"Validation error of type FieldUndefined: Field 'mellomnav' in type 'Navn' is undefined @ 'hentPerson/navn/mellomnav\",",
+                            "\"locations\": [",
+                            "{",
+                            "\"line\": 11,",
+                            "\"column\": 5",
+                            "}",
+                            "],",
+                            "\"extensions\": {",
+                            "\"classification\": \"ValidationError\"",
+                            "}",
+                            "}",
+                            "]",
                             "}"))));
   }
 }

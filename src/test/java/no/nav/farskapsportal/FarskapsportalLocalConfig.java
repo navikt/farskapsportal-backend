@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-@Profile(PROFILE_LOCAL)
+@Profile({PROFILE_LOCAL})
 @Configuration
 @AutoConfigureWireMock(port = 8096)
 public class FarskapsportalLocalConfig {

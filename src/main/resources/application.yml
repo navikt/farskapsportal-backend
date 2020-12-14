@@ -6,7 +6,7 @@ management:
     base-path: /internal/actuator
   endpoint.health.show-details: always
 
-urls:
+url:
   pdl-api:
     base-url: ${APIGW_URL}
     graphql-endpoint: "/pdl-api/graphql"
@@ -14,8 +14,10 @@ urls:
     base-url: ${APIGW_URL}
     security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
 
-farskapsportal-api.servicebruker.brukernavn: srvfarskapsportal
-farskapsportal-api.servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
+farskapsportal-api:
+  servicebruker.brukernavn: srvfarskapsportal
+  servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
+  disable-esignering: true
 
 ---
 spring.profiles: live
@@ -25,13 +27,32 @@ no.nav:
     discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
     accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
+spring:
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+  flyway.enabled: true
+  flyway.schemas: farskapsportal
+  flyway.locations: classpath:/db/migration
+  jpa.hibernate:
+    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+
+---
+spring.profiles: test
+# Lar wiremock håndtere esignering
+farskapsportal-api.disable-esignering: false
+
 ---
 ########## Mock props ##########
 spring.profiles: test, local
 
-APIGW_URL: http://localhost:8096
+WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
+
+url:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+  esignering: ${WIREMOCK_URL}
 
 no.nav.security.jwt:
   issuer.selvbetjening:
@@ -42,12 +63,64 @@ no.nav.security.jwt:
 farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
+### H2 config ###
+spring:
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
+
 ---
 spring:
   profiles: local
+
+# Lokal profil bruker selvstendige wiremocks
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
+
+---
+spring:
+  profiles: local-postgres
+  # Oppsett for flyway med hikari og postgres
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:postgresql://localhost:5432/postgres
+  dataSource.user: farskapsportal_api
+  dataSource.password: local
+  dataSource.databaseName: postgres
+  dataSource.portNumber: 5432
+  dataSource.serverName: localhost
+  flyway.enabled: true
+  flyway.schemas: farskapsportal
+  flyway.locations: classpath:/db/migration
+  jpa.hibernate:
+    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+
+WIREMOCK_URL: http://localhost:8096
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
+
+url:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+  esignering: ${WIREMOCK_URL}
+
+no.nav.security.jwt:
+  issuer.selvbetjening:
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+farskapsportal-api:
+  servicebruker.brukernavn: se-vault
+  servicebruker.passord: se-vault
+
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+farskapsportal-api.disable-esignering: false
 
 ---
 
@@ -58,9 +131,8 @@ no.nav:
     discoveryurl: https://navtestb2c.b2clogin.com/navtestb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
     accepted_audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
 
-urls:
+url:
   pdl-api:
     base-url: https://api-gw-q1.oera.no
   sts:
     base-url: https://api-gw-q1.oera.no
-
