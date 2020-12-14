@@ -68,11 +68,7 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public ConsumerEndpoint consumerEndpoint(
-      @Value("${DB_HOST}") String dbHost, @Value("${DB_PORT}") String dbPort, @Value("${DB_DATABASE}") String dbName) {
-    log.info("DB host: ", dbHost);
-    log.info("DB port: ", dbPort);
-    log.info("DB name: ", dbName);
+  public ConsumerEndpoint consumerEndpoint() {
     return new ConsumerEndpoint();
   }
 
