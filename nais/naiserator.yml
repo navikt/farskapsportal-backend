@@ -47,7 +47,7 @@ spec:
       - instance: FP
         type: POSTGRES_12
         databases:
-          - name: fbdb
+          - name: fpdb
             envVarPrefix: DB
   accesspolicy:
     inbound:
