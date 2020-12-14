@@ -45,7 +45,7 @@ spec:
   gcp:
     sqlInstances:
       - instance: FP
-        type: POSTGRES_12
+        type: POSTGRES_11
         databases:
           - name: fpdb
             envVarPrefix: DB
