@@ -69,7 +69,7 @@ public class FarskapsportalConfig {
 
   @Bean
   public ConsumerEndpoint consumerEndpoint(
-      @Value("${NAIS_DATABASE_FARSKAPSPORTAL_API_FEATURE_DB_HOST}") String dbHost, @Value("${NAIS_DATABASE_FARSKAPSPORTAL_API_FEATURE_DB_PORT}") String dbPort, @Value("${NAIS_DATABASE_FARSKAPSPORTAL_API_FEATURE_DB_DATABASE}") String dbName) {
+      @Value("${DB_HOST}") String dbHost, @Value("${DB_PORT}") String dbPort, @Value("${DB_DATABASE}") String dbName) {
     log.info("DB host: ", dbHost);
     log.info("DB port: ", dbPort);
     log.info("DB name: ", dbName);

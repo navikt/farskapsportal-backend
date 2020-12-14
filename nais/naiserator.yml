@@ -53,9 +53,11 @@ spec:
           numNewerVersions: 2
           withState: ARCHIVED
     sqlInstances:
-      - type: POSTGRES_12
+      - instance: FP
+        type: POSTGRES_12
         databases:
-          - name: DB
+          - name: farskapsportal_db
+            envVarPrefix: DB
   accesspolicy:
     inbound:
       rules:
