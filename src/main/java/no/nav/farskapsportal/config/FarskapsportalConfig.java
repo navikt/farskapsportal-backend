@@ -68,8 +68,7 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public ConsumerEndpoint consumerEndpoint(@Value("${DB_URL}") String dbUrl) {
-    log.info("DB_URL: ", dbUrl);
+  public ConsumerEndpoint consumerEndpoint() {
     return new ConsumerEndpoint();
   }
 
