@@ -34,7 +34,6 @@ spring:
   dataSource.databaseName: ${DB_DATABASE}
   dataSource.portNumber: ${DB_PORT}
   dataSource.serverName: ${DB_HOST}
-  #datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB}
   datasource.url: jdbc:${DB_URL}
   flyway.enabled: true
   flyway.schemas: farskapsportal
