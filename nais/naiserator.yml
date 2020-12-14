@@ -44,7 +44,7 @@ spec:
       value: {{ aud }}
   gcp:
     buckets:
-        name: farskapportal-api-storage-bucket
+      - name: farskapportal-api-storage-bucket
         cascadingDelete: false
         retentionPeriodDays: 30
         lifecycleCondition:
