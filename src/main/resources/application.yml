@@ -29,6 +29,9 @@ no.nav:
 
 spring:
   datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.port: ${DB_PORT}
+  datasource.username: ${DB_USERNAME}
+  datasource.password: ${DB_PASSWORD}
   datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
   flyway.enabled: false
   flyway.schemas: farskapsportal
