@@ -25,15 +25,6 @@ public class RestTemplateConfig {
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
 
-  @Configuration
-  public class FlywayConfiguration {
-
-    @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
-      Flyway.configure().baselineOnMigrate(true).dataSource(dataSource).load().migrate();
-    }
-  }
-
   @Bean
   @Qualifier("base")
   @Scope("prototype")

@@ -1,12 +1,14 @@
 package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.util.Optional;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
@@ -26,12 +28,16 @@ import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.service.PersonopplysningService;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
+import org.flywaydb.core.Flyway;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Profiles;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -65,6 +71,16 @@ public class FarskapsportalConfig {
 
   public static SignedJWT parseIdToken(String idToken) throws ParseException {
     return (SignedJWT) JWTParser.parse(idToken);
+  }
+
+  @Configuration
+  @Profile(PROFILE_LIVE)
+  public class FlywayConfiguration {
+
+    @Autowired
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
+      Flyway.configure().baselineOnMigrate(true).dataSource(dataSource).load().migrate();
+    }
   }
 
   @Bean

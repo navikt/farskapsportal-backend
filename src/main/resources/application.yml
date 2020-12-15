@@ -37,7 +37,9 @@ spring:
     connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
 ---
-spring.profiles: test
+spring:
+  profiles: test
+  flyway.enabled: false
 # Lar wiremock håndtere esignering
 farskapsportal-api.disable-esignering: false
 

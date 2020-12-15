@@ -49,6 +49,7 @@
 
     <!-- test -->
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
+    <wiremock-standalone.version>2.19.0</wiremock-standalone.version>
 
   </properties>
 
@@ -322,7 +323,7 @@
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>
-      <version>2.19.0</version>
+      <version>${wiremock-standalone.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
