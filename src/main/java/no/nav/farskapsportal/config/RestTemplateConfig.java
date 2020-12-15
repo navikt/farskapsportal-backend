@@ -3,11 +3,13 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.config.FarskapsportalConfig.X_API_KEY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import org.apache.commons.lang3.Validate;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,15 @@ public class RestTemplateConfig {
   private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
+
+  @Configuration
+  public class FlywayConfiguration {
+
+    @Autowired
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
+      Flyway.configure().baselineOnMigrate(true).dataSource(dataSource).load().migrate();
+    }
+  }
 
   @Bean
   @Qualifier("base")

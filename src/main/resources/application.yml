@@ -30,7 +30,7 @@ no.nav:
 spring:
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
-  flyway.enabled: true
+  flyway.enabled: false
   flyway.schemas: farskapsportal
   flyway.locations: classpath:/db/migration
   jpa.hibernate:
