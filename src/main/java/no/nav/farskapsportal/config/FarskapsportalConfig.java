@@ -4,14 +4,12 @@ import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
-import com.nimbusds.jwt.JWTParser;
-import com.nimbusds.jwt.SignedJWT;
-import java.text.ParseException;
 import java.util.Optional;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
+import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
@@ -37,7 +35,6 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Profiles;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -45,43 +42,6 @@ import org.springframework.web.client.RestTemplate;
 public class FarskapsportalConfig {
 
   public static final String X_API_KEY = "x-nav-apiKey";
-
-  public static String hentPaaloggetPerson(String idToken) {
-    log.info("Skal finne pålogget person fra id-token ");
-
-    try {
-      return hentPaaloggetPerson(parseIdToken(idToken));
-    } catch (Exception e) {
-      log.error("Klarte ikke parse " + idToken, e);
-
-      if (e instanceof RuntimeException) {
-        throw ((RuntimeException) e);
-      }
-      throw new IllegalArgumentException("Klarte ikke å parse " + idToken, e);
-    }
-  }
-
-  private static String hentPaaloggetPerson(SignedJWT signedJWT) {
-    try {
-      return signedJWT.getJWTClaimsSet().getSubject();
-    } catch (ParseException e) {
-      throw new IllegalStateException("Kunne ikke hente pålogget person fra id-token", e);
-    }
-  }
-
-  public static SignedJWT parseIdToken(String idToken) throws ParseException {
-    return (SignedJWT) JWTParser.parse(idToken);
-  }
-
-  @Configuration
-  @Profile(PROFILE_LIVE)
-  public class FlywayConfiguration {
-
-    @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
-      Flyway.configure().dataSource(dataSource).load().migrate();
-    }
-  }
 
   @Bean
   public ConsumerEndpoint consumerEndpoint() {
@@ -185,7 +145,7 @@ public class FarskapsportalConfig {
 
   @Bean
   public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
-    return () -> hentPaaloggetPerson(oidcTokenManager.hentIdToken());
+    return () -> SecurityUtils.hentSaksbehandler(oidcTokenManager.hentIdToken());
   }
 
   @Bean
@@ -201,5 +161,15 @@ public class FarskapsportalConfig {
   @FunctionalInterface
   public interface OidcTokenSubjectExtractor {
     String hentPaaloggetPerson();
+  }
+
+  @Configuration
+  @Profile(PROFILE_LIVE)
+  public class FlywayConfiguration {
+
+    @Autowired
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
+      Flyway.configure().dataSource(dataSource).load().migrate();
+    }
   }
 }
