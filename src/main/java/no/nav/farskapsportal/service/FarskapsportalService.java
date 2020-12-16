@@ -121,7 +121,7 @@ public class FarskapsportalService {
 
     var far =
         ForelderDto.builder()
-            .forelderRolle(Forelderrolle.FAR)
+            .forelderrolle(Forelderrolle.FAR)
             .foedselsnummer(request.getOpplysningerOmFar().getFoedselsnummer())
             .fornavn(navnFar.getFornavn())
             .mellomnavn(navnFar.getMellomnavn())

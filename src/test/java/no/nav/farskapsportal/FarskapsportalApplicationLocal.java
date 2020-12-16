@@ -1,6 +1,5 @@
 package no.nav.farskapsportal;
 
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import com.google.common.net.HttpHeaders;
@@ -63,16 +62,6 @@ public class FarskapsportalApplicationLocal {
     return "Bearer " + testTokenGeneratorResource.issueToken("localhost-idtoken");
   }
 
-  @Configuration
-  @Profile(PROFILE_LOCAL_POSTGRES)
-  public class FlywayConfiguration {
-
-    @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
-      Flyway.configure().ignoreMissingMigrations(true).baselineOnMigrate(true).dataSource(dataSource).load().migrate();
-    }
-  }
-
   @Bean
   HttpHeaderTestRestTemplate httpHeaderTestRestTemplate() {
     TestRestTemplate testRestTemplate = new TestRestTemplate(new RestTemplateBuilder());
@@ -104,5 +93,20 @@ public class FarskapsportalApplicationLocal {
         .serviceUri(new URI(esigneringUrl + "/esignering"))
         .globalSender(new Sender(NAV_ORGNR))
         .build();
+  }
+
+  @Configuration
+  @Profile(PROFILE_LOCAL_POSTGRES)
+  public class FlywayConfiguration {
+
+    @Autowired
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
+      Flyway.configure()
+          .ignoreMissingMigrations(true)
+          .baselineOnMigrate(true)
+          .dataSource(dataSource)
+          .load()
+          .migrate();
+    }
   }
 }

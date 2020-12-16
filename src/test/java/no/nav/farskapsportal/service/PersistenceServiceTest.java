@@ -80,7 +80,7 @@ public class PersistenceServiceTest {
                   + personnummerMor)
           .fornavn("Ronaldina")
           .etternavn("McDonald")
-          .forelderRolle(Forelderrolle.MOR)
+          .forelderrolle(Forelderrolle.MOR)
           .build();
     } else {
       var personnummerFar = "12345";
@@ -91,7 +91,7 @@ public class PersistenceServiceTest {
               foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar)
           .fornavn("Ronald")
           .etternavn("McDonald")
-          .forelderRolle(Forelderrolle.FAR)
+          .forelderrolle(Forelderrolle.FAR)
           .build();
     }
   }

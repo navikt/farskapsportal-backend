@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -71,16 +70,16 @@ public class FarskapsportalServiceTest {
               .foedselsnummer(foedselsnummerFar)
               .fornavn("Ronald")
               .etternavn("McDonald")
-              .forelderRolle(Forelderrolle.FAR)
+              .forelderrolle(Forelderrolle.FAR)
               .build();
 
       var farskapserklaeringSomVenterPaaFarsSignatur =
           FarskapserklaeringDto.builder().far(far).build();
 
       when(personopplysningService.bestemmeForelderrolle(far.getFoedselsnummer()))
-          .thenReturn(far.getForelderRolle());
+          .thenReturn(far.getForelderrolle());
       when(persistenceService.henteFarskapserklaeringerEtterRedirect(
-              far.getFoedselsnummer(), far.getForelderRolle(), KjoennTypeDto.MANN))
+              far.getFoedselsnummer(), far.getForelderrolle(), KjoennTypeDto.MANN))
           .thenReturn(Set.of(farskapserklaeringSomVenterPaaFarsSignatur));
       when(persistenceService.henteFarskapserklaeringer(far.getFoedselsnummer()))
           .thenReturn(Set.of(farskapserklaeringSomVenterPaaFarsSignatur));
@@ -158,7 +157,7 @@ public class FarskapsportalServiceTest {
               .foedselsnummer("00001122111")
               .fornavn(registrertNavnFar.getFornavn())
               .etternavn(registrertNavnFar.getEtternavn())
-              .forelderRolle(Forelderrolle.FAR)
+              .forelderrolle(Forelderrolle.FAR)
               .build();
 
       var mor =
@@ -178,7 +177,7 @@ public class FarskapsportalServiceTest {
               .build();
 
       when(personopplysningService.bestemmeForelderrolle(far.getFoedselsnummer()))
-          .thenReturn(far.getForelderRolle());
+          .thenReturn(far.getForelderrolle());
       when(personopplysningService.henteGjeldendeKjoenn(far.getFoedselsnummer()))
           .thenReturn(KjoennDto.builder().kjoenn(KjoennTypeDto.MANN).build());
 

@@ -18,7 +18,7 @@ import org.springframework.validation.annotation.Validated;
 @AllArgsConstructor
 public class ForelderDto {
   @ApiModelProperty(value = "Forelderens rolle", example = "MOR")
-  private Forelderrolle forelderRolle;
+  private Forelderrolle forelderrolle;
 
   @ApiModelProperty(value = "Forelderens fødselsnummer", example = "12345678910")
   private @NonNull String foedselsnummer;
