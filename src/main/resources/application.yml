@@ -87,7 +87,6 @@ spring:
   # Oppsett for flyway med hikari og postgres
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:postgresql://localhost:5432/postgres
-  dataSource.user: farskapsportal_api
   dataSource.password: local
   dataSource.databaseName: postgres
   dataSource.portNumber: 5432

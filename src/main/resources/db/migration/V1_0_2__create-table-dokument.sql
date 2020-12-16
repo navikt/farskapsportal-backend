@@ -17,6 +17,3 @@ CREATE TABLE dokument
 )
 
     TABLESPACE pg_default;
-
-ALTER TABLE dokument
-    OWNER to farskapsportal_api;

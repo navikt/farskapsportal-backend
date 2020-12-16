@@ -29,6 +29,3 @@ CREATE TABLE farskapserklaering
 )
 
     TABLESPACE pg_default;
-
-ALTER TABLE farskapserklaering
-    OWNER to farskapsportal_api;

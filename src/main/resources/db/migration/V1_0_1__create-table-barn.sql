@@ -12,6 +12,3 @@ CREATE TABLE barn
 )
 
     TABLESPACE pg_default;
-
-ALTER TABLE barn
-    OWNER to farskapsportal_api;

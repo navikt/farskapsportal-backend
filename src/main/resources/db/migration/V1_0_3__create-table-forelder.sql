@@ -14,6 +14,3 @@ CREATE TABLE forelder
 )
 
     TABLESPACE pg_default;
-
-ALTER TABLE forelder
-    OWNER to farskapsportal_api;
