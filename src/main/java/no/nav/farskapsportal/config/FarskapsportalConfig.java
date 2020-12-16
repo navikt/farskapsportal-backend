@@ -79,7 +79,7 @@ public class FarskapsportalConfig {
 
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
-      Flyway.configure().baselineOnMigrate(true).dataSource(dataSource).load().migrate();
+      Flyway.configure().dataSource(dataSource).load().migrate();
     }
   }
 
