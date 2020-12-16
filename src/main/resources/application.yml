@@ -28,10 +28,18 @@ no.nav:
     accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
 spring:
-  datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
-  flyway.enabled: false
-  flyway.locations: classpath:/db/migration
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  flyway:
+    enabled: false
+    locations: classpath:/db/migration
   jpa.hibernate:
     connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
@@ -85,14 +93,22 @@ wiremock.server:
 spring:
   profiles: local-postgres
   # Oppsett for flyway med hikari og postgres
-  datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:postgresql://localhost:5432/postgres
-  dataSource.password: local
-  dataSource.databaseName: postgres
-  dataSource.portNumber: 5432
-  dataSource.serverName: localhost
-  flyway.enabled: false
-  flyway.locations: classpath:/db/migration
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5432/postgres
+    password: local
+    databaseName: postgres
+    portNumber: 5432
+    serverName: localhost
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  flyway:
+    enabled: false
+    flyway.locations: classpath:/db/migration
   jpa.hibernate:
     connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
