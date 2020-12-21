@@ -42,9 +42,9 @@ public class FarskapsportalService {
 
     // hente rolle
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
-    var farskapserklaeringerSomVenterPaaFarsSignatur = new HashSet<FarskapserklaeringDto>();
-    var farskapserklaeringerSomVenterPaaMorsSignatur = new HashSet<FarskapserklaeringDto>();
-    var nyligFoedteBarnSomManglerFar = new HashSet<String>();
+    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaFarsSignatur = new HashSet<>();
+    Set<FarskapserklaeringDto>  farskapserklaeringerSomVenterPaaMorsSignatur = new HashSet<>();
+    Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
     var kanOppretteFarskapserklaering = false;
 
     if (Forelderrolle.MEDMOR.equals(brukersForelderrolle)
@@ -61,22 +61,21 @@ public class FarskapsportalService {
 
       // Henter påbegynte farskapserklæringer som venter på mors signatur
       farskapserklaeringerSomVenterPaaMorsSignatur =
-          (HashSet<FarskapserklaeringDto>)
               persistenceService.henteFarskapserklaeringerEtterRedirect(
                   foedselsnummer, Forelderrolle.MOR, KjoennTypeDto.KVINNE);
       kanOppretteFarskapserklaering = true;
 
       // har mor noen nyfødte barn uten registrert far?
       nyligFoedteBarnSomManglerFar =
-          (HashSet<String>)
               personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
     }
 
     if (Forelderrolle.FAR.equals(brukersForelderrolle)
-        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)|| Forelderrolle.MOR.equals(brukersForelderrolle)) {
+        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)
+        || Forelderrolle.MOR.equals(brukersForelderrolle)) {
       // Henter påbegynte farskapserklæringer som venter på fars signatur
-      farskapserklaeringerSomVenterPaaFarsSignatur = (HashSet<FarskapserklaeringDto>)
-          persistenceService.henteFarskapserklaeringer(foedselsnummer);
+      farskapserklaeringerSomVenterPaaFarsSignatur =
+              persistenceService.henteFarskapserklaeringer(foedselsnummer);
     }
 
     return BrukerinformasjonResponse.builder()

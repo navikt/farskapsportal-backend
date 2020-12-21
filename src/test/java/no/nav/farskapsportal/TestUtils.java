@@ -2,6 +2,7 @@ package no.nav.farskapsportal;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.api.Forelderrolle;
@@ -26,9 +27,12 @@ public class TestUtils {
     var dokument =
         DokumentDto.builder()
             .dokumentnavn("farskapserklaering.pdf")
+            .dokumentStatusUrl(lageUrl("status"))
             .padesUrl(lageUrl("pades"))
             .redirectUrlMor(lageUrl("redirect-mor"))
             .redirectUrlFar(lageUrl("redirect-far"))
+            .innhold(
+                "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8))
             .build();
 
     return FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
@@ -65,5 +69,4 @@ public class TestUtils {
           .build();
     }
   }
-
 }

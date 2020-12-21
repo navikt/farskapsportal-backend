@@ -4,7 +4,6 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarn;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
-import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,8 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
@@ -57,7 +54,6 @@ public class PersistenceServiceTest {
   @Autowired private BarnDao barnDao;
   @Autowired private ForelderDao forelderDao;
   @Autowired private DokumentDao dokumentDao;
-
 
   @Nested
   @DisplayName("Lagre")
@@ -128,7 +124,11 @@ public class PersistenceServiceTest {
     void lagreFarskapserklaering() {
 
       // given
-      var farskapserklaering = farskapserklaeringDao.henteUnikFarskapserklaering(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), FARSKAPSERKLAERING.getFar().getFoedselsnummer(), FARSKAPSERKLAERING.getBarn().getTermindato());
+      var farskapserklaering =
+          farskapserklaeringDao.henteUnikFarskapserklaering(
+              FARSKAPSERKLAERING.getMor().getFoedselsnummer(),
+              FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
+              FARSKAPSERKLAERING.getBarn().getTermindato());
       if (farskapserklaering != null) {
         farskapserklaeringDao.delete(farskapserklaering);
       }
@@ -168,7 +168,11 @@ public class PersistenceServiceTest {
     void skalHenteFarskapserklaeringEtterRedirectForMor() {
 
       // given
-      var farskapserklaering = farskapserklaeringDao.henteUnikFarskapserklaering(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), FARSKAPSERKLAERING.getFar().getFoedselsnummer(), FARSKAPSERKLAERING.getBarn().getTermindato());
+      var farskapserklaering =
+          farskapserklaeringDao.henteUnikFarskapserklaering(
+              FARSKAPSERKLAERING.getMor().getFoedselsnummer(),
+              FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
+              FARSKAPSERKLAERING.getBarn().getTermindato());
       var padesUrl = farskapserklaering.getDokument().getPadesUrl();
       farskapserklaering.getDokument().setPadesUrl(null);
       farskapserklaeringDao.save(farskapserklaering);

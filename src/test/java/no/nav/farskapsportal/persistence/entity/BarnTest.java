@@ -3,8 +3,6 @@ package no.nav.farskapsportal.persistence.entity;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

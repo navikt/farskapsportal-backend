@@ -1,6 +1,8 @@
 package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.henteBarn;
+import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
@@ -44,6 +45,10 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class FarskapsportalServiceTest {
 
+  private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
+  private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
+  private static final BarnDto BARN = henteBarn(5);
+
   @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
   @MockBean DifiESignaturConsumer difiESignaturConsumer;
   @MockBean PersistenceService persistenceService;
@@ -60,32 +65,19 @@ public class FarskapsportalServiceTest {
     void skalReturnerePaabegynteFarskapserklaeringerSomVenterPaaFar() {
 
       // given
-      var personnummerFar = "12345";
-      var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
-      var foedselsnummerFar =
-          foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar;
-
-      var far =
-          ForelderDto.builder()
-              .foedselsnummer(foedselsnummerFar)
-              .fornavn("Ronald")
-              .etternavn("McDonald")
-              .forelderrolle(Forelderrolle.FAR)
-              .build();
-
       var farskapserklaeringSomVenterPaaFarsSignatur =
-          FarskapserklaeringDto.builder().far(far).build();
+          FarskapserklaeringDto.builder().far(FAR).build();
 
-      when(personopplysningService.bestemmeForelderrolle(far.getFoedselsnummer()))
-          .thenReturn(far.getForelderrolle());
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer()))
+          .thenReturn(FAR.getForelderrolle());
       when(persistenceService.henteFarskapserklaeringerEtterRedirect(
-              far.getFoedselsnummer(), far.getForelderrolle(), KjoennTypeDto.MANN))
+              FAR.getFoedselsnummer(), FAR.getForelderrolle(), KjoennTypeDto.MANN))
           .thenReturn(Set.of(farskapserklaeringSomVenterPaaFarsSignatur));
-      when(persistenceService.henteFarskapserklaeringer(far.getFoedselsnummer()))
+      when(persistenceService.henteFarskapserklaeringer(FAR.getFoedselsnummer()))
           .thenReturn(Set.of(farskapserklaeringSomVenterPaaFarsSignatur));
 
       // when
-      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(far.getFoedselsnummer());
+      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
 
       // then
       assertTrue(
@@ -173,7 +165,11 @@ public class FarskapsportalServiceTest {
           FarskapserklaeringDto.builder()
               .mor(mor)
               .far(far)
-              .dokument(DokumentDto.builder().dokumentStatusUrl(statuslenke).redirectUrlFar(lageUrl("redirect-far")).build())
+              .dokument(
+                  DokumentDto.builder()
+                      .dokumentStatusUrl(statuslenke)
+                      .redirectUrlFar(lageUrl("redirect-far"))
+                      .build())
               .build();
 
       when(personopplysningService.bestemmeForelderrolle(far.getFoedselsnummer()))

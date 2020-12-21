@@ -279,6 +279,11 @@
       <artifactId>lombok</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-java8</artifactId>
+    </dependency>
+
     <!-- guava -->
     <dependency>
       <groupId>com.google.guava</groupId>

@@ -87,25 +87,37 @@ public class PersistenceService {
 
   @Transactional
   public Farskapserklaering lagreFarskapserklaering(FarskapserklaeringDto dto) {
-    var entity = modelMapper.map(dto, Farskapserklaering.class);
+    var nyEllerOppdatertFarskapserklaering = modelMapper.map(dto, Farskapserklaering.class);
+
+    var barnErOppgittMedFoedselsnummer =
+        nyEllerOppdatertFarskapserklaering.getBarn().getFoedselsnummer() != null
+            && nyEllerOppdatertFarskapserklaering.getBarn().getFoedselsnummer().length() > 10;
+
+    var fes = farskapserklaeringDao.findAll();
 
     Farskapserklaering eksisterendeFarskapserklaering =
-        entity.getBarn().getFoedselsnummer() == null
+        barnErOppgittMedFoedselsnummer
             ? farskapserklaeringDao.henteUnikFarskapserklaering(
-                entity.getMor().getFoedselsnummer(),
-                entity.getFar().getFoedselsnummer(),
-                entity.getBarn().getTermindato())
+                nyEllerOppdatertFarskapserklaering.getMor().getFoedselsnummer(),
+                nyEllerOppdatertFarskapserklaering.getFar().getFoedselsnummer(),
+                nyEllerOppdatertFarskapserklaering.getBarn().getFoedselsnummer())
             : farskapserklaeringDao.henteUnikFarskapserklaering(
-                entity.getMor().getFoedselsnummer(),
-                entity.getFar().getFoedselsnummer(),
-                entity.getBarn().getFoedselsnummer());
+                nyEllerOppdatertFarskapserklaering.getMor().getFoedselsnummer(),
+                nyEllerOppdatertFarskapserklaering.getFar().getFoedselsnummer(),
+                nyEllerOppdatertFarskapserklaering.getBarn().getTermindato());
 
     if (eksisterendeFarskapserklaering == null) {
-      return farskapserklaeringDao.save(entity);
-    } else {
-      throw new FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(
-          "Farskasperklæring med samme mor far og barn eksisterer allerede i databasen!");
+      return farskapserklaeringDao.save(nyEllerOppdatertFarskapserklaering);
+    } else if (!nyEllerOppdatertFarskapserklaering
+        .getDokument()
+        .equals(eksisterendeFarskapserklaering.getDokument())) {
+
+      eksisterendeFarskapserklaering.setDokument(nyEllerOppdatertFarskapserklaering.getDokument());
+      return farskapserklaeringDao.save(eksisterendeFarskapserklaering);
     }
+
+    throw new FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(
+        "Farskasperklæring med samme mor far og barn eksisterer allerede i databasen!");
   }
 
   public Set<FarskapserklaeringDto> henteFarskapserklaeringer(String foedselsnummer) {
