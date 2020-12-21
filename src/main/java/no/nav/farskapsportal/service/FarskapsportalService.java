@@ -42,8 +42,9 @@ public class FarskapsportalService {
 
     // hente rolle
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
-    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaFarsSignatur = null;
-    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaMorsSignatur = null;
+    var farskapserklaeringerSomVenterPaaFarsSignatur = new HashSet<FarskapserklaeringDto>();
+    var farskapserklaeringerSomVenterPaaMorsSignatur = new HashSet<FarskapserklaeringDto>();
+    var nyligFoedteBarnSomManglerFar = new HashSet<String>();
     var kanOppretteFarskapserklaering = false;
 
     if (Forelderrolle.MEDMOR.equals(brukersForelderrolle)
@@ -55,32 +56,27 @@ public class FarskapsportalService {
           .build();
     }
 
-    // Henter påbegynte farskapserklæringer som venter på mors signatur
     if (Forelderrolle.MOR.equals(brukersForelderrolle)
         || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
+      // Henter påbegynte farskapserklæringer som venter på mors signatur
       farskapserklaeringerSomVenterPaaMorsSignatur =
           (HashSet<FarskapserklaeringDto>)
               persistenceService.henteFarskapserklaeringerEtterRedirect(
                   foedselsnummer, Forelderrolle.MOR, KjoennTypeDto.KVINNE);
       kanOppretteFarskapserklaering = true;
-    }
 
-    // Henter påbegynte farskapserklæringer som venter på fars signatur
-    if (Forelderrolle.FAR.equals(brukersForelderrolle)
-        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
-      farskapserklaeringerSomVenterPaaFarsSignatur =
-          persistenceService.henteFarskapserklaeringer(foedselsnummer);
-    }
-
-    var nyligFoedteBarnSomManglerFar = new HashSet<String>();
-
-    // har mor noen nyfødte barn uten registrert far?
-    if (Forelderrolle.MOR.equals(brukersForelderrolle)
-        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
+      // har mor noen nyfødte barn uten registrert far?
       nyligFoedteBarnSomManglerFar =
           (HashSet<String>)
               personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
+    }
+
+    if (Forelderrolle.FAR.equals(brukersForelderrolle)
+        || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)|| Forelderrolle.MOR.equals(brukersForelderrolle)) {
+      // Henter påbegynte farskapserklæringer som venter på fars signatur
+      farskapserklaeringerSomVenterPaaFarsSignatur = (HashSet<FarskapserklaeringDto>)
+          persistenceService.henteFarskapserklaeringer(foedselsnummer);
     }
 
     return BrukerinformasjonResponse.builder()

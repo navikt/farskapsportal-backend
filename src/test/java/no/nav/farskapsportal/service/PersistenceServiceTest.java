@@ -1,6 +1,9 @@
 package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.henteBarn;
+import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
+import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,51 +58,6 @@ public class PersistenceServiceTest {
   @Autowired private ForelderDao forelderDao;
   @Autowired private DokumentDao dokumentDao;
 
-  private static FarskapserklaeringDto henteFarskapserklaering(
-      ForelderDto mor, ForelderDto far, BarnDto barn) {
-
-    var dokument =
-        DokumentDto.builder()
-            .dokumentnavn("farskapserklaering.pdf")
-            .padesUrl(lageUrl("pades"))
-            .redirectUrlMor(lageUrl("redirect-mor"))
-            .redirectUrlFar(lageUrl("redirect-far"))
-            .build();
-
-    return FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
-  }
-
-  private static ForelderDto henteForelder(Forelderrolle forelderrolle) {
-    if (Forelderrolle.MOR.equals(forelderrolle)) {
-      var personnummerMor = "12340";
-      var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
-
-      return ForelderDto.builder()
-          .foedselsnummer(
-              foedselsdato.plusYears(4).format(DateTimeFormatter.ofPattern("ddMMyy"))
-                  + personnummerMor)
-          .fornavn("Ronaldina")
-          .etternavn("McDonald")
-          .forelderrolle(Forelderrolle.MOR)
-          .build();
-    } else {
-      var personnummerFar = "12345";
-      var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
-
-      return ForelderDto.builder()
-          .foedselsnummer(
-              foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar)
-          .fornavn("Ronald")
-          .etternavn("McDonald")
-          .forelderrolle(Forelderrolle.FAR)
-          .build();
-    }
-  }
-
-  private static BarnDto henteBarn(int antallMndTilTermindato) {
-    var termindato = LocalDate.now().plusMonths(antallMndTilTermindato);
-    return BarnDto.builder().termindato(termindato).build();
-  }
 
   @Nested
   @DisplayName("Lagre")
