@@ -175,7 +175,12 @@ public class PersistenceServiceTest {
               FARSKAPSERKLAERING.getBarn().getTermindato());
       var padesUrl = farskapserklaering.getDokument().getPadesUrl();
       farskapserklaering.getDokument().setPadesUrl(null);
-      farskapserklaeringDao.save(farskapserklaering);
+      var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaering);
+
+      assertAll(
+          () -> assertNull(lagretFarskapserklaering.getDokument().getPadesUrl()),
+          () -> assertNull(lagretFarskapserklaering.getDokument().getSignertAvMor()),
+          () -> assertNull(lagretFarskapserklaering.getDokument().getSignertAvFar()));
 
       // when
       var farskapserklaeringerEtterRedirect =
@@ -203,7 +208,8 @@ public class PersistenceServiceTest {
           () ->
               assertEquals(
                   FARSKAPSERKLAERING.getBarn().getTermindato(),
-                  farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
+                  farskapserklaeringerEtterRedirect.getBarn().getTermindato()),
+          () -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl()));
 
       // Clean up test data
       farskapserklaering.getDokument().setPadesUrl(padesUrl);

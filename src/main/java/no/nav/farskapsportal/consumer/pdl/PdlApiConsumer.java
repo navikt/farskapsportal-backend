@@ -51,7 +51,7 @@ public class PdlApiConsumer {
     }
 
     return foedselDtos.stream()
-        .filter(f -> f.getMetadata().getHistorisk().equals(false))
+        .filter(Objects::nonNull)
         .map(FoedselDto::getFoedselsdato)
         .findFirst()
         .orElseThrow(() -> new PdlApiException("Feil oppstod ved henting av fødselsdato for person"));
