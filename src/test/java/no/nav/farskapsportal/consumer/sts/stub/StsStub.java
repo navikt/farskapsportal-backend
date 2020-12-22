@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StsStub {
 
-  @Value("${urls.sts.security-token-service-endpoint}")
+  @Value("${url.sts.security-token-service-endpoint}")
   private String hentIdTokenForServicebrukerEndpoint;
 
   public void runSecurityTokenServiceStub(String mockedIdtoken) {

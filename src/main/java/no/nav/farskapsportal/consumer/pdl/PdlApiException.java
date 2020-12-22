@@ -1,22 +1,24 @@
 package no.nav.farskapsportal.consumer.pdl;
 
-import java.util.List;
-import java.util.StringJoiner;
+import no.nav.farskapsportal.exception.UnrecoverableException;
 
-public class PdlApiException extends RuntimeException {
+public class PdlApiException extends UnrecoverableException {
+  private static final String default_message = "Det har oppstått en feil i kommunikasjon med PdlApi";
 
-  private String message;
+  private final String message;
 
-  public PdlApiException(List<String> errors) {
-    super();
-    StringJoiner stringJoiner = new StringJoiner("\n");
-    stringJoiner.add("Error i respons fra pdl-api: ");
-    errors.forEach(stringJoiner::add);
-    message = stringJoiner.toString();
+  public PdlApiException() {
+    super(default_message);
+    this.message = default_message;
+  }
+
+  public PdlApiException(String message) {
+    super(message);
+    this.message = message;
   }
 
   @Override
   public String getMessage() {
-    return message;
+    return this.message;
   }
 }

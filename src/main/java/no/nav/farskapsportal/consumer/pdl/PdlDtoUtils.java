@@ -15,4 +15,9 @@ public class PdlDtoUtils {
         MASTER_PDL.equalsIgnoreCase(dto.getMetadata().getMaster())
             || MASTER_FREG.equalsIgnoreCase(dto.getMetadata().getMaster());
   }
+
+  public static boolean isMasterPdlOrFreg(PdlDto dto) {
+    return MASTER_PDL.equalsIgnoreCase(dto.getMetadata().getMaster())
+        || MASTER_FREG.equalsIgnoreCase(dto.getMetadata().getMaster());
+  }
 }

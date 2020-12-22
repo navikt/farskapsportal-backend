@@ -2,6 +2,8 @@ HELP.md
 target/
 **/src/main/**/target/
 **/src/test/**/target/
+*.orig
+*.pdf
 
 ### STS ###
 .apt_generated

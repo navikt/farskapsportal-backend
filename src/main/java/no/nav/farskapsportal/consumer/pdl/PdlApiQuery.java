@@ -13,6 +13,10 @@ import org.springframework.core.io.ClassPathResource;
 
 @UtilityClass
 public class PdlApiQuery {
+  public static final String HENT_PERSON_FOEDSEL =
+      readGraphQLQueryFromFile("graphql/hent-person-foedsel-query.graphql");
+  public static final String HENT_PERSON_FAMILIERELASJONER =
+      readGraphQLQueryFromFile("graphql/hent-person-familierelasjoner-query.graphql");
   public static final String HENT_PERSON_KJOENN =
       readGraphQLQueryFromFile("graphql/hent-person-kjoenn-query.graphql");
   public static final String HENT_PERSON_NAVN =

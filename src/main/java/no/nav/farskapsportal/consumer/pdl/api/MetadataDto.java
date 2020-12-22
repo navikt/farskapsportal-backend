@@ -11,5 +11,5 @@ public class MetadataDto {
   String opplysningsId;
   @NotEmpty String master;
   @NotNull List<EndringDto> endringer;
-  @Setter Boolean historisk;
+  Boolean historisk;
 }
