@@ -2,9 +2,13 @@ package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarn;
+import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -12,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
@@ -27,9 +32,9 @@ import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
-import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.SignaturDto;
+import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,8 +56,9 @@ public class FarskapsportalServiceTest {
 
   @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
   @MockBean DifiESignaturConsumer difiESignaturConsumer;
-  @MockBean PersistenceService persistenceService;
   @MockBean PersonopplysningService personopplysningService;
+  @Autowired private PersistenceService persistenceService;
+  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
 
   @Autowired private FarskapsportalService farskapsportalService;
 
@@ -61,29 +67,191 @@ public class FarskapsportalServiceTest {
   class HenteBrukerinformasjon {
 
     @Test
-    @DisplayName("Skal returnere påbegynte farskapserklæringer som venter på far")
-    void skalReturnerePaabegynteFarskapserklaeringerSomVenterPaaFar() {
+    @DisplayName(
+        "Mor skal se sine påbegynte og fars ventende farskapserklæringer, og liste over nyfødte uten far")
+    void morSkalSeSinePaabegynteOgFarsVentedeFarskapserklaeringerOgListeOverNyfoedteUtenFar() {
+      // given
+      farskapserklaeringDao.deleteAll();
+      var foedselsdatoSpedbarn = LocalDate.now().minusMonths(2).minusDays(21);
+      var spedbarnUtenFar =
+          BarnDto.builder()
+              .foedselsnummer(
+                  foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "10100")
+              .build();
+      var farskapserklaeringSomManglerSignaturFraMor =
+          henteFarskapserklaering(MOR, FAR, spedbarnUtenFar);
+      farskapserklaeringSomManglerSignaturFraMor.getDokument().setPadesUrl(null);
+
+      var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
+      farskapserklaeringSomVenterPaaFarsSignatur
+          .getDokument()
+          .setPadesUrl(lageUrl("padesOppdatertVedSigneringMor"));
+      farskapserklaeringSomVenterPaaFarsSignatur
+          .getDokument()
+          .setSignertAvMor(LocalDateTime.now().minusMinutes(3));
+
+      assertAll(
+          () ->
+              assertNull(
+                  farskapserklaeringSomManglerSignaturFraMor.getDokument().getSignertAvMor()),
+          () -> assertNull(farskapserklaeringSomManglerSignaturFraMor.getDokument().getPadesUrl()),
+          () ->
+              assertNotNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvMor()),
+          () ->
+              assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
+          () ->
+              assertNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
+
+      var lagretFarskapserklaeringSomVentePaaMor =
+          persistenceService.lagreFarskapserklaering(farskapserklaeringSomManglerSignaturFraMor);
+
+      var lagretFarskapserklaeringSomVentePaaFar =
+          persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
+          .thenReturn(MOR.getForelderrolle());
+
+      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
+          .thenReturn(Set.of(spedbarnUtenFar.getFoedselsnummer()));
+
+      // when
+      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertTrue(1 == brukerinformasjon.getMorsVentendeFarskapserklaeringer().size()),
+          () -> assertTrue(1 == brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()),
+          () -> assertTrue(1 == brukerinformasjon.getFarsVentendeFarskapserklaeringer().size()));
+    }
+
+    @Test
+    @DisplayName("Mor skal se sine påbegynte farskapserklæringer")
+    void morSkalSeSinePaabegynteFarskapserklaeringer() {
 
       // given
-      var farskapserklaeringSomVenterPaaFarsSignatur =
-          FarskapserklaeringDto.builder().far(FAR).build();
+      farskapserklaeringDao.deleteAll();
+      var farskapserklaeringSomManglerMorsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
+      farskapserklaeringSomManglerMorsSignatur.getDokument().setPadesUrl(null);
+
+      assertAll(
+          () ->
+              assertNull(farskapserklaeringSomManglerMorsSignatur.getDokument().getSignertAvMor()),
+          () -> assertNull(farskapserklaeringSomManglerMorsSignatur.getDokument().getPadesUrl()),
+          () ->
+              assertNull(farskapserklaeringSomManglerMorsSignatur.getDokument().getSignertAvFar()));
+
+      var lagretFarskapserklaering =
+          persistenceService.lagreFarskapserklaering(farskapserklaeringSomManglerMorsSignatur);
+
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
+          .thenReturn(MOR.getForelderrolle());
+
+      // when
+      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertTrue(1 == brukerinformasjon.getMorsVentendeFarskapserklaeringer().size()),
+          () -> assertTrue(0 == brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()),
+          () -> assertTrue(0 == brukerinformasjon.getFarsVentendeFarskapserklaeringer().size()));
+    }
+
+    @Test
+    @DisplayName("Mor skal se farskapserklæringer som venter på far")
+    void morSkalSeFarskapserklaeringerSomVenterPaaFar() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+      var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
+      farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now());
+
+      assertAll(
+          () ->
+              assertNotNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvMor()),
+          () ->
+              assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
+          () ->
+              assertNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
+
+      var lagretFarskapserklaering =
+          persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
+          .thenReturn(MOR.getForelderrolle());
+
+      // when
+      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
+
+      // then
+      assertTrue(1 == brukerinformasjon.getFarsVentendeFarskapserklaeringer().size());
+    }
+
+    @Test
+    @DisplayName("Far skal se sine ventende farskapserklæringer")
+    void farSkalSeSineVentendeFarskapserklaeringer() {
+      // given
+      farskapserklaeringDao.deleteAll();
+      var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
+      farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now());
+
+      assertAll(
+          () ->
+              assertNotNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvMor()),
+          () ->
+              assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
+          () ->
+              assertNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
+
+      var lagretFarskapserklaering =
+          persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer()))
           .thenReturn(FAR.getForelderrolle());
-      when(persistenceService.henteFarskapserklaeringerEtterRedirect(
-              FAR.getFoedselsnummer(), FAR.getForelderrolle(), KjoennTypeDto.MANN))
-          .thenReturn(Set.of(farskapserklaeringSomVenterPaaFarsSignatur));
-      when(persistenceService.henteFarskapserklaeringer(FAR.getFoedselsnummer()))
-          .thenReturn(Set.of(farskapserklaeringSomVenterPaaFarsSignatur));
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
 
       // then
-      assertTrue(
-          brukerinformasjon
-              .getFarsVentendeFarskapserklaeringer()
-              .containsAll(Set.of(farskapserklaeringSomVenterPaaFarsSignatur)));
+      assertTrue(1 == brukerinformasjon.getFarsVentendeFarskapserklaeringer().size());
+    }
+
+    @Test
+    @DisplayName("Far skal ikke se farskapserklæringer som mor ikke har signert")
+    void farSkalIkkeSeFarskapserklaeringerSomMorIkkeHarSignert() {
+      // given
+      farskapserklaeringDao.deleteAll();
+      var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
+      farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setPadesUrl(null);
+
+      assertAll(
+          () ->
+              assertNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvMor()),
+          () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
+          () ->
+              assertNull(
+                  farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
+
+      var lagretFarskapserklaering =
+          persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer()))
+          .thenReturn(FAR.getForelderrolle());
+
+      // when
+      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertTrue(0 == brukerinformasjon.getMorsVentendeFarskapserklaeringer().size()),
+          () -> assertTrue(0 == brukerinformasjon.getFarsVentendeFarskapserklaeringer().size()),
+          () -> assertTrue(0 == brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
     }
   }
 
@@ -97,14 +265,14 @@ public class FarskapsportalServiceTest {
     void skalOppretteFarskapserklaeringForBarnMedTermindato() {
 
       // given
-      var fnrMor = "11111112340";
-      var fnrFar = "00000012121";
-      var barn = BarnDto.builder().termindato(LocalDate.now().plusMonths(5)).build();
-      var registrertNavnMor = NavnDto.builder().fornavn("Natalya").etternavn("Sagdiyev").build();
-      var registrertNavnFar = NavnDto.builder().fornavn("Jessie").etternavn("James").build();
+      var barn = henteBarn(4);
+      var registrertNavnMor =
+          NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar =
+          NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
       var opplysningerOmFar =
           KontrollerePersonopplysningerRequest.builder()
-              .foedselsnummer(fnrFar)
+              .foedselsnummer(FAR.getFoedselsnummer())
               .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn())
               .build();
 
@@ -115,16 +283,17 @@ public class FarskapsportalServiceTest {
               .redirectUrlMor(lageUrl("redirect-mor"))
               .build();
 
-      when(personopplysningService.henteNavn(fnrMor)).thenReturn(registrertNavnMor);
-      when(personopplysningService.henteNavn(fnrFar)).thenReturn(registrertNavnFar);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
+          .thenReturn(registrertNavnMor);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer()))
+          .thenReturn(registrertNavnFar);
       when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
-      when(persistenceService.lagreFarskapserklaering(any())).thenReturn(null);
 
       // when
       var respons =
           farskapsportalService.oppretteFarskapserklaering(
-              fnrMor,
+              MOR.getFoedselsnummer(),
               OppretteFarskaperklaeringRequest.builder()
                   .barn(barn)
                   .opplysningerOmFar(opplysningerOmFar)
@@ -140,59 +309,38 @@ public class FarskapsportalServiceTest {
   class HenteSignertDokumentEtterRedirect {
 
     @Test
-    @DisplayName("Skal hente dokument etter redirect dersom status query token er gyldig")
-    void skalHenteDokumentEtterRedirectDersomStatusQueryTokenErGyldig() {
-      // given
-      var registrertNavnFar = NavnDto.builder().fornavn("Jessie").etternavn("James").build();
-      var far =
-          ForelderDto.builder()
-              .foedselsnummer("00001122111")
-              .fornavn(registrertNavnFar.getFornavn())
-              .etternavn(registrertNavnFar.getEtternavn())
-              .forelderrolle(Forelderrolle.FAR)
-              .build();
+    @DisplayName("Far skal se dokument etter redirect dersom status query token er gyldig")
+    void farSkalSeDokumentEtterRedirectDersomStatusQueryTokenErGyldig() {
 
-      var mor =
-          ForelderDto.builder()
-              .foedselsnummer("11001122110")
-              .fornavn("Dolly")
-              .etternavn("Duck")
-              .build();
+      // given
+      farskapserklaeringDao.deleteAll();
 
       var statuslenke = lageUrl("status");
+      var farskapserklaering = henteFarskapserklaering(MOR, FAR, BARN);
+      var padesFar = lageUrl("padesFar");
+      farskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(3));
 
-      var farskapserklaering =
-          FarskapserklaeringDto.builder()
-              .mor(mor)
-              .far(far)
-              .dokument(
-                  DokumentDto.builder()
-                      .dokumentStatusUrl(statuslenke)
-                      .redirectUrlFar(lageUrl("redirect-far"))
-                      .build())
-              .build();
+      assertAll(
+          () -> assertNotNull(farskapserklaering.getDokument().getPadesUrl()),
+          () -> assertNull(farskapserklaering.getDokument().getSignertAvFar()));
 
-      when(personopplysningService.bestemmeForelderrolle(far.getFoedselsnummer()))
-          .thenReturn(far.getForelderrolle());
-      when(personopplysningService.henteGjeldendeKjoenn(far.getFoedselsnummer()))
+      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaering);
+
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer()))
+          .thenReturn(FAR.getForelderrolle());
+      when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer()))
           .thenReturn(KjoennDto.builder().kjoenn(KjoennTypeDto.MANN).build());
-
-      when(persistenceService.henteFarskapserklaeringerEtterRedirect(
-              far.getFoedselsnummer(), Forelderrolle.FAR, KjoennTypeDto.MANN))
-          .thenReturn(Set.of(farskapserklaering));
-
-      when(persistenceService.lagreFarskapserklaering(any())).thenReturn(null);
 
       when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any()))
           .thenReturn(
               DokumentStatusDto.builder()
                   .statuslenke(statuslenke)
                   .erSigneringsjobbenFerdig(true)
-                  .padeslenke(lageUrl("pades"))
+                  .padeslenke(padesFar)
                   .signaturer(
                       List.of(
                           SignaturDto.builder()
-                              .signatureier(far.getFoedselsnummer())
+                              .signatureier(FAR.getFoedselsnummer())
                               .harSignert(true)
                               .tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
                               .build()))
@@ -204,10 +352,16 @@ public class FarskapsportalServiceTest {
       // when
       var respons =
           farskapsportalService.henteSignertDokumentEtterRedirect(
-              far.getFoedselsnummer(), "etGyldigStatusQueryToken");
+              FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+
+      var oppdatertFarskapserklaering =
+          farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
 
       // then
-      assertEquals(farskapserklaering.getDokument().getInnhold(), respons);
+      assertAll(
+          () -> assertNotNull(oppdatertFarskapserklaering.getDokument().getSignertAvFar()),
+          () -> assertEquals(padesFar, oppdatertFarskapserklaering.getDokument().getPadesUrl()),
+          () -> assertEquals(farskapserklaering.getDokument().getInnhold(), respons));
     }
   }
 }

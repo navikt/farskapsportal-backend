@@ -105,6 +105,20 @@ public class PersistenceService {
                 nyEllerOppdatertFarskapserklaering.getBarn().getTermindato());
 
     if (eksisterendeFarskapserklaering == null) {
+      var eksisterendeMor =
+          forelderDao.henteForelderMedFnr(
+              nyEllerOppdatertFarskapserklaering.getMor().getFoedselsnummer());
+      var eksisterendeFar =
+          forelderDao.henteForelderMedFnr(
+              nyEllerOppdatertFarskapserklaering.getFar().getFoedselsnummer());
+
+      if (null != eksisterendeMor) {
+        nyEllerOppdatertFarskapserklaering.setMor(eksisterendeMor);
+      }
+      if (null != eksisterendeMor) {
+        nyEllerOppdatertFarskapserklaering.setFar(eksisterendeFar);
+      }
+
       return farskapserklaeringDao.save(nyEllerOppdatertFarskapserklaering);
     } else if (!nyEllerOppdatertFarskapserklaering
         .getDokument()

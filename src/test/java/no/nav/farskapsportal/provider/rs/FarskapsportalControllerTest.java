@@ -80,21 +80,13 @@ public class FarskapsportalControllerTest {
   private static final BarnDto BARN = henteBarn(5);
 
   @LocalServerPort private int localServerPort;
-
   @Autowired private HttpHeaderTestRestTemplate httpHeaderTestRestTemplate;
-
   @Autowired private StsStub stsStub;
-
   @Autowired private PdlApiStub pdlApiStub;
-
   @MockBean private OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
-
   @MockBean private PdfGeneratorConsumer pdfGeneratorConsumer;
-
   @MockBean private DifiESignaturConsumer difiESignaturConsumer;
-
   @Autowired private PersistenceService persistenceService;
-
   @Autowired private FarskapserklaeringDao farskapserklaeringDao;
 
   static <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {

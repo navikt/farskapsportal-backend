@@ -23,7 +23,11 @@ public class BarnDto {
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
-    builder.append("Barn knyttet til termindato: ").append(termindato);
+    if (null != foedselsnummer) {
+      builder.append("Barn med fødselsnummer: ").append(foedselsnummer);
+    } else {
+      builder.append("Barn knyttet til termindato: ").append(termindato);
+    }
     return builder.toString();
   }
 }
