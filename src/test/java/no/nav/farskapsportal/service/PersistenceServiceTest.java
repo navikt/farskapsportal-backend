@@ -208,8 +208,7 @@ public class PersistenceServiceTest {
           () ->
               assertEquals(
                   FARSKAPSERKLAERING.getBarn().getTermindato(),
-                  farskapserklaeringerEtterRedirect.getBarn().getTermindato()),
-          () -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl()));
+                  farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
 
       // Clean up test data
       farskapserklaering.getDokument().setPadesUrl(padesUrl);

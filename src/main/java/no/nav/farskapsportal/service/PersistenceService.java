@@ -93,8 +93,6 @@ public class PersistenceService {
         nyEllerOppdatertFarskapserklaering.getBarn().getFoedselsnummer() != null
             && nyEllerOppdatertFarskapserklaering.getBarn().getFoedselsnummer().length() > 10;
 
-    var fes = farskapserklaeringDao.findAll();
-
     Farskapserklaering eksisterendeFarskapserklaering =
         barnErOppgittMedFoedselsnummer
             ? farskapserklaeringDao.henteUnikFarskapserklaering(
