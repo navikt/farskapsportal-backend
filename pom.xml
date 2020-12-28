@@ -38,7 +38,7 @@
     <!-- other -->
     <guava.version>28.2-jre</guava.version>
     <apache.commons-lang.version>3.11</apache.commons-lang.version>
-    <apache.commons-io.version>2.6</apache.commons-io.version>
+    <apache.commons-io.version>2.8.0</apache.commons-io.version>
     <apache.pdfbox.version>2.0.21</apache.pdfbox.version>
     <modelmapper.version>2.3.8</modelmapper.version>
     <guava.version>30.0-jre</guava.version>
