@@ -9,7 +9,7 @@ management:
 url:
   pdl-api:
     base-url: ${APIGW_URL}
-    graphql-endpoint: "/pdl-api/graphql"
+      ql-endpoint: "/pdl-api/graphql"
   sts:
     base-url: ${APIGW_URL}
     security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
@@ -20,14 +20,9 @@ farskapsportal-api:
   disable-esignering: true
 
 ---
-spring.profiles: live
-
-no.nav:
-  security.jwt.issuer.selvbetjening:
-    discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
-    accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
 spring:
+  config.activate.on-profile: live
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
@@ -40,20 +35,33 @@ spring:
   flyway:
     enabled: false
     locations: classpath:/db/migration
-  jpa.hibernate:
-    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    database: postgresql
+
+no.nav:
+  security.jwt.issuer.selvbetjening:
+    discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+    accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
 ---
 spring:
-  profiles: test
+  config.activate.on-profile: test
   flyway.enabled: false
+
 # Lar wiremock håndtere esignering
 farskapsportal-api.disable-esignering: false
 
 ---
-########## Mock props ##########
-spring.profiles: test, local
+spring:
+  config.activate.on-profile: test, local
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
 
+########## Mock props ##########
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
@@ -72,26 +80,18 @@ no.nav.security.jwt:
 farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
-### H2 config ###
-spring:
-  flyway.enabled: false
-  datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:h2:mem:default
-  h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
-
 ---
-spring:
-  profiles: local
-
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
-
+spring:
+  config:
+    activate:
+      on-profile:
 ---
 spring:
-  profiles: local-postgres
+  config.activate.on-profile: local-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -139,7 +139,7 @@ farskapsportal-api.disable-esignering: false
 
 ---
 
-spring.profiles: integration-test
+config.activate.on-profile: integration-test
 
 no.nav:
   security.jwt.issuer.selvbetjening:
