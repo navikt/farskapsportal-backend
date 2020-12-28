@@ -17,19 +17,19 @@ public class HentPersonNavn implements HentPersonSubQuery {
       this.query = String.join("\n", " \"navn\": [", "]");
     } else {
 
-      var mellomnavn = navnDto.getMellomnavn() == null ? null : "\"" + navnDto.getMellomnavn() + "\"";
+      var fornavn = navnDto.getFornavn() == null ? null : "\"" + navnDto.getFornavn() + "\"";
+      var mellomnavn =
+          navnDto.getMellomnavn() == null ? null : "\"" + navnDto.getMellomnavn() + "\"";
+      var etternavn = navnDto.getEtternavn() == null ? null : "\"" + navnDto.getEtternavn() + "\"";
 
-      if (navnDto.getMellomnavn() != null) {
-
-      }
       this.query =
           String.join(
               "\n",
               " \"navn\": [",
               " {",
-              " \"fornavn\": \"" + navnDto.getFornavn() + "\",",
-              " \"mellomnavn\":"  + mellomnavn + ",",
-              " \"etternavn\": \"" + navnDto.getEtternavn() + "\",",
+              " \"fornavn\": " + fornavn + ",",
+              " \"mellomnavn\":" + mellomnavn + ",",
+              " \"etternavn\":" + etternavn + ",",
               " \"metadata\": {",
               " \"opplysningsId\": \"" + opplysningsId + "\",",
               " \"master\": \"Freg\"",

@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
-import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,6 @@ import org.springframework.test.context.ActiveProfiles;
 public class SecurityTokenServiceConsumerTest {
 
   @Autowired private SecurityTokenServiceConsumer securityTokenServiceConsumer;
-
-  @Autowired private PdlApiStub pdlApiStub;
 
   @Autowired private StsStub stsStub;
 

@@ -3,11 +3,13 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.config.FarskapsportalConfig.X_API_KEY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import org.apache.commons.lang3.Validate;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
