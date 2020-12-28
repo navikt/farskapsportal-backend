@@ -42,6 +42,8 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
+    - name: JDBC_URL
+      value: {{ jdbc_url }}
   gcp:
     sqlInstances:
       - instance: FP
@@ -49,6 +51,8 @@ spec:
         databases:
           - name: fpdb
             envVarPrefix: DB
+          - name: fpdb_main
+            envVarPrefix: DB_MAIN
   accesspolicy:
     inbound:
       rules:
