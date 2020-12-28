@@ -9,7 +9,7 @@ management:
 url:
   pdl-api:
     base-url: ${APIGW_URL}
-      ql-endpoint: "/pdl-api/graphql"
+    graphql-endpoint: "/pdl-api/graphql"
   sts:
     base-url: ${APIGW_URL}
     security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
