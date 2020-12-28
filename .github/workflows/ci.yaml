@@ -72,7 +72,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/naiserator.yml
           VARS: deploy/nais/main.json
-          VAR: jdbc_url=jdbc:postgresql://${{ DB_MAIN_HOST }}:${{ DB_MAIN_PORT }}/${{ DB_MAIN_DATABASE }}?user=${{ DB_MAIN_USERNAME }}&password=${{ DB_MAIN_PASSWORD }}
+          VAR: jdbc_url=jdbc:postgresql://${{ env.DB_MAIN_HOST }}:${{ env.DB_MAIN_PORT }}/${{ env.DB_MAIN_DATABASE }}?user=${{ env.DB_MAIN_USERNAME }}&password=${{ env.DB_MAIN_PASSWORD }}
 
       - name: Deploy to dev-gcp for feature.json
         if: github.ref != 'refs/heads/main'
@@ -82,7 +82,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/naiserator.yml
           VARS: deploy/nais/feature.json
-          VAR: jdbc_url=jdbc:postgresql://${{ DB_HOST }}:${{ DB_PORT }}/${{ DB_DATABASE }}?user=${{ DB_USERNAME }}&password=${{ DB_PASSWORD }}
+          VAR: jdbc_url=jdbc:postgresql://${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_DATABASE }}?user=${{ env.DB_USERNAME }}&password=${{ env.DB_PASSWORD }}
 
   bump_dev_version:
     runs-on: ubuntu-latest
