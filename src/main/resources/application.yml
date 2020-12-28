@@ -9,7 +9,7 @@ management:
 url:
   pdl-api:
     base-url: ${APIGW_URL}
-      ql-endpoint: "/pdl-api/graphql"
+    graphql-endpoint: "/pdl-api/graphql"
   sts:
     base-url: ${APIGW_URL}
     security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
@@ -81,14 +81,13 @@ farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
 ---
+spring.config.activate.on-profile: local
+
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
-spring:
-  config:
-    activate:
-      on-profile:
+
 ---
 spring:
   config.activate.on-profile: local-postgres
@@ -139,7 +138,7 @@ farskapsportal-api.disable-esignering: false
 
 ---
 
-config.activate.on-profile: integration-test
+spring.config.activate.on-profile: integration-test
 
 no.nav:
   security.jwt.issuer.selvbetjening:
