@@ -45,6 +45,7 @@ spec:
   gcp:
     sqlInstances:
       - name: fp-feature
+        tier: db-custom-1-3840
         type: POSTGRES_12
         databases:
           - name: fpdb-feature
