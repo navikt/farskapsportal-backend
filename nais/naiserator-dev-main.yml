@@ -44,7 +44,7 @@ spec:
       value: {{ aud }}
   gcp:
     sqlInstances:
-      - name: FP_MAIN
+      - name: FP-MAIN
         type: POSTGRES_12
         databases:
           - name: fpdb-main
