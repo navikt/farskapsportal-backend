@@ -168,7 +168,9 @@ public class FarskapsportalConfig {
   public class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource)
+        throws InterruptedException {
+      Thread.sleep(60_000);
       Flyway.configure().dataSource(dataSource).load().migrate();
     }
   }
