@@ -15,7 +15,7 @@ spec:
     initialDelay: 70
     timeout: 1
     periodSeconds: 5
-    failureThreshold: 10
+    failureThreshold: 15
   readiness:
     path: /internal/actuator/health
     initialDelay: 70
@@ -47,7 +47,7 @@ spec:
       - instance: FP
         type: POSTGRES_12
         databases:
-          - name: fpdb
+          - name: fpdb_feature
             envVarPrefix: DB
   accesspolicy:
     inbound:
