@@ -81,13 +81,14 @@ farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
 
 ---
+
 spring.config.activate.on-profile: local
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
-
+  
 ---
 spring:
   config.activate.on-profile: local-postgres

@@ -4,6 +4,7 @@ target/
 **/src/test/**/target/
 *.orig
 *.pdf
+Farskapsportal.pdf
 
 ### STS ###
 .apt_generated
@@ -34,5 +35,5 @@ build/
 .vscode/
 
 ### Maven ###
-/.mvn/
+.mvn/
 
