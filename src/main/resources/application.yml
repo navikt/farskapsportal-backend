@@ -25,7 +25,7 @@ spring:
   config.activate.on-profile: live
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://${{DB_HOST}}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
     hikari:
       idle-timeout: 10001
       max-lifetime: 30001
