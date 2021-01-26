@@ -49,11 +49,8 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  SecurityTokenServiceConsumer securityTokenServiceConsumer(
-      @Qualifier("sts") RestTemplate restTemplate,
-      @Value("${url.sts.base-url}") String baseUrl,
-      @Value("${url.sts.security-token-service-endpoint}") String endpoint,
-      ConsumerEndpoint consumerEndpoint) {
+  SecurityTokenServiceConsumer securityTokenServiceConsumer(@Qualifier("sts") RestTemplate restTemplate, @Value("${url.sts.base-url}") String baseUrl,
+      @Value("${url.sts.security-token-service-endpoint}") String endpoint, ConsumerEndpoint consumerEndpoint) {
     log.info("Oppretter SecurityTokenServiceConsumer med url {}", baseUrl);
     consumerEndpoint.addEndpoint(HENTE_IDTOKEN_FOR_SERVICEUSER, endpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
@@ -61,44 +58,28 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PdlApiConsumer pdlApiConsumer(
-      @Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${url.pdl-api.base-url}") String baseUrl,
-      @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
-      ConsumerEndpoint consumerEndpoint) {
+  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,
+      @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
-    return PdlApiConsumer.builder()
-        .restTemplate(restTemplate)
-        .consumerEndpoint(consumerEndpoint)
-        .build();
+    return PdlApiConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
   }
 
   @Bean
-  public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(
-      @Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${url.pdl-api.base-url}") String baseUrl,
-      @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
+  public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
+      @Value("${url.pdl-api.base-url}") String baseUrl, @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter PdlApiHelsesjekkConsumer med url {}", baseUrl);
-    return PdlApiHelsesjekkConsumer.builder()
-        .restTemplate(restTemplate)
-        .consumerEndpoint(consumerEndpoint)
-        .build();
+    return PdlApiHelsesjekkConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
   }
 
   @Bean
-  public PersistenceService persistenceService(
-      FarskapserklaeringDao farskapserklaeringDao,
-      ModelMapper modelMapper,
-      BarnDao barnDao,
-      ForelderDao forelderDao,
-      DokumentDao dokumentDao) {
-    return new PersistenceService(
-        farskapserklaeringDao, barnDao, forelderDao, dokumentDao, modelMapper);
+  public PersistenceService persistenceService(FarskapsportalEgenskaper farskapsportalEgenskaperConfig, FarskapserklaeringDao farskapserklaeringDao,
+      ModelMapper modelMapper, BarnDao barnDao, ForelderDao forelderDao, DokumentDao dokumentDao) {
+    return new PersistenceService(farskapsportalEgenskaperConfig, farskapserklaeringDao, barnDao, forelderDao, dokumentDao, modelMapper);
   }
 
   @Bean
@@ -107,18 +88,13 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public FarskapsportalService farskapsportalService(
-      DifiESignaturConsumer difiESignaturConsumer,
-      PdfGeneratorConsumer pdfGeneratorConsumer,
-      PersistenceService persistenceService,
-      PersonopplysningService personopplysningService) {
+  public FarskapsportalService farskapsportalService(FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
+      PdfGeneratorConsumer pdfGeneratorConsumer, PersistenceService persistenceService, PersonopplysningService personopplysningService,
+      ModelMapper modelMapper) {
 
-    return FarskapsportalService.builder()
-        .difiESignaturConsumer(difiESignaturConsumer)
-        .pdfGeneratorConsumer(pdfGeneratorConsumer)
-        .persistenceService(persistenceService)
-        .personopplysningService(personopplysningService)
-        .build();
+    return FarskapsportalService.builder().farskapsportalEgenskaper(farskapsportalEgenskaper).difiESignaturConsumer(difiESignaturConsumer)
+        .pdfGeneratorConsumer(pdfGeneratorConsumer).persistenceService(persistenceService).personopplysningService(personopplysningService)
+        .modelMapper(modelMapper).build();
   }
 
   @Bean
@@ -132,15 +108,10 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public OidcTokenManager oidcTokenManager(
-      TokenValidationContextHolder tokenValidationContextHolder) {
-    return () ->
-        Optional.ofNullable(tokenValidationContextHolder)
-            .map(TokenValidationContextHolder::getTokenValidationContext)
-            .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
-            .map(Optional::get)
-            .map(JwtToken::getTokenAsString)
-            .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
+    return () -> Optional.ofNullable(tokenValidationContextHolder).map(TokenValidationContextHolder::getTokenValidationContext)
+        .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER)).map(Optional::get).map(JwtToken::getTokenAsString)
+        .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }
 
   @Bean
@@ -155,11 +126,13 @@ public class FarskapsportalConfig {
 
   @FunctionalInterface
   public interface OidcTokenManager {
+
     String hentIdToken();
   }
 
   @FunctionalInterface
   public interface OidcTokenSubjectExtractor {
+
     String hentPaaloggetPerson();
   }
 
@@ -168,8 +141,7 @@ public class FarskapsportalConfig {
   public class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource)
-        throws InterruptedException {
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) throws InterruptedException {
       Thread.sleep(30000);
       Flyway.configure().dataSource(dataSource).load().migrate();
     }
