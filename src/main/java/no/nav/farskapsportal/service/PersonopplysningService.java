@@ -167,12 +167,6 @@ public class PersonopplysningService {
     }
   }
 
-  private void kontrollereAtMorOgFarIkkeErSammePerson(String fnrMor, String fnrFar) {
-    if (fnrMor.equals(fnrFar)) {
-      throw new PersonHarFeilRolleException("Mor og far kan ikke være samme person!");
-    }
-  }
-
   private void navnekontroll(
       KontrollerePersonopplysningerRequest navnOppgitt, NavnDto navnFraRegister) {
 

@@ -1,12 +1,23 @@
 package no.nav.farskapsportal.api;
 
 import java.net.URI;
+import java.util.Optional;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Value
-@Builder
-public class OppretteFarskapserklaeringResponse {
 
-  URI redirectUrlForSigneringMor;
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+public class OppretteFarskapserklaeringResponse extends FarskapserklaeringResponse {
+
+  private URI redirectUrlForSigneringMor;
+
+  @Builder
+  public OppretteFarskapserklaeringResponse(Optional<Feilkode> feilkode, URI redirectUrlForSigneringMor) {
+    super(feilkode);
+    this.redirectUrlForSigneringMor = redirectUrlForSigneringMor;
+  }
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -29,12 +30,17 @@ public class Forelder implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @NaturalId private String foedselsnummer;
+  @NaturalId
+  @Column(updatable = false)
+  private String foedselsnummer;
 
+  @Column(updatable = false)
   private String fornavn;
 
+  @Column(updatable = false)
   private String mellomnavn;
 
+  @Column(updatable = false)
   private String etternavn;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mor", cascade = CascadeType.ALL)
@@ -53,9 +59,15 @@ public class Forelder implements Serializable {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final Forelder other = (Forelder) obj;
     return foedselsnummer.equals(other.foedselsnummer);
   }

@@ -7,6 +7,7 @@ import lombok.Value;
 @Value
 @Builder
 public class FolkeregistermetadataDto {
+
   LocalDateTime ajourholdstidspunkt;
   LocalDateTime gyldighetstidspunkt;
   LocalDateTime opphoerstidspunkt;

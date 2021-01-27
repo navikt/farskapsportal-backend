@@ -44,11 +44,11 @@ spec:
       value: {{ aud }}
   gcp:
     sqlInstances:
-      - name: fp-feature
+      - name: farskapsportal-feature
         tier: db-custom-1-3840
         type: POSTGRES_12
         databases:
-          - name: fpdb-feature
+          - name: farskapsportaldb-feature
             envVarPrefix: DB
   accesspolicy:
     inbound:

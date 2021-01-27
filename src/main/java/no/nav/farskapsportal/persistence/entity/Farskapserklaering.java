@@ -12,8 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.validation.annotation.Validated;
 
 @Entity
@@ -21,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 @Builder
 @Getter
 @Setter
+@DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
 public class Farskapserklaering implements Serializable {
@@ -34,7 +35,6 @@ public class Farskapserklaering implements Serializable {
 
   @ManyToOne(cascade = CascadeType.ALL)
   private Forelder mor;
-
   @ManyToOne(cascade = CascadeType.ALL)
   private Forelder far;
 
@@ -45,42 +45,36 @@ public class Farskapserklaering implements Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result
-            + (barn == null ? 0 : barn.hashCode())
-            + (mor == null ? 0 : mor.hashCode())
-            + (far == null ? 0 : far.hashCode());
+    result = prime * result + (barn == null ? 0 : barn.hashCode()) + (mor == null ? 0 : mor.hashCode()) + (far == null ? 0 : far.hashCode());
 
     return result;
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final Farskapserklaering other = (Farskapserklaering) obj;
 
     if (!barn.equals(other.barn)) {
       return false;
     }
-    if (!mor.equals(other.mor)) return false;
+    if (!mor.equals(other.mor)) {
+      return false;
+    }
     return far.equals(other.far);
   }
 
   @Override
   public String toString() {
-    return "Farskapserklaering gjelder barn med termindato "
-        + barn.getTermindato().toString()
-        + "\n"
-        + "Mor: "
-        + mor.getFornavn()
-        + " "
-        + mor.getEtternavn()
-        + "\n"
-        + "Far: "
-        + far.getFornavn()
-        + " "
-        + far.getEtternavn();
+    return "Farskapserklaering gjelder barn med termindato " + barn.getTermindato().toString() + "\n" + "Mor: " + mor.getFornavn() + " " + mor
+        .getEtternavn() + "\n" + "Far: " + far.getFornavn() + " " + far.getEtternavn();
   }
 }

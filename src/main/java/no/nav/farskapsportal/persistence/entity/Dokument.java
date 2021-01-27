@@ -3,18 +3,16 @@ package no.nav.farskapsportal.persistence.entity;
 import java.io.Serializable;
 import java.net.URI;
 import java.time.LocalDateTime;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.validation.annotation.Validated;
 
 @Entity
@@ -22,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 @Builder
 @Getter
 @Setter
+@DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
 public class Dokument implements Serializable {

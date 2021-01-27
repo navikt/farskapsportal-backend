@@ -47,7 +47,6 @@
     <signature-api-client-java.version>5.0-RC4</signature-api-client-java.version>
     <nimbus-jose-jwt.version>8.20.1</nimbus-jose-jwt.version>
 
-
     <!-- test -->
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
     <wiremock-standalone.version>2.19.0</wiremock-standalone.version>

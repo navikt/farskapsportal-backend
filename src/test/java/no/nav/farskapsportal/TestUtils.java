@@ -21,25 +21,17 @@ public class TestUtils {
     }
   }
 
-  public static FarskapserklaeringDto henteFarskapserklaering(
-      ForelderDto mor, ForelderDto far, BarnDto barn) {
+  public static FarskapserklaeringDto henteFarskapserklaering(ForelderDto mor, ForelderDto far, BarnDto barn) {
 
-    var dokument =
-        DokumentDto.builder()
-            .dokumentnavn("farskapserklaering.pdf")
-            .dokumentStatusUrl(lageUrl("status"))
-            .padesUrl(lageUrl("pades"))
-            .redirectUrlMor(lageUrl("redirect-mor"))
-            .redirectUrlFar(lageUrl("redirect-far"))
-            .innhold(
-                "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8))
-            .build();
+    var dokument = DokumentDto.builder().dokumentnavn("farskapserklaering.pdf").dokumentStatusUrl(lageUrl("status")).padesUrl(lageUrl("pades"))
+        .redirectUrlMor(lageUrl("redirect-mor")).redirectUrlFar(lageUrl("redirect-far"))
+        .innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build();
 
     return FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 
-  public static BarnDto henteBarn(int antallMndTilTermindato) {
-    var termindato = LocalDate.now().plusMonths(antallMndTilTermindato);
+  public static BarnDto henteBarn(int antallUkerTilTermindato) {
+    var termindato = LocalDate.now().plusDays(7 * antallUkerTilTermindato);
     return BarnDto.builder().termindato(termindato).build();
   }
 
@@ -48,25 +40,14 @@ public class TestUtils {
       var personnummerMor = "12340";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
 
-      return ForelderDto.builder()
-          .foedselsnummer(
-              foedselsdato.plusYears(4).format(DateTimeFormatter.ofPattern("ddMMyy"))
-                  + personnummerMor)
-          .fornavn("Ronaldina")
-          .etternavn("McDonald")
-          .forelderrolle(Forelderrolle.MOR)
-          .build();
+      return ForelderDto.builder().foedselsnummer(foedselsdato.plusYears(4).format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
+          .fornavn("Ronaldina").etternavn("McDonald").forelderrolle(Forelderrolle.MOR).build();
     } else {
       var personnummerFar = "12345";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
 
-      return ForelderDto.builder()
-          .foedselsnummer(
-              foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar)
-          .fornavn("Ronald")
-          .etternavn("McDonald")
-          .forelderrolle(Forelderrolle.FAR)
-          .build();
+      return ForelderDto.builder().foedselsnummer(foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar).fornavn("Ronald")
+          .etternavn("McDonald").forelderrolle(Forelderrolle.FAR).build();
     }
   }
 }

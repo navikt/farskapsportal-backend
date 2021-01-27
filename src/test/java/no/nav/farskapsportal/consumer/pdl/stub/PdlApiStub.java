@@ -48,78 +48,24 @@ public class PdlApiStub {
   }
 
   public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries, String ident) {
-    var respons = stubHentPerson(subQueries);
-
-    stubFor(
-        post(urlEqualTo(pdlApiGraphqlEndpoint))
-            .withRequestBody(containing(ident))
-            .willReturn(
-                aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withStatus(HttpStatus.OK)
-                    .withBody(stubHentPerson(subQueries))));
+    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).willReturn(
+        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(stubHentPerson(subQueries))));
   }
 
   public void runPdlApiHentPersonFantIkkePersonenStub() {
-    stubFor(
-        post(urlEqualTo(pdlApiGraphqlEndpoint))
-            .willReturn(
-                aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withStatus(HttpStatus.OK)
-                    .withBody(
-                        String.join(
-                            "\n",
-                            " {",
-                            "\"errors\": [",
-                            "{",
-                            "\"message\": \"Fant ikke person\",",
-                            "\"locations\": [",
-                            "{",
-                            "\"line\": 8,",
-                            "\"column\": 3",
-                            "}",
-                            "],",
-                            "\"path\": [",
-                            "\"hentPerson\"",
-                            "],",
-                            "\"extensions\": {",
-                            "\"code\": \"not_found\",",
-                            "\"classification\": \"ExecutionAborted\"",
-                            "}",
-                            "}",
-                            "],",
-                            "\"data\": {",
-                            "\"hentPerson\": null",
-                            "}",
-                            "}"))));
+    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).willReturn(
+        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(String
+            .join("\n", " {", "\"errors\": [", "{", "\"message\": \"Fant ikke person\",", "\"locations\": [", "{", "\"line\": 8,", "\"column\": 3",
+                "}", "],", "\"path\": [", "\"hentPerson\"", "],", "\"extensions\": {", "\"code\": \"not_found\",",
+                "\"classification\": \"ExecutionAborted\"", "}", "}", "],", "\"data\": {", "\"hentPerson\": null", "}", "}"))));
   }
 
   public void runPdlApiHentPersonValideringsfeil() {
-    stubFor(
-        post(urlEqualTo(pdlApiGraphqlEndpoint))
-            .willReturn(
-                aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withStatus(HttpStatus.OK)
-                    .withBody(
-                        String.join(
-                            "\n",
-                            " {",
-                            "\"errors\": [",
-                            "{",
-                            "\"message\": \"Validation error of type FieldUndefined: Field 'mellomnav' in type 'Navn' is undefined @ 'hentPerson/navn/mellomnav\",",
-                            "\"locations\": [",
-                            "{",
-                            "\"line\": 11,",
-                            "\"column\": 5",
-                            "}",
-                            "],",
-                            "\"extensions\": {",
-                            "\"classification\": \"ValidationError\"",
-                            "}",
-                            "}",
-                            "]",
-                            "}"))));
+    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).willReturn(
+        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(String
+            .join("\n", " {", "\"errors\": [", "{",
+                "\"message\": \"Validation error of type FieldUndefined: Field 'mellomnav' in type 'Navn' is undefined @ 'hentPerson/navn/mellomnav\",",
+                "\"locations\": [", "{", "\"line\": 11,", "\"column\": 5", "}", "],", "\"extensions\": {", "\"classification\": \"ValidationError\"",
+                "}", "}", "]", "}"))));
   }
 }

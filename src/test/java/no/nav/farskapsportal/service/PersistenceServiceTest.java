@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,6 +19,7 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -38,22 +41,27 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PersistenceServiceTest")
-@SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = FarskapsportalApplicationLocal.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApplicationLocal.class)
 @ActiveProfiles(PROFILE_TEST)
 public class PersistenceServiceTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
-  private static final BarnDto BARN = henteBarn(5);
-  private static final FarskapserklaeringDto FARSKAPSERKLAERING =
-      henteFarskapserklaering(MOR, FAR, BARN);
-  @Autowired private PersistenceService persistenceService;
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired private BarnDao barnDao;
-  @Autowired private ForelderDao forelderDao;
-  @Autowired private DokumentDao dokumentDao;
+  private static final BarnDto BARN = henteBarn(17);
+  private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaering(MOR, FAR, BARN);
+
+  @Autowired
+  private PersistenceService persistenceService;
+  @Autowired
+  private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired
+  private BarnDao barnDao;
+  @Autowired
+  private ForelderDao forelderDao;
+  @Autowired
+  private DokumentDao dokumentDao;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @Nested
   @DisplayName("Lagre")
@@ -99,13 +107,8 @@ public class PersistenceServiceTest {
       var redirectUrlMor = new URI("https://esignering.no/redirect-mor");
       var redirectUrlFar = new URI("https://esignering.no/redirect-far");
 
-      var dokument =
-          DokumentDto.builder()
-              .dokumentnavn("farskapserklaring.pdf")
-              .padesUrl(new URI(""))
-              .redirectUrlMor(redirectUrlMor)
-              .redirectUrlFar(redirectUrlFar)
-              .build();
+      var dokument = DokumentDto.builder().dokumentnavn("farskapserklaring.pdf").padesUrl(new URI("")).redirectUrlMor(redirectUrlMor)
+          .redirectUrlFar(redirectUrlFar).build();
 
       // when
       var lagretDokument = persistenceService.lagreDokument(dokument);
@@ -124,29 +127,35 @@ public class PersistenceServiceTest {
     void lagreFarskapserklaering() {
 
       // given
-      var farskapserklaering =
-          farskapserklaeringDao.henteUnikFarskapserklaering(
-              FARSKAPSERKLAERING.getMor().getFoedselsnummer(),
-              FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
+      var farskapserklaering = farskapserklaeringDao
+          .henteUnikFarskapserklaering(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
               FARSKAPSERKLAERING.getBarn().getTermindato());
       if (farskapserklaering != null) {
-        farskapserklaeringDao.delete(farskapserklaering);
+        farskapserklaeringDao.delete(farskapserklaering.get());
       }
 
       // when
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(FARSKAPSERKLAERING);
 
-      var hentetFarskapserklaering =
-          farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
+      var hentetFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
 
       // then
-      assertEquals(
-          lagretFarskapserklaering,
-          hentetFarskapserklaering,
-          "Farskapserklæringen som ble lagret er lik den som ble hentet");
+      assertEquals(lagretFarskapserklaering, hentetFarskapserklaering, "Farskapserklæringen som ble lagret er lik den som ble hentet");
 
       // clean-up test data
       farskapserklaeringDao.delete(lagretFarskapserklaering);
+    }
+
+    @Test
+    @DisplayName("Skal ikke lagre ny farskapserklæring dersom tilsvarende allerede eksisterer")
+    void skalIkkeLagreNyFarskapserklaeringDersomTilsvarendeAlleredeEksisterer() {
+
+      // given
+      farskapserklaeringDao.save(modelMapper.map(FARSKAPSERKLAERING, Farskapserklaering.class));
+
+      // when, then
+      assertThrows(FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException.class,
+          () -> persistenceService.lagreFarskapserklaering(FARSKAPSERKLAERING));
     }
   }
 
@@ -163,113 +172,63 @@ public class PersistenceServiceTest {
     }
 
     @Test
-    @DisplayName(
-        "Skal hente farskapserklæring i forbindelse med mors redirect fra signeringsløsningen")
+    @DisplayName("Skal hente farskapserklæring i forbindelse med mors redirect fra signeringsløsningen")
     void skalHenteFarskapserklaeringEtterRedirectForMor() {
 
       // given
-      var farskapserklaering =
-          farskapserklaeringDao.henteUnikFarskapserklaering(
-              FARSKAPSERKLAERING.getMor().getFoedselsnummer(),
-              FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
+      var farskapserklaering = farskapserklaeringDao
+          .henteUnikFarskapserklaering(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
               FARSKAPSERKLAERING.getBarn().getTermindato());
-      var padesUrl = farskapserklaering.getDokument().getPadesUrl();
-      farskapserklaering.getDokument().setPadesUrl(null);
-      var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaering);
+      var padesUrl = farskapserklaering.get().getDokument().getPadesUrl();
+      farskapserklaering.get().getDokument().setPadesUrl(null);
+      var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaering.get());
 
-      assertAll(
-          () -> assertNull(lagretFarskapserklaering.getDokument().getPadesUrl()),
+      assertAll(() -> assertNull(lagretFarskapserklaering.getDokument().getPadesUrl()),
           () -> assertNull(lagretFarskapserklaering.getDokument().getSignertAvMor()),
           () -> assertNull(lagretFarskapserklaering.getDokument().getSignertAvFar()));
 
       // when
-      var farskapserklaeringerEtterRedirect =
-          persistenceService
-              .henteFarskapserklaeringerEtterRedirect(
-                  MOR.getFoedselsnummer(), Forelderrolle.MOR, KjoennTypeDto.KVINNE)
-              .stream()
-              .findFirst()
-              .get();
+      var farskapserklaeringerEtterRedirect = persistenceService
+          .henteFarskapserklaeringerEtterRedirect(MOR.getFoedselsnummer(), Forelderrolle.MOR, KjoennTypeDto.KVINNE).stream().findFirst().get();
 
       // then
-      assertAll(
-          () ->
-              assertNull(
-                  farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
-                  "PAdES-URL skal ikke være satt i farskapserklæring i det mor redirektes tilbake til farskapsportalen etter utført signering"),
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getMor().getFoedselsnummer(),
-                  farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
-                  farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getBarn().getTermindato(),
-                  farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
+      assertAll(() -> assertNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
+          "PAdES-URL skal ikke være satt i farskapserklæring i det mor redirektes tilbake til farskapsportalen etter utført signering"),
+          () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
+          () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
+          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
 
       // Clean up test data
-      farskapserklaering.getDokument().setPadesUrl(padesUrl);
-      farskapserklaeringDao.save(farskapserklaering);
+      farskapserklaering.get().getDokument().setPadesUrl(padesUrl);
+      farskapserklaeringDao.save(farskapserklaering.get());
     }
 
     @Test
-    @DisplayName(
-        "Skal hente farskapserklæring i forbindelse med fars redirect fra signeringsløsningen")
+    @DisplayName("Skal hente farskapserklæring i forbindelse med fars redirect fra signeringsløsningen")
     void skalHenteFarskapserklaeringEtterRedirectForFar() {
 
       // given default farskapserklæering, when
-      var farskapserklaeringerEtterRedirect =
-          persistenceService
-              .henteFarskapserklaeringerEtterRedirect(
-                  FAR.getFoedselsnummer(), Forelderrolle.FAR, KjoennTypeDto.MANN)
-              .stream()
-              .findFirst()
-              .get();
+      var farskapserklaeringerEtterRedirect = persistenceService
+          .henteFarskapserklaeringerEtterRedirect(FAR.getFoedselsnummer(), Forelderrolle.FAR, KjoennTypeDto.MANN).stream().findFirst().get();
 
       // then
-      assertAll(
-          () ->
-              assertNotNull(
-                  farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
-                  "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getMor().getFoedselsnummer(),
-                  farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
-                  farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getBarn().getTermindato(),
-                  farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
+      assertAll(() -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
+          "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
+          () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
+          () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
+          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
     }
 
     @Test
     @DisplayName("Skal hente lagret farskapserklæring")
     void skalHenteLagretFarskapserklaering() {
-      var hentedeFarskapserklaeringer =
-          persistenceService.henteFarskapserklaeringer(FAR.getFoedselsnummer());
+      var hentedeFarskapserklaeringer = persistenceService.henteFarskapserklaeringer(FAR.getFoedselsnummer());
 
-      var hentetFarskapserklaering =
-          hentedeFarskapserklaeringer.stream()
-              .filter(f -> FAR.getFoedselsnummer().equals(f.getFar().getFoedselsnummer()))
-              .findFirst()
-              .get();
+      var hentetFarskapserklaering = hentedeFarskapserklaeringer.stream().filter(f -> FAR.getFoedselsnummer().equals(f.getFar().getFoedselsnummer()))
+          .findFirst().get();
 
-      assertAll(
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
-                  hentetFarskapserklaering.getFar().getFoedselsnummer()),
-          () ->
-              assertEquals(
-                  FARSKAPSERKLAERING.getBarn().getTermindato(),
-                  hentetFarskapserklaering.getBarn().getTermindato()));
+      assertAll(() -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), hentetFarskapserklaering.getFar().getFoedselsnummer()),
+          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), hentetFarskapserklaering.getBarn().getTermindato()));
     }
 
     @Test
@@ -283,16 +242,14 @@ public class PersistenceServiceTest {
     @DisplayName("Skal hente lagret mor")
     void skalHenteLagretMor() {
       var hentetMor = persistenceService.henteForelder(lagretFarskapserklaering.getMor().getId());
-      assertEquals(
-          lagretFarskapserklaering.getMor().getFoedselsnummer(), hentetMor.getFoedselsnummer());
+      assertEquals(lagretFarskapserklaering.getMor().getFoedselsnummer(), hentetMor.getFoedselsnummer());
     }
 
     @Test
     @DisplayName("Skal hente lagret far")
     void skalHenteLagretFar() {
       var hentetFar = persistenceService.henteForelder(lagretFarskapserklaering.getFar().getId());
-      assertEquals(
-          lagretFarskapserklaering.getFar().getFoedselsnummer(), hentetFar.getFoedselsnummer());
+      assertEquals(lagretFarskapserklaering.getFar().getFoedselsnummer(), hentetFar.getFoedselsnummer());
     }
   }
 }
