@@ -118,8 +118,9 @@ spring:
   flyway:
     enabled: false
     flyway.locations: classpath:/db/migration
-  jpa.hibernate:
-    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+  jpa:
+    hibernate:
+      connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing

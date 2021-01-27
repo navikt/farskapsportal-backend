@@ -44,10 +44,10 @@ spec:
       value: {{ aud }}
   gcp:
     sqlInstances:
-      - name: fp-main
+      - name: farskapsportal-main
         type: POSTGRES_12
         databases:
-          - name: fpdb-main
+          - name: farskapsportaldb-main
             envVarPrefix: DB
   accesspolicy:
     inbound:

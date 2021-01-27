@@ -8,7 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,11 +24,10 @@ import org.springframework.validation.annotation.Validated;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-@SequenceGenerator(name = "farskapserklaering_id_sekvens", initialValue = 100000000, allocationSize = 100)
 public class Farskapserklaering implements Serializable {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "farskapserklaering_id_sekvens")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
   @OneToOne(cascade = CascadeType.ALL)
