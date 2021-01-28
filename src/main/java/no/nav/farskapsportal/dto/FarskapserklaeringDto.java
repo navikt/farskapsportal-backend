@@ -13,6 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FarskapserklaeringDto {
+  @ApiModelProperty("Unik id for farskapserklæring")
+  private int idFarskapserklaering;
   @ApiModelProperty("Barnet farskapserklæringen gjelder")
   private BarnDto barn;
   @ApiModelProperty("Barnets mor")

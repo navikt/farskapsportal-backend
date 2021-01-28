@@ -11,7 +11,7 @@
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.17-SNAPSHOT</version>
+  <version>0.0.18-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -46,7 +46,6 @@
     <springframework-retry.version>1.3.0</springframework-retry.version>
     <signature-api-client-java.version>5.0-RC4</signature-api-client-java.version>
     <nimbus-jose-jwt.version>8.20.1</nimbus-jose-jwt.version>
-
 
     <!-- test -->
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>

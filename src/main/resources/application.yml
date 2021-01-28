@@ -1,4 +1,13 @@
-spring.devtools.add-properties: false
+spring:
+  devtools.add-properties: false
+  main.allow-bean-definition-overriding: true
+
+farskapsportal.egenskaper:
+  min-antall-uker-til-termindato: -3
+  maks-antall-uker-til-termindato: 21
+  maks-antall-maaneder-etter-foedsel: 3
+
+
 
 management:
   endpoints.web:
@@ -88,7 +97,7 @@ spring.config.activate.on-profile: local
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
-  
+
 ---
 spring:
   config.activate.on-profile: local-postgres
@@ -109,8 +118,9 @@ spring:
   flyway:
     enabled: false
     flyway.locations: classpath:/db/migration
-  jpa.hibernate:
-    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+  jpa:
+    hibernate:
+      connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing

@@ -1,16 +1,19 @@
 package no.nav.farskapsportal.service;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
@@ -23,6 +26,9 @@ import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.FarskapserklaeringIkkeFunnetException;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
+import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import org.apache.commons.lang3.Validate;
+import org.modelmapper.ModelMapper;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -33,10 +39,12 @@ public class FarskapsportalService {
   public static final String FEIL_NAVN =
       "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret";
 
+  private final FarskapsportalEgenskaper farskapsportalEgenskaper;
   private final PdfGeneratorConsumer pdfGeneratorConsumer;
   private final DifiESignaturConsumer difiESignaturConsumer;
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
+  private final ModelMapper modelMapper;
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String foedselsnummer) {
 
@@ -61,7 +69,7 @@ public class FarskapsportalService {
 
       // Henter påbegynte farskapserklæringer som venter på mors signatur
       farskapserklaeringerSomVenterPaaMorsSignatur =
-              persistenceService.henteFarskapserklaeringerEtterRedirect(
+              persistenceService.henteAktiveFarskapserklaeringer(
                   foedselsnummer, Forelderrolle.MOR, KjoennTypeDto.KVINNE);
       kanOppretteFarskapserklaering = true;
 
@@ -95,6 +103,10 @@ public class FarskapsportalService {
     personopplysningService.kanOpptreSomMor(fnrMor);
     // Kontrollere opplysninger om far i request
     personopplysningService.riktigNavnOgRolle(request.getOpplysningerOmFar(), Forelderrolle.FAR);
+    // Kontrollere at mor og far ikke er samme person
+    Validate.isTrue(morOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer()), "Mor og far kan ikke være samme person!");
+    // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
+    Validate.isTrue(termindatoErGyldig(request.getBarn()), "Termindato er ikke innenfor gyldig intervall!");
 
     var barn = BarnDto.builder().termindato(request.getBarn().getTermindato()).build();
     if (request.getBarn().getFoedselsnummer() != null
@@ -141,11 +153,13 @@ public class FarskapsportalService {
 
   /**
    * Henter signert dokument. Lagrer pades-url for fremtidige dokument-nedlastinger
+   * (Transactional)
    *
    * @param fnrPaaloggetPerson fødselsnummer til pålogget person
    * @param statusQueryToken tilgangstoken fra e-signeringsløsningen
    * @return kopi av signert dokument
    */
+  @Transactional
   public byte[] henteSignertDokumentEtterRedirect(
       String fnrPaaloggetPerson, String statusQueryToken) {
 
@@ -156,11 +170,12 @@ public class FarskapsportalService {
           "Fant ingen påbegynt farskapserklæring for pålogget bruker");
     }
 
+    // Henter dokument fra Postens signeringstjeneste
     var dokumentStatusDto =
-        henteDokumentstatusEtterRedirect(statusQueryToken, farskapserklaeringer);
+        henteDokumentstatusEtterRedirect(statusQueryToken, mapTilDto(farskapserklaeringer));
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
-    var aktuellFarskapserklaeringDto =
+    var aktuellFarskapserklaering =
         farskapserklaeringer.stream()
             .filter(Objects::nonNull)
             .filter(
@@ -175,22 +190,22 @@ public class FarskapsportalService {
                 () -> new FarskapserklaeringIkkeFunnetException("Fant ikke farskapserklæring"));
 
     // oppdatere padeslenke i aktuell farskapserklæring
-    aktuellFarskapserklaeringDto.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke());
+    aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke());
 
     // Oppdatere foreldrenes signeringsstatus
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {
-      if (aktuellFarskapserklaeringDto
+      if (aktuellFarskapserklaering
           .getMor()
           .getFoedselsnummer()
           .equals(signatur.getSignatureier())) {
-        aktuellFarskapserklaeringDto
+        aktuellFarskapserklaering
             .getDokument()
             .setSignertAvMor(signatur.getTidspunktForSignering());
-      } else if (aktuellFarskapserklaeringDto
+      } else if (aktuellFarskapserklaering
           .getFar()
           .getFoedselsnummer()
           .equals(signatur.getSignatureier())) {
-        aktuellFarskapserklaeringDto
+        aktuellFarskapserklaering
             .getDokument()
             .setSignertAvFar(signatur.getTidspunktForSignering());
       } else {
@@ -199,16 +214,26 @@ public class FarskapsportalService {
       }
     }
 
-    // lagre farskapserklæring med padesUrl for henting av dokumentkopier og oppdatert
-    // signeringsstatus for foreldrene
-    persistenceService.lagreFarskapserklaering(aktuellFarskapserklaeringDto);
-
     // returnerer kopi av signert dokument
     return difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
   }
 
-  private Set<FarskapserklaeringDto> henteFarskapserklaeringerEtterRedirect(
-      String fnrPaaloggetPerson) {
+  private boolean morOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
+      return !fnrMor.equals(fnrFar);
+  }
+
+  private boolean termindatoErGyldig(BarnDto barnDto) {
+    if (barnDto.getFoedselsnummer() != null && !barnDto.getFoedselsnummer().isBlank() && barnDto.getFoedselsnummer().length() > 10) {
+      return true;
+    } else {
+      var nedreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMinAntallUkerTilTermindato() - 1);
+      var oevreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 1);
+      return nedreGrense.isBefore(barnDto.getTermindato()) && oevreGrense.isAfter(barnDto.getTermindato());
+    }
+  }
+
+  @Transactional
+  Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrPaaloggetPerson) {
 
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
     var gjeldendeKjoenn = personopplysningService.henteGjeldendeKjoenn(fnrPaaloggetPerson);
@@ -244,5 +269,10 @@ public class FarskapsportalService {
     // er fullført. Returnerer statuslenke som hører til statusQueryToken.
     return difiESignaturConsumer.henteDokumentstatusEtterRedirect(
         statusQueryToken, dokumentStatuslenker);
+  }
+
+  private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
+        .collect(Collectors.toSet());
   }
 }

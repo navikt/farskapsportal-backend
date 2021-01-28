@@ -1,8 +1,10 @@
 package no.nav.farskapsportal.exception;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.consumer.esignering.ESigneringFeilException;
 import no.nav.farskapsportal.consumer.pdl.PdlApiErrorException;
 import no.nav.farskapsportal.consumer.pdl.PersonIkkeFunnetException;
@@ -31,8 +33,7 @@ public class RestResponseExceptionResolver {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.SERVICE_UNAVAILABLE));
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.SERVICE_UNAVAILABLE));
   }
 
   @ResponseBody
@@ -40,19 +41,17 @@ public class RestResponseExceptionResolver {
   protected ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = "Restkall feilet!";
+    var feilmelding = e.getMessage() == null || e.getMessage().isBlank() ? "Restkall feilet!" : e.getMessage();
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(feilmelding, headers, HttpStatus.BAD_REQUEST));
   }
 
   @ResponseBody
   @ExceptionHandler(FeilForelderrollePaaOppgittPersonException.class)
-  protected ResponseEntity<?> handleFeilKjoennPaaOppgittFarException(
-      FeilForelderrollePaaOppgittPersonException e) {
+  protected ResponseEntity<?> handleFeilKjoennPaaOppgittFarException(FeilForelderrollePaaOppgittPersonException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     var feilmelding = "Restkall feilet!";
@@ -60,14 +59,12 @@ public class RestResponseExceptionResolver {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
   }
 
   @ResponseBody
   @ExceptionHandler(OppgittNavnStemmerIkkeMedRegistrertNavnException.class)
-  protected ResponseEntity<?> handleOppgittNavnStemmerIkkeMedRegistrertNavnException(
-      OppgittNavnStemmerIkkeMedRegistrertNavnException e) {
+  protected ResponseEntity<?> handleOppgittNavnStemmerIkkeMedRegistrertNavnException(OppgittNavnStemmerIkkeMedRegistrertNavnException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     var feilmelding = "Restkall feilet!";
@@ -75,8 +72,7 @@ public class RestResponseExceptionResolver {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
   }
 
   @ResponseBody
@@ -103,22 +99,23 @@ public class RestResponseExceptionResolver {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.NOT_FOUND));
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.NOT_FOUND));
 
   }
 
   @ResponseBody
   @ExceptionHandler(FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException.class)
-  protected  ResponseEntity<?> handleFarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(Exception e) {
+  protected ResponseEntity<?> handleFarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(
+      FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = "Restkall feilet!";
+    var feilmelding = String.format("Restkall feilet: %s", e.getFeilkode().getBeskrivelse());
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
+    var respons = OppretteFarskapserklaeringResponse.builder().feilkode(Optional.of(e.getFeilkode())).build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(respons, headers, HttpStatus.BAD_REQUEST));
   }
 }
