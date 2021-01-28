@@ -56,7 +56,7 @@ public class PdlApiConsumer {
   public List<FamilierelasjonerDto> henteFamilierelasjoner(String foedselsnummer) {
     var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
     var familierelasjonerDtos = respons.getData().getHentPerson().getFamilierelasjoner();
-    var familierelasjonerFraPdlEllerFreg = familierelasjonerDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+    var familierelasjonerFraPdlEllerFreg = familierelasjonerDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
 
     return familierelasjonerFraPdlEllerFreg;
   }

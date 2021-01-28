@@ -19,6 +19,7 @@ import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
@@ -191,11 +192,5 @@ public class PersonopplysningService {
     return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1
         ? ""
         : navnFraRegister.getMellomnavn();
-  }
-
-  private void leggeTil(boolean skalLeggesTil, String navnedel, StringBuffer sb) {
-    if (skalLeggesTil) {
-      sb.append(navnedel);
-    }
   }
 }

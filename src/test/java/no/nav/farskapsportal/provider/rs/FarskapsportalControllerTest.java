@@ -1,9 +1,10 @@
 package no.nav.farskapsportal.provider.rs;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
-import static no.nav.farskapsportal.TestUtils.henteBarn;
+import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static no.nav.farskapsportal.TestUtils.henteNyligFoedtBarn;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -79,7 +80,8 @@ public class FarskapsportalControllerTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
-  private static final BarnDto BARN = henteBarn(5);
+  private static final BarnDto BARN_UTEN_FNR = henteBarnUtenFnr(5);
+  private static final BarnDto BARN_MED_FNR = henteNyligFoedtBarn();
 
   @LocalServerPort
   private int localServerPort;
@@ -157,7 +159,7 @@ public class FarskapsportalControllerTest {
   void skalLagreOppdatertPadesUrlVedHentingAvDokument() throws URISyntaxException {
 
     // given
-    var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN);
+    var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
     farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
     // Slette dersom allerede eksisterer i databasen
@@ -252,7 +254,7 @@ public class FarskapsportalControllerTest {
     void skalListeFarskapserklaeringerSomVenterPaaFarVedHentingAvBrukerinformasjonForMor() {
 
       // given
-      var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN);
+      var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
 
       // Slette dersom allerede eksisterer i databasen
@@ -295,7 +297,7 @@ public class FarskapsportalControllerTest {
     void skalListeFarskapserklaeringerSomVenterPaaMorVedHentingAvBrukerinformasjonForMor() {
 
       // given
-      var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN);
+      var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaMor.getDokument().setPadesUrl(null);
 
       // Slette dersom allerede eksisterer i databasen
@@ -336,7 +338,7 @@ public class FarskapsportalControllerTest {
     void skalListeFarskapserklaeringerSomVenterPaaFarVedHentingAvBrukerinformasjonForFar() {
 
       // given
-      var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN);
+      var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
       // Slette dersom allerede eksisterer i databasen
@@ -377,7 +379,7 @@ public class FarskapsportalControllerTest {
     void skalIkkeListeFarskapserklaeringerSomVenterPaaMorVedHentingAvBrukerinformasjonForFar() {
 
       // given
-      var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN);
+      var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaMor.getDokument().setPadesUrl(null);
       farskapserklaeringSomVenterPaaMor.getDokument().setSignertAvMor(null);
       farskapserklaeringSomVenterPaaMor.getDokument().setSignertAvFar(null);
@@ -592,11 +594,11 @@ public class FarskapsportalControllerTest {
     void skalReturnereFeilkodeDersomFarskapserklaeringAlleredeEksistererForUfoedtBarnMedSammeForeldre() {
 
       // given
-      var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN);
+      var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
 
       // Slette dersom allerede eksisterer
-      var fe = farskapserklaeringDao.henteUnikFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), BARN.getTermindato());
+      var fe = farskapserklaeringDao.henteUnikFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), BARN_UTEN_FNR.getTermindato());
       fe.ifPresent(farskapserklaering -> farskapserklaeringDao.delete(farskapserklaering));
 
       var eksisterendeFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
@@ -633,7 +635,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN).opplysningerOmFar(opplysningerOmFar).build()),
+          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(opplysningerOmFar).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -690,7 +692,50 @@ public class FarskapsportalControllerTest {
 
       // then
       assertEquals(respons.getStatusCodeValue(), HttpStatus.BAD_REQUEST.value());
+    }
 
+    @Test
+    @DisplayName("Skal gi BAD request dersom oppgitt nyfoedt mangler relasjon til mor")
+    void skalGiBadRequestDersomOppgittNyfoedtManglerRelasjonTilMor() {
+
+      // given
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+
+      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
+          .navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
+
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
+          MOR.getFoedselsnummer());
+
+      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
+          opplysningerOmFar.getFoedselsnummer());
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+      var redirectUrlMor = URI
+          .create("https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no");
+
+      var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+          .redirectUrlMor(redirectUrlMor).build();
+
+      when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(opplysningerOmFar).build()),
+          OppretteFarskapserklaeringResponse.class);
+
+      // then
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
     }
   }
 
@@ -704,7 +749,7 @@ public class FarskapsportalControllerTest {
     void skalHenteSignertDokumentForMorEtterRedirect() {
 
       // given
-      var farskapserklaeringUtenSignaturer = henteFarskapserklaering(MOR, FAR, BARN);
+      var farskapserklaeringUtenSignaturer = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
 
       // Slette dersom allerede eksisterer i databasen
       ryddeTestdata(farskapserklaeringUtenSignaturer);
@@ -752,7 +797,7 @@ public class FarskapsportalControllerTest {
     void skalHenteSignertDokumentForFarEtterRedirect() {
 
       // given
-      var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN);
+      var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
 
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
