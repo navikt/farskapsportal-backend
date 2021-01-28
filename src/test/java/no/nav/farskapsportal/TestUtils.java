@@ -42,6 +42,12 @@ public class TestUtils {
     return BarnDto.builder().foedselsnummer(fnrBarn).build();
   }
 
+  public static BarnDto henteBarnMedFnr(LocalDate foedselsdato) {
+    var personnummer = "12340";
+    var fnrBarn = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
+    return BarnDto.builder().foedselsnummer(fnrBarn).build();
+  }
+
   public static ForelderDto henteForelder(Forelderrolle forelderrolle) {
     if (Forelderrolle.MOR.equals(forelderrolle)) {
       var personnummerMor = "12340";

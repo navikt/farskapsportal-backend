@@ -28,6 +28,7 @@ import no.nav.farskapsportal.exception.FarskapserklaeringIkkeFunnetException;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
+import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import org.apache.commons.lang3.Validate;
@@ -94,6 +95,8 @@ public class FarskapsportalService {
     personopplysningService.riktigNavnOgRolle(request.getOpplysningerOmFar(), Forelderrolle.FAR);
     // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
     validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
+    // Validere alder på nyfødt
+    validereAlderNyfoedt(request.getBarn().getFoedselsnummer());
     // Kontrollere at mor og far ikke er samme person
     Validate
         .isTrue(morOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer()), "Mor og far kan ikke være samme person!");
@@ -127,9 +130,19 @@ public class FarskapsportalService {
     return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor()).build();
   }
 
-  private void validereRelasjonerNyfoedt(String fnrMor, String oppgittFnrBarn) {
+  private void validereAlderNyfoedt(String fnrOppgittBarn) {
+    if (fnrOppgittBarn == null || fnrOppgittBarn.length() < 1) {
+      return;
+    }
+    var foedselsdato = personopplysningService.henteFoedselsdato(fnrOppgittBarn);
+    if (!LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).isBefore(foedselsdato)) {
+      throw new NyfoedtErForGammelException(Feilkode.NYFODT_ER_FOR_GAMMEL);
+    }
+  }
 
-    if (oppgittFnrBarn == null || oppgittFnrBarn.length() < 1) {
+  private void validereRelasjonerNyfoedt(String fnrMor, String fnrOppgittBarn) {
+
+    if (fnrOppgittBarn == null || fnrOppgittBarn.length() < 1) {
       return;
     }
 
@@ -137,7 +150,7 @@ public class FarskapsportalService {
 
     registrerteNyfoedteUtenFar.stream().findFirst().orElseThrow(() -> new MorHarIngenNyfoedteUtenFarException(Feilkode.INGEN_NYFOEDTE_UTEN_FAR));
 
-    registrerteNyfoedteUtenFar.stream().filter(Objects::nonNull).filter(fnrBarn -> fnrBarn.equals(oppgittFnrBarn)).collect(Collectors.toSet())
+    registrerteNyfoedteUtenFar.stream().filter(Objects::nonNull).filter(fnrBarn -> fnrBarn.equals(fnrOppgittBarn)).collect(Collectors.toSet())
         .stream().findAny().orElseThrow(() -> new ManglerRelasjonException(Feilkode.BARN_MANGLER_RELASJON_TIL_MOR));
   }
 
