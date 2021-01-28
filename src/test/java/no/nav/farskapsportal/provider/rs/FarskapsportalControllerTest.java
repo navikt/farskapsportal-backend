@@ -1,7 +1,7 @@
 package no.nav.farskapsportal.provider.rs;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
-import static no.nav.farskapsportal.TestUtils.henteBarn;
+import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -79,7 +79,7 @@ public class FarskapsportalControllerTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
-  private static final BarnDto BARN = henteBarn(5);
+  private static final BarnDto BARN = henteBarnUtenFnr(5);
 
   @LocalServerPort
   private int localServerPort;

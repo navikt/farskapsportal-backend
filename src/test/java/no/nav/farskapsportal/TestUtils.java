@@ -30,9 +30,16 @@ public class TestUtils {
     return FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 
-  public static BarnDto henteBarn(int antallUkerTilTermindato) {
+  public static BarnDto henteBarnUtenFnr(int antallUkerTilTermindato) {
     var termindato = LocalDate.now().plusDays(7 * antallUkerTilTermindato);
     return BarnDto.builder().termindato(termindato).build();
+  }
+
+  public static BarnDto henteNyligFoedtBarn() {
+    var personnummer = "12340";
+    var foedselsdato = LocalDate.now().minusMonths(2).minusDays(13);
+    var fnrBarn = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
+    return BarnDto.builder().foedselsnummer(fnrBarn).build();
   }
 
   public static ForelderDto henteForelder(Forelderrolle forelderrolle) {
