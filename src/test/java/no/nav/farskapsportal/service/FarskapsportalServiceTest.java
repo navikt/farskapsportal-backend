@@ -40,7 +40,6 @@ import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
-import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -72,18 +71,6 @@ public class FarskapsportalServiceTest {
   private FarskapsportalService farskapsportalService;
   @Autowired
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
-
-  public void ryddeTestdata(String fnrMor, String fnrFar) {
-    var nedreGrenseTermindato = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMinAntallUkerTilTermindato());
-    var oevreGrenseTermindato = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato());
-
-    var fes = farskapserklaeringDao.henteFarskapserklaeringer(fnrMor, fnrFar, nedreGrenseTermindato, oevreGrenseTermindato);
-    if (!fes.isEmpty()) {
-      for (Farskapserklaering fe : fes) {
-        farskapserklaeringDao.delete(fe);
-      }
-    }
-  }
 
   @Nested
   @DisplayName("Teste henteBrukerinformasjon")
@@ -236,7 +223,7 @@ public class FarskapsportalServiceTest {
     void skalOppretteFarskapserklaeringForBarnMedTermindato() {
 
       // rydde testdata
-      ryddeTestdata(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+      farskapserklaeringDao.deleteAll();
 
       // given
       var barn = henteBarnUtenFnr(4);
@@ -314,7 +301,7 @@ public class FarskapsportalServiceTest {
     void skalKasteManglerRelasjonException() {
 
       // rydde testdata
-      ryddeTestdata(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+      farskapserklaeringDao.deleteAll();
 
       // given
       var fnrSpedbarnUtenFar = LocalDate.now().minusMonths(2).minusDays(-5).format(DateTimeFormatter.ofPattern("ddMMyy")) + "13333";
@@ -346,7 +333,7 @@ public class FarskapsportalServiceTest {
     void skalKasteMorHarIngenNyfoedteUtenFarException() {
 
       // rydde testdata
-      ryddeTestdata(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+      farskapserklaeringDao.deleteAll();
 
       // given
       var nyfoedt = henteNyligFoedtBarn();
