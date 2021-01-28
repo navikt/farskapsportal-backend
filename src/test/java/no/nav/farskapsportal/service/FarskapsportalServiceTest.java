@@ -27,12 +27,14 @@ import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
+import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
@@ -103,6 +105,7 @@ public class FarskapsportalServiceTest {
       persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(MOR.getForelderrolle());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
           .thenReturn(Set.of(spedbarnUtenFar.getFoedselsnummer()));
@@ -132,6 +135,7 @@ public class FarskapsportalServiceTest {
       persistenceService.lagreFarskapserklaering(farskapserklaeringSomManglerMorsSignatur);
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(MOR.getForelderrolle());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
@@ -155,9 +159,10 @@ public class FarskapsportalServiceTest {
           () -> assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
           () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
 
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+     persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(MOR.getForelderrolle());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
@@ -178,9 +183,10 @@ public class FarskapsportalServiceTest {
           () -> assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
           () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
 
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+     persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(FAR.getForelderrolle());
+      when(personopplysningService.henteSivilstand(FAR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
@@ -201,9 +207,10 @@ public class FarskapsportalServiceTest {
           () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
           () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
 
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+      persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(FAR.getForelderrolle());
+      when(personopplysningService.henteSivilstand(FAR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
@@ -448,7 +455,7 @@ public class FarskapsportalServiceTest {
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaering);
 
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(FAR.getForelderrolle());
-      when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennTypeDto.MANN).build());
+      when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.MANN).build());
 
       when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
           DokumentStatusDto.builder().statuslenke(statuslenke).erSigneringsjobbenFerdig(true).padeslenke(padesFar).signaturer(List.of(

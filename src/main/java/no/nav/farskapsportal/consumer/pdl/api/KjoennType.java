@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.consumer.pdl.api;
 
-public enum KjoennTypeDto {
+public enum KjoennType {
   MANN,
   KVINNE,
   UKJENT

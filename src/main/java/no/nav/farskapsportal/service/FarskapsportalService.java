@@ -14,10 +14,11 @@ import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
@@ -67,7 +68,7 @@ public class FarskapsportalService {
 
       // Henter påbegynte farskapserklæringer som venter på mors signatur
       farskapserklaeringerSomVenterPaaMorsSignatur = persistenceService
-          .henteAktiveFarskapserklaeringer(foedselsnummer, Forelderrolle.MOR, KjoennTypeDto.KVINNE);
+          .henteAktiveFarskapserklaeringer(foedselsnummer, Forelderrolle.MOR, KjoennType.KVINNE);
       kanOppretteFarskapserklaering = true;
 
       // har mor noen nyfødte barn uten registrert far?
@@ -76,15 +77,20 @@ public class FarskapsportalService {
 
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle) || Forelderrolle.MOR
         .equals(brukersForelderrolle)) {
+
       // Henter påbegynte farskapserklæringer som venter på fars signatur
       farskapserklaeringerSomVenterPaaFarsSignatur = persistenceService.henteFarskapserklaeringer(foedselsnummer);
     }
+
+    // hente sivilstand
+    var sivilstand = personopplysningService.henteSivilstand(foedselsnummer);
+    boolean giftEllerRegistrertPartner = sivilstand.equals(Sivilstandtype.GIFT) || sivilstand.equals(Sivilstandtype.REGISTRERT_PARTNER);
 
     return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle)
         .farsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaFarsSignatur)
         .fnrNyligFoedteBarnUtenRegistrertFar(nyligFoedteBarnSomManglerFar).gyldigForelderrolle(true)
         .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).morsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaMorsSignatur)
-        .build();
+        .giftEllerRegistrertPartner(giftEllerRegistrertPartner).build();
   }
 
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
@@ -216,11 +222,11 @@ public class FarskapsportalService {
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
     var gjeldendeKjoenn = personopplysningService.henteGjeldendeKjoenn(fnrPaaloggetPerson);
 
-    if ((Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) && KjoennTypeDto.KVINNE
+    if ((Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) && KjoennType.KVINNE
         .equals(gjeldendeKjoenn.getKjoenn())) {
       return persistenceService.henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
 
-    } else if ((Forelderrolle.FAR.equals(brukersForelderrolle)) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle) && KjoennTypeDto.MANN
+    } else if ((Forelderrolle.FAR.equals(brukersForelderrolle)) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle) && KjoennType.MANN
         .equals(gjeldendeKjoenn.getKjoenn())) {
       return persistenceService.henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
     }

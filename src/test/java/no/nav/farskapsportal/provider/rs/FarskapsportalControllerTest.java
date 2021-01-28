@@ -32,18 +32,20 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
@@ -172,8 +174,8 @@ public class FarskapsportalControllerTest {
     var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
     when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
     stsStub.runSecurityTokenServiceStub("jalla");
-    var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-        .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+    var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+        .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
     pdlApiStub
         .runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)), FAR.getFoedselsnummer());
@@ -220,16 +222,17 @@ public class FarskapsportalControllerTest {
       var foedselsdatoMor = foedselsdatoSpedbarn.minusYears(28).minusMonths(2).minusDays(13);
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + "12340";
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
       stsStub.runSecurityTokenServiceStub("jalla");
       var morsRelasjonTilBarn = FamilierelasjonerDto.builder().minRolleForPerson(FamilierelasjonRolle.MOR)
           .relatertPersonsRolle(FamilierelasjonRolle.BARN).relatertPersonsIdent(fnrSpedbarn).build();
       var spedbarnetsRelasjonTilMor = FamilierelasjonerDto.builder().relatertPersonsRolle(FamilierelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
           .minRolleForPerson(FamilierelasjonRolle.BARN).build();
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(morsRelasjonTilBarn, "123"), new HentPersonKjoenn(kjoennshistorikk)),
-          fnrMor);
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonFamilierelasjoner(morsRelasjonTilBarn, "123"), new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonKjoenn(kjoennshistorikk)), fnrMor);
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonFamilierelasjoner(spedbarnetsRelasjonTilMor, "000"), new HentPersonFoedsel(foedselsdatoSpedbarn, false)),
           fnrSpedbarn);
@@ -262,13 +265,13 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonKjoenn(kjoennshistorikk)),
-          MOR.getFoedselsnummer());
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonSivilstand(Sivilstandtype.UGIFT),
+          new HentPersonKjoenn(kjoennshistorikk)), MOR.getFoedselsnummer());
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
@@ -305,13 +308,13 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonKjoenn(kjoennshistorikk)),
-          MOR.getFoedselsnummer());
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonSivilstand(Sivilstandtype.UGIFT),
+          new HentPersonKjoenn(kjoennshistorikk)), MOR.getFoedselsnummer());
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
@@ -346,13 +349,13 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonKjoenn(kjoennshistorikk)),
-          FAR.getFoedselsnummer());
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonSivilstand(Sivilstandtype.UGIFT),
+          new HentPersonKjoenn(kjoennshistorikk)), FAR.getFoedselsnummer());
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
@@ -389,13 +392,14 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonKjoenn(kjoennshistorikk)),
-          FAR.getFoedselsnummer());
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null),
+          new HentPersonKjoenn(kjoennshistorikk), new HentPersonSivilstand(Sivilstandtype.UGIFT)), FAR.getFoedselsnummer());
+
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
@@ -422,7 +426,7 @@ public class FarskapsportalControllerTest {
       var foedselsdatoMor = foedselsdatoSpedbarn.minusYears(28).minusMonths(2).minusDays(13);
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + "12340";
 
-      var kjoennshistorikk = new HashMap<KjoennTypeDto, LocalDateTime>();
+      var kjoennshistorikk = new HashMap<KjoennType, LocalDateTime>();
       stsStub.runSecurityTokenServiceStub("jalla");
 
       var spedbarnetsRelasjonTilMor = FamilierelasjonerDto.builder().relatertPersonsRolle(FamilierelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
@@ -461,8 +465,8 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(registrertNavn)));
 
@@ -483,8 +487,8 @@ public class FarskapsportalControllerTest {
       var oppgittNavn = NavnDto.builder().fornavn("Natalya").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(oppgittNavn)));
 
@@ -505,8 +509,8 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(registrertNavn)));
 
@@ -554,13 +558,13 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)), fnrMor);
 
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
           opplysningerOmFar.getFoedselsnummer());
@@ -611,14 +615,14 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
           MOR.getFoedselsnummer());
 
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
           opplysningerOmFar.getFoedselsnummer());
@@ -663,14 +667,14 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
           MOR.getFoedselsnummer());
 
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
           opplysningerOmFar.getFoedselsnummer());
@@ -686,8 +690,8 @@ public class FarskapsportalControllerTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(opplysningerOmFar).build()),
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
+          OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(opplysningerOmFar).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -707,14 +711,14 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
           MOR.getFoedselsnummer());
 
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
           opplysningerOmFar.getFoedselsnummer());
@@ -766,8 +770,8 @@ public class FarskapsportalControllerTest {
       var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
           MOR.getFoedselsnummer());
@@ -810,8 +814,8 @@ public class FarskapsportalControllerTest {
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennTypeDto.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
           FAR.getFoedselsnummer());

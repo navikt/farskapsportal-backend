@@ -17,9 +17,9 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
-import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
@@ -68,7 +68,7 @@ public class PersonopplysningService {
   public Forelderrolle bestemmeForelderrolle(String foedselsnummer) {
     var gjeldendeKjoenn = henteGjeldendeKjoenn(foedselsnummer);
 
-    if (KjoennTypeDto.UKJENT.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.UKJENT.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.UKJENT;
     }
 
@@ -76,20 +76,20 @@ public class PersonopplysningService {
     var foedekjoenn = hentFoedekjoenn(kjoennshistorikk);
 
     // MOR -> Fødekjønn == kvinne && gjeldende kjønn == kvinne
-    if (KjoennTypeDto.KVINNE.equals(foedekjoenn.getKjoenn())
-        && KjoennTypeDto.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn())
+        && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MOR;
     }
 
     // MOR_ELLER_FAR -> Fødekjønn == kvinne && gjeldende kjønn == mann
-    if (KjoennTypeDto.KVINNE.equals(foedekjoenn.getKjoenn())
-        && KjoennTypeDto.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn())
+        && KjoennType.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MOR_ELLER_FAR;
     }
 
     // MEDMOR -> Fødekjønn == mann && gjeldende kjønn == kvinne
-    if (KjoennTypeDto.MANN.equals(foedekjoenn.getKjoenn())
-        && KjoennTypeDto.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.MANN.equals(foedekjoenn.getKjoenn())
+        && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MEDMOR;
     }
 
@@ -128,6 +128,10 @@ public class PersonopplysningService {
 
   public NavnDto henteNavn(String foedselsnummer) {
     return pdlApiConsumer.hentNavnTilPerson(foedselsnummer);
+  }
+
+  public SivilstandDto henteSivilstand(String foedselsnummer) {
+    return pdlApiConsumer.henteSivilstand(foedselsnummer);
   }
 
   private NavnDto henteNavn(KontrollerePersonopplysningerRequest request) {

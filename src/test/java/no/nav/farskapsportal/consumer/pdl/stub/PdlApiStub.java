@@ -6,6 +6,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +33,7 @@ public class PdlApiStub {
     var count = 0;
     for (HentPersonSubQuery subQuery : subQueries) {
       stubResponse.append(subQuery.getQuery());
-      if (subQueries.size() > 1 && (count == 0 || count > subQueries.size() - 1)) {
+      if (subQueries.size() > 1 && (count == 0 || count < (subQueries.size() - 1))) {
         stubResponse.append(",");
       }
       count++;
@@ -67,5 +68,23 @@ public class PdlApiStub {
                 "\"message\": \"Validation error of type FieldUndefined: Field 'mellomnav' in type 'Navn' is undefined @ 'hentPerson/navn/mellomnav\",",
                 "\"locations\": [", "{", "\"line\": 11,", "\"column\": 5", "}", "],", "\"extensions\": {", "\"classification\": \"ValidationError\"",
                 "}", "}", "]", "}"))));
+  }
+
+  public static String hentFolkerigstermetadataElement(LocalDateTime gyldighetstidspunkt) {
+    return String.join(
+        "\n",
+        " \"folkeregistermetadata\": {",
+        "   \"gyldighetstidspunkt\": \"" + gyldighetstidspunkt + "\"",
+        " }");
+  }
+
+  public static String hentMetadataElement(String opplysningsId, boolean historisk) {
+    return String.join(
+        "\n",
+        " \"metadata\": {",
+        "   \"historisk\": \"" + historisk + "\",",
+        "   \"opplysningsId\": \"" + opplysningsId + "\",",
+        "   \"master\": \"Freg\"",
+        " }");
   }
 }

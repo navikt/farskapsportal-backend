@@ -1,0 +1,30 @@
+query($ident: ID!, $historikk: Boolean!) {
+    hentPerson(ident: $ident) {
+        sivilstand(historikk: $historikk) {
+            type,
+            gyldigFraOgMed,
+            myndighet,
+            kommune,
+            sted,
+            utland,
+            relatertVedSivilstand,
+            bekreftelsesdato,
+            folkeregistermetadata {
+                ajourholdstidspunkt,
+                gyldighetstidspunkt,
+                opphoerstidspunkt,
+                kilde,
+                aarsak,
+                sekvens
+            },
+            metadata {
+                opplysningsId,
+                master,
+                endringer {
+                    type,
+                    registrert,
+                }
+            }
+        }
+    }
+}

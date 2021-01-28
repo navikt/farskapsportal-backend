@@ -14,4 +14,7 @@ public class PersonDto {
 
   @Singular("navn")
   List<NavnDto> navn = new ArrayList<>();
+
+  @Singular("sivilstand")
+  List<SivilstandDto> sivilstand = new ArrayList<>();
 }
