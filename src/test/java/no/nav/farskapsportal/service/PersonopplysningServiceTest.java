@@ -265,7 +265,7 @@ public class PersonopplysningServiceTest {
       var personnummer = "12345";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var navnDto = NavnDto.builder().fornavn("Ronaldina").etternavn("McDonald").build();
+      NavnDto.builder().fornavn("Ronaldina").etternavn("McDonald").build();
 
       when(pdlApiConsumerMock.henteSivilstand(foedselsnummer)).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 

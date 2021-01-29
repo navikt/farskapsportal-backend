@@ -172,6 +172,31 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @DisplayName("Gift eller registrert partner skal settes til sann dersom forelder er gift")
+    void giftEllerRegistrertPartnerSkalSettesTilSannDersomForelderErGift() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+      var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
+      farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now());
+
+      assertAll(() -> assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvMor()),
+          () -> assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getPadesUrl()),
+          () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
+
+      persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(MOR.getForelderrolle());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.GIFT).build());
+
+      // when
+      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
+
+      // then
+      assertTrue(1 == brukerinformasjon.getFarsVentendeFarskapserklaeringer().size());
+    }
+
+    @Test
     @DisplayName("Far skal se sine ventende farskapserklæringer")
     void farSkalSeSineVentendeFarskapserklaeringer() {
       // given

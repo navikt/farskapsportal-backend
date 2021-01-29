@@ -84,7 +84,7 @@ public class FarskapsportalService {
 
     // hente sivilstand
     var sivilstand = personopplysningService.henteSivilstand(foedselsnummer);
-    boolean giftEllerRegistrertPartner = sivilstand.equals(Sivilstandtype.GIFT) || sivilstand.equals(Sivilstandtype.REGISTRERT_PARTNER);
+    boolean giftEllerRegistrertPartner = sivilstand.getType().equals(Sivilstandtype.GIFT) || sivilstand.getType().equals(Sivilstandtype.REGISTRERT_PARTNER);
 
     return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle)
         .farsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaFarsSignatur)

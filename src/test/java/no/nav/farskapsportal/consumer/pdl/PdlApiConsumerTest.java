@@ -284,5 +284,39 @@ public class PdlApiConsumerTest {
       assertEquals(Sivilstandtype.UGIFT, farsSivilstand.getType());
     }
 
+    @Test
+    @DisplayName("Skal hente sivilstand gift dersom person er gift")
+    void skalHenteSivilstandGiftDersomPersonErGift() {
+      // given
+      var fnr = "13108411111";
+
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
+      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+      // when
+      var sivilstand = pdlApiConsumer.henteSivilstand(fnr);
+
+      // then
+      assertEquals(Sivilstandtype.GIFT, sivilstand.getType());
+    }
+
+    @Test
+    @DisplayName("Skal hente sivilstand uoppgitt dersom sivilstand ikke er registrert")
+    void skalHenteSivilstandUoppgittDersomSivilstandIkkeErRegistrert() {
+      // given
+      var fnr = "13108411111";
+
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
+      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+      // when
+      var personensSivilstand = pdlApiConsumer.henteSivilstand(fnr);
+
+      // then
+      assertEquals(Sivilstandtype.UOPPGITT, personensSivilstand.getType());
+    }
+
   }
 }
