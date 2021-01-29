@@ -31,6 +31,7 @@ import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
+import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -465,12 +466,12 @@ public class PersonopplysningServiceTest {
   }
 
   @Nested
-  @DisplayName("Tester kanOpptreSomMor")
-  class KanOpptreSomMor {
+  @DisplayName("Tester kanOppretteFarskapserklaering")
+  class KanOppretteFarskapserklaering {
 
     @Test
-    @DisplayName("Kan opptre som mor hvis forelderrolle er MOR")
-    void kanOpptreSomMorHvisForelderrolleErMor() {
+    @DisplayName("Mor kan opprette farskapserklæring")
+    void morKanOppretteFarskapserklaering() {
 
       // given
       var personnummer = "123454";
@@ -482,12 +483,12 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(gjeldendeKjoenn));
 
       // when, then
-      assertDoesNotThrow(() -> personopplysningService.kanOpptreSomMor(foedselsnummer));
+      assertDoesNotThrow(() -> personopplysningService.kanOppretteFarskapserklaering(foedselsnummer));
     }
 
     @Test
-    @DisplayName("Kan opptre som mor hvis forelderroller er MOR_ELLER_FAR")
-    void kanOpptreSomMorHvisForelderrolleErMorEllerFar() {
+    @DisplayName("Rolle MOR_ELLER_FAR kan opprette farskapserklæring")
+    void rolleMorEllerFarKanOppretteFarskapserklaering() {
 
       // given
       var personnummer = "123454";
@@ -500,7 +501,25 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(originaltKjoenn, gjeldendeKjoenn));
 
       // when, then
-      assertDoesNotThrow(() -> personopplysningService.kanOpptreSomMor(foedselsnummer));
+      assertDoesNotThrow(() -> personopplysningService.kanOppretteFarskapserklaering(foedselsnummer));
+    }
+
+    @Test
+    @DisplayName("Skal kaste OppretteFarskapserklaeringException dersom far prøver å opprette erklæring")
+    void skalKasteOppretteFarskapserklaeringExceptionDersomFarProeverAaOppretteErklaering() {
+
+      // given
+      var personnummer = "123455";
+      var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
+      var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
+      var originaltKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.MANN, foedselsdato);
+      var gjeldendeKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.MANN, foedselsdato.plusYears(25));
+
+      when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(gjeldendeKjoenn);
+      when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(originaltKjoenn, gjeldendeKjoenn));
+
+      // when, then
+      assertThrows(OppretteFarskapserklaeringException.class, () -> personopplysningService.kanOppretteFarskapserklaering(foedselsnummer));
     }
   }
 }

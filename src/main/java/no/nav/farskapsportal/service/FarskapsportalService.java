@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -14,11 +15,11 @@ import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
-import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
+import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
@@ -58,23 +59,30 @@ public class FarskapsportalService {
     Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaMorsSignatur = new HashSet<>();
     Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
     var kanOppretteFarskapserklaering = false;
+    Optional<Feilkode> feilkodeTilgang = Optional.empty();
 
-    if (Forelderrolle.MEDMOR.equals(brukersForelderrolle) || Forelderrolle.UKJENT.equals(brukersForelderrolle)) {
-      return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).kanOppretteFarskapserklaering(false).gyldigForelderrolle(false)
-          .build();
+    // Avbryte videre flyt dersom bruker ikke er myndig eller har en rolle som ikke støttes av løsningen
+    feilkodeTilgang = vurdereTilgangBasertPaaAlderOgForeldrerolle(foedselsnummer, brukersForelderrolle);
+    if (feilkodeTilgang.isPresent()) {
+      return BrukerinformasjonResponse.builder().feilkodeTilgang(feilkodeTilgang).forelderrolle(brukersForelderrolle)
+          .kanOppretteFarskapserklaering(false).gyldigForelderrolle(false).build();
     }
 
+    // Håndtere roller som kan agere som mor i løsningen
     if (Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
+      // Vurdere om sivilstand kvalifiserer til at mor kan bruke løsningen
+      feilkodeTilgang = getFeilkode(personopplysningService.henteSivilstand(foedselsnummer));
+      kanOppretteFarskapserklaering = feilkodeTilgang.isEmpty();
 
       // Henter påbegynte farskapserklæringer som venter på mors signatur
       farskapserklaeringerSomVenterPaaMorsSignatur = persistenceService
           .henteAktiveFarskapserklaeringer(foedselsnummer, Forelderrolle.MOR, KjoennType.KVINNE);
-      kanOppretteFarskapserklaering = true;
 
       // har mor noen nyfødte barn uten registrert far?
       nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
     }
 
+    // Håndtere roller som kan agere som far i løsningen
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle) || Forelderrolle.MOR
         .equals(brukersForelderrolle)) {
 
@@ -82,21 +90,45 @@ public class FarskapsportalService {
       farskapserklaeringerSomVenterPaaFarsSignatur = persistenceService.henteFarskapserklaeringer(foedselsnummer);
     }
 
-    // hente sivilstand
-    var sivilstand = personopplysningService.henteSivilstand(foedselsnummer);
-    boolean giftEllerRegistrertPartner = sivilstand.getType().equals(Sivilstandtype.GIFT) || sivilstand.getType().equals(Sivilstandtype.REGISTRERT_PARTNER);
-
     return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle)
         .farsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaFarsSignatur)
         .fnrNyligFoedteBarnUtenRegistrertFar(nyligFoedteBarnSomManglerFar).gyldigForelderrolle(true)
         .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).morsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaMorsSignatur)
-        .giftEllerRegistrertPartner(giftEllerRegistrertPartner).build();
+        .feilkodeTilgang(feilkodeTilgang).build();
+  }
+
+  private Optional<Feilkode> vurdereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
+    // Kun myndige personer kan bruke løsningen
+    if (!erMyndig(foedselsnummer)) {
+      return Optional.of(Feilkode.IKKE_MYNDIG);
+      // Løsningen er ikke åpen for medmor eller person med udefinerbar forelderrolle
+    } else if (Forelderrolle.MEDMOR.equals(forelderrolle) || Forelderrolle.UKJENT.equals(forelderrolle)) {
+      return Optional.of(Feilkode.MEDMOR_ELLER_UKJENT);
+    }
+    return Optional.empty();
+  }
+
+  private boolean erMyndig(String foedselsnummer) {
+    var foedselsdato = personopplysningService.henteFoedselsdato(foedselsnummer);
+    return LocalDate.now().minusYears(18).isAfter(foedselsdato.minusDays(1));
+  }
+
+  private Optional<Feilkode> getFeilkode(SivilstandDto sivilstand) {
+    switch (sivilstand.getType()) {
+      case GIFT:
+        return Optional.of(Feilkode.MOR_SIVILSTAND_GIFT);
+      case REGISTRERT_PARTNER:
+        return Optional.of(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER);
+      case UOPPGITT:
+        return Optional.of(Feilkode.MOR_SIVILSTAND_UOPPGITT);
+    }
+    return Optional.empty();
   }
 
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
 
     // Bare mor kan oppretteFarskapserklæring
-    personopplysningService.kanOpptreSomMor(fnrMor);
+    personopplysningService.kanOppretteFarskapserklaering(fnrMor);
     // Kontrollere opplysninger om far i request
     personopplysningService.riktigNavnOgRolle(request.getOpplysningerOmFar(), Forelderrolle.FAR);
     // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor

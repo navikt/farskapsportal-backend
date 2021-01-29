@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
@@ -22,6 +23,7 @@ import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
+import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
@@ -67,7 +69,7 @@ public class PersonopplysningService {
 
   public Forelderrolle bestemmeForelderrolle(String foedselsnummer) {
     var gjeldendeKjoenn = henteGjeldendeKjoenn(foedselsnummer);
-
+    log.info("Personens gjeldende kjønn: {}", gjeldendeKjoenn.getKjoenn().toString());
     if (KjoennType.UKJENT.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.UKJENT;
     }
@@ -162,16 +164,16 @@ public class PersonopplysningService {
     log.info("Sjekk av oppgitt fars fødselsnummer, navn, og kjønn er gjennomført uten feil");
   }
 
-  public void kanOpptreSomMor(String fnrPaaloggetPerson) {
-    log.info("Sjekker om person kan opptre som mor..");
+  public void kanOppretteFarskapserklaering(String fnrPaaloggetPerson) {
+    log.info("Sjekker om person kan opprette farskapserklaering..");
     var kjoennPaaloggetPerson = bestemmeForelderrolle(fnrPaaloggetPerson);
     var paaloggetPersonKanOpptreSomMor =
         Forelderrolle.MOR.equals(kjoennPaaloggetPerson)
             || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson);
 
     if (!paaloggetPersonKanOpptreSomMor) {
-      throw new PersonHarFeilRolleException(
-          "Pålogget person er ikke mor! Bare mor kan starte signeringsprosessen...");
+      throw new OppretteFarskapserklaeringException(
+          Feilkode.FEIL_ROLLE_OPPRETTE);
     }
   }
 

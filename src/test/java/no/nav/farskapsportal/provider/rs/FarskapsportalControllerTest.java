@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.provider.rs;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.FOEDSELSDATO_MOR;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
@@ -232,7 +233,7 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonFamilierelasjoner(morsRelasjonTilBarn, "123"), new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonKjoenn(kjoennshistorikk)), fnrMor);
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonKjoenn(kjoennshistorikk)), fnrMor);
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonFamilierelasjoner(spedbarnetsRelasjonTilMor, "000"), new HentPersonFoedsel(foedselsdatoSpedbarn, false)),
           fnrSpedbarn);
@@ -271,7 +272,7 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonKjoenn(kjoennshistorikk)), MOR.getFoedselsnummer());
+          new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonKjoenn(kjoennshistorikk)), MOR.getFoedselsnummer());
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
@@ -314,7 +315,7 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonKjoenn(kjoennshistorikk)), MOR.getFoedselsnummer());
+          new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonKjoenn(kjoennshistorikk)), MOR.getFoedselsnummer());
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
@@ -355,7 +356,7 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonKjoenn(kjoennshistorikk)), FAR.getFoedselsnummer());
+          new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonKjoenn(kjoennshistorikk)), FAR.getFoedselsnummer());
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
@@ -397,8 +398,9 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, null),
-          new HentPersonKjoenn(kjoennshistorikk), new HentPersonSivilstand(Sivilstandtype.UGIFT)), FAR.getFoedselsnummer());
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonKjoenn(kjoennshistorikk), new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT)), FAR.getFoedselsnummer());
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 

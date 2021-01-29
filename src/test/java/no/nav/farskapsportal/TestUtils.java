@@ -13,6 +13,9 @@ import no.nav.farskapsportal.dto.ForelderDto;
 
 public class TestUtils {
 
+  public final static LocalDate FOEDSELSDATO_FAR = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
+  public final static LocalDate FOEDSELSDATO_MOR = FOEDSELSDATO_FAR.plusYears(4);
+
   public static URI lageUrl(String kontekst) {
     try {
       return new URI("https://esignering.no/" + kontekst);
@@ -51,15 +54,12 @@ public class TestUtils {
   public static ForelderDto henteForelder(Forelderrolle forelderrolle) {
     if (Forelderrolle.MOR.equals(forelderrolle)) {
       var personnummerMor = "12340";
-      var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
-
-      return ForelderDto.builder().foedselsnummer(foedselsdato.plusYears(4).format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
+      return ForelderDto.builder().foedselsnummer(FOEDSELSDATO_MOR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
           .fornavn("Ronaldina").etternavn("McDonald").forelderrolle(Forelderrolle.MOR).build();
     } else {
       var personnummerFar = "12345";
-      var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
 
-      return ForelderDto.builder().foedselsnummer(foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar).fornavn("Ronald")
+      return ForelderDto.builder().foedselsnummer(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar).fornavn("Ronald")
           .etternavn("McDonald").forelderrolle(Forelderrolle.FAR).build();
     }
   }
