@@ -142,6 +142,8 @@ public class PersonopplysningService {
       KontrollerePersonopplysningerRequest request, Forelderrolle paakrevdForelderrolle) {
     Validate.isTrue(request.getFoedselsnummer() != null);
 
+    log.info("Kontrollerer opplysninger om far..");
+
     var faktiskForelderrolle = bestemmeForelderrolle(request.getFoedselsnummer());
 
     if (!paakrevdForelderrolle.equals(faktiskForelderrolle)) {
@@ -161,6 +163,7 @@ public class PersonopplysningService {
   }
 
   public void kanOpptreSomMor(String fnrPaaloggetPerson) {
+    log.info("Sjekker om person kan opptre som mor..");
     var kjoennPaaloggetPerson = bestemmeForelderrolle(fnrPaaloggetPerson);
     var paaloggetPersonKanOpptreSomMor =
         Forelderrolle.MOR.equals(kjoennPaaloggetPerson)

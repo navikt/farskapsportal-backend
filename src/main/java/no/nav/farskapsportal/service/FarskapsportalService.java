@@ -149,9 +149,11 @@ public class FarskapsportalService {
   private void validereRelasjonerNyfoedt(String fnrMor, String fnrOppgittBarn) {
 
     if (fnrOppgittBarn == null || fnrOppgittBarn.length() < 1) {
+      log.info("Barnet er ikke oppgitt med fødselsnummer");
       return;
     }
 
+    log.info("Validerer at nyfødt barn er relatert til mor, samt har ingen registrert far.");
     var registrerteNyfoedteUtenFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
 
     registrerteNyfoedteUtenFar.stream().findFirst().orElseThrow(() -> new MorHarIngenNyfoedteUtenFarException(Feilkode.INGEN_NYFOEDTE_UTEN_FAR));
@@ -203,11 +205,14 @@ public class FarskapsportalService {
   }
 
   private boolean morOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
+    log.info("Sjekker at mor og far ikke er én og samme person");
     return !fnrMor.equals(fnrFar);
   }
 
   private boolean termindatoErGyldig(BarnDto barnDto) {
+    log.info("Validerer termindato");
     if (barnDto.getFoedselsnummer() != null && !barnDto.getFoedselsnummer().isBlank() && barnDto.getFoedselsnummer().length() > 10) {
+      log.info("Termindato er ikke oppgitt");
       return true;
     } else {
       var nedreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMinAntallUkerTilTermindato() - 1);
