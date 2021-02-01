@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.provider.rs;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.FOEDSELSDATO_FAR;
 import static no.nav.farskapsportal.TestUtils.FOEDSELSDATO_MOR;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
@@ -82,9 +84,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class FarskapsportalControllerTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
+  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
+  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
   private static final BarnDto BARN_UTEN_FNR = henteBarnUtenFnr(5);
   private static final BarnDto BARN_MED_FNR = henteNyligFoedtBarn();
+  private static final KontrollerePersonopplysningerRequest KONTROLLEREOPPLYSNINGER_OM_FAR = KontrollerePersonopplysningerRequest.builder()
+      .foedselsnummer(FAR.getFoedselsnummer()).navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
+  private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_MOR = getKjoennshistorikk(KjoennType.KVINNE);
+  private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_FAR = getKjoennshistorikk(KjoennType.MANN);
+  private static String REDIRECT_URL_MOR = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
 
   @LocalServerPort
   private int localServerPort;
@@ -121,6 +130,11 @@ public class FarskapsportalControllerTest {
     }
 
     return new HttpEntity<>(body, headers);
+  }
+
+  private static Map<KjoennType, LocalDateTime> getKjoennshistorikk(KjoennType kjoennType) {
+    return Stream.of(new Object[][]{{kjoennType, LocalDateTime.now()}})
+        .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
   }
 
   private String initHenteBrukerinformasjon() {
@@ -175,11 +189,11 @@ public class FarskapsportalControllerTest {
     var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
     when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
     stsStub.runSecurityTokenServiceStub("jalla");
-    var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-        .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+    Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
-    pdlApiStub
-        .runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)), FAR.getFoedselsnummer());
+    pdlApiStub.runPdlApiHentPersonStub(
+        List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(registrertNavnFar)),
+        FAR.getFoedselsnummer());
 
     when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
         DokumentStatusDto.builder().statuslenke(statuslenke).erSigneringsjobbenFerdig(true).padeslenke(new URI("https://permanent-pades-url.no/"))
@@ -196,6 +210,42 @@ public class FarskapsportalControllerTest {
     // then
     assertTrue(respons.getStatusCode().is2xxSuccessful());
 
+  }
+
+  private void brukeStandardMocks() {
+    var sivilstandMor = Sivilstandtype.UGIFT;
+
+    brukeStandardMocksUtenPdlApi();
+    brukeStandardMocksAngiSivilstandMor(sivilstandMor);
+  }
+
+  private void brukeStandardMocksAngiSivilstandMor(Sivilstandtype sivilstandMor) {
+    pdlApiStub.runPdlApiHentPersonStub(
+        List.of(new HentPersonKjoenn(KJOENNSHISTORIKK_MOR), new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonSivilstand(sivilstandMor),
+            new HentPersonNavn(NAVN_MOR)), MOR.getFoedselsnummer());
+
+    pdlApiStub.runPdlApiHentPersonStub(
+        List.of(new HentPersonKjoenn(KJOENNSHISTORIKK_FAR), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(NAVN_FAR)),
+        KONTROLLEREOPPLYSNINGER_OM_FAR.getFoedselsnummer());
+
+  }
+
+  private void brukeStandardMocksUtenPdlApi() {
+
+    stsStub.runSecurityTokenServiceStub("jalla");
+
+    when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+    var redirectUrlMor = URI.create(REDIRECT_URL_MOR);
+
+    var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+        .redirectUrlMor(redirectUrlMor).build();
+
+    when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
+    doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+  }
+
+  private URI getRedirectUrlMor() {
+    return URI.create(REDIRECT_URL_MOR);
   }
 
   private static class CustomHeader {
@@ -223,8 +273,7 @@ public class FarskapsportalControllerTest {
       var foedselsdatoMor = foedselsdatoSpedbarn.minusYears(28).minusMonths(2).minusDays(13);
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + "12340";
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
       stsStub.runSecurityTokenServiceStub("jalla");
       var morsRelasjonTilBarn = FamilierelasjonerDto.builder().minRolleForPerson(FamilierelasjonRolle.MOR)
           .relatertPersonsRolle(FamilierelasjonRolle.BARN).relatertPersonsIdent(fnrSpedbarn).build();
@@ -266,8 +315,7 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -309,8 +357,7 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -350,8 +397,7 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -393,8 +439,7 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -467,8 +512,7 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(registrertNavn)));
 
@@ -489,10 +533,10 @@ public class FarskapsportalControllerTest {
       var oppgittNavn = NavnDto.builder().fornavn("Natalya").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(oppgittNavn)));
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(oppgittNavn), new HentPersonFoedsel(FOEDSELSDATO_MOR, false)));
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
@@ -511,8 +555,7 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var kjoennshistorikk = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(registrertNavn)));
 
@@ -551,48 +594,21 @@ public class FarskapsportalControllerTest {
     void skalOppretteFarskapserklaeringForBarnMedTermindato() {
 
       // given
-      var fnrMor = "11111112345";
-      var registrertNavnMor = NavnDto.builder().fornavn("Natalya").etternavn("Sagdiyev").build();
-      var registrertNavnFar = NavnDto.builder().fornavn("Jessie").etternavn("James").build();
-      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer("00000012121")
-          .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
-      var termindato = LocalDate.now().plusMonths(3);
+      farskapserklaeringDao.deleteAll();
 
-      stsStub.runSecurityTokenServiceStub("jalla");
-
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)), fnrMor);
-
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
-          opplysningerOmFar.getFoedselsnummer());
-
-      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrMor);
-      var redirectUrlMor = URI
-          .create("https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no");
-
-      var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-          .redirectUrlMor(redirectUrlMor).build();
-
-      when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      brukeStandardMocks();
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
-          OppretteFarskaperklaeringRequest.builder().barn(BarnDto.builder().termindato(termindato).build()).opplysningerOmFar(opplysningerOmFar)
+          OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
               .build()), OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertTrue(respons.getStatusCode().is2xxSuccessful());
-      assertEquals(redirectUrlMor, respons.getBody().getRedirectUrlForSigneringMor());
+      assertAll(() -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
+          () -> assertEquals(getRedirectUrlMor(), respons.getBody().getRedirectUrlForSigneringMor()));
 
-      var fe = farskapserklaeringDao.henteUnikFarskapserklaering(fnrMor, opplysningerOmFar.getFoedselsnummer(), termindato);
-      farskapserklaeringDao.delete(fe.get());
-
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
     }
 
     @Test
@@ -600,48 +616,17 @@ public class FarskapsportalControllerTest {
     void skalReturnereFeilkodeDersomFarskapserklaeringAlleredeEksistererForUfoedtBarnMedSammeForeldre() {
 
       // given
+      farskapserklaeringDao.deleteAll();
+
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
-
-      // Slette dersom allerede eksisterer
-      var fe = farskapserklaeringDao.henteUnikFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), BARN_UTEN_FNR.getTermindato());
-      fe.ifPresent(farskapserklaering -> farskapserklaeringDao.delete(farskapserklaering));
-
       var eksisterendeFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-
-      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
-          .navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
-
-      stsStub.runSecurityTokenServiceStub("jalla");
-
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
-          MOR.getFoedselsnummer());
-
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
-          opplysningerOmFar.getFoedselsnummer());
-
-      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
-      var redirectUrlMor = URI
-          .create("https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no");
-
-      var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-          .redirectUrlMor(redirectUrlMor).build();
-
-      when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      brukeStandardMocks();
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(opplysningerOmFar).build()),
+          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -652,48 +637,18 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    @DisplayName("BadRequest")
+    @DisplayName("Skal gi BAD REQUEST dersom termindato er utenfor gyldig område")
     void skalGiBadRequestDersomTermindatoErUtenforGyldigOmraade() {
 
       // given
+      brukeStandardMocks();
+
       var barnMedTermindatoForLangtFremITid = BarnDto.builder()
           .termindato(LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 1)).build();
-      var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, barnMedTermindatoForLangtFremITid);
-      farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
-
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-
-      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
-          .navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
-
-      stsStub.runSecurityTokenServiceStub("jalla");
-
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
-          MOR.getFoedselsnummer());
-
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
-          opplysningerOmFar.getFoedselsnummer());
-
-      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
-      var redirectUrlMor = URI
-          .create("https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no");
-
-      var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-          .redirectUrlMor(redirectUrlMor).build();
-
-      when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
-          OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(opplysningerOmFar).build()),
+          OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -705,39 +660,55 @@ public class FarskapsportalControllerTest {
     void skalGiBadRequestDersomOppgittNyfoedtManglerRelasjonTilMor() {
 
       // given
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-
-      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
-          .navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
-
-      stsStub.runSecurityTokenServiceStub("jalla");
-
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
-          MOR.getFoedselsnummer());
-
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
-          opplysningerOmFar.getFoedselsnummer());
-
-      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
-      var redirectUrlMor = URI
-          .create("https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no");
-
-      var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-          .redirectUrlMor(redirectUrlMor).build();
-
-      when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      brukeStandardMocks();
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(opplysningerOmFar).build()),
+          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          OppretteFarskapserklaeringResponse.class);
+
+      // then
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+    }
+
+    @Test
+    @DisplayName("Kan opprette farskapserklæring selv om far er gift")
+    void kanOppretteFarskapserklaeringSelvOmFarErGift() {
+
+      // given
+      brukeStandardMocksUtenPdlApi();
+
+      var sivilstandMor = Sivilstandtype.UGIFT;
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(KJOENNSHISTORIKK_MOR), new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonSivilstand(sivilstandMor),
+              new HentPersonNavn(NAVN_MOR)), MOR.getFoedselsnummer());
+
+      var sivilstandFar = Sivilstandtype.GIFT;
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(KJOENNSHISTORIKK_FAR), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(NAVN_FAR),
+              new HentPersonSivilstand(sivilstandFar)), KONTROLLEREOPPLYSNINGER_OM_FAR.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          OppretteFarskapserklaeringResponse.class);
+
+      // then
+      assertTrue(respons.getStatusCode().is2xxSuccessful());
+    }
+
+    @Test
+    @DisplayName("Opprettelse av farskapserklæring skal gi BAD REQUEST dersom mor er gift")
+    void opprettelseAvFarskapserklaeringSkalGiBadRequestDersomMorErGift() {
+
+      // given
+      var sivilstandMor = Sivilstandtype.GIFT;
+      brukeStandardMocksUtenPdlApi();
+      brukeStandardMocksAngiSivilstandMor(sivilstandMor);
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -772,10 +743,10 @@ public class FarskapsportalControllerTest {
       var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      var kjoennshistorikkMor = Stream.of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor)),
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
           MOR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
@@ -816,10 +787,10 @@ public class FarskapsportalControllerTest {
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      var kjoennshistorikkFar = Stream.of(new Object[][]{{KjoennType.MANN, LocalDateTime.now()}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar)),
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
           FAR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(

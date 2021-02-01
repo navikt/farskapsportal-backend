@@ -64,7 +64,7 @@ public class FarskapsportalController {
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
   public ResponseEntity<Void> kontrollereOpplysningerFar(@RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
-    personopplysningService.riktigNavnOgRolle(request, Forelderrolle.FAR);
+    personopplysningService.riktigNavnRolle(request, Forelderrolle.FAR);
     log.info("Kontroll av personopplysninger fullført uten feil");
     return new ResponseEntity<>(HttpStatus.OK);
   }

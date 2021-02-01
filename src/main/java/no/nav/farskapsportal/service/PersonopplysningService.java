@@ -24,7 +24,6 @@ import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
 import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
-import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
 
@@ -41,19 +40,17 @@ public class PersonopplysningService {
     Set<String> spedbarnUtenFar = new HashSet<>();
     List<FamilierelasjonerDto> familierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrMor);
 
-    var registrerteBarn =
-        familierelasjoner.stream()
-            .filter(Objects::nonNull)
-            .filter(mor -> mor.getMinRolleForPerson().equals(FamilierelasjonRolle.MOR))
-            .filter(barn -> barn.getRelatertPersonsRolle().equals(FamilierelasjonRolle.BARN))
-            .map(FamilierelasjonerDto::getRelatertPersonsIdent)
-            .collect(Collectors.toSet());
+    var registrerteBarn = familierelasjoner.stream().filter(Objects::nonNull)
+        .filter(mor -> mor.getMinRolleForPerson().equals(FamilierelasjonRolle.MOR))
+        .filter(barn -> barn.getRelatertPersonsRolle().equals(FamilierelasjonRolle.BARN)).map(FamilierelasjonerDto::getRelatertPersonsIdent)
+        .collect(Collectors.toSet());
 
     for (String fnrBarn : registrerteBarn) {
       var fd = henteFoedselsdato(fnrBarn);
       if (fd.isAfter(LocalDate.now().minusMonths(MAKS_ALDER_I_MND_FOR_BARN_UTEN_FAR))) {
         List<FamilierelasjonerDto> spedbarnetsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrBarn);
-        var spedbarnetsFarsrelasjon = spedbarnetsFamilierelasjoner.stream().filter(f -> f.getRelatertPersonsRolle().name().equals(Forelderrolle.FAR.toString())).findFirst();
+        var spedbarnetsFarsrelasjon = spedbarnetsFamilierelasjoner.stream()
+            .filter(f -> f.getRelatertPersonsRolle().name().equals(Forelderrolle.FAR.toString())).findFirst();
         if (spedbarnetsFarsrelasjon.isEmpty()) {
           spedbarnUtenFar.add(fnrBarn);
         }
@@ -78,49 +75,33 @@ public class PersonopplysningService {
     var foedekjoenn = hentFoedekjoenn(kjoennshistorikk);
 
     // MOR -> Fødekjønn == kvinne && gjeldende kjønn == kvinne
-    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn())
-        && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn()) && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MOR;
     }
 
     // MOR_ELLER_FAR -> Fødekjønn == kvinne && gjeldende kjønn == mann
-    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn())
-        && KjoennType.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn()) && KjoennType.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MOR_ELLER_FAR;
     }
 
     // MEDMOR -> Fødekjønn == mann && gjeldende kjønn == kvinne
-    if (KjoennType.MANN.equals(foedekjoenn.getKjoenn())
-        && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.MANN.equals(foedekjoenn.getKjoenn()) && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MEDMOR;
     }
 
     return Kjoenn.KVINNE.equals(gjeldendeKjoenn) ? Forelderrolle.MOR : Forelderrolle.FAR;
   }
 
-  private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(
-      List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
+  private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
 
     if (kjoennshistorikk.size() == 1) {
       return kjoennshistorikk.get(0);
     }
 
-    var minsteGyldighetstidspunkt =
-        kjoennshistorikk.stream()
-            .map(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt())
-            .min(LocalDateTime::compareTo)
-            .orElseThrow(
-                () ->
-                    new PdlApiException(
-                        "Feil ved henting av laveste gyldighetstidspunkt for kjønnshistorikk"));
+    var minsteGyldighetstidspunkt = kjoennshistorikk.stream().map(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt())
+        .min(LocalDateTime::compareTo).orElseThrow(() -> new PdlApiException("Feil ved henting av laveste gyldighetstidspunkt for kjønnshistorikk"));
     return kjoennshistorikk.stream()
-        .filter(
-            kjoennDto ->
-                kjoennDto
-                    .getFolkeregistermetadata()
-                    .getGyldighetstidspunkt()
-                    .equals(minsteGyldighetstidspunkt))
-        .findFirst()
+        .filter(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt().equals(minsteGyldighetstidspunkt)).findFirst()
         .orElseThrow(() -> new PdlApiException("Feil ved henting av originalt kjønn"));
   }
 
@@ -140,8 +121,7 @@ public class PersonopplysningService {
     return henteNavn(request.getFoedselsnummer());
   }
 
-  public void riktigNavnOgRolle(
-      KontrollerePersonopplysningerRequest request, Forelderrolle paakrevdForelderrolle) {
+  public void riktigNavnRolle(KontrollerePersonopplysningerRequest request, Forelderrolle paakrevdForelderrolle) {
     Validate.isTrue(request.getFoedselsnummer() != null);
 
     log.info("Kontrollerer opplysninger om far..");
@@ -150,10 +130,7 @@ public class PersonopplysningService {
 
     if (!paakrevdForelderrolle.equals(faktiskForelderrolle)) {
       throw new FeilForelderrollePaaOppgittPersonException(
-          "Forventet forelderrolle: "
-              + paakrevdForelderrolle
-              + ", faktisk forelderrolle: "
-              + faktiskForelderrolle);
+          "Forventet forelderrolle: " + paakrevdForelderrolle + ", faktisk forelderrolle: " + faktiskForelderrolle);
     }
 
     NavnDto navnDto = henteNavn(request);
@@ -164,29 +141,11 @@ public class PersonopplysningService {
     log.info("Sjekk av oppgitt fars fødselsnummer, navn, og kjønn er gjennomført uten feil");
   }
 
-  public void kanOppretteFarskapserklaering(String fnrPaaloggetPerson) {
-    log.info("Sjekker om person kan opprette farskapserklaering..");
-    var kjoennPaaloggetPerson = bestemmeForelderrolle(fnrPaaloggetPerson);
-    var paaloggetPersonKanOpptreSomMor =
-        Forelderrolle.MOR.equals(kjoennPaaloggetPerson)
-            || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson);
+  private void navnekontroll(KontrollerePersonopplysningerRequest navnOppgitt, NavnDto navnFraRegister) {
 
-    if (!paaloggetPersonKanOpptreSomMor) {
-      throw new OppretteFarskapserklaeringException(
-          Feilkode.FEIL_ROLLE_OPPRETTE);
-    }
-  }
+    var sammenslaattNavnFraRegister = navnFraRegister.getFornavn() + hentMellomnavnHvisFinnes(navnFraRegister) + navnFraRegister.getEtternavn();
 
-  private void navnekontroll(
-      KontrollerePersonopplysningerRequest navnOppgitt, NavnDto navnFraRegister) {
-
-    var sammenslaattNavnFraRegister =
-        navnFraRegister.getFornavn()
-            + hentMellomnavnHvisFinnes(navnFraRegister)
-            + navnFraRegister.getEtternavn();
-
-    boolean navnStemmer =
-        sammenslaattNavnFraRegister.equalsIgnoreCase(navnOppgitt.getNavn().replaceAll("\\s+", ""));
+    boolean navnStemmer = sammenslaattNavnFraRegister.equalsIgnoreCase(navnOppgitt.getNavn().replaceAll("\\s+", ""));
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
@@ -198,8 +157,6 @@ public class PersonopplysningService {
   }
 
   private String hentMellomnavnHvisFinnes(NavnDto navnFraRegister) {
-    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1
-        ? ""
-        : navnFraRegister.getMellomnavn();
+    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? "" : navnFraRegister.getMellomnavn();
   }
 }

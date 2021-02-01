@@ -19,7 +19,6 @@ import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
-import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
@@ -31,6 +30,7 @@ import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
+import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import org.apache.commons.lang3.Validate;
@@ -71,7 +71,7 @@ public class FarskapsportalService {
     // Håndtere roller som kan agere som mor i løsningen
     if (Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
       // Vurdere om sivilstand kvalifiserer til at mor kan bruke løsningen
-      feilkodeTilgang = getFeilkode(personopplysningService.henteSivilstand(foedselsnummer));
+      feilkodeTilgang = getFeilkode(foedselsnummer);
       kanOppretteFarskapserklaering = feilkodeTilgang.isEmpty();
 
       // Henter påbegynte farskapserklæringer som venter på mors signatur
@@ -113,7 +113,8 @@ public class FarskapsportalService {
     return LocalDate.now().minusYears(18).isAfter(foedselsdato.minusDays(1));
   }
 
-  private Optional<Feilkode> getFeilkode(SivilstandDto sivilstand) {
+  private Optional<Feilkode> getFeilkode(String foedselsnummer) {
+    var sivilstand = personopplysningService.henteSivilstand(foedselsnummer);
     switch (sivilstand.getType()) {
       case GIFT:
         return Optional.of(Feilkode.MOR_SIVILSTAND_GIFT);
@@ -125,12 +126,25 @@ public class FarskapsportalService {
     return Optional.empty();
   }
 
-  public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
+  private void kanOppretteFarskapserklaering(String fnrPaaloggetPerson) {
+    log.info("Sjekker om person kan opprette farskapserklaering..");
+    var kjoennPaaloggetPerson = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
+    var paaloggetPersonKanOpptreSomMor = getFeilkode(fnrPaaloggetPerson).isEmpty() && (Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson));
 
+    if (!paaloggetPersonKanOpptreSomMor) {
+      throw new OppretteFarskapserklaeringException(Feilkode.FEIL_ROLLE_OPPRETTE);
+    }
+  }
+
+  public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
+    // Mor må være myndig
+    Validate.isTrue(erMyndig(fnrMor), "Mor kan ikke bruke løsningen dersom hun ikke er myndig");
     // Bare mor kan oppretteFarskapserklæring
-    personopplysningService.kanOppretteFarskapserklaering(fnrMor);
+    kanOppretteFarskapserklaering(fnrMor);
     // Kontrollere opplysninger om far i request
-    personopplysningService.riktigNavnOgRolle(request.getOpplysningerOmFar(), Forelderrolle.FAR);
+    personopplysningService.riktigNavnRolle(request.getOpplysningerOmFar(), Forelderrolle.FAR);
+    // Far må være myndig
+    Validate.isTrue(erMyndig(request.getOpplysningerOmFar().getFoedselsnummer()), "Far må være myndig");
     // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
     validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
     // Validere alder på nyfødt
@@ -203,6 +217,9 @@ public class FarskapsportalService {
    */
   @Transactional
   public byte[] henteSignertDokumentEtterRedirect(String fnrPaaloggetPerson, String statusQueryToken) {
+
+    // Forelder må være myndig
+    Validate.isTrue(erMyndig(fnrPaaloggetPerson), "Person må være myndig for å bruke løsningen");
 
     var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
 
