@@ -128,11 +128,14 @@ public class FarskapsportalService {
 
   private void kanOppretteFarskapserklaering(String fnrPaaloggetPerson) {
     log.info("Sjekker om person kan opprette farskapserklaering..");
+
+    var feilkode = getFeilkode(fnrPaaloggetPerson);
+
     var kjoennPaaloggetPerson = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-    var paaloggetPersonKanOpptreSomMor = getFeilkode(fnrPaaloggetPerson).isEmpty() && (Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson));
+    var paaloggetPersonKanOpptreSomMor = feilkode.isEmpty() && (Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson));
 
     if (!paaloggetPersonKanOpptreSomMor) {
-      throw new OppretteFarskapserklaeringException(Feilkode.FEIL_ROLLE_OPPRETTE);
+      throw new OppretteFarskapserklaeringException(feilkode.isEmpty() ? Feilkode.FEIL_ROLLE_OPPRETTE : feilkode.get());
     }
   }
 
