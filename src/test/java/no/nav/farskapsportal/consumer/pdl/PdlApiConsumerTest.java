@@ -4,6 +4,7 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,14 +13,17 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSubQuery;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
@@ -58,14 +62,14 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(KjoennTypeDto.KVINNE));
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(KjoennType.KVINNE));
       pdlApiStub.runPdlApiHentPersonStub(subQueries);
 
       // when
       var kjoenn = pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor);
 
       // then
-      Assertions.assertEquals(KjoennTypeDto.KVINNE, kjoenn.getKjoenn());
+      Assertions.assertEquals(KjoennType.KVINNE, kjoenn.getKjoenn());
     }
 
     @Test
@@ -103,10 +107,10 @@ public class PdlApiConsumerTest {
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
 
       var map = Stream
-          .of(new Object[][]{{KjoennTypeDto.KVINNE, LocalDateTime.now().minusYears(30)}, {KjoennTypeDto.MANN, LocalDateTime.now().minusYears(4)}})
-          .collect(Collectors.toMap(data -> (KjoennTypeDto) data[0], data -> (LocalDateTime) data[1]));
+          .of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now().minusYears(30)}, {KjoennType.MANN, LocalDateTime.now().minusYears(4)}})
+          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
-      var sortedMap = new TreeMap<KjoennTypeDto, LocalDateTime>(map);
+      var sortedMap = new TreeMap<KjoennType, LocalDateTime>(map);
       List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(sortedMap));
       pdlApiStub.runPdlApiHentPersonStub(subQueries);
 
@@ -114,10 +118,9 @@ public class PdlApiConsumerTest {
       var historikk = pdlApiConsumer.henteKjoennMedHistorikk(fnrMor);
 
       // then
-      assertAll(() -> assertEquals(historikk.size(), 2, "Historikken skal inneholde to elementer"), () -> Assertions
-          .assertTrue(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennTypeDto.MANN)).findFirst().get().getMetadata().getHistorisk(),
+      assertAll(() -> assertEquals(historikk.size(), 2, "Historikken skal inneholde to elementer"), () -> assertTrue(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.MANN)).findFirst().get().getMetadata().getHistorisk(),
               "Personen har mann som historisk kjønn"), () -> Assertions
-          .assertFalse(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennTypeDto.KVINNE)).findFirst().get().getMetadata().getHistorisk(),
+          .assertFalse(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.KVINNE)).findFirst().get().getMetadata().getHistorisk(),
               "Personen har kvinne som gjeldende kjønn"));
     }
 
@@ -257,5 +260,63 @@ public class PdlApiConsumerTest {
           () -> assertEquals(familierelasjonerDto.getRelatertPersonsRolle(),
               farsFamilierelasjoner.stream().map(FamilierelasjonerDto::getRelatertPersonsRolle).findAny().get()));
     }
+  }
+
+  @Nested
+  @DisplayName("Hente sivilstand")
+  class Sivilstand {
+
+    @Test
+    @DisplayName("Skal hente sivilstand for far")
+    void skalHenteSivilstandForFar() {
+
+      // given
+      var fnrFar = "13108411111";
+
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.UGIFT));
+      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+      // when
+      var farsSivilstand = pdlApiConsumer.henteSivilstand(fnrFar);
+
+      // then
+      assertEquals(Sivilstandtype.UGIFT, farsSivilstand.getType());
+    }
+
+    @Test
+    @DisplayName("Skal hente sivilstand gift dersom person er gift")
+    void skalHenteSivilstandGiftDersomPersonErGift() {
+      // given
+      var fnr = "13108411111";
+
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
+      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+      // when
+      var sivilstand = pdlApiConsumer.henteSivilstand(fnr);
+
+      // then
+      assertEquals(Sivilstandtype.GIFT, sivilstand.getType());
+    }
+
+    @Test
+    @DisplayName("Skal hente sivilstand uoppgitt dersom sivilstand ikke er registrert")
+    void skalHenteSivilstandUoppgittDersomSivilstandIkkeErRegistrert() {
+      // given
+      var fnr = "13108411111";
+
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
+      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+      // when
+      var personensSivilstand = pdlApiConsumer.henteSivilstand(fnr);
+
+      // then
+      assertEquals(Sivilstandtype.UOPPGITT, personensSivilstand.getType());
+    }
+
   }
 }

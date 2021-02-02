@@ -14,7 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
@@ -189,7 +189,7 @@ public class PersistenceServiceTest {
 
       // when
       var farskapserklaeringerEtterRedirect = persistenceService
-          .henteFarskapserklaeringerEtterRedirect(MOR.getFoedselsnummer(), Forelderrolle.MOR, KjoennTypeDto.KVINNE).stream().findFirst().get();
+          .henteFarskapserklaeringerEtterRedirect(MOR.getFoedselsnummer(), Forelderrolle.MOR, KjoennType.KVINNE).stream().findFirst().get();
 
       // then
       assertAll(() -> assertNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
@@ -209,7 +209,7 @@ public class PersistenceServiceTest {
 
       // given default farskapserklæering, when
       var farskapserklaeringerEtterRedirect = persistenceService
-          .henteFarskapserklaeringerEtterRedirect(FAR.getFoedselsnummer(), Forelderrolle.FAR, KjoennTypeDto.MANN).stream().findFirst().get();
+          .henteFarskapserklaeringerEtterRedirect(FAR.getFoedselsnummer(), Forelderrolle.FAR, KjoennType.MANN).stream().findFirst().get();
 
       // then
       assertAll(() -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),

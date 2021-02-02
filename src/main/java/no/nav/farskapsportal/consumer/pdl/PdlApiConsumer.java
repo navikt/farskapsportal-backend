@@ -20,6 +20,7 @@ import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.exception.UnrecoverableException;
@@ -40,7 +41,7 @@ public class PdlApiConsumer {
   private final ConsumerEndpoint consumerEndpoint;
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
-    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
     var foedselDtos = respons.getData().getHentPerson().getFoedsel();
 
     var foedselDtosFraPdlEllerFreg = foedselDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
@@ -54,7 +55,7 @@ public class PdlApiConsumer {
   }
 
   public List<FamilierelasjonerDto> henteFamilierelasjoner(String foedselsnummer) {
-    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
     var familierelasjonerDtos = respons.getData().getHentPerson().getFamilierelasjoner();
     var familierelasjonerFraPdlEllerFreg = familierelasjonerDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
 
@@ -76,7 +77,7 @@ public class PdlApiConsumer {
   }
 
   private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
-    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
     var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
     var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
@@ -89,7 +90,7 @@ public class PdlApiConsumer {
 
   @NotNull
   public NavnDto hentNavnTilPerson(String foedselsnummer) {
-    var respons = hentPersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN, false);
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN, false);
     var navnDtos = respons.getData().getHentPerson().getNavn();
 
     var navnFraPdlEllerFreg = navnDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
@@ -107,8 +108,25 @@ public class PdlApiConsumer {
     return navnDto;
   }
 
+  @NotNull
+  public SivilstandDto henteSivilstand(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_SIVILSTAND, false);
+    var sivilstandDtos = respons.getData().getHentPerson().getSivilstand();
+
+    var sivilstandFraPdlEllerFreg = sivilstandDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (sivilstandFraPdlEllerFreg.isEmpty()) {
+      throw new PersonIkkeFunnetException("Fant ikke informasjon om personens sivilstand i PDL");
+    }
+
+    var sivilstandDto = sivilstandFraPdlEllerFreg.stream().filter(Objects::nonNull)
+        .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av sivilstand, forventet bare et innslag av sivilstand på person")));
+
+    return sivilstandDto;
+  }
+
   @Retryable(maxAttempts = 10)
-  private GraphQLResponse hentPersondokument(String ident, String query, boolean inkludereHistorikk) {
+  private GraphQLResponse hentePersondokument(String ident, String query, boolean inkludereHistorikk) {
     val graphQlRequest = GraphQLRequest.builder().query(query).variables(Map.of("historikk", inkludereHistorikk, "ident", ident)).build();
 
     var endpoint = consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);

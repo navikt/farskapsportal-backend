@@ -118,7 +118,7 @@ public class FarskapsportalConfig {
 
   @Bean
   public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
-    return () -> SecurityUtils.hentSaksbehandler(oidcTokenManager.hentIdToken());
+    return () -> SecurityUtils.henteSubject(oidcTokenManager.hentIdToken());
   }
 
   @Bean

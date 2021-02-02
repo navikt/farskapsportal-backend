@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
@@ -119,16 +119,16 @@ public class PersistenceService {
   }
 
   @Transactional(readOnly = true)
-  public Set<FarskapserklaeringDto> henteAktiveFarskapserklaeringer(String fnrForelder, Forelderrolle forelderrolle, KjoennTypeDto gjeldendeKjoenn) {
+  public Set<FarskapserklaeringDto> henteAktiveFarskapserklaeringer(String fnrForelder, Forelderrolle forelderrolle, KjoennType gjeldendeKjoenn) {
     switch (forelderrolle) {
       case MOR:
         return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
       case FAR:
         return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
       case MOR_ELLER_FAR:
-        if (KjoennTypeDto.KVINNE.equals(gjeldendeKjoenn)) {
+        if (KjoennType.KVINNE.equals(gjeldendeKjoenn)) {
           return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
-        } else if (KjoennTypeDto.MANN.equals(gjeldendeKjoenn)) {
+        } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
           return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
         }
 
@@ -139,16 +139,16 @@ public class PersistenceService {
 
   @Transactional
   public Set<Farskapserklaering>  henteFarskapserklaeringerEtterRedirect(String fnrForelder, Forelderrolle forelderrolle,
-      KjoennTypeDto gjeldendeKjoenn) {
+      KjoennType gjeldendeKjoenn) {
     switch (forelderrolle) {
       case MOR:
         return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
       case FAR:
         return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
       case MOR_ELLER_FAR:
-        if (KjoennTypeDto.KVINNE.equals(gjeldendeKjoenn)) {
+        if (KjoennType.KVINNE.equals(gjeldendeKjoenn)) {
           return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
-        } else if (KjoennTypeDto.MANN.equals(gjeldendeKjoenn)) {
+        } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
           return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
         }
 

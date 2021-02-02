@@ -105,9 +105,8 @@ public class RestResponseExceptionResolver {
 
   @ResponseBody
   @ExceptionHandler({FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException.class, MorHarIngenNyfoedteUtenFarException.class,
-      ManglerRelasjonException.class})
-  protected ResponseEntity<?> handleOppretteFarskapExceptions (
-      OppretteFarskapserklaeringException e) {
+      ManglerRelasjonException.class, OppretteFarskapserklaeringException.class})
+  protected ResponseEntity<?> handleOppretteFarskapExceptions(OppretteFarskapserklaeringException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     var feilmelding = String.format("Restkall feilet: %s", e.getFeilkode().getBeskrivelse());

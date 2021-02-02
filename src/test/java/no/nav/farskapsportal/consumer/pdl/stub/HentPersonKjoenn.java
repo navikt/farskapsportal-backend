@@ -1,10 +1,13 @@
 package no.nav.farskapsportal.consumer.pdl.stub;
 
+import static no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub.hentFolkerigstermetadataElement;
+import static no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub.hentMetadataElement;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Value;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennTypeDto;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 
 @Value
 @Getter
@@ -12,15 +15,15 @@ public class HentPersonKjoenn implements HentPersonSubQuery {
 
   String query;
 
-  public HentPersonKjoenn(KjoennTypeDto kjoenn) {
+  public HentPersonKjoenn(KjoennType kjoenn) {
     this.query = buildQueryKjoenn(kjoenn, "sagga-dagga", false);
   }
 
-  public HentPersonKjoenn(Map<KjoennTypeDto, LocalDateTime> kjoennshistorikk) {
+  public HentPersonKjoenn(Map<KjoennType, LocalDateTime> kjoennshistorikk) {
     this.query = buildQueryKjoennMedHistorikk(kjoennshistorikk);
   }
 
-  private String buildQueryKjoennMedHistorikk(Map<KjoennTypeDto, LocalDateTime> input) {
+  private String buildQueryKjoennMedHistorikk(Map<KjoennType, LocalDateTime> input) {
     if (input == null || input.isEmpty()) {
       return String.join("\n", " \"kjoenn\": [", "]");
     } else {
@@ -32,7 +35,7 @@ public class HentPersonKjoenn implements HentPersonSubQuery {
       kjoennshistorikk.append(startingElements);
 
       var count = 0;
-      for (Map.Entry<KjoennTypeDto, LocalDateTime> kjoenn : input.entrySet()) {
+      for (Map.Entry<KjoennType, LocalDateTime> kjoenn : input.entrySet()) {
         var historisk = input.size() > 1 && (count == 0 || count < input.size() - 2);
         kjoennshistorikk.append(hentKjoennElement(kjoenn.getKey(), kjoenn.getValue(), "123", historisk));
         if (input.size() > 1 && (count == 0 || count > input.size() - 1)) {
@@ -46,7 +49,7 @@ public class HentPersonKjoenn implements HentPersonSubQuery {
     }
   }
 
-  private String buildQueryKjoenn(KjoennTypeDto kjoenn, String opplysningsId, boolean historisk) {
+  private String buildQueryKjoenn(KjoennType kjoenn, String opplysningsId, boolean historisk) {
     if (kjoenn == null) {
       return String.join("\n", " \"kjoenn\": [", "]");
     } else {
@@ -58,7 +61,7 @@ public class HentPersonKjoenn implements HentPersonSubQuery {
   }
 
   private String hentKjoennElement(
-      KjoennTypeDto kjoenn, LocalDateTime gyldighetstidspunkt, String opplysningsId, boolean historisk) {
+      KjoennType kjoenn, LocalDateTime gyldighetstidspunkt, String opplysningsId, boolean historisk) {
 
     var kjoennElement = new StringBuilder();
 
@@ -71,23 +74,5 @@ public class HentPersonKjoenn implements HentPersonSubQuery {
     kjoennElement.append(String.join("\n", " }"));
 
     return kjoennElement.toString();
-  }
-
-  private String hentFolkerigstermetadataElement(LocalDateTime gyldighetstidspunkt) {
-    return String.join(
-        "\n",
-        " \"folkeregistermetadata\": {",
-        "   \"gyldighetstidspunkt\": \"" + gyldighetstidspunkt + "\"",
-        " }");
-  }
-
-  private String hentMetadataElement(String opplysningsId, boolean historisk) {
-    return String.join(
-        "\n",
-        " \"metadata\": {",
-        "   \"historisk\": \"" + historisk + "\",",
-        "   \"opplysningsId\": \"" + opplysningsId + "\",",
-        "   \"master\": \"Freg\"",
-        " }");
   }
 }

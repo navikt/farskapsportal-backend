@@ -6,7 +6,7 @@ import lombok.Value;
 @Value
 @Builder
 public class KjoennDto implements PdlDto {
-  KjoennTypeDto kjoenn;
+  KjoennType kjoenn;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;
 }
