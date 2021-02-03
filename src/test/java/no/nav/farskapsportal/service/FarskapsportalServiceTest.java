@@ -120,9 +120,9 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getMorsVentendeFarskapserklaeringer().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringBruker().size(), 1),
           () -> assertEquals(brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 1),
-          () -> assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 1));
+          () -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1));
     }
 
     @Test
@@ -148,9 +148,9 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getMorsVentendeFarskapserklaeringer().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringBruker().size(), 1),
           () -> assertEquals(brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0),
-          () -> assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 0));
+          () -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 0));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
           () -> assertTrue(brukerinformasjon.isKanOppretteFarskapserklaering()), () -> assertTrue(brukerinformasjon.isGyldigForelderrolle()),
           () -> assertTrue(brukerinformasjon.getFeilkodeTilgang().isEmpty()));
     }
@@ -205,7 +205,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
           () -> assertFalse(brukerinformasjon.isKanOppretteFarskapserklaering()),
           () -> assertEquals(Feilkode.MOR_SIVILSTAND_GIFT, brukerinformasjon.getFeilkodeTilgang().get()));
     }
@@ -236,7 +236,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
           () -> assertFalse(brukerinformasjon.isKanOppretteFarskapserklaering()),
           () -> assertEquals(Feilkode.MOR_SIVILSTAND_UOPPGITT, brukerinformasjon.getFeilkodeTilgang().get()));
     }
@@ -266,7 +266,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
           () -> assertFalse(brukerinformasjon.isKanOppretteFarskapserklaering()),
           () -> assertEquals(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER, brukerinformasjon.getFeilkodeTilgang().get()));
     }
@@ -274,6 +274,7 @@ public class FarskapsportalServiceTest {
     @Test
     @DisplayName("Far skal se sine ventende farskapserklæringer")
     void farSkalSeSineVentendeFarskapserklaeringer() {
+
       // given
       farskapserklaeringDao.deleteAll();
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
@@ -293,7 +294,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
 
       // then
-      assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 1);
+      assertEquals(1, brukerinformasjon.getAvventerSigneringBruker().size());
     }
 
     @Test
@@ -319,9 +320,9 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getMorsVentendeFarskapserklaeringer().size(), 0),
-          () -> assertEquals(brukerinformasjon.getFarsVentendeFarskapserklaeringer().size(), 0),
-          () -> assertEquals(brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0));
+      assertAll(() -> assertEquals(0, brukerinformasjon.getAvventerSigneringBruker().size()),
+          () -> assertEquals(0, brukerinformasjon.getAvventerSigneringMottpart().size()),
+          () -> assertEquals(0, brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
     }
   }
 
@@ -385,14 +386,14 @@ public class FarskapsportalServiceTest {
           .redirectUrlMor(lageUrl("redirect-mor")).build();
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
-      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer())).thenReturn(Set.of(barnFoedtInnenforGyldigIntervall.getFoedselsnummer()));
+      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
+          .thenReturn(Set.of(barnFoedtInnenforGyldigIntervall.getFoedselsnummer()));
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-
 
       when(personopplysningService.henteFoedselsdato(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn(foedselsdatoBarn);
       when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);

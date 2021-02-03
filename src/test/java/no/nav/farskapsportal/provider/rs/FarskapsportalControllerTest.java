@@ -93,7 +93,7 @@ public class FarskapsportalControllerTest {
       .foedselsnummer(FAR.getFoedselsnummer()).navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_MOR = getKjoennshistorikk(KjoennType.KVINNE);
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_FAR = getKjoennshistorikk(KjoennType.MANN);
-  private static String REDIRECT_URL_MOR = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
+  private static String REDIRECT_URL = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
 
   @LocalServerPort
   private int localServerPort;
@@ -212,14 +212,14 @@ public class FarskapsportalControllerTest {
 
   }
 
-  private void brukeStandardMocks() {
+  private void brukeStandardMocks(String fnrPaaloggetBruker) {
     var sivilstandMor = Sivilstandtype.UGIFT;
 
-    brukeStandardMocksUtenPdlApi();
-    brukeStandardMocksAngiSivilstandMor(sivilstandMor);
+    brukeStandardMocksUtenPdlApi(fnrPaaloggetBruker);
+    brukeStandardMocksPdlApiAngiSivilstandMor(sivilstandMor);
   }
 
-  private void brukeStandardMocksAngiSivilstandMor(Sivilstandtype sivilstandMor) {
+  private void brukeStandardMocksPdlApiAngiSivilstandMor(Sivilstandtype sivilstandMor) {
     pdlApiStub.runPdlApiHentPersonStub(
         List.of(new HentPersonKjoenn(KJOENNSHISTORIKK_MOR), new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonSivilstand(sivilstandMor),
             new HentPersonNavn(NAVN_MOR)), MOR.getFoedselsnummer());
@@ -230,12 +230,12 @@ public class FarskapsportalControllerTest {
 
   }
 
-  private void brukeStandardMocksUtenPdlApi() {
+  private void brukeStandardMocksUtenPdlApi(String fnrPaaloggetBruker) {
 
     stsStub.runSecurityTokenServiceStub("jalla");
 
-    when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
-    var redirectUrlMor = URI.create(REDIRECT_URL_MOR);
+    when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrPaaloggetBruker);
+    var redirectUrlMor = URI.create(REDIRECT_URL);
 
     var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
         .redirectUrlMor(redirectUrlMor).build();
@@ -245,7 +245,7 @@ public class FarskapsportalControllerTest {
   }
 
   private URI getRedirectUrlMor() {
-    return URI.create(REDIRECT_URL_MOR);
+    return URI.create(REDIRECT_URL);
   }
 
   private static class CustomHeader {
@@ -296,7 +296,7 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
           () -> assertEquals(Forelderrolle.MOR, brukerinformasjonResponse.getForelderrolle(), "Mor skal ha forelderrolle MOR"),
-          () -> assertEquals(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 1,
+          () -> assertEquals(1, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(),
               "Lista over nyfødte barn uten registrert far skal inneholde ett element"),
           () -> assertEquals(fnrSpedbarn, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().iterator().next(),
               "Spedbarnet i lista over nyfødte barn uten registrert far skal ha riktig fødselsnummer"));
@@ -331,14 +331,14 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
           () -> assertEquals(Forelderrolle.MOR, brukerinformasjonResponse.getForelderrolle(), "Mor skal ha forelderrolle MOR"),
-          () -> assertEquals(brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer().size(), 1,
+          () -> assertEquals(1, brukerinformasjonResponse.getAvventerSigneringMottpart().size(),
               "Det er en farskapserklæring som venter på fars signatur"),
-          () -> assertNull(brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer().iterator().next().getDokument().getSignertAvFar(),
+          () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMottpart().iterator().next().getDokument().getSignertAvFar(),
               "Far har ikke signert farskapserklæringen"), () -> assertEquals(FAR.getFoedselsnummer(),
-              brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer().iterator().next().getFar().getFoedselsnummer(),
+              brukerinformasjonResponse.getAvventerSigneringMottpart().iterator().next().getFar().getFoedselsnummer(),
               "Farskapserklæringen gjelder riktig far"),
-          () -> assertEquals(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0),
-          () -> assertEquals(brukerinformasjonResponse.getMorsVentendeFarskapserklaeringer().size(), 0));
+          () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()),
+          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringBruker().size()));
 
       // cleanup db
       farskapserklaeringDao.delete(lagretFarskapserklaering);
@@ -373,12 +373,12 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
           () -> assertEquals(Forelderrolle.MOR, brukerinformasjonResponse.getForelderrolle(), "Mor skal ha forelderrolle MOR"),
-          () -> assertEquals(brukerinformasjonResponse.getMorsVentendeFarskapserklaeringer().size(), 1),
-          () -> assertNull(brukerinformasjonResponse.getMorsVentendeFarskapserklaeringer().iterator().next().getDokument().getSignertAvMor()),
+          () -> assertEquals(1, brukerinformasjonResponse.getAvventerSigneringBruker().size()),
+          () -> assertNull(brukerinformasjonResponse.getAvventerSigneringBruker().iterator().next().getDokument().getSignertAvMor()),
           () -> assertEquals(FAR.getFoedselsnummer(),
-              brukerinformasjonResponse.getMorsVentendeFarskapserklaeringer().iterator().next().getFar().getFoedselsnummer()),
-          () -> assertEquals(brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer().size(), 0),
-          () -> assertEquals(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0));
+              brukerinformasjonResponse.getAvventerSigneringBruker().iterator().next().getFar().getFoedselsnummer()),
+          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMottpart().size()),
+          () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
 
       // cleanup db
       farskapserklaeringDao.delete(lagretFarskapserklaering);
@@ -395,7 +395,7 @@ public class FarskapsportalControllerTest {
       // Slette dersom allerede eksisterer i databasen
       ryddeTestdata(farskapserklaeringSomVenterPaaFar);
 
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
+      persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
@@ -413,15 +413,15 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCodeValue()),
           () -> assertEquals(Forelderrolle.FAR, brukerinformasjonResponse.getForelderrolle(), "Far skal ha forelderrolle FAR"),
-          () -> assertEquals(brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer().size(), 1,
-              "Det er en farskapserklæring som venter på fars signatur"), () -> assertEquals(FAR.getFoedselsnummer(),
-              brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer().iterator().next().getFar().getFoedselsnummer(),
+          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMottpart().size(),
+              "Det er en farskapserklæring som venter på fars signatur"),
+          () -> assertEquals(1, brukerinformasjonResponse.getAvventerSigneringBruker().size()), () -> assertEquals(FAR.getFoedselsnummer(),
+              brukerinformasjonResponse.getAvventerSigneringBruker().iterator().next().getFar().getFoedselsnummer(),
               "Farskapserklæringen gjelder riktig far"),
-          () -> assertEquals(brukerinformasjonResponse.getMorsVentendeFarskapserklaeringer().size(), 0),
-          () -> assertEquals(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0));
+          () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
 
       // cleanup db
-      farskapserklaeringDao.delete(lagretFarskapserklaering);
+      farskapserklaeringDao.deleteAll();
     }
 
     @Test
@@ -455,9 +455,9 @@ public class FarskapsportalControllerTest {
       var brukerinformasjonResponse = respons.getBody();
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjonResponse.getMorsVentendeFarskapserklaeringer().size(), 0),
-          () -> assertEquals(brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer().size(), 0),
-          () -> assertEquals(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0));
+      assertAll(() -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringBruker().size()),
+          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMottpart().size()),
+          () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
 
       // cleanup db
       farskapserklaeringDao.delete(lagretFarskapserklaering);
@@ -493,10 +493,42 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.NOT_FOUND.value(), respons.getStatusCode().value()),
           () -> assertFalse(brukerinformasjonResponse.isKanOppretteFarskapserklaering()),
-          () -> assertNull(brukerinformasjonResponse.getForelderrolle()),
-          () -> assertNull(brukerinformasjonResponse.getFarsVentendeFarskapserklaeringer()),
-          () -> assertNull(brukerinformasjonResponse.getMorsVentendeFarskapserklaeringer()),
+          () -> assertNull(brukerinformasjonResponse.getForelderrolle()), () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMottpart()),
+          () -> assertNull(brukerinformasjonResponse.getAvventerSigneringBruker()),
           () -> assertNull(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar()));
+    }
+
+    @Test
+    @DisplayName("Far skal se liste over signerte farskapserklæringer som venter på registrering hos Skatt")
+    void farSkalSeListeOverSignerteFarskapserklaeringerSomVenterPaaRegistrering() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+      brukeStandardMocks(FAR.getFoedselsnummer());
+
+      var signertFarskapserklaering = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
+      signertFarskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now());
+      signertFarskapserklaering.getDokument().setSignertAvFar(LocalDateTime.now());
+
+      persistenceService.lagreFarskapserklaering(signertFarskapserklaering);
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+
+      var brukerinformasjonResponse = respons.getBody();
+
+      // then
+      assertAll(() -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
+          () -> assertFalse(brukerinformasjonResponse.isKanOppretteFarskapserklaering()),
+          () -> assertEquals(Forelderrolle.FAR, brukerinformasjonResponse.getForelderrolle()),
+          () -> assertEquals(1, brukerinformasjonResponse.getAvventerRegistrering().size()));
+    }
+
+    @Test
+    @DisplayName("Bruker med forelderrolle MOR_ELLER_FAR skal se ventende farskapserklæringer for både mor og far")
+    void brukerMedForelderrolleMorEllerFarSkalSeVentendeFarskapserklaeringerForBaadeMorOgFar() {
+      farskapserklaeringDao.deleteAll();
+      brukeStandardMocks(FAR.getFoedselsnummer());
     }
   }
 
@@ -590,18 +622,17 @@ public class FarskapsportalControllerTest {
   class NyFarskapserklaering {
 
     @Test
-    @DisplayName("Skal opprette farskapserklaering for barn med termindato")
-    void skalOppretteFarskapserklaeringForBarnMedTermindato() {
+    @DisplayName("Mor skal kunne opprette farskapserklaering for barn med termindato")
+    void morSkalKunneOppretteFarskapserklaeringForBarnMedTermindato() {
 
       // given
       farskapserklaeringDao.deleteAll();
-
-      brukeStandardMocks();
+      brukeStandardMocks(MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
-          OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
-              .build()), OppretteFarskapserklaeringResponse.class);
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          OppretteFarskapserklaeringResponse.class);
 
       // then
       assertAll(() -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
@@ -622,7 +653,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
       var eksisterendeFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
-      brukeStandardMocks();
+      brukeStandardMocks(MOR.getFoedselsnummer());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -630,7 +661,7 @@ public class FarskapsportalControllerTest {
           OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(respons.getStatusCodeValue(), HttpStatus.BAD_REQUEST.value());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
 
       // cleanup db
       farskapserklaeringDao.delete(eksisterendeFarskapserklaering);
@@ -641,18 +672,18 @@ public class FarskapsportalControllerTest {
     void skalGiBadRequestDersomTermindatoErUtenforGyldigOmraade() {
 
       // given
-      brukeStandardMocks();
+      brukeStandardMocks(MOR.getFoedselsnummer());
 
       var barnMedTermindatoForLangtFremITid = BarnDto.builder()
           .termindato(LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 1)).build();
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
-          OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
-          OppretteFarskapserklaeringResponse.class);
+          OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
+              .build()), OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(respons.getStatusCodeValue(), HttpStatus.BAD_REQUEST.value());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
     }
 
     @Test
@@ -660,7 +691,7 @@ public class FarskapsportalControllerTest {
     void skalGiBadRequestDersomOppgittNyfoedtManglerRelasjonTilMor() {
 
       // given
-      brukeStandardMocks();
+      brukeStandardMocks(MOR.getFoedselsnummer());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -672,11 +703,11 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    @DisplayName("Kan opprette farskapserklæring selv om far er gift")
-    void kanOppretteFarskapserklaeringSelvOmFarErGift() {
+    @DisplayName("Mor kan opprette farskapserklæring selv om far er gift")
+    void morKanOppretteFarskapserklaeringSelvOmFarErGift() {
 
       // given
-      brukeStandardMocksUtenPdlApi();
+      brukeStandardMocksUtenPdlApi(MOR.getFoedselsnummer());
 
       var sivilstandMor = Sivilstandtype.UGIFT;
       pdlApiStub.runPdlApiHentPersonStub(
@@ -703,8 +734,8 @@ public class FarskapsportalControllerTest {
 
       // given
       var sivilstandMor = Sivilstandtype.GIFT;
-      brukeStandardMocksUtenPdlApi();
-      brukeStandardMocksAngiSivilstandMor(sivilstandMor);
+      brukeStandardMocksUtenPdlApi(MOR.getFoedselsnummer());
+      brukeStandardMocksPdlApiAngiSivilstandMor(sivilstandMor);
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
