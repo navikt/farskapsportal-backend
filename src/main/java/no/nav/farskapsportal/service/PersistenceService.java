@@ -118,6 +118,19 @@ public class PersistenceService {
         .collect(Collectors.toSet());
   }
 
+
+  public Set<FarskapserklaeringDto> henteMorsErklaeringer(String fnrMor) {
+    var farskapserklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
+        .collect(Collectors.toSet());
+  }
+
+  public Set<FarskapserklaeringDto> henteFarsErklaeringer(String fnrFar) {
+    var farskapserklaeringer = farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
+        .collect(Collectors.toSet());
+  }
+
   @Transactional(readOnly = true)
   public Set<FarskapserklaeringDto> henteAktiveFarskapserklaeringer(String fnrForelder, Forelderrolle forelderrolle, KjoennType gjeldendeKjoenn) {
     switch (forelderrolle) {
@@ -138,8 +151,7 @@ public class PersistenceService {
   }
 
   @Transactional
-  public Set<Farskapserklaering>  henteFarskapserklaeringerEtterRedirect(String fnrForelder, Forelderrolle forelderrolle,
-      KjoennType gjeldendeKjoenn) {
+  public Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrForelder, Forelderrolle forelderrolle, KjoennType gjeldendeKjoenn) {
     switch (forelderrolle) {
       case MOR:
         return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);

@@ -21,10 +21,12 @@ public class BrukerinformasjonResponse {
   boolean gyldigForelderrolle;
   @ApiModelProperty(value = "Personens forederrolle", example = "MOR")
   Forelderrolle forelderrolle;
-  @ApiModelProperty("Påbegynte farskapserklæringer som venter på fars signatur")
-  Set<FarskapserklaeringDto> farsVentendeFarskapserklaeringer;
-  @ApiModelProperty("Påbegynte farskapserklæringer som venter på mors signatur (signering avbrutt)")
-  Set<FarskapserklaeringDto> morsVentendeFarskapserklaeringer;
+  @ApiModelProperty("Farskapserklæringer som avventer signering av pålogget bruker")
+  Set<FarskapserklaeringDto> avventerSigneringBruker;
+  @ApiModelProperty("Farskapserklæringer som avventer signering av mottpart til pålogget bruker")
+  Set<FarskapserklaeringDto> avventerSigneringMottpart;
+  @ApiModelProperty("Farskapserklæringer som avventer registrering hos Skatt")
+  Set<FarskapserklaeringDto> avventerRegistrering;
   @ApiModelProperty(value = "Mors nyfødte barn som ikke har registrert farskap", example = "{01010112345}")
   Set<String> fnrNyligFoedteBarnUtenRegistrertFar;
 

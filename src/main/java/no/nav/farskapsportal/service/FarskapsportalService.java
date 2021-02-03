@@ -51,53 +51,72 @@ public class FarskapsportalService {
   private final PersonopplysningService personopplysningService;
   private final ModelMapper modelMapper;
 
-  public BrukerinformasjonResponse henteBrukerinformasjon(String foedselsnummer) {
+  public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
 
     // hente rolle
-    var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
-    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaFarsSignatur = new HashSet<>();
-    Set<FarskapserklaeringDto> farskapserklaeringerSomVenterPaaMorsSignatur = new HashSet<>();
+    var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetBruker);
+    Set<FarskapserklaeringDto> avventerSignereringPaaloggetBruker = new HashSet<>();
+    Set<FarskapserklaeringDto> avventerSigneringMotpart = new HashSet<>();
+    Set<FarskapserklaeringDto> avventerRegistreringSkatt = new HashSet<>();
     Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
     var kanOppretteFarskapserklaering = false;
-    Optional<Feilkode> feilkodeTilgang = Optional.empty();
+    Optional<Feilkode> feilkodeTilgang;
 
     // Avbryte videre flyt dersom bruker ikke er myndig eller har en rolle som ikke støttes av løsningen
-    feilkodeTilgang = vurdereTilgangBasertPaaAlderOgForeldrerolle(foedselsnummer, brukersForelderrolle);
+    feilkodeTilgang = vurdereTilgangBasertPaaAlderOgForeldrerolle(fnrPaaloggetBruker, brukersForelderrolle);
     if (feilkodeTilgang.isPresent()) {
       return BrukerinformasjonResponse.builder().feilkodeTilgang(feilkodeTilgang).forelderrolle(brukersForelderrolle)
           .kanOppretteFarskapserklaering(false).gyldigForelderrolle(false).build();
     }
 
-    // Håndtere roller som kan agere som mor i løsningen
     if (Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
+
       // Vurdere om sivilstand kvalifiserer til at mor kan bruke løsningen
-      feilkodeTilgang = getFeilkode(foedselsnummer);
+      feilkodeTilgang = getFeilkode(fnrPaaloggetBruker);
       kanOppretteFarskapserklaering = feilkodeTilgang.isEmpty();
 
-      // Henter påbegynte farskapserklæringer som venter på mors signatur
-      farskapserklaeringerSomVenterPaaMorsSignatur = persistenceService
-          .henteAktiveFarskapserklaeringer(foedselsnummer, Forelderrolle.MOR, KjoennType.KVINNE);
-
       // har mor noen nyfødte barn uten registrert far?
-      nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(foedselsnummer);
+      nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrPaaloggetBruker);
+
+      var alleMorsAktiveErklaeringer = persistenceService.henteMorsErklaeringer(fnrPaaloggetBruker);
+
+      // Erklæringer som mangler mors signatur
+      avventerSignereringPaaloggetBruker = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
+          .filter(fe -> fe.getDokument().getSignertAvMor() == null).collect(Collectors.toSet());
+
+      // Hente mors erklæringer som bare mangler fars signatur
+      avventerSigneringMotpart = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull).filter(fe -> fe.getDokument().getSignertAvMor() != null)
+          .filter(fe -> fe.getDokument().getSignertAvFar() == null).collect(Collectors.toSet());
+
+      // Mors erklaeringer som er signert av begge foreldrene
+      avventerRegistreringSkatt = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
+          .filter(fe -> fe.getDokument().getSignertAvMor() != null).filter(fe -> fe.getDokument().getSignertAvFar() != null)
+          .collect(Collectors.toSet());
     }
 
-    // Håndtere roller som kan agere som far i løsningen
-    if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle) || Forelderrolle.MOR
-        .equals(brukersForelderrolle)) {
+    if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
-      // Henter påbegynte farskapserklæringer som venter på fars signatur
-      farskapserklaeringerSomVenterPaaFarsSignatur = persistenceService.henteFarskapserklaeringer(foedselsnummer);
+      var farsErklaeringer = persistenceService.henteFarsErklaeringer(fnrPaaloggetBruker);
+
+      // Mangler fars signatur
+      avventerSignereringPaaloggetBruker.addAll(
+          farsErklaeringer.stream().filter(Objects::nonNull).filter(fe -> null == fe.getDokument().getSignertAvFar()).collect(Collectors.toSet()));
+
+      // Avventer registrering hos Skatt. For rolle MOR_ELLER_FAR kan lista allerede inneholde innslag for mor
+      avventerRegistreringSkatt.addAll(
+          farsErklaeringer.stream().filter(Objects::nonNull).filter(fe -> null != fe.getDokument().getSignertAvFar()).collect(Collectors.toSet()));
+
     }
 
-    return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle)
-        .farsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaFarsSignatur)
+    return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).avventerSigneringMottpart(avventerSigneringMotpart)
         .fnrNyligFoedteBarnUtenRegistrertFar(nyligFoedteBarnSomManglerFar).gyldigForelderrolle(true)
-        .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).morsVentendeFarskapserklaeringer(farskapserklaeringerSomVenterPaaMorsSignatur)
-        .feilkodeTilgang(feilkodeTilgang).build();
+        .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).avventerSigneringBruker(avventerSignereringPaaloggetBruker)
+        .avventerRegistrering(avventerRegistreringSkatt).feilkodeTilgang(feilkodeTilgang).build();
   }
 
+
   private Optional<Feilkode> vurdereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
+
     // Kun myndige personer kan bruke løsningen
     if (!erMyndig(foedselsnummer)) {
       return Optional.of(Feilkode.IKKE_MYNDIG);
@@ -132,7 +151,8 @@ public class FarskapsportalService {
     var feilkode = getFeilkode(fnrPaaloggetPerson);
 
     var kjoennPaaloggetPerson = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-    var paaloggetPersonKanOpptreSomMor = feilkode.isEmpty() && (Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson));
+    var paaloggetPersonKanOpptreSomMor =
+        feilkode.isEmpty() && (Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson));
 
     if (!paaloggetPersonKanOpptreSomMor) {
       throw new OppretteFarskapserklaeringException(feilkode.isEmpty() ? Feilkode.FEIL_ROLLE_OPPRETTE : feilkode.get());
