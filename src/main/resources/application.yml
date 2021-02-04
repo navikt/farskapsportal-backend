@@ -30,7 +30,7 @@ farskapsportal-api:
 
 ---
 spring:
-  cloud.gcp.secretmanager.project-id: ${VIRSKOMHETSSERTIFIKAT_PROSJEKT_ID}
+  cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
   config.activate.on-profile: live
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
