@@ -29,8 +29,8 @@ farskapsportal-api:
   disable-esignering: true
 
 ---
-
 spring:
+  cloud.gcp.secretmanager.project-id:
   config.activate.on-profile: live
   datasource:
     type: com.zaxxer.hikari.HikariDataSource

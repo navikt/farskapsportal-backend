@@ -42,6 +42,8 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
+    - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
+      value: virksomhetssertifikat-prod
   gcp:
     sqlInstances:
       - name: fp

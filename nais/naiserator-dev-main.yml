@@ -44,11 +44,12 @@ spec:
       value: {{ aud }}
   gcp:
     sqlInstances:
-      - name: fp-main
+      - name: {{ gcp_sqlInstances_name }}
+        tier: db-custom-1-3840
         type: POSTGRES_12
         databases:
-          - name: fpdb-main
-            envVarPrefix: DB
+          - name: {{ gcp_sqlInstances_databases_name }}
+            envVarPrefix: {{ gcp_sqlInstances_databases_envVarPrefix }}
   accesspolicy:
     inbound:
       rules:
