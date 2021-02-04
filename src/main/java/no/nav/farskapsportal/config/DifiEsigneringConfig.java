@@ -27,7 +27,6 @@ public class DifiEsigneringConfig {
   private boolean disableEsignering;
 
   @Bean
-  @Profile(PROFILE_LIVE)
   public KeyStoreConfig keyStoreConfig(@Value("${sm://test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
       @Value("{sm://virksomhetssertifikat-test-passord}") String sertifikatP12Passord) throws IOException {
     return disableEsignering ? testKeyStoreConfig()
