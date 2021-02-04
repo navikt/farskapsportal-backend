@@ -26,7 +26,7 @@ url:
 farskapsportal-api:
   servicebruker.brukernavn: srvfarskapsportal
   servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
-  disable-esignering: true
+  disable-esignering: false
 
 ---
 spring:
