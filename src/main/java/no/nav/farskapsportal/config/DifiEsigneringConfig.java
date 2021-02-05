@@ -27,7 +27,7 @@ public class DifiEsigneringConfig {
   private boolean disableEsignering;
 
   @Bean
-  public KeyStoreConfig keyStoreConfig(@Value("${sm://virksomhetssertifikat-dev/test-virksomhetssertifikat-felles_2018-2021/latest}") String sertifikatP12,
+  public KeyStoreConfig keyStoreConfig(@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
       @Value("{sm://virksomhetssertifikat-test-passord}") String sertifikatP12Passord) throws IOException {
     return disableEsignering ? testKeyStoreConfig()
         : KeyStoreConfig.fromOrganizationCertificate(IOUtils.toInputStream(sertifikatP12, Charset.defaultCharset()), sertifikatP12Passord);
