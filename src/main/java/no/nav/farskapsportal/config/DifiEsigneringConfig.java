@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class DifiEsigneringConfig {
 
-  @Autowired
-  private SecretManagerTemplate secretManagerTemplate;
+  //@Autowired
+ // private SecretManagerTemplate secretManagerTemplate;
 
   @Value("${farskapsportal-api.disable-esignering}")
   private boolean disableEsignering;
@@ -35,10 +35,12 @@ public class DifiEsigneringConfig {
   @Bean
   public KeyStoreConfig keyStoreConfig(
       @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
-      @Value("{sm://virksomhetssertifikat-test-passord}") String sertifikatP12Passord) throws IOException {
+      @Value("${sm://virksomhetssertifikat-test-passord}") String sertifikatP12Passord) throws IOException {
 
-    log.info("Oppretter secret..");
-    createSecret("test-cert", sertifikatP12, "farskapsportal-dev-169c");
+    if (!disableEsignering) {
+      log.info("Oppretter secret..");
+     //createSecret("test-cert", sertifikatP12, "farskapsportal-dev-169c");
+    }
 
     return disableEsignering ? testKeyStoreConfig()
         : KeyStoreConfig.fromOrganizationCertificate(IOUtils.toInputStream(sertifikatP12, Charset.defaultCharset()), sertifikatP12Passord);
@@ -71,6 +73,8 @@ public class DifiEsigneringConfig {
     return new DifiESignaturConsumer(clientConfiguration, modelMapper, directClient, disableEsignering);
   }
 
+
+  /*
   private void createSecret(String secretId, String secretPayload, String projectId) {
     log.info("lengde sertifikat: {}", secretPayload.length());
     if (StringUtils.isEmpty(projectId)) {
@@ -80,4 +84,5 @@ public class DifiEsigneringConfig {
     }
 
   }
+  */
 }
