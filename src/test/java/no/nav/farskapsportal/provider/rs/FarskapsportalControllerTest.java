@@ -331,11 +331,11 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
           () -> assertEquals(Forelderrolle.MOR, brukerinformasjonResponse.getForelderrolle(), "Mor skal ha forelderrolle MOR"),
-          () -> assertEquals(1, brukerinformasjonResponse.getAvventerSigneringMottpart().size(),
+          () -> assertEquals(1, brukerinformasjonResponse.getAvventerSigneringMotpart().size(),
               "Det er en farskapserklæring som venter på fars signatur"),
-          () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMottpart().iterator().next().getDokument().getSignertAvFar(),
+          () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMotpart().iterator().next().getDokument().getSignertAvFar(),
               "Far har ikke signert farskapserklæringen"), () -> assertEquals(FAR.getFoedselsnummer(),
-              brukerinformasjonResponse.getAvventerSigneringMottpart().iterator().next().getFar().getFoedselsnummer(),
+              brukerinformasjonResponse.getAvventerSigneringMotpart().iterator().next().getFar().getFoedselsnummer(),
               "Farskapserklæringen gjelder riktig far"),
           () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()),
           () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringBruker().size()));
@@ -377,7 +377,7 @@ public class FarskapsportalControllerTest {
           () -> assertNull(brukerinformasjonResponse.getAvventerSigneringBruker().iterator().next().getDokument().getSignertAvMor()),
           () -> assertEquals(FAR.getFoedselsnummer(),
               brukerinformasjonResponse.getAvventerSigneringBruker().iterator().next().getFar().getFoedselsnummer()),
-          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMottpart().size()),
+          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMotpart().size()),
           () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
 
       // cleanup db
@@ -413,7 +413,7 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCodeValue()),
           () -> assertEquals(Forelderrolle.FAR, brukerinformasjonResponse.getForelderrolle(), "Far skal ha forelderrolle FAR"),
-          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMottpart().size(),
+          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMotpart().size(),
               "Det er en farskapserklæring som venter på fars signatur"),
           () -> assertEquals(1, brukerinformasjonResponse.getAvventerSigneringBruker().size()), () -> assertEquals(FAR.getFoedselsnummer(),
               brukerinformasjonResponse.getAvventerSigneringBruker().iterator().next().getFar().getFoedselsnummer(),
@@ -456,7 +456,7 @@ public class FarskapsportalControllerTest {
 
       // then
       assertAll(() -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringBruker().size()),
-          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMottpart().size()),
+          () -> assertEquals(0, brukerinformasjonResponse.getAvventerSigneringMotpart().size()),
           () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
 
       // cleanup db
@@ -493,7 +493,7 @@ public class FarskapsportalControllerTest {
       // then
       assertAll(() -> assertEquals(HttpStatus.NOT_FOUND.value(), respons.getStatusCode().value()),
           () -> assertFalse(brukerinformasjonResponse.isKanOppretteFarskapserklaering()),
-          () -> assertNull(brukerinformasjonResponse.getForelderrolle()), () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMottpart()),
+          () -> assertNull(brukerinformasjonResponse.getForelderrolle()), () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMotpart()),
           () -> assertNull(brukerinformasjonResponse.getAvventerSigneringBruker()),
           () -> assertNull(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar()));
     }
