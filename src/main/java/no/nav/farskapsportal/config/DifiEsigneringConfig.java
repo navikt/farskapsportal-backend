@@ -35,7 +35,7 @@ public class DifiEsigneringConfig {
   @Bean
   public KeyStoreConfig keyStoreConfig(
       @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
-      @Value("${sm://virksomhetssertifikat-test-passord}") String sertifikatP12Passord) throws IOException {
+      @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord) throws IOException {
 
     if (!disableEsignering) {
       log.info("Oppretter secret..");
