@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class DifiEsigneringConfig {
 
-  //@Autowired
- // private SecretManagerTemplate secretManagerTemplate;
+  @Autowired(required = false)
+  private SecretManagerTemplate secretManagerTemplate;
 
   @Value("${farskapsportal-api.disable-esignering}")
   private boolean disableEsignering;
@@ -41,7 +41,7 @@ public class DifiEsigneringConfig {
 
     if (!disableEsignering) {
       log.info("Oppretter secret..");
-     //createSecret("test-cert", sertifikatP12, "farskapsportal-dev-169c");
+      createSecret("test-cert", sertifikatP12, "farskapsportal-dev-169c");
     }
 
     return disableEsignering ? testKeyStoreConfig()
@@ -76,7 +76,7 @@ public class DifiEsigneringConfig {
   }
 
 
-  /*
+
   private void createSecret(String secretId, String secretPayload, String projectId) {
     log.info("lengde sertifikat: {}", secretPayload.length());
     if (StringUtils.isEmpty(projectId)) {
@@ -86,5 +86,4 @@ public class DifiEsigneringConfig {
     }
 
   }
-  */
-}
+  }
