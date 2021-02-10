@@ -53,7 +53,8 @@ public class DifiEsigneringConfig {
     //sertifikatP12Passord = "safe";
 
     return disableEsignering ? testKeyStoreConfig()
-        : KeyStoreConfig.fromOrganizationCertificate(new ByteArrayInputStream(sertifikatP12), sertifikatP12Passord);
+        : KeyStoreConfig.fromJavaKeyStore(new ByteArrayInputStream(sertifikatP12), "NAV", sertifikatP12Passord, sertifikatP12Passord);
+       // : KeyStoreConfig.fromOrganizationCertificate(new ByteArrayInputStream(sertifikatP12), sertifikatP12Passord);
   }
 
   @Bean
