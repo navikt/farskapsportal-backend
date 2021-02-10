@@ -1,13 +1,15 @@
+
+FROM redboxoss/scuttle:latest AS scuttle
 FROM navikt/java:15
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
-ADD ./target/farskapsportal-api-*.jar app.jar
+COPY --from=scuttle /scuttle /bin/scuttle
+COPY ./target/farskapsportal-api-*.jar app.jar
+EXPOSE 8080
 
 # Ref https://doc.nais.io/clusters/gcp/#starting-application-when-istio-proxy-is-ready
-COPY --from=redboxoss/scuttle:latest /scuttle /bin/scuttle
 ENV ENVOY_ADMIN_API=http://127.0.0.1:15000
 ENV ISTIO_QUIT_API=http://127.0.0.1:15020
-ENTRYPOINT ["scuttle", "java", "-jar", "app.jar"]
+ENTRYPOINT ["scuttle", "/dumb-init", "--", "/entrypoint.sh"]
 
-EXPOSE 8080
