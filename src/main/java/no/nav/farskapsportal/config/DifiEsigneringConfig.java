@@ -37,20 +37,26 @@ public class DifiEsigneringConfig {
 
   @Bean
   public KeyStoreConfig keyStoreConfig(
-      @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
+      //@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
+      @Value("${sm://projects/627047445397/secrets/selfsigned-p12/versions/1}") String sertifikatP12,
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
-      @Autowired(required = false) SecretManagerTemplate secretManagerTemplate, @Autowired(required = false) AddSecretVersion addSecretVersion)
+      @Autowired(required = false) SecretManagerTemplate secretManagerTemplate, @Autowired(required = false) AddSecretVersion addSecretVersion
+  )
       throws IOException {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
-    if (!disableEsignering) {
+    if (false) {
       log.info("Oppretter secret..");
 
       var sercretId = "test-cert";
       var projectId = "farskapsportal-dev-169c";
       addSecretVersion.addSecretVersion(projectId, sercretId, sertifikatP12);
     }
+
+
+    // TODO: erstatte med @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}")
+    sertifikatP12Passord = "safe";
 
     return disableEsignering ? testKeyStoreConfig()
         : KeyStoreConfig.fromOrganizationCertificate(IOUtils.toInputStream(sertifikatP12, Charset.defaultCharset()), sertifikatP12Passord);
@@ -83,13 +89,4 @@ public class DifiEsigneringConfig {
     return new DifiESignaturConsumer(clientConfiguration, modelMapper, directClient, disableEsignering);
   }
 
-
-  private void createSecret(SecretManagerTemplate secretManagerTemplate, String secretId, String secretPayload, String projectId) {
-    log.info("lengde sertifikat: {}", secretPayload.length());
-    if (StringUtils.isEmpty(projectId)) {
-      secretManagerTemplate.createSecret(secretId, secretPayload);
-    } else {
-      secretManagerTemplate.createSecret(secretId, secretPayload.getBytes(), projectId);
-    }
-  }
 }
