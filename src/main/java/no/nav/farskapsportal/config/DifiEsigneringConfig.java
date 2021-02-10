@@ -3,6 +3,7 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 
 import com.google.cloud.spring.secretmanager.SecretManagerTemplate;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -32,7 +33,7 @@ public class DifiEsigneringConfig {
   @Bean
   public KeyStoreConfig keyStoreConfig(
       //@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
-      @Value("${sm://projects/627047445397/secrets/selfsigned-p12/versions/1}") String sertifikatP12,
+      @Value("${sm://projects/627047445397/secrets/selfsigned-p12/versions/1}") byte[] sertifikatP12,
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
       @Autowired(required = false) SecretManagerTemplate secretManagerTemplate, @Autowired(required = false) AddSecretVersion addSecretVersion)
       throws IOException {
@@ -51,7 +52,7 @@ public class DifiEsigneringConfig {
     sertifikatP12Passord = "safe";
 
     return disableEsignering ? testKeyStoreConfig()
-        : KeyStoreConfig.fromOrganizationCertificate(IOUtils.toInputStream(sertifikatP12, Charset.defaultCharset()), sertifikatP12Passord);
+        : KeyStoreConfig.fromOrganizationCertificate(new ByteArrayInputStream(sertifikatP12), sertifikatP12Passord);
   }
 
   @Bean
