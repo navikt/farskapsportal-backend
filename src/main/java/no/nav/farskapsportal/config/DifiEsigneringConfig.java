@@ -2,15 +2,9 @@ package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 
-import com.google.cloud.secretmanager.v1.Secret;
-import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
-import com.google.cloud.secretmanager.v1.SecretName;
 import com.google.cloud.spring.secretmanager.SecretManagerTemplate;
-import com.google.protobuf.FieldMask;
-import com.google.protobuf.util.FieldMaskUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
@@ -19,8 +13,6 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.gcp.secretmanager.AddSecretVersion;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,10 +30,9 @@ public class DifiEsigneringConfig {
   @Bean
   public KeyStoreConfig keyStoreConfig(
       //@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
-      @Value("${sm://projects/627047445397/secrets/selfsigned-p12/versions/1}") String sertifikatP12,
+      @Value("${sm://projects/627047445397/secrets/selfsigned-p12/versions/1}") InputStream sertifikatP12,
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
-      @Autowired(required = false) SecretManagerTemplate secretManagerTemplate, @Autowired(required = false) AddSecretVersion addSecretVersion
-  )
+      @Autowired(required = false) SecretManagerTemplate secretManagerTemplate, @Autowired(required = false) AddSecretVersion addSecretVersion)
       throws IOException {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
@@ -51,15 +42,13 @@ public class DifiEsigneringConfig {
 
       var sercretId = "test-cert";
       var projectId = "farskapsportal-dev-169c";
-      addSecretVersion.addSecretVersion(projectId, sercretId, sertifikatP12);
+      // addSecretVersion.addSecretVersion(projectId, sercretId, sertifikatP12);
     }
-
 
     // TODO: erstatte med @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}")
     sertifikatP12Passord = "safe";
 
-    return disableEsignering ? testKeyStoreConfig()
-        : KeyStoreConfig.fromOrganizationCertificate(IOUtils.toInputStream(sertifikatP12, Charset.defaultCharset()), sertifikatP12Passord);
+    return disableEsignering ? testKeyStoreConfig() : KeyStoreConfig.fromOrganizationCertificate(sertifikatP12, sertifikatP12Passord);
   }
 
   @Bean
