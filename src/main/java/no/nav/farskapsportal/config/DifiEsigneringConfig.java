@@ -49,7 +49,7 @@ public class DifiEsigneringConfig {
 
       var sercretId = "test-cert";
       var projectId = "farskapsportal-dev-169c";
-      addSecretVersion.addSecretVersion(sercretId, projectId, sertifikatP12);
+      addSecretVersion.addSecretVersion(projectId, sercretId, sertifikatP12);
     }
 
     return disableEsignering ? testKeyStoreConfig()
