@@ -50,7 +50,7 @@ public class DifiEsigneringConfig {
     }
 
     // TODO: erstatte med @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}")
-    //sertifikatP12Passord = "safe";
+    sertifikatP12Passord = "safeone";
 
     return disableEsignering ? testKeyStoreConfig()
         : KeyStoreConfig.fromJavaKeyStore(new ByteArrayInputStream(sertifikat), "nav-gcp", sertifikatP12Passord, sertifikatP12Passord);
