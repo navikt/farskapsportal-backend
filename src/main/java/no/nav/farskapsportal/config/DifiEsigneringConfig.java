@@ -33,15 +33,15 @@ public class DifiEsigneringConfig {
   @Bean
   public KeyStoreConfig keyStoreConfig(
       //@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
-      @Value("${sm://projects/719909854975/secrets/test-virksomhetssertifikat-felles-keystore-jceks_2018-2021}") byte[] sertifikat,
-      //@Value("${sm://projects/627047445397/secrets/selfsigned-p12/versions/1}") byte[] sertifikatP12,
+      //@Value("${sm://projects/719909854975/secrets/test-virksomhetssertifikat-felles-keystore-jceks_2018-2021}") byte[] sertifikat,
+      @Value("${sm://projects/627047445397/secrets/selfsigned-jceks/versions/1}") byte[] sertifikat,
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
       @Autowired(required = false) SecretManagerTemplate secretManagerTemplate, @Autowired(required = false) AddSecretVersion addSecretVersion)
       throws IOException {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
-    if (true) {
+    if (false) {
       log.info("Oppretter secret..");
 
       var sercretId = "test-cert-jceks";
@@ -53,7 +53,7 @@ public class DifiEsigneringConfig {
     //sertifikatP12Passord = "safe";
 
     return disableEsignering ? testKeyStoreConfig()
-        : KeyStoreConfig.fromJavaKeyStore(new ByteArrayInputStream(sertifikat), "NAV", sertifikatP12Passord, sertifikatP12Passord);
+        : KeyStoreConfig.fromJavaKeyStore(new ByteArrayInputStream(sertifikat), "nav-gcp", sertifikatP12Passord, sertifikatP12Passord);
        // : KeyStoreConfig.fromOrganizationCertificate(new ByteArrayInputStream(sertifikatP12), sertifikatP12Passord);
   }
 
