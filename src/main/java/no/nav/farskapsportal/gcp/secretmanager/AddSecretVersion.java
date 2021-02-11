@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class AddSecretVersion {
 
   // Add a new version to the existing secret.
-  public void addSecretVersion(String projectId, String secretId, String secretData) throws IOException {
+  public void addSecretVersion(String projectId, String secretId, byte[] secretData) throws IOException {
     // Initialize client that will be used to send requests. This client only needs to be created
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
@@ -22,7 +22,7 @@ public class AddSecretVersion {
       // Create the secret payload.
       SecretPayload payload =
           SecretPayload.newBuilder()
-              .setData(ByteString.copyFromUtf8(secretData))
+              .setData(ByteString.copyFrom(secretData))
               .build();
 
       // Add the secret version.

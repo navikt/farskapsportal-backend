@@ -41,12 +41,12 @@ public class DifiEsigneringConfig {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
-    if (false) {
+    if (true) {
       log.info("Oppretter secret..");
 
-      var sercretId = "test-cert";
+      var sercretId = "test-cert-jceks";
       var projectId = "farskapsportal-dev-169c";
-      // addSecretVersion.addSecretVersion(projectId, sercretId, sertifikatP12);
+       addSecretVersion.addSecretVersion(projectId, sercretId, sertifikat);
     }
 
     // TODO: erstatte med @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}")
