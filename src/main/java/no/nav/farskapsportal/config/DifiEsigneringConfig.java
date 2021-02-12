@@ -51,7 +51,7 @@ public class DifiEsigneringConfig {
 
     var pl = accessSecretVersion.accessSecretVersion();
     addSecretVersion.addSecretVersion("farskapsportal-dev-169c", "selfsigned-jceks-backup", pl.getData().toByteArray());
-    var inputStream = new ByteArrayInputStream(Base64.decodeBase64(pl.getData().toByteArray()));
+    var inputStream = new ByteArrayInputStream(pl.getData().toByteArray());
 
     return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav-gcp", sertifikatP12Passord, sertifikatP12Passord);
 
