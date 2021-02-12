@@ -38,23 +38,18 @@ public class DifiEsigneringConfig {
   @Bean
   @Profile(PROFILE_LIVE)
   public KeyStoreConfig keyStoreConfig(
-      //@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
-      //@Value("${sm://projects/719909854975/secrets/test-virksomhetssertifikat-felles-keystore-jceks_2018-2021}") byte[] sertifikat,
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
-      @Autowired(required = false) AccessSecretVersion accessSecretVersion,
-      @Autowired(required = false)AddSecretVersion addSecretVersion) throws IOException {
+      @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
-    // TODO: erstatte med @Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}")
-    sertifikatP12Passord = "safeone";
-
-    var pl = accessSecretVersion.accessSecretVersion();
-    addSecretVersion.addSecretVersion("farskapsportal-dev-169c", "selfsigned-jceks-backup", pl.getData().toByteArray());
-    var inputStream = new ByteArrayInputStream(pl.getData().toByteArray());
+    var projectId = "19909854975";
+    var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2018-2021";
+    var secretVersion = "1";
+    var secretPayload = accessSecretVersion.accessSecretVersion(projectId, secretName, secretVersion);
+    var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
     return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav-gcp", sertifikatP12Passord, sertifikatP12Passord);
-
   }
 
   @Bean

@@ -14,14 +14,6 @@ import org.springframework.stereotype.Component;
 @Profile(PROFILE_LIVE)
 public class AccessSecretVersion {
 
-  public SecretPayload accessSecretVersion() throws IOException {
-    // TODO(developer): Replace these variables before running the sample.
-    var secretId = "selfsigned-jceks";
-    var projectId = "farskapsportal-dev-169c";
-    String versionId = "4";
-    return accessSecretVersion(projectId, secretId, versionId);
-  }
-
   // Access the payload for the given secret version if one exists. The version
   // can be a version number as a string (e.g. "5") or an alias (e.g. "latest").
   public SecretPayload accessSecretVersion(String projectId, String secretId, String versionId) throws IOException {
