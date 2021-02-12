@@ -18,6 +18,7 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.gcp.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.gcp.secretmanager.AddSecretVersion;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
@@ -40,7 +41,8 @@ public class DifiEsigneringConfig {
       //@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
       //@Value("${sm://projects/719909854975/secrets/test-virksomhetssertifikat-felles-keystore-jceks_2018-2021}") byte[] sertifikat,
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
-      @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
+      @Autowired(required = false) AccessSecretVersion accessSecretVersion,
+      @Autowired(required = false)AddSecretVersion addSecretVersion) throws IOException {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
@@ -48,6 +50,7 @@ public class DifiEsigneringConfig {
     sertifikatP12Passord = "safeone";
 
     var pl = accessSecretVersion.accessSecretVersion();
+    addSecretVersion.addSecretVersion("farskapsportal-dev-169c", "selfsigned-jceks-backup", pl.getData().toByteArray());
     var inputStream = new ByteArrayInputStream(Base64.decodeBase64(pl.getData().toByteArray()));
 
     return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav-gcp", sertifikatP12Passord, sertifikatP12Passord);
