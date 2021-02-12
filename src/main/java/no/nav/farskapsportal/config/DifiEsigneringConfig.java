@@ -36,7 +36,7 @@ public class DifiEsigneringConfig {
   public KeyStoreConfig keyStoreConfig(
       //@Value("${sm://projects/virksomhetssertifikat-dev/secrets/test-virksomhetssertifikat-felles_2018-2021}") String sertifikatP12,
       //@Value("${sm://projects/719909854975/secrets/test-virksomhetssertifikat-felles-keystore-jceks_2018-2021}") byte[] sertifikat,
-      @Value("${sm://projects/627047445397/secrets/selfsigned-jceks/versions/2}") String sertifikat,
+      @Value("${sm://projects/627047445397/secrets/selfsigned-jceks/versions/3}") String sertifikat,
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord)  {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
