@@ -48,7 +48,7 @@ public class DifiEsigneringConfig {
     sertifikatP12Passord = "safeone";
 
     var pl = accessSecretVersion.accessSecretVersion();
-    var inputStream = new ByteArrayInputStream(Base64.decodeBase64(pl.toByteArray()));
+    var inputStream = new ByteArrayInputStream(Base64.decodeBase64(pl.getData().toByteArray()));
 
     return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav-gcp", sertifikatP12Passord, sertifikatP12Passord);
 
