@@ -18,7 +18,7 @@ public class AccessSecretVersion {
     // TODO(developer): Replace these variables before running the sample.
     var secretId = "selfsigned-jceks";
     var projectId = "farskapsportal-dev-169c";
-    String versionId = "3";
+    String versionId = "4";
     return accessSecretVersion(projectId, secretId, versionId);
   }
 
