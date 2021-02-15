@@ -42,7 +42,7 @@ public class DifiEsigneringConfig {
     var secretPayload = accessSecretVersion.accessSecretVersion(projectId, secretName, secretVersion);
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
-    return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav-gcp", sertifikatP12Passord, sertifikatP12Passord);
+    return KeyStoreConfig.fromJavaKeyStore(inputStream, "NAV integrasjonstjenester TEST", sertifikatP12Passord, sertifikatP12Passord);
   }
 
   @Bean
