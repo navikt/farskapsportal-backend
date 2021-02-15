@@ -71,6 +71,7 @@ public class DifiESignaturConsumer {
     try {
       directJobResponse = disableEsignering ? mockDirectJobResponse(directJob) : client.create(directJob);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new OppretteSigneringsjobbException(Feilkode.OPPRETTE_SIGNERINGSJOBB);
     }
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
