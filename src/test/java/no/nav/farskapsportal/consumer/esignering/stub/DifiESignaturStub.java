@@ -5,6 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
@@ -81,4 +82,6 @@ public class DifiESignaturStub {
                             "   <pades-url>" + padesUrl + "</pades-url>",
                             " </direct-signature-job-status-response>"))));
   }
-}
+
+
+ }

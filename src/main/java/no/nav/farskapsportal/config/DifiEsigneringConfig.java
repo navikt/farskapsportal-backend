@@ -5,11 +5,11 @@ import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LOCAL;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.ServiceUri;
+import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
@@ -47,27 +47,9 @@ public class DifiEsigneringConfig {
 
   @Bean
   @Profile({PROFILE_LIVE, PROFILE_LOCAL})
-  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
-    return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(ServiceUri.DIFI_TEST).build();
-  }
-
-  @Bean
-  @Profile(PROFILE_LOCAL)
-  public KeyStoreConfig testKeyStoreConfig() throws IOException {
-    var filnavn = "trust.jceks";
-    log.info("Henter innhold fra fysisk fil");
-    return readKeyStoreFromBinaryFile(filnavn);
-  }
-
-  private KeyStoreConfig readKeyStoreFromBinaryFile(String filnavn) throws IOException {
-    var classLoader = getClass().getClassLoader();
-    try (InputStream inputStream = classLoader.getResourceAsStream(filnavn)) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Fant ikke " + filnavn);
-      } else {
-        return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav-gcp-jceks", "safeone", "safeone");
-      }
-    }
+  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(ServiceUri.DIFI_TEST)
+        .globalSender(new Sender(farskapsportalEgenskaper.getOrgnummerNav())).build();
   }
 
   @Bean
@@ -79,5 +61,4 @@ public class DifiEsigneringConfig {
   public DifiESignaturConsumer difiESignaturConsumer(ClientConfiguration clientConfiguration, ModelMapper modelMapper, DirectClient directClient) {
     return new DifiESignaturConsumer(clientConfiguration, modelMapper, directClient, disableEsignering);
   }
-
 }
