@@ -40,6 +40,8 @@ public class DifiEsigneringConfig {
     var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2018-2021";
     var secretVersion = "1";
     var secretPayload = accessSecretVersion.accessSecretVersion(projectId, secretName, secretVersion);
+
+    log.info("lengde sertifikat: {}", secretPayload.getData().size());
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
     return KeyStoreConfig.fromJavaKeyStore(inputStream, "NAV integrasjonstjenester TEST", sertifikatP12Passord, sertifikatP12Passord);
