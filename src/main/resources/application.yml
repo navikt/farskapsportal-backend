@@ -6,8 +6,7 @@ farskapsportal.egenskaper:
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21
   maks-antall-maaneder-etter-foedsel: 3
-
-
+  nav.orgnummer: 123456789
 
 management:
   endpoints.web:
