@@ -129,6 +129,8 @@ public class RestResponseExceptionResolver {
       HttpHeaders headers = new HttpHeaders();
       headers.add(HttpHeaders.WARNING, feilmelding);
 
+      e.printStackTrace();
+
       var respons = OppretteFarskapserklaeringResponse.builder().feilkode(Optional.of(e.getFeilkode())).build();
 
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseEntity<>(respons, headers, HttpStatus.INTERNAL_SERVER_ERROR));

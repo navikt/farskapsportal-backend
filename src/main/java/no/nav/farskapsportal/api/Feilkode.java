@@ -10,7 +10,8 @@ public enum Feilkode {
       "Medmor eller person med ukjent roll kan ikke benytte løsningen"), MOR_SIVILSTAND_GIFT(
       "Mor kan ikke opprette farskapserklæring dersom hun er gift"), MOR_SIVILSTAND_REGISTRERT_PARTNER(
       "Mor kan ikke opprette farskapserklæring dersom hun er registrert partner"), MOR_SIVILSTAND_UOPPGITT(
-      "Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"), OPPRETTE_SIGNERINGSJOBB("Feil oppstod ved opprettelse av signeringsjobb mor Posten");
+      "Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"), OPPRETTE_SIGNERINGSJOBB(
+      "Feil oppstod ved opprettelse av signeringsjobb mot Posten");
 
   private final String beskrivelse;
 
