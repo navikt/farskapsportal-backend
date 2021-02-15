@@ -25,11 +25,6 @@ public class AccessSecretVersion {
 
       // Access the secret version.
       AccessSecretVersionResponse response = client.accessSecretVersion(secretVersionName);
-
-      // Print the secret payload.
-      //
-      // WARNING: Do not print the secret in a production environment - this
-      // snippet is showing how to access the secret material.
       return response.getPayload();
     }
   }
