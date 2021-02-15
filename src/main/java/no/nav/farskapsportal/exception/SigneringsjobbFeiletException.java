@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.exception;
 
+
 public class SigneringsjobbFeiletException extends UnrecoverableException {
   private final String message;
 

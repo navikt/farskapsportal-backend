@@ -118,4 +118,20 @@ public class RestResponseExceptionResolver {
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(respons, headers, HttpStatus.BAD_REQUEST));
   }
+
+  @ResponseBody
+  @ExceptionHandler({OppretteSigneringsjobbException.class})
+    protected ResponseEntity<?> handleOppretteFarskapExceptions(OppretteSigneringsjobbException e) {
+      exceptionLogger.logException(e, "RestResponseExceptionResolver");
+
+      var feilmelding = String.format("Restkall feilet: %s", e.getFeilkode().getBeskrivelse());
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(HttpHeaders.WARNING, feilmelding);
+
+      var respons = OppretteFarskapserklaeringResponse.builder().feilkode(Optional.of(e.getFeilkode())).build();
+
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseEntity<>(respons, headers, HttpStatus.INTERNAL_SERVER_ERROR));
+  }
+
 }

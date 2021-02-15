@@ -73,7 +73,10 @@ public class DifiESignaturConsumer {
     } catch (Exception e) {
       throw new OppretteSigneringsjobbException(Feilkode.OPPRETTE_SIGNERINGSJOBB);
     }
+    log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
     dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl());
+
+    log.info("Antall signerere i respons: {}", directJob.getSigners().size());
 
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
       Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra PDL!");
