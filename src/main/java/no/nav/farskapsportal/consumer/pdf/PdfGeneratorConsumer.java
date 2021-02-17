@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.consumer.pdf;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.dto.DokumentDto;
@@ -65,12 +66,13 @@ public class PdfGeneratorConsumer {
       innhold.endText();
       innhold.close();
       pdf.save(dokumentnavn);
-
-      PDStream pdStream = new PDStream(pdf);
+      var baos = new ByteArrayOutputStream();
+      pdf.save(baos);
+      pdf.close();
 
       return DokumentDto.builder()
           .dokumentnavn(dokumentnavn)
-          .innhold(pdStream.toByteArray())
+          .innhold(baos.toByteArray())
           .build();
 
     } catch (IOException ioe) {

@@ -255,11 +255,11 @@ public class FarskapsportalService {
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
     var aktuellFarskapserklaering = farskapserklaeringer.stream().filter(Objects::nonNull)
-        .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke())).collect(Collectors.toSet()).stream()
+        .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet()).stream()
         .findAny().orElseThrow(() -> new FarskapserklaeringIkkeFunnetException("Fant ikke farskapserklæring"));
 
     // oppdatere padeslenke i aktuell farskapserklæring
-    aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke());
+    aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
 
     // Oppdatere foreldrenes signeringsstatus
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {

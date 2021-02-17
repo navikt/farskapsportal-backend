@@ -54,15 +54,17 @@ no.nav:
 
 ---
 spring:
-  config.activate.on-profile: test
+  config.activate.on-profile: test, local
   flyway.enabled: false
 
 # Lar wiremock håndtere esignering
 farskapsportal-api.disable-esignering: false
 
+url.esignering: ${WIREMOCK_URL}
+
 ---
 spring:
-  config.activate.on-profile: test, local
+  config.activate.on-profile: test, local, integration-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -77,7 +79,6 @@ APIKEY_STS_FP: keyForZoneCrossing
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  esignering: ${WIREMOCK_URL}
 
 no.nav.security.jwt:
   issuer.selvbetjening:
@@ -90,7 +91,7 @@ farskapsportal-api.servicebruker.passord: se-vault
 
 ---
 
-spring.config.activate.on-profile: local
+spring.config.activate.on-profile: local, integration-test
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
@@ -149,7 +150,7 @@ farskapsportal-api.disable-esignering: false
 ---
 
 spring:
-  config.activate.on-profile: integration-test
+  config.activate.on-profile: integration-test2
 
 no.nav:
   security.jwt.issuer.selvbetjening:

@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.config;
 
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LOCAL;
 
@@ -44,11 +45,11 @@ public class DifiEsigneringConfig {
     log.info("lengde sertifikat: {}", secretPayload.getData().size());
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
-    return KeyStoreConfig.fromJavaKeyStore(inputStream, "NAV integrasjonstjenester TEST", sertifikatP12Passord, sertifikatP12Passord);
+    return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", sertifikatP12Passord, sertifikatP12Passord);
   }
 
   @Bean
-  @Profile({PROFILE_LIVE, PROFILE_LOCAL})
+  @Profile({PROFILE_LIVE, PROFILE_LOCAL, PROFILE_INTEGRATION_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, FarskapsportalEgenskaper farskapsportalEgenskaper) {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(ServiceUri.DIFI_TEST)
         .globalSender(new Sender(farskapsportalEgenskaper.getOrgnummerNav())).build();

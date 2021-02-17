@@ -616,7 +616,7 @@ public class FarskapsportalServiceTest {
 
       // then
       assertAll(() -> assertNotNull(oppdatertFarskapserklaering.getDokument().getSignertAvFar()),
-          () -> assertEquals(padesFar, oppdatertFarskapserklaering.getDokument().getPadesUrl()),
+          () -> assertEquals(padesFar.toString(), oppdatertFarskapserklaering.getDokument().getPadesUrl()),
           () -> assertEquals(farskapserklaering.getDokument().getInnhold(), respons));
     }
   }
