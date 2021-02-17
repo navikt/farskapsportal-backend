@@ -1,0 +1,16 @@
+{
+"request": {
+  "method": "POST",
+  "url": "/pdl-api/graphql",
+  "bodyPatterns" : [ {
+    "matches" : ".*11029400522.*"
+  }]
+},
+"response": {
+  "status": 200,
+  "body": "{\"data\":{\"hentPerson\":{\"kjoenn\":[{\"kjoenn\":\"MANN\", \"folkeregistermetadata\": { \"gyldighetstidspunkt\": \"2020-11-30T14:40:36\" },\"metadata\":{\"opplysningsId\":\"489cbb5e-76f9-401c-b9e1-a2a1df7a02c6\",\"master\":\"Freg\"}}], \"sivilstand\":[{\"type\":\"UGIFT\",\"gyldigFraOgMed\": \"2014-12-17\",\"folkeregistermetadata\": { \"gyldighetstidspunkt\": \"2020-11-30T14:40:36\" }, \"metadata\":{\"opplysningsId\":\"489cbb5e-76f9-401c-b9e1-a2a1df7a02c6\",\"master\":\"Freg\"}}], \"foedsel\":[{\"foedselsdato\":\"1993-01-12\",\"folkeregistermetadata\": { \"gyldighetstidspunkt\": \"2020-11-30T14:40:36\" }, \"metadata\":{\"opplysningsId\":\"489cbb5e-76f9-401c-b9e1-a2a1df7a02c6\",\"master\":\"Freg\"}}], \"navn\":[{\"fornavn\":\"TREIG\",\"mellomnavn\":null,\"etternavn\":\"TRANFLASKE\",\"gyldigFraOgMed\":\"2020-09-18\",\"metadata\":{\"opplysningsId\":\"714a2173-18a6-467f-bf61-8d4b87219c53\",\"master\":\"Freg\"}}]}}}",
+  "headers": {
+  "Content-Type": "application/json"
+}
+}
+}

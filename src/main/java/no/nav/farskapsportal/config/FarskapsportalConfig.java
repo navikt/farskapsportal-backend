@@ -1,12 +1,16 @@
 package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
@@ -27,12 +31,10 @@ import no.nav.farskapsportal.service.PersonopplysningService;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.flywaydb.core.Flyway;
-import org.hibernate.cfg.Environment;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.flyway.FlywayConfigurationCustomizer;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -126,6 +128,20 @@ public class FarskapsportalConfig {
     return new ModelMapper();
   }
 
+  @Bean
+  @Profile(PROFILE_INTEGRATION_TEST)
+  public KeyStoreConfig keyStoreConfigLive(@Value("${VIRKSOMHETSSERTIFIKAT_PASSORD}") String passord) throws IOException {
+    var classLoader = getClass().getClassLoader();
+    var filnavn = "test_VS_decrypt_2018-2021.jceks";
+    try (InputStream inputStream = classLoader.getResourceAsStream(filnavn)) {
+      if (inputStream == null) {
+        throw new IllegalArgumentException("Fant ikke " + filnavn);
+      } else {
+        return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", passord, passord);
+      }
+    }
+  }
+
   @FunctionalInterface
   public interface OidcTokenManager {
 
@@ -139,7 +155,7 @@ public class FarskapsportalConfig {
   }
 
   @Configuration
-  @Profile(PROFILE_LIVE)
+  @Profile({PROFILE_LIVE})
   public class FlywayConfiguration {
 
     @Autowired

@@ -54,16 +54,6 @@ no.nav:
 
 ---
 spring:
-  config.activate.on-profile: test, local
-  flyway.enabled: false
-
-# Lar wiremock håndtere esignering
-farskapsportal-api.disable-esignering: false
-
-url.esignering: ${WIREMOCK_URL}
-
----
-spring:
   config.activate.on-profile: test, local, integration-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
@@ -80,14 +70,25 @@ url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
 
+farskapsportal-api.servicebruker.brukernavn: se-vault
+farskapsportal-api.servicebruker.passord: se-vault
+
+---
+spring:
+  config.activate.on-profile: local, test, local-postgres, integration-test
+  flyway.enabled: false
+
+
 no.nav.security.jwt:
   issuer.selvbetjening:
     discoveryurl: http://metadata
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
 
-farskapsportal-api.servicebruker.brukernavn: se-vault
-farskapsportal-api.servicebruker.passord: se-vault
+# Lar wiremock håndtere esignering
+farskapsportal-api.disable-esignering: false
+
+url.esignering: ${WIREMOCK_URL}
 
 ---
 
@@ -129,13 +130,6 @@ APIKEY_STS_FP: keyForZoneCrossing
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  esignering: ${WIREMOCK_URL}
-
-no.nav.security.jwt:
-  issuer.selvbetjening:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
 
 farskapsportal-api:
   servicebruker.brukernavn: se-vault
@@ -144,8 +138,6 @@ farskapsportal-api:
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
-
-farskapsportal-api.disable-esignering: false
 
 ---
 

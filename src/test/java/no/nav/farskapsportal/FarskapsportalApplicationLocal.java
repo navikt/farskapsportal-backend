@@ -4,6 +4,7 @@ import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATIO
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import com.google.common.net.HttpHeaders;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -80,16 +81,22 @@ public class FarskapsportalApplicationLocal {
 
   @Bean
   @Profile(PROFILE_INTEGRATION_TEST)
-  public KeyStoreConfig keyStoreConfigLive() throws IOException {
+  public KeyStoreConfig keyStoreConfigLive(@Value("${VIRKSOMHETSSERTIFIKAT_PASSORD}") String passord) throws IOException {
+
+    byte[] bytes;
+
     var classLoader = getClass().getClassLoader();
     var filnavn = "test_VS_decrypt_2018-2021.jceks";
     try (InputStream inputStream = classLoader.getResourceAsStream(filnavn)) {
       if (inputStream == null) {
         throw new IllegalArgumentException("Fant ikke " + filnavn);
       } else {
-        return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", "sjekkGcp", "sjekkGcp");
+        bytes = inputStream.readAllBytes();
       }
     }
+    return KeyStoreConfig
+        .fromJavaKeyStore(new ByteArrayInputStream(bytes), "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", passord,
+            passord);
   }
 
   @Bean
