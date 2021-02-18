@@ -1,8 +1,10 @@
 package no.nav.farskapsportal;
 
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import com.google.common.net.HttpHeaders;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -31,12 +33,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
-@ComponentScan(
-    excludeFilters = {
-      @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = FarskapsportalApplication.class)
-    })
-@EnableJwtTokenValidation(
-    ignore = {"springfox.documentation.swagger.web.ApiResourceController", "org.springframework"})
+@ComponentScan(excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = FarskapsportalApplication.class)})
+@EnableJwtTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController", "org.springframework"})
 @Import(TokenGeneratorConfiguration.class)
 public class FarskapsportalApplicationLocal {
 
@@ -44,9 +42,6 @@ public class FarskapsportalApplicationLocal {
   public static final String PROFILE_LOCAL = "local";
   public static final String PROFILE_TEST = "test";
   private static final String NAV_ORGNR = "123456789";
-
-  @Value("${url.esignering}")
-  private String esigneringUrl;
 
   public static void main(String... args) {
 
@@ -65,15 +60,14 @@ public class FarskapsportalApplicationLocal {
   @Bean
   HttpHeaderTestRestTemplate httpHeaderTestRestTemplate() {
     TestRestTemplate testRestTemplate = new TestRestTemplate(new RestTemplateBuilder());
-    HttpHeaderTestRestTemplate httpHeaderTestRestTemplate =
-        new HttpHeaderTestRestTemplate(testRestTemplate);
-    httpHeaderTestRestTemplate.add(
-        HttpHeaders.AUTHORIZATION, FarskapsportalApplicationLocal::generateTestToken);
+    HttpHeaderTestRestTemplate httpHeaderTestRestTemplate = new HttpHeaderTestRestTemplate(testRestTemplate);
+    httpHeaderTestRestTemplate.add(HttpHeaders.AUTHORIZATION, FarskapsportalApplicationLocal::generateTestToken);
 
     return httpHeaderTestRestTemplate;
   }
 
   @Bean
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES})
   public KeyStoreConfig keyStoreConfig() throws IOException {
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
@@ -86,13 +80,31 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig)
+  @Profile(PROFILE_INTEGRATION_TEST)
+  public KeyStoreConfig keyStoreConfigLive(@Value("${VIRKSOMHETSSERTIFIKAT_PASSORD}") String passord) throws IOException {
+
+    byte[] bytes;
+
+    var classLoader = getClass().getClassLoader();
+    var filnavn = "test_VS_decrypt_2018-2021.jceks";
+    try (InputStream inputStream = classLoader.getResourceAsStream(filnavn)) {
+      if (inputStream == null) {
+        throw new IllegalArgumentException("Fant ikke " + filnavn);
+      } else {
+        bytes = inputStream.readAllBytes();
+      }
+    }
+    return KeyStoreConfig
+        .fromJavaKeyStore(new ByteArrayInputStream(bytes), "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", passord,
+            passord);
+  }
+
+  @Bean
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES})
+  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
-    return ClientConfiguration.builder(keyStoreConfig)
-        .trustStore(Certificates.TEST)
-        .serviceUri(new URI(esigneringUrl + "/esignering"))
-        .globalSender(new Sender(NAV_ORGNR))
-        .build();
+    return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))
+        .globalSender(new Sender(NAV_ORGNR)).build();
   }
 
   @Configuration
@@ -101,12 +113,7 @@ public class FarskapsportalApplicationLocal {
 
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
-      Flyway.configure()
-          .ignoreMissingMigrations(true)
-          .baselineOnMigrate(true)
-          .dataSource(dataSource)
-          .load()
-          .migrate();
+      Flyway.configure().ignoreMissingMigrations(true).baselineOnMigrate(true).dataSource(dataSource).load().migrate();
     }
   }
 }

@@ -6,8 +6,7 @@ farskapsportal.egenskaper:
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21
   maks-antall-maaneder-etter-foedsel: 3
-
-
+  nav.orgnummer: 889640782
 
 management:
   endpoints.web:
@@ -26,11 +25,11 @@ url:
 farskapsportal-api:
   servicebruker.brukernavn: srvfarskapsportal
   servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
-  disable-esignering: true
+  disable-esignering: false
 
 ---
-
 spring:
+  cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
   config.activate.on-profile: live
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -55,15 +54,7 @@ no.nav:
 
 ---
 spring:
-  config.activate.on-profile: test
-  flyway.enabled: false
-
-# Lar wiremock håndtere esignering
-farskapsportal-api.disable-esignering: false
-
----
-spring:
-  config.activate.on-profile: test, local
+  config.activate.on-profile: test, local, integration-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -78,7 +69,15 @@ APIKEY_STS_FP: keyForZoneCrossing
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  esignering: ${WIREMOCK_URL}
+
+farskapsportal-api.servicebruker.brukernavn: se-vault
+farskapsportal-api.servicebruker.passord: se-vault
+
+---
+spring:
+  config.activate.on-profile: local, test, local-postgres, integration-test
+  flyway.enabled: false
+
 
 no.nav.security.jwt:
   issuer.selvbetjening:
@@ -86,12 +85,14 @@ no.nav.security.jwt:
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
 
-farskapsportal-api.servicebruker.brukernavn: se-vault
-farskapsportal-api.servicebruker.passord: se-vault
+# Lar wiremock håndtere esignering
+farskapsportal-api.disable-esignering: false
+
+url.esignering: ${WIREMOCK_URL}
 
 ---
 
-spring.config.activate.on-profile: local
+spring.config.activate.on-profile: local, integration-test
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
@@ -129,13 +130,6 @@ APIKEY_STS_FP: keyForZoneCrossing
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  esignering: ${WIREMOCK_URL}
-
-no.nav.security.jwt:
-  issuer.selvbetjening:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
 
 farskapsportal-api:
   servicebruker.brukernavn: se-vault
@@ -145,11 +139,10 @@ wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
 
-farskapsportal-api.disable-esignering: false
-
 ---
 
-spring.config.activate.on-profile: integration-test
+spring:
+  config.activate.on-profile: integration-test2
 
 no.nav:
   security.jwt.issuer.selvbetjening:

@@ -196,9 +196,10 @@ public class FarskapsportalControllerTest {
         FAR.getFoedselsnummer());
 
     when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
-        DokumentStatusDto.builder().statuslenke(statuslenke).erSigneringsjobbenFerdig(true).padeslenke(new URI("https://permanent-pades-url.no/"))
-            .signaturer(List.of(SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true)
-                .tidspunktForSignering(LocalDateTime.now().minusSeconds(3)).build())).build());
+        DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
+            .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
+            SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
+                .build())).build());
 
     when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
 
@@ -781,9 +782,10 @@ public class FarskapsportalControllerTest {
           MOR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
-          DokumentStatusDto.builder().statuslenke(statuslenke).erSigneringsjobbenFerdig(true).padeslenke(new URI("https://permanent-pades-url.no/"))
-              .signaturer(List.of(SignaturDto.builder().signatureier(MOR.getFoedselsnummer()).harSignert(true)
-                  .tidspunktForSignering(LocalDateTime.now().minusSeconds(3)).build())).build());
+          DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
+              .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
+              SignaturDto.builder().signatureier(MOR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
+                  .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaering.getDokument().getInnhold());
 
@@ -825,9 +827,10 @@ public class FarskapsportalControllerTest {
           FAR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
-          DokumentStatusDto.builder().statuslenke(statuslenke).erSigneringsjobbenFerdig(true).padeslenke(new URI("https://permanent-pades-url.no/"))
-              .signaturer(List.of(SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true)
-                  .tidspunktForSignering(LocalDateTime.now().minusSeconds(3)).build())).build());
+          DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
+              .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
+              SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
+                  .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
 

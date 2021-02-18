@@ -42,6 +42,8 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
+    - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
+      value: virksomhetssertifikat-prod
   gcp:
     sqlInstances:
       - name: fp
@@ -49,11 +51,7 @@ spec:
         databases:
           - name: fpdb
             envVarPrefix: DB
-  accesspolicy:
-    inbound:
-      rules:
-        - application: {{ allow_inbound_apps }}
+  accessPolicy:
     outbound:
       external:
-        - host: api-gw-q1.oera.no
-        - host: login.microsoftonline.com
+        - host: api.signering.posten.no

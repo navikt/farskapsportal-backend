@@ -3,6 +3,7 @@ package no.nav.farskapsportal.persistence.entity;
 import java.io.Serializable;
 import java.net.URI;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.validation.annotation.Validated;
 
@@ -33,13 +35,13 @@ public class Dokument implements Serializable {
 
   private byte[] innhold;
 
-  private URI dokumentStatusUrl;
+  private String dokumentStatusUrl;
 
-  private URI padesUrl;
+  private String padesUrl;
 
-  private URI redirectUrlMor;
+  private String redirectUrlMor;
 
-  private URI redirectUrlFar;
+  private String redirectUrlFar;
 
   private LocalDateTime signertAvMor;
 

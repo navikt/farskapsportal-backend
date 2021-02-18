@@ -1,11 +1,9 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
-import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.Set;
@@ -21,50 +19,27 @@ public class FarskapserklaeringTest {
 
   @Test
   @DisplayName("Skal gi ulike hashkoder dersom to farskapserklæringer ikke gjelder samme parter")
-  void skalGiUlikeHashkoderDersomToFarskapserklaeringerIkkeGjelderSammeParter()
-      throws URISyntaxException {
+  void skalGiUlikeHashkoderDersomToFarskapserklaeringerIkkeGjelderSammeParter() throws URISyntaxException {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor =
-        Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
-    var far =
-        Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
+    var mor = Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
+    var far = Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
 
-    var redirectUrlMor = lageUrl("redirect-mor");
-    var redirectUrlFar = lageUrl("redirect-far");
+    var redirectUrlMor = "https://redirect-mor";
+    var redirectUrlFar = "https://redirect-far";
 
-    var etDokument =
-        Dokument.builder()
-            .dokumentnavn("signertErklaeringMor.pdf")
-            .dokumentStatusUrl(new URI(""))
-            .redirectUrlFar(redirectUrlFar)
-            .redirectUrlMor(redirectUrlMor)
-            .padesUrl(new URI(""))
-            .build();
+    var etDokument = Dokument.builder().dokumentnavn("signertErklaeringMor.pdf").dokumentStatusUrl("").redirectUrlFar(redirectUrlFar)
+        .redirectUrlMor(redirectUrlMor).padesUrl("").build();
 
-    var farskapserklaering =
-        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(etDokument).build();
+    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(etDokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
-    var enAnnenMor =
-        Forelder.builder().foedselsnummer("31019123450").fornavn("Greta").etternavn("Xyz").build();
-    var etAnnetDokument =
-        Dokument.builder()
-            .padesUrl(new URI(""))
-            .redirectUrlMor(redirectUrlMor)
-            .redirectUrlFar(redirectUrlFar)
-            .dokumentStatusUrl(new URI(""))
-            .dokumentnavn("EtAnnetDokument.pdf")
-            .build();
+    var enAnnenMor = Forelder.builder().foedselsnummer("31019123450").fornavn("Greta").etternavn("Xyz").build();
+    var etAnnetDokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+        .dokumentnavn("EtAnnetDokument.pdf").build();
 
-    var enAnnenFarskapserklaering =
-        Farskapserklaering.builder()
-            .barn(etAnnetBarn)
-            .mor(enAnnenMor)
-            .far(far)
-            .dokument(etAnnetDokument)
-            .build();
+    var enAnnenFarskapserklaering = Farskapserklaering.builder().barn(etAnnetBarn).mor(enAnnenMor).far(far).dokument(etAnnetDokument).build();
 
     // when, then
     assertNotEquals(farskapserklaering.hashCode(), enAnnenFarskapserklaering.hashCode());
@@ -72,90 +47,48 @@ public class FarskapserklaeringTest {
 
   @Test
   @DisplayName("Skal gi like hashkoder dersom to farskapserklæringer gjelder samme parter")
-  void skalGiLikeHashkoderDersomToFarskapserklaeringerGjelderSammeParter()
-      throws URISyntaxException {
+  void skalGiLikeHashkoderDersomToFarskapserklaeringerGjelderSammeParter() throws URISyntaxException {
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor =
-        Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
-    var far =
-        Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
-    var redirectUrlMor = lageUrl("redirect-mor");
-    var redirectUrlFar = lageUrl("redirect-far");
+    var mor = Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
+    var far = Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
 
-    var dokument =
-        Dokument.builder()
-            .padesUrl(new URI(""))
-            .redirectUrlMor(redirectUrlMor)
-            .redirectUrlFar(redirectUrlFar)
-            .dokumentStatusUrl(new URI(""))
-            .dokumentnavn("farskapserklaering.pdf")
-            .build();
+    var redirectUrlMor = "https://redirect-mor";
+    var redirectUrlFar = "https://redirect-far";
 
-    var farskapserklaering =
-        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+        .dokumentnavn("farskapserklaering.pdf").build();
 
-    var sammeMor =
-        Forelder.builder()
-            .foedselsnummer(mor.getFoedselsnummer())
-            .fornavn(mor.getFornavn())
-            .etternavn(mor.getEtternavn())
-            .build();
-    var sammeFar =
-        Forelder.builder()
-            .foedselsnummer(far.getFoedselsnummer())
-            .fornavn(far.getFornavn())
-            .etternavn(far.getEtternavn())
-            .build();
+    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
-    var enAnnenFarskapserklaeringMedSammeParter =
-        Farskapserklaering.builder()
-            .barn(barn)
-            .mor(sammeMor)
-            .far(sammeFar)
-            .dokument(dokument)
-            .build();
+    var sammeMor = Forelder.builder().foedselsnummer(mor.getFoedselsnummer()).fornavn(mor.getFornavn()).etternavn(mor.getEtternavn()).build();
+    var sammeFar = Forelder.builder().foedselsnummer(far.getFoedselsnummer()).fornavn(far.getFornavn()).etternavn(far.getEtternavn()).build();
+
+    var enAnnenFarskapserklaeringMedSammeParter = Farskapserklaering.builder().barn(barn).mor(sammeMor).far(sammeFar).dokument(dokument).build();
 
     // when, then
     assertEquals(farskapserklaering.hashCode(), enAnnenFarskapserklaeringMedSammeParter.hashCode());
   }
 
   @Test
-  @DisplayName(
-      "To farskapserklæringer skal ikke kategoriseres som like dersom partene ikke er de samme")
+  @DisplayName("To farskapserklæringer skal ikke kategoriseres som like dersom partene ikke er de samme")
   void farskapserklaeringerMedUlikeParterSkalKategoriseresSomUlike() throws URISyntaxException {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor =
-        Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
-    var far =
-        Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
-    var redirectUrlMor = lageUrl("redirect-mor");
-    var redirectUrlFar = lageUrl("redirect-far");
+    var mor = Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
+    var far = Forelder.builder().foedselsnummer("01018832145").fornavn("Roger").etternavn("Mer").build();
+    var redirectUrlMor = "https://redirect-mor";
+    var redirectUrlFar = "https://redirect-far";
 
-    var dokument =
-        Dokument.builder()
-            .padesUrl(new URI(""))
-            .redirectUrlMor(redirectUrlMor)
-            .redirectUrlFar(redirectUrlFar)
-            .dokumentStatusUrl(new URI(""))
-            .dokumentnavn("farskapserklaering.pdf")
-            .build();
+    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+        .dokumentnavn("farskapserklaering.pdf").build();
 
-    var farskapserklaering =
-        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
-    var enAnnenMor =
-        Forelder.builder().foedselsnummer("31019123450").fornavn("Greta").etternavn("Xyz").build();
+    var enAnnenMor = Forelder.builder().foedselsnummer("31019123450").fornavn("Greta").etternavn("Xyz").build();
 
-    var enAnnenFarskapserklaering =
-        Farskapserklaering.builder()
-            .barn(etAnnetBarn)
-            .mor(enAnnenMor)
-            .far(far)
-            .dokument(dokument)
-            .build();
+    var enAnnenFarskapserklaering = Farskapserklaering.builder().barn(etAnnetBarn).mor(enAnnenMor).far(far).dokument(dokument).build();
 
     // when, then
     assertNotEquals(farskapserklaering, enAnnenFarskapserklaering);
@@ -167,50 +100,25 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor =
-        Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
-    var far =
-        Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
+    var mor = Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
+    var far = Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
 
-    var redirectUrlMor = lageUrl("redirect-mor");
-    var redirectUrlFar = lageUrl("redirect-far");
+    var redirectUrlMor = "https://redirect-mor";
+    var redirectUrlFar = "https://redirect-far";
 
-    var dokument =
-        Dokument.builder()
-            .padesUrl(new URI(""))
-            .redirectUrlMor(redirectUrlMor)
-            .redirectUrlFar(redirectUrlFar)
-            .dokumentStatusUrl(new URI(""))
-            .dokumentnavn("farskapserklaering.pdf")
-            .build();
+    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+        .dokumentnavn("farskapserklaering.pdf").build();
 
-    var farskapserklaering =
-        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));
 
-    var sammeMor =
-        Forelder.builder()
-            .foedselsnummer(mor.getFoedselsnummer())
-            .fornavn(mor.getFornavn())
-            .etternavn(mor.getEtternavn())
-            .build();
+    var sammeMor = Forelder.builder().foedselsnummer(mor.getFoedselsnummer()).fornavn(mor.getFornavn()).etternavn(mor.getEtternavn()).build();
 
-    var sammeFar =
-        Forelder.builder()
-            .foedselsnummer(far.getFoedselsnummer())
-            .fornavn(far.getFornavn())
-            .etternavn(far.getEtternavn())
-            .build();
+    var sammeFar = Forelder.builder().foedselsnummer(far.getFoedselsnummer()).fornavn(far.getFornavn()).etternavn(far.getEtternavn()).build();
 
-    var enAnnenFarskapserklaeringMedSammeParter =
-        Farskapserklaering.builder()
-            .barn(barn)
-            .mor(sammeMor)
-            .far(sammeFar)
-            .dokument(dokument)
-            .build();
+    var enAnnenFarskapserklaeringMedSammeParter = Farskapserklaering.builder().barn(barn).mor(sammeMor).far(sammeFar).dokument(dokument).build();
 
     sammeMor.setErklaeringerMor(Set.of(enAnnenFarskapserklaeringMedSammeParter));
     sammeFar.setErklaeringerFar(Set.of(enAnnenFarskapserklaeringMedSammeParter));
@@ -225,24 +133,15 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor =
-        Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
-    var far =
-        Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
-    var redirectUrlMor = lageUrl("redirect-mor");
-    var redirectUrlFar = lageUrl("redirect-far");
+    var mor = Forelder.builder().foedselsnummer("01019012345").fornavn("Petra").etternavn("Busk").build();
+    var far = Forelder.builder().foedselsnummer("01038832140").fornavn("Roger").etternavn("Mer").build();
+    var redirectUrlMor = "https://redirect-mor";
+    var redirectUrlFar = "https://redirect-far";
 
-    var dokument =
-        Dokument.builder()
-            .padesUrl(new URI(""))
-            .redirectUrlMor(redirectUrlMor)
-            .redirectUrlFar(redirectUrlFar)
-            .dokumentStatusUrl(new URI(""))
-            .dokumentnavn("farskapserklaering.pdf")
-            .build();
+    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+        .dokumentnavn("farskapserklaering.pdf").build();
 
-    var farskapserklaering =
-        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     mor.setErklaeringerMor(Set.of(farskapserklaering));
     far.setErklaeringerFar(Set.of(farskapserklaering));
@@ -252,16 +151,7 @@ public class FarskapserklaeringTest {
 
     // then
     assertEquals(
-        "Farskapserklaering gjelder barn med termindato "
-            + barn.getTermindato()
-            + "\nMor: "
-            + mor.getFornavn()
-            + " "
-            + mor.getEtternavn()
-            + "\nFar: "
-            + far.getFornavn()
-            + " "
-            + far.getEtternavn(),
-        toString);
+        "Farskapserklaering gjelder barn med termindato " + barn.getTermindato() + "\nMor: " + mor.getFornavn() + " " + mor.getEtternavn() + "\nFar: "
+            + far.getFornavn() + " " + far.getEtternavn(), toString);
   }
 }

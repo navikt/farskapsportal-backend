@@ -42,18 +42,17 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
+    - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
+      value: virksomhetssertifikat-dev
   gcp:
     sqlInstances:
-      - name: fp-main
+      - name: {{ gcp_sqlInstances_name }}
+        tier: db-custom-1-3840
         type: POSTGRES_12
         databases:
-          - name: fpdb-main
-            envVarPrefix: DB
-  accesspolicy:
-    inbound:
-      rules:
-        - application: {{ allow_inbound_apps }}
+          - name: {{ gcp_sqlInstances_databases_name }}
+            envVarPrefix: {{ gcp_sqlInstances_databases_envVarPrefix }}
+  accessPolicy:
     outbound:
       external:
-        - host: api-gw-q1.oera.no
-        - host: login.microsoftonline.com
+        - host: api.difitest.signering.posten.no

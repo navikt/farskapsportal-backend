@@ -2,7 +2,6 @@ package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -186,8 +185,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnDto);
 
       // when, then
-      assertThrows(OppgittNavnStemmerIkkeMedRegistrertNavnException.class,
-          () -> personopplysningService.riktigNavnRolle(request, Forelderrolle.FAR));
+      assertThrows(OppgittNavnStemmerIkkeMedRegistrertNavnException.class, () -> personopplysningService.riktigNavnRolle(request, Forelderrolle.FAR));
     }
 
     @Test

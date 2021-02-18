@@ -70,7 +70,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/nais/naiserator-dev-main.yml
+          RESOURCE: deploy/nais/naiserator-dev.yml
           VARS: deploy/nais/main.json
 
       - name: Deploy to dev-gcp for feature.json
@@ -79,7 +79,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/nais/naiserator-dev-feature.yml
+          RESOURCE: deploy/nais/naiserator-dev.yml
           VARS: deploy/nais/feature.json
 
   bump_dev_version:

@@ -1,9 +1,13 @@
 {
-  "namespace": "farskapsportal",
-  "name": "farskapsportal-api",
-  "ingress": "https://farskapsportal-api.dev.nav.no/",
   "allow_inbound_apps": "farskapsportal-ui",
   "api_gateway_url": "https://api-gw-q1.oera.no",
+  "aud": "0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5",
   "discovery_url": "https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1",
-  "aud": "0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5"
+  "ingress": "https://farskapsportal-api.dev.nav.no/",
+  "namespace": "farskapsportal",
+  "name": "farskapsportal-api",
+  "gcp_sqlInstances_databases_envVarPrefix": "DB",
+  "gcp_sqlInstances_databases_name": "fpdb-main",
+  "gcp_sqlInstances_name": "fp-main"
+
 }
