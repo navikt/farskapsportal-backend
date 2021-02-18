@@ -108,7 +108,7 @@ public class FarskapsportalService {
 
     }
 
-    return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).avventerSigneringMottpart(avventerSigneringMotpart)
+    return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).avventerSigneringMotpart(avventerSigneringMotpart)
         .fnrNyligFoedteBarnUtenRegistrertFar(nyligFoedteBarnSomManglerFar).gyldigForelderrolle(true)
         .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).avventerSigneringBruker(avventerSignereringPaaloggetBruker)
         .avventerRegistrering(avventerRegistreringSkatt).feilkodeTilgang(feilkodeTilgang).build();

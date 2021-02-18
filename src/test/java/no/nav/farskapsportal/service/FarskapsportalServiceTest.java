@@ -122,7 +122,7 @@ public class FarskapsportalServiceTest {
       // then
       assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringBruker().size(), 1),
           () -> assertEquals(brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 1),
-          () -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1));
+          () -> assertEquals(brukerinformasjon.getAvventerSigneringMotpart().size(), 1));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class FarskapsportalServiceTest {
       // then
       assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringBruker().size(), 1),
           () -> assertEquals(brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0),
-          () -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 0));
+          () -> assertEquals(brukerinformasjon.getAvventerSigneringMotpart().size(), 0));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMotpart().size(), 1),
           () -> assertTrue(brukerinformasjon.isKanOppretteFarskapserklaering()), () -> assertTrue(brukerinformasjon.isGyldigForelderrolle()),
           () -> assertTrue(brukerinformasjon.getFeilkodeTilgang().isEmpty()));
     }
@@ -205,7 +205,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMotpart().size(), 1),
           () -> assertFalse(brukerinformasjon.isKanOppretteFarskapserklaering()),
           () -> assertEquals(Feilkode.MOR_SIVILSTAND_GIFT, brukerinformasjon.getFeilkodeTilgang().get()));
     }
@@ -236,7 +236,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMotpart().size(), 1),
           () -> assertFalse(brukerinformasjon.isKanOppretteFarskapserklaering()),
           () -> assertEquals(Feilkode.MOR_SIVILSTAND_UOPPGITT, brukerinformasjon.getFeilkodeTilgang().get()));
     }
@@ -266,7 +266,7 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMottpart().size(), 1),
+      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringMotpart().size(), 1),
           () -> assertFalse(brukerinformasjon.isKanOppretteFarskapserklaering()),
           () -> assertEquals(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER, brukerinformasjon.getFeilkodeTilgang().get()));
     }
@@ -321,7 +321,7 @@ public class FarskapsportalServiceTest {
 
       // then
       assertAll(() -> assertEquals(0, brukerinformasjon.getAvventerSigneringBruker().size()),
-          () -> assertEquals(0, brukerinformasjon.getAvventerSigneringMottpart().size()),
+          () -> assertEquals(0, brukerinformasjon.getAvventerSigneringMotpart().size()),
           () -> assertEquals(0, brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
     }
   }

@@ -24,10 +24,9 @@ public class BrukerinformasjonResponse {
   @ApiModelProperty("Farskapserklæringer som avventer signering av pålogget bruker")
   Set<FarskapserklaeringDto> avventerSigneringBruker;
   @ApiModelProperty("Farskapserklæringer som avventer signering av mottpart til pålogget bruker")
-  Set<FarskapserklaeringDto> avventerSigneringMottpart;
+  Set<FarskapserklaeringDto> avventerSigneringMotpart;
   @ApiModelProperty("Farskapserklæringer som avventer registrering hos Skatt")
   Set<FarskapserklaeringDto> avventerRegistrering;
   @ApiModelProperty(value = "Mors nyfødte barn som ikke har registrert farskap", example = "{01010112345}")
   Set<String> fnrNyligFoedteBarnUtenRegistrertFar;
-
 }
