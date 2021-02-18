@@ -40,7 +40,7 @@
     <apache.pdfbox.version>2.0.22</apache.pdfbox.version>
     <modelmapper.version>2.3.9</modelmapper.version>
     <guava.version>30.1-jre</guava.version>
-
+    <jersey-hk2.version>2.26</jersey-hk2.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <spring-cloud-gcp.version>2.0.1</spring-cloud-gcp.version>
@@ -60,6 +60,11 @@
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
         <version>${nimbus-jose-jwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.inject</groupId>
+        <artifactId>jersey-hk2</artifactId>
+        <version>${jersey-hk2.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -120,8 +125,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>${java.version}</release>
-          <source>14</source>
-          <target>14</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
       </plugin>
 
