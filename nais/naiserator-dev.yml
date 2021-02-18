@@ -60,3 +60,4 @@ spec:
       external:
         - host: api-gw-q1.oera.no
         - host: login.microsoftonline.com
+        - host: api.difitest.signering.posten.no
