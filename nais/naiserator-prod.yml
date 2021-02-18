@@ -51,11 +51,7 @@ spec:
         databases:
           - name: fpdb
             envVarPrefix: DB
-  accesspolicy:
-    inbound:
-      rules:
-        - application: {{ allow_inbound_apps }}
+  accessPolicy:
     outbound:
       external:
-        - host: api-gw-q1.oera.no
-        - host: login.microsoftonline.com
+        - host: api.signering.posten.no

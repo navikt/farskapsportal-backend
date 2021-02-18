@@ -67,7 +67,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES})
   public KeyStoreConfig keyStoreConfig() throws IOException {
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
@@ -100,7 +100,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))

@@ -33,7 +33,6 @@ public class Dokument implements Serializable {
 
   private String dokumentnavn;
 
-  @Column(columnDefinition = "NVARCHAR(MAX)")
   private byte[] innhold;
 
   private String dokumentStatusUrl;
