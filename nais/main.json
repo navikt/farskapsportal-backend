@@ -7,7 +7,7 @@
   "namespace": "farskapsportal",
   "name": "farskapsportal-api",
   "gcp_sqlInstances_databases_envVarPrefix": "DB",
-  "gcp_sqlInstances_databases_name": "fp-main",
-  "gcp_sqlInstances_name": "fpdb-main"
+  "gcp_sqlInstances_databases_name": "fpdb-main",
+  "gcp_sqlInstances_name": "fp-main"
 
 }
