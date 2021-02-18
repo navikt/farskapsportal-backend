@@ -225,6 +225,13 @@
     </dependency>
 
     <!-- other -->
+
+    <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
+      <version>${jersey-hk2.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger2</artifactId>
