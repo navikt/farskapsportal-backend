@@ -1,7 +1,7 @@
 {
 "request": {
   "method": "POST",
-  "urlPattern": ".*/status"
+  "urlPattern": ".*/signature-jobs/1/status"
 },
 "response": {
   "status": 200,
