@@ -25,7 +25,7 @@ import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
-import org.modelmapper.ModelMapper;
+import no.nav.farskapsportal.util.MappingUtil;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -41,31 +41,31 @@ public class PersistenceService {
 
   private final DokumentDao dokumentDao;
 
-  private final ModelMapper modelMapper;
+  private final MappingUtil mappingUtil;
 
   public Barn lagreBarn(BarnDto dto) {
-    var entity = modelMapper.map(dto, Barn.class);
+    var entity = mappingUtil.toEntity(dto);
     return barnDao.save(entity);
   }
 
   public BarnDto henteBarn(int id) {
     var barn = barnDao.findById(id).orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ikke barn med id %d i databasen", id)));
-    return modelMapper.map(barn, BarnDto.class);
+    return mappingUtil.toDto(barn);
   }
 
   public Forelder lagreForelder(ForelderDto forelderDto) {
-    var forelder = modelMapper.map(forelderDto, Forelder.class);
+    var forelder = mappingUtil.toEntity(forelderDto);
     return forelderDao.save(forelder);
   }
 
   public ForelderDto henteForelder(int id) {
     var forelder = forelderDao.findById(id)
         .orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ingen forelder med id %d i databasen", id)));
-    return modelMapper.map(forelder, ForelderDto.class);
+    return mappingUtil.toDto(forelder);
   }
 
   public Dokument lagreDokument(DokumentDto dto) {
-    var dokument = modelMapper.map(dto, Dokument.class);
+    var dokument = mappingUtil.toEntity(dto);
     return dokumentDao.save(dokument);
   }
 
@@ -82,9 +82,9 @@ public class PersistenceService {
       var eksisterendeMor = forelderDao.henteForelderMedFnr(dto.getMor().getFoedselsnummer());
       var eksisterendeFar = forelderDao.henteForelderMedFnr(dto.getFar().getFoedselsnummer());
 
-      var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> modelMapper.map(dto.getMor(), Forelder.class)))
-          .far(eksisterendeFar.orElseGet(() -> modelMapper.map(dto.getFar(), Forelder.class))).barn(modelMapper.map(dto.getBarn(), Barn.class))
-          .dokument(modelMapper.map(dto.getDokument(), Dokument.class)).build();
+      var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> mappingUtil.toEntity(dto.getMor())))
+          .far(eksisterendeFar.orElseGet(() -> mappingUtil.toEntity(dto.getFar()))).barn(mappingUtil.toEntity(dto.getBarn()))
+          .dokument(mappingUtil.toEntity(dto.getDokument())).build();
 
       return farskapserklaeringDao.save(farskapserklaering);
     } else if (gjelderSammeForeldrepar(dto, eksisterendeFarskapserklaering.get())) {
@@ -114,21 +114,19 @@ public class PersistenceService {
   public Set<FarskapserklaeringDto> henteFarskapserklaeringer(String foedselsnummer) {
     var farskapserklaeringer = farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(foedselsnummer);
 
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
-        .collect(Collectors.toSet());
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
   }
 
 
   public Set<FarskapserklaeringDto> henteMorsErklaeringer(String fnrMor) {
     var farskapserklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
-        .collect(Collectors.toSet());
+
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
   }
 
   public Set<FarskapserklaeringDto> henteFarsErklaeringer(String fnrFar) {
     var farskapserklaeringer = farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
-        .collect(Collectors.toSet());
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
   }
 
   @Transactional(readOnly = true)
@@ -170,8 +168,7 @@ public class PersistenceService {
   }
 
   private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
-        .collect(Collectors.toSet());
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
   }
 
   private Set<FarskapserklaeringDto> henteFarskapserklaeringVedRedirectMorEllerFar(String fnrForelder) {

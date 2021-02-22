@@ -2,7 +2,6 @@ package no.nav.farskapsportal.consumer.esignering;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.digipost.signature.api.xml.XMLDirectSignerResponse;
-import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.core.PAdESReference;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectDocument;
@@ -26,6 +23,7 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.direct.Signature;
 import no.digipost.signature.client.direct.StatusReference;
 import no.nav.farskapsportal.api.Feilkode;
+import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -41,10 +39,9 @@ import org.modelmapper.ModelMapper;
 @RequiredArgsConstructor
 public class DifiESignaturConsumer {
 
-  private final ClientConfiguration clientConfiguration;
   private final ModelMapper modelMapper;
   private final DirectClient client;
-  private final boolean disableEsignering;
+  private final FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   /**
    * Oppretter signeringsjobb hos signeringsløsingen. Oppdaterer dokument med status-url og redirect-urler for signeringspartene.
@@ -59,8 +56,9 @@ public class DifiESignaturConsumer {
 
     var document = DirectDocument.builder("Subject", "document.pdf", dokument.getInnhold()).build();
 
-    var exitUrls = ExitUrls.of(URI.create("http://nav.no/farskapsportal/onCompletion"), URI.create("http://nav.no/farskapsportal/onRejection"),
-        URI.create("http://nav.no/farskapsportal/onError"));
+    var exitUrls = ExitUrls
+        .of(URI.create(farskapsportalEgenskaper.getEsigneringFullfoertUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
+            URI.create(farskapsportalEgenskaper.getEsigneringFeiletUrl()));
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
@@ -68,7 +66,7 @@ public class DifiESignaturConsumer {
     var directJob = DirectJob.builder(document, exitUrls, List.of(morSignerer, farSignerer)).build();
     DirectJobResponse directJobResponse = null;
     try {
-      directJobResponse = disableEsignering ? mockDirectJobResponse(directJob) : client.create(directJob);
+      directJobResponse = client.create(directJob);
     } catch (Exception e) {
       e.printStackTrace();
       throw new OppretteSigneringsjobbException(Feilkode.OPPRETTE_SIGNERINGSJOBB);
@@ -88,29 +86,6 @@ public class DifiESignaturConsumer {
         throw new ESigneringFeilException("Redirecturl for ukjent part mottatt fra signeringsløsningen!");
       }
     }
-  }
-
-  private DirectJobResponse mockDirectJobResponse(DirectJob directJob) throws URISyntaxException {
-    var signatureJobId = 1000;
-    var reference = "1234";
-    var statusUrl = new URI(
-        "https://farskapsportal-esignering-stub.dev.nav.no/api/" + directJob.getSigners().stream().findFirst().get().getPersonalIdentificationNumber()
-            + "/direct/signature-jobs/1/status");
-
-    var directsigner = directJob.getSigners().get(0);
-    directsigner.getPersonalIdentificationNumber();
-
-    var directSignerMor = directJob.getSigners().get(0);
-    var directSignerFar = directJob.getSigners().get(1);
-
-    var redirectUrl = "https://farskapsportal.no/redirect";
-    var xmlDirectSignerResponseMor = new XMLDirectSignerResponse(new URI(""), directSignerMor.getPersonalIdentificationNumber(), "0",
-        new URI(redirectUrl + "Mor"));
-    var xmlDirectSignerResponseFar = new XMLDirectSignerResponse(new URI(""), directSignerFar.getPersonalIdentificationNumber(), "1",
-        new URI(redirectUrl + "Far"));
-
-    return new DirectJobResponse(signatureJobId, reference, statusUrl,
-        List.of(DirectSignerResponse.fromJaxb(xmlDirectSignerResponseMor), DirectSignerResponse.fromJaxb(xmlDirectSignerResponseFar)));
   }
 
   /**

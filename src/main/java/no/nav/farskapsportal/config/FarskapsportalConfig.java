@@ -28,6 +28,7 @@ import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.service.PersonopplysningService;
+import no.nav.farskapsportal.util.MappingUtil;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.flywaydb.core.Flyway;
@@ -81,9 +82,9 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PersistenceService persistenceService(FarskapsportalEgenskaper farskapsportalEgenskaperConfig, FarskapserklaeringDao farskapserklaeringDao,
-      ModelMapper modelMapper, BarnDao barnDao, ForelderDao forelderDao, DokumentDao dokumentDao) {
-    return new PersistenceService(farskapsportalEgenskaperConfig, farskapserklaeringDao, barnDao, forelderDao, dokumentDao, modelMapper);
+  public PersistenceService persistenceService(FarskapsportalEgenskaper farskapsportalEgenskaper, FarskapserklaeringDao farskapserklaeringDao,
+      MappingUtil mappingUtil, BarnDao barnDao, ForelderDao forelderDao, DokumentDao dokumentDao) {
+    return new PersistenceService(farskapsportalEgenskaper, farskapserklaeringDao, barnDao, forelderDao, dokumentDao, mappingUtil);
   }
 
   @Bean
@@ -94,11 +95,11 @@ public class FarskapsportalConfig {
   @Bean
   public FarskapsportalService farskapsportalService(FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer, PersistenceService persistenceService, PersonopplysningService personopplysningService,
-      ModelMapper modelMapper) {
+      MappingUtil mappingUtil) {
 
     return FarskapsportalService.builder().farskapsportalEgenskaper(farskapsportalEgenskaper).difiESignaturConsumer(difiESignaturConsumer)
         .pdfGeneratorConsumer(pdfGeneratorConsumer).persistenceService(persistenceService).personopplysningService(personopplysningService)
-        .modelMapper(modelMapper).build();
+        .mappingUtil(mappingUtil).build();
   }
 
   @Bean

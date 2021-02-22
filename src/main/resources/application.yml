@@ -88,6 +88,10 @@ no.nav.security.jwt:
 # Lar wiremock håndtere esignering
 farskapsportal-api.disable-esignering: false
 
+posten_esignering_fullfoert_url: https://localhost:8080/api/v1/farskapsportal/farskapserklaering/redirect,
+posten_esignering_avbrutt_url: https://localhost:8080/api/v1/farskapsportal/farskapserklaering/signering/avbrutt,
+posten_esignering_feilet_url: https://localhost:8080/api/v1/farskapsportal/farskapserklaering/signering/feilet
+
 url.esignering: ${WIREMOCK_URL}
 
 ---

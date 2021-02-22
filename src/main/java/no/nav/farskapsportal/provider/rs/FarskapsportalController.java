@@ -92,9 +92,9 @@ public class FarskapsportalController {
       @ApiResponse(code = 404, message = "Fant ikke dokument"), @ApiResponse(code = 500, message = "Serverfeil"),
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
   public ResponseEntity<byte[]> henteDokumentEtterRedirect(
-      @ApiParam(name = "statusQueryToken", type = "String", value = "status_query_token som mottatt fra e-signeringsløsningen i redirect-url", required = true) @RequestParam(name = "status_query_token") String statusQuerytoken) {
+      @ApiParam(name = "status_query_token", type = "String", value = "statusQueryToken som mottatt fra e-signeringsløsningen i redirect-url", required = true) @RequestParam(name = "status_query_token") String statusQueryToken) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    var signertDokument = farskapsportalService.henteSignertDokumentEtterRedirect(fnrPaaloggetPerson, statusQuerytoken);
+    var signertDokument = farskapsportalService.henteSignertDokumentEtterRedirect(fnrPaaloggetPerson, statusQueryToken);
     return new ResponseEntity<>(signertDokument, HttpStatus.OK);
   }
 }

@@ -60,10 +60,10 @@ import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.service.PersistenceService;
+import no.nav.farskapsportal.util.MappingUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -93,7 +93,7 @@ public class FarskapsportalControllerTest {
       .foedselsnummer(FAR.getFoedselsnummer()).navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_MOR = getKjoennshistorikk(KjoennType.KVINNE);
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_FAR = getKjoennshistorikk(KjoennType.MANN);
-  private static String REDIRECT_URL = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
+  private static final String REDIRECT_URL = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
 
   @LocalServerPort
   private int localServerPort;
@@ -116,7 +116,7 @@ public class FarskapsportalControllerTest {
   @Autowired
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
   @Autowired
-  private ModelMapper modelMapper;
+  private MappingUtil mappingUtil;
 
   static <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
 
@@ -182,7 +182,7 @@ public class FarskapsportalControllerTest {
     // Slette dersom allerede eksisterer i databasen
     ryddeTestdata(farskapserklaeringSignertAvMor);
 
-    var farskapserklaering = modelMapper.map(farskapserklaeringSignertAvMor, Farskapserklaering.class);
+    var farskapserklaering = mappingUtil.toEntity(farskapserklaeringSignertAvMor);
     var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(farskapserklaering);
 
     var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
@@ -243,10 +243,6 @@ public class FarskapsportalControllerTest {
 
     when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
     doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
-  }
-
-  private URI getRedirectUrlMor() {
-    return URI.create(REDIRECT_URL);
   }
 
   private static class CustomHeader {
@@ -637,7 +633,7 @@ public class FarskapsportalControllerTest {
 
       // then
       assertAll(() -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
-          () -> assertEquals(getRedirectUrlMor(), respons.getBody().getRedirectUrlForSigneringMor()));
+          () -> assertEquals(REDIRECT_URL, respons.getBody().getRedirectUrlForSigneringMor()));
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -708,6 +704,7 @@ public class FarskapsportalControllerTest {
     void morKanOppretteFarskapserklaeringSelvOmFarErGift() {
 
       // given
+      farskapserklaeringDao.deleteAll();
       brukeStandardMocksUtenPdlApi(MOR.getFoedselsnummer());
 
       var sivilstandMor = Sivilstandtype.UGIFT;

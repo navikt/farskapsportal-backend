@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import java.io.Serializable;
-import java.net.URI;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.validation.annotation.Validated;
 
@@ -33,6 +31,7 @@ public class Dokument implements Serializable {
 
   private String dokumentnavn;
 
+  @Column(length=100000000)
   private byte[] innhold;
 
   private String dokumentStatusUrl;

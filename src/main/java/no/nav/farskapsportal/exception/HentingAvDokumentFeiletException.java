@@ -12,6 +12,12 @@ public class HentingAvDokumentFeiletException extends UnrecoverableException {
     this.message = message;
   }
 
+  public HentingAvDokumentFeiletException(String message, Exception e) {
+    super(message, e);
+    e.printStackTrace();
+    this.message = message;
+  }
+
   @Override
   public String getMessage() {
     return this.message;

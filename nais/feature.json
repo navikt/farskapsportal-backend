@@ -8,5 +8,8 @@
   "namespace": "farskapsportal",
   "gcp_sqlInstances_databases_envVarPrefix": "DB",
   "gcp_sqlInstances_databases_name": "farskapsportaldb-feature",
-  "gcp_sqlInstances_name": "farskapsportal-feature"
+  "gcp_sqlInstances_name": "farskapsportal-feature",
+  "posten_esignering_fullfoert_url": "https://farskapsportal-api-feature.dev.nav.no/api/v1/farskapsportal/farskapserklaering/redirect",
+  "posten_esignering_avbrutt_url": "https://farskapsportal-api-feature.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/avbrutt",
+  "posten_esignering_feilet_url": "https://farskapsportal-api-feature.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/feilet"
 }

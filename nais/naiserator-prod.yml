@@ -51,7 +51,6 @@ spec:
         databases:
           - name: fpdb
             envVarPrefix: DB
-  accessPolicy:
     outbound:
       external:
         - host: api.signering.posten.no
