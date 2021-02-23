@@ -44,6 +44,12 @@ spec:
       value: {{ aud }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
       value: virksomhetssertifikat-prod
+    - name: ESIGNERING_FULLFOERT_URL
+      value: {{ posten_esignering_fullfoert_url }}
+    - name: ESIGNERING_AVBRUTT_URL
+      value: {{ posten_esignering_avbrutt_url }}
+    - name: ESIGNERING_FEILET_URL
+      value: {{ posten_esignering_feilet_url }}
   gcp:
     sqlInstances:
       - name: fp
