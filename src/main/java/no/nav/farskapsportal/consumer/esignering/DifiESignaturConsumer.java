@@ -137,7 +137,7 @@ public class DifiESignaturConsumer {
 
   public byte[] henteSignertDokument(URI padesUrl) {
     try {
-      return client.getPAd<>ES(PAdESReference.of(padesUrl)).readAllBytes();
+      return client.getPAdES(PAdESReference.of(padesUrl)).readAllBytes();
     } catch (IOException e) {
       throw new HentingAvDokumentFeiletException("Feil oppstod ved lesing av dokument-bytes");
     }
