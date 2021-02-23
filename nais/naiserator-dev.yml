@@ -51,7 +51,7 @@ spec:
     - name: ESIGNERING_FEILET_URL
       value: {{ posten_esignering_feilet_url }}
     - name: INTEGRATION_TEST_CONTROLLER_PAA
-      value: true
+      value: {{ integration_test_controller_paa }}
   gcp:
     sqlInstances:
       - name: {{ gcp_sqlInstances_name }}
