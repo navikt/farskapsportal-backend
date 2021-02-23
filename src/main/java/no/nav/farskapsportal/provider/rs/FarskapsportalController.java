@@ -83,7 +83,7 @@ public class FarskapsportalController {
     return new ResponseEntity(respons, HttpStatus.OK);
   }
 
-  @PutMapping("/farskapserklaering/redirect")
+  @GetMapping("/farskapserklaering/redirect")
   @ApiOperation("Kalles etter redirect fra singeringsløsningen. Henter kopi av signert dokument fra "
       + "dokumentlager for pålogget person. Lagrer padeslenke. Oppdaterer signeringsstatus.")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "Dokumentet ble hentet, og padeslenke lagret uten feil"),

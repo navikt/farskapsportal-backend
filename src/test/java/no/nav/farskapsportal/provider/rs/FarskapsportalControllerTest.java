@@ -171,48 +171,6 @@ public class FarskapsportalControllerTest {
     }
   }
 
-  @Test
-  @DisplayName("SkaLagreOppdatertPadesUrlVedHentingAvDokument")
-  void skalLagreOppdatertPadesUrlVedHentingAvDokument() throws URISyntaxException {
-
-    // given
-    var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
-    farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
-
-    // Slette dersom allerede eksisterer i databasen
-    ryddeTestdata(farskapserklaeringSignertAvMor);
-
-    var farskapserklaering = mappingUtil.toEntity(farskapserklaeringSignertAvMor);
-    var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(farskapserklaering);
-
-    var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-    var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
-    when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-    stsStub.runSecurityTokenServiceStub("jalla");
-    Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
-
-    pdlApiStub.runPdlApiHentPersonStub(
-        List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(registrertNavnFar)),
-        FAR.getFoedselsnummer());
-
-    when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
-        DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
-            .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
-            SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
-                .build())).build());
-
-    when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
-
-    // when
-    var respons = httpHeaderTestRestTemplate.exchange(
-        UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-            .toString(), HttpMethod.PUT, null, byte[].class);
-
-    // then
-    assertTrue(respons.getStatusCode().is2xxSuccessful());
-
-  }
-
   private void brukeStandardMocks(String fnrPaaloggetBruker) {
     var sivilstandMor = Sivilstandtype.UGIFT;
 
@@ -789,7 +747,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.PUT, null, byte[].class);
+              .toString(), HttpMethod.GET, null, byte[].class);
 
       // then
       assertTrue(respons.getStatusCode().is2xxSuccessful());
@@ -834,13 +792,55 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.PUT, null, byte[].class);
+              .toString(), HttpMethod.GET, null, byte[].class);
 
       // then
       assertTrue(respons.getStatusCode().is2xxSuccessful());
 
       // clean-up testdata
       farskapserklaeringDao.delete(lagretFarskapserklaeringSignertAvMor);
+    }
+
+    @Test
+    @DisplayName("SkaLagreOppdatertPadesUrlVedHentingAvDokument")
+    void skalLagreOppdatertPadesUrlVedHentingAvDokument() throws URISyntaxException {
+
+      // given
+      var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
+      farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
+
+      // Slette dersom allerede eksisterer i databasen
+      ryddeTestdata(farskapserklaeringSignertAvMor);
+
+      var farskapserklaering = mappingUtil.toEntity(farskapserklaeringSignertAvMor);
+      var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(farskapserklaering);
+
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
+      stsStub.runSecurityTokenServiceStub("jalla");
+      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(registrertNavnFar)),
+          FAR.getFoedselsnummer());
+
+      when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
+          DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
+              .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
+              SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
+                  .build())).build());
+
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+              .toString(), HttpMethod.GET, null, byte[].class);
+
+      // then
+      assertTrue(respons.getStatusCode().is2xxSuccessful());
+
     }
   }
 }
