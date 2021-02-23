@@ -33,8 +33,8 @@ import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
 import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.util.MappingUtil;
 import org.apache.commons.lang3.Validate;
-import org.modelmapper.ModelMapper;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -49,7 +49,7 @@ public class FarskapsportalService {
   private final DifiESignaturConsumer difiESignaturConsumer;
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
-  private final ModelMapper modelMapper;
+  private final MappingUtil mappingUtil;
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
 
@@ -134,15 +134,12 @@ public class FarskapsportalService {
 
   private Optional<Feilkode> getFeilkode(String foedselsnummer) {
     var sivilstand = personopplysningService.henteSivilstand(foedselsnummer);
-    switch (sivilstand.getType()) {
-      case GIFT:
-        return Optional.of(Feilkode.MOR_SIVILSTAND_GIFT);
-      case REGISTRERT_PARTNER:
-        return Optional.of(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER);
-      case UOPPGITT:
-        return Optional.of(Feilkode.MOR_SIVILSTAND_UOPPGITT);
-    }
-    return Optional.empty();
+    return switch (sivilstand.getType()) {
+      case GIFT -> Optional.of(Feilkode.MOR_SIVILSTAND_GIFT);
+      case REGISTRERT_PARTNER -> Optional.of(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER);
+      case UOPPGITT -> Optional.of(Feilkode.MOR_SIVILSTAND_UOPPGITT);
+      default -> Optional.empty();
+    };
   }
 
   private void kanOppretteFarskapserklaering(String fnrPaaloggetPerson) {
@@ -202,7 +199,7 @@ public class FarskapsportalService {
     log.info("Lagre farskapserklæring");
     persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
 
-    return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor()).build();
+    return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor().toString()).build();
   }
 
   private void validereAlderNyfoedt(String fnrOppgittBarn) {
@@ -242,6 +239,7 @@ public class FarskapsportalService {
   public byte[] henteSignertDokumentEtterRedirect(String fnrPaaloggetPerson, String statusQueryToken) {
 
     // Forelder må være myndig
+
     Validate.isTrue(erMyndig(fnrPaaloggetPerson), "Person må være myndig for å bruke løsningen");
 
     var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
@@ -251,12 +249,13 @@ public class FarskapsportalService {
     }
 
     // Henter dokument fra Postens signeringstjeneste
-    var dokumentStatusDto = henteDokumentstatusEtterRedirect(statusQueryToken, mapTilDto(farskapserklaeringer));
+    var farskapserklaeringDtoSet = farskapserklaeringer.stream().map(fe -> mappingUtil.toDto(fe)).collect(Collectors.toSet());
+    var dokumentStatusDto = henteDokumentstatusEtterRedirect(statusQueryToken, farskapserklaeringDtoSet);
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
     var aktuellFarskapserklaering = farskapserklaeringer.stream().filter(Objects::nonNull)
-        .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet()).stream()
-        .findAny().orElseThrow(() -> new FarskapserklaeringIkkeFunnetException("Fant ikke farskapserklæring"));
+        .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
+        .stream().findAny().orElseThrow(() -> new FarskapserklaeringIkkeFunnetException("Fant ikke farskapserklæring"));
 
     // oppdatere padeslenke i aktuell farskapserklæring
     aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
@@ -320,10 +319,5 @@ public class FarskapsportalService {
     // potensielt ha flere farskapserklæringer som er startet men hvor signeringsprosessen ikke
     // er fullført. Returnerer statuslenke som hører til statusQueryToken.
     return difiESignaturConsumer.henteDokumentstatusEtterRedirect(statusQueryToken, dokumentStatuslenker);
-  }
-
-  private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(fe -> modelMapper.map(fe, FarskapserklaeringDto.class))
-        .collect(Collectors.toSet());
   }
 }

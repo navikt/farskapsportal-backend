@@ -26,9 +26,6 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class DifiEsigneringConfig {
 
-  @Value("${farskapsportal-api.disable-esignering}")
-  private boolean disableEsignering;
-
   @Bean
   @Profile(PROFILE_LIVE)
   public KeyStoreConfig keyStoreConfig(
@@ -61,7 +58,7 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
-  public DifiESignaturConsumer difiESignaturConsumer(ClientConfiguration clientConfiguration, ModelMapper modelMapper, DirectClient directClient) {
-    return new DifiESignaturConsumer(clientConfiguration, modelMapper, directClient, disableEsignering);
+  public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient, FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    return new DifiESignaturConsumer(directClient, farskapsportalEgenskaper);
   }
 }

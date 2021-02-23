@@ -10,6 +10,7 @@ import lombok.Value;
 @Builder
 @Getter
 public class DokumentStatusDto {
+
   boolean erSigneringsjobbenFerdig;
   List<SignaturDto> signaturer;
   URI padeslenke;

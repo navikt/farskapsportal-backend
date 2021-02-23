@@ -13,11 +13,11 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import lombok.SneakyThrows;
-import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.core.exceptions.SenderNotSpecifiedException;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectJob;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -47,8 +46,9 @@ public class DifiESignaturConsumerTest {
   private static final String PADES_URL = "https://api.signering.posten.no/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/pades";
   @Mock
   DirectClient directClientMock;
-  @Mock
-  ClientConfiguration clientConfigurationMock;
+
+  @Autowired
+  FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   @Autowired
   private DifiESignaturConsumer difiESignaturConsumer;
@@ -70,7 +70,7 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument = DokumentDto.builder().dokumentnavn("Farskapsportal.pdf")
-          .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8))
+          .innhold("Farskapserklæring for barn med termindato..." .getBytes(StandardCharsets.UTF_8))
           .dokumentStatusUrl(new URI("https://getstatus.no/")).build();
       var mor = ForelderDto.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var far = ForelderDto.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
@@ -94,12 +94,12 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument = DokumentDto.builder().dokumentnavn("Farskapsportal.pdf")
-          .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8))
+          .innhold("Farskapserklæring for barn med termindato..." .getBytes(StandardCharsets.UTF_8))
           .dokumentStatusUrl(new URI("https://getstatus.no/")).build();
       var mor = ForelderDto.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var far = ForelderDto.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
 
-      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(clientConfigurationMock, new ModelMapper(), directClientMock, false);
+      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(directClientMock, farskapsportalEgenskaper);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);
 
       // when
@@ -130,14 +130,4 @@ public class DifiESignaturConsumerTest {
     }
   }
 
-  @Nested
-  @DisplayName("")
-  class Hent {
-
-    @SneakyThrows
-    @DisplayName("")
-    void test() {
-      var t = difiESignaturConsumer.henteSignertDokument(new URI(PADES_URL));
-    }
-  }
 }

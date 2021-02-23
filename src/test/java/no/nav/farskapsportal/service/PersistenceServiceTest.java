@@ -25,13 +25,13 @@ import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.util.MappingUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -61,7 +61,7 @@ public class PersistenceServiceTest {
   @Autowired
   private DokumentDao dokumentDao;
   @Autowired
-  private ModelMapper modelMapper;
+  private MappingUtil mappingUtil;
 
   @Nested
   @DisplayName("Lagre")
@@ -151,7 +151,7 @@ public class PersistenceServiceTest {
     void skalIkkeLagreNyFarskapserklaeringDersomTilsvarendeAlleredeEksisterer() {
 
       // given
-      farskapserklaeringDao.save(modelMapper.map(FARSKAPSERKLAERING, Farskapserklaering.class));
+      farskapserklaeringDao.save(mappingUtil.toEntity(FARSKAPSERKLAERING));
 
       // when, then
       assertThrows(FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException.class,

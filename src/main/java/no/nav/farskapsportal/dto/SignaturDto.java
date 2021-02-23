@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import no.nav.farskapsportal.api.StatusSignering;
 
 @Builder
 @Getter
@@ -20,4 +21,7 @@ public class SignaturDto {
 
   @ApiModelProperty("Tidspunkt for signering")
   LocalDateTime tidspunktForSignering;
+
+  @ApiModelProperty("Status signering")
+  StatusSignering statusSignering;
 }

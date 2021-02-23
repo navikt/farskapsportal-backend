@@ -29,7 +29,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       String fnrMor, String fnrFar, LocalDate nedreGrenseTermindato, LocalDate oevreGrenseTermindato);
 
   @Query(
-      "select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor")
+      "select fe from Farskapserklaering fe where fe.mor.foedselsnummer =:fnrMor")
   Set<Farskapserklaering> henteMorsErklaeringer(String fnrMor);
 
   @Query(
@@ -37,6 +37,6 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Set<Farskapserklaering> henteFarsErklaeringer(String fnrFar);
 
   @Query(
-      "select fe from Farskapserklaering  fe where fe.mor.foedselsnummer = :fnrMor and fe.dokument.padesUrl is null")
+      "select fe from Farskapserklaering  fe where fe.mor.foedselsnummer =:fnrMor and fe.dokument.padesUrl is null")
   Set<Farskapserklaering> hentFarskapserklaeringerMorUtenPadeslenke(String fnrMor);
 }

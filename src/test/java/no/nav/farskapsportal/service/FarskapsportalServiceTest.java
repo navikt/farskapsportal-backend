@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -364,7 +365,7 @@ public class FarskapsportalServiceTest {
           OppretteFarskaperklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build());
 
       // then
-      assertEquals(pdf.getRedirectUrlMor(), respons.getRedirectUrlForSigneringMor());
+      assertEquals(pdf.getRedirectUrlMor().toString(), respons.getRedirectUrlForSigneringMor());
     }
 
     @Test
@@ -404,7 +405,7 @@ public class FarskapsportalServiceTest {
           OppretteFarskaperklaeringRequest.builder().barn(barnFoedtInnenforGyldigIntervall).opplysningerOmFar(opplysningerOmFar).build());
 
       // then
-      assertEquals(pdf.getRedirectUrlMor(), respons.getRedirectUrlForSigneringMor());
+      assertEquals(pdf.getRedirectUrlMor().toString(), respons.getRedirectUrlForSigneringMor());
     }
 
     @Test
@@ -583,7 +584,7 @@ public class FarskapsportalServiceTest {
 
     @Test
     @DisplayName("Far skal se dokument etter redirect dersom status query token er gyldig")
-    void farSkalSeDokumentEtterRedirectDersomStatusQueryTokenErGyldig() {
+    void farSkalSeDokumentEtterRedirectDersomStatusQueryTokenErGyldig() throws URISyntaxException {
 
       // given
       farskapserklaeringDao.deleteAll();
