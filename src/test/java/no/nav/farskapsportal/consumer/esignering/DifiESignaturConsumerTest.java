@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -71,7 +70,7 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument = DokumentDto.builder().dokumentnavn("Farskapsportal.pdf")
-          .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8))
+          .innhold("Farskapserklæring for barn med termindato..." .getBytes(StandardCharsets.UTF_8))
           .dokumentStatusUrl(new URI("https://getstatus.no/")).build();
       var mor = ForelderDto.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var far = ForelderDto.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
@@ -95,12 +94,12 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument = DokumentDto.builder().dokumentnavn("Farskapsportal.pdf")
-          .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8))
+          .innhold("Farskapserklæring for barn med termindato..." .getBytes(StandardCharsets.UTF_8))
           .dokumentStatusUrl(new URI("https://getstatus.no/")).build();
       var mor = ForelderDto.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var far = ForelderDto.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
 
-      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(new ModelMapper(), directClientMock, farskapsportalEgenskaper);
+      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(directClientMock, farskapsportalEgenskaper);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);
 
       // when

@@ -58,7 +58,7 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
-  public DifiESignaturConsumer difiESignaturConsumer(ClientConfiguration clientConfiguration, ModelMapper modelMapper, DirectClient directClient, FarskapsportalEgenskaper farskapsportalEgenskaper) {
-    return new DifiESignaturConsumer(modelMapper, directClient, farskapsportalEgenskaper);
+  public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient, FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    return new DifiESignaturConsumer(directClient, farskapsportalEgenskaper);
   }
 }

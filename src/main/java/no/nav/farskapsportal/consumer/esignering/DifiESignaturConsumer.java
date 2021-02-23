@@ -2,12 +2,16 @@ package no.nav.farskapsportal.consumer.esignering;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.core.PAdESReference;
@@ -21,8 +25,10 @@ import no.digipost.signature.client.direct.DirectSigner;
 import no.digipost.signature.client.direct.DirectSignerResponse;
 import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.direct.Signature;
+import no.digipost.signature.client.direct.SignerStatus;
 import no.digipost.signature.client.direct.StatusReference;
 import no.nav.farskapsportal.api.Feilkode;
+import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
@@ -33,13 +39,11 @@ import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.exception.PadesUrlIkkeTilgjengeligException;
 import no.nav.farskapsportal.exception.SigneringsjobbFeiletException;
 import org.apache.commons.lang3.Validate;
-import org.modelmapper.ModelMapper;
 
 @Slf4j
 @RequiredArgsConstructor
 public class DifiESignaturConsumer {
 
-  private final ModelMapper modelMapper;
   private final DirectClient client;
   private final FarskapsportalEgenskaper farskapsportalEgenskaper;
 
@@ -105,7 +109,7 @@ public class DifiESignaturConsumer {
     }
 
     var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull)
-        .map(signatur -> modelMapper.map(signatureierErIkkeNull(signatur), SignaturDto.class)).collect(Collectors.toList());
+        .map(signatur -> mapTilDto(signatur)).collect(Collectors.toList());
 
     var dokumentstatus = DokumentStatusDto.builder().statuslenke(statuslenke).padeslenke(pAdESReference.getpAdESUrl())
         .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY)).signaturer(signaturer).build();
@@ -125,18 +129,35 @@ public class DifiESignaturConsumer {
     throw new PadesUrlIkkeTilgjengeligException("Pades-url mangler i respons fra signeringsløsningen");
   }
 
-  private Signature signatureierErIkkeNull(Signature signature) {
+  private void signatureierErIkkeNull(Signature signature) {
     if (signature.getSigner() == null) {
       throw new ESigneringFeilException("Signatureier er null i respons fra esigneringsløsningen!");
     }
-    return signature;
   }
 
   public byte[] henteSignertDokument(URI padesUrl) {
     try {
-      return client.getPAdES(PAdESReference.of(padesUrl)).readAllBytes();
+      return client.getPAd<>ES(PAdESReference.of(padesUrl)).readAllBytes();
     } catch (IOException e) {
       throw new HentingAvDokumentFeiletException("Feil oppstod ved lesing av dokument-bytes");
+    }
+  }
+
+  private SignaturDto mapTilDto(Signature signature) {
+    signatureierErIkkeNull(signature);
+    var tidspunktForSignering = LocalDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
+    var statusSignering = mapStatus(signature.getStatus());
+    var harSignert = StatusSignering.FULLFOERT.equals(statusSignering);
+    return SignaturDto.builder().signatureier(signature.getSigner()).harSignert(harSignert).statusSignering(statusSignering).tidspunktForSignering(tidspunktForSignering).build();
+  }
+
+  private StatusSignering mapStatus(SignerStatus signerStatus) {
+    if (SignerStatus.SIGNED.equals(signerStatus)) {
+      return StatusSignering.FULLFOERT;
+    } else if (SignerStatus.REJECTED.equals(signerStatus)) {
+      return StatusSignering.AVBRUTT;
+    } else {
+      return StatusSignering.FEILET;
     }
   }
 }

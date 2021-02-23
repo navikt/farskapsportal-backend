@@ -1,11 +1,11 @@
 {
 "request": {
-  "method": "POST",
-  "urlPattern": ".*/signature-jobs/1/status"
+  "method": "GET",
+  "urlPattern": "/api/12345678910/direct/signature-jobs/1/status.*"
 },
 "response": {
   "status": 200,
-  "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><direct-signature-job-status-response xmlns=\"http://signering.posten.no/schema/v1\"><signature-job-id>1</signature-job-id><signature-job-status>COMPLETED_SUCCESSFULLY</signature-job-status><status since=\"2021-01-23T12:51:43+01:00\">SIGNED</status><confirmation-url>https://api.signering.posten.no/api/12345678910/direct/signature-jobs/1/complete</confirmation-url><xades-url>https://api.signering.posten.no/api/12345678910/direct/signature-jobs/1/xades/1</xades-url><pades-url>https://api.signering.posten.no/api/12345678910/direct/signature-jobs/1/pades</pades-url></direct-signature-job-status-response>",
+  "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><direct-signature-job-status-response xmlns=\"http://signering.posten.no/schema/v1\"><signature-job-id>1</signature-job-id><signature-job-status>COMPLETED_SUCCESSFULLY</signature-job-status><status since=\"2021-01-23T12:51:43+01:00\" signer=\"12345678910\">SIGNED</status><confirmation-url>https://api.signering.posten.no/api/12345678910/direct/signature-jobs/1/complete</confirmation-url><xades-url signer=\"12345678910\">https://api.signering.posten.no/api/12345678910/direct/signature-jobs/1/xades/1</xades-url><pades-url>https://api.signering.posten.no/api/12345678910/direct/signature-jobs/1/pades</pades-url></direct-signature-job-status-response>",
   "headers": {
     "Content-Type": "application/xml",
     "Media-Type": "application/octet-stream"
