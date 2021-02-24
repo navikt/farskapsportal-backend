@@ -11,6 +11,5 @@
   "gcp_sqlInstances_name": "fp-main",
   "posten_esignering_fullfoert_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/redirect",
   "posten_esignering_avbrutt_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/avbrutt",
-  "posten_esignering_feilet_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/feilet",
-  "integration_test_controller_paa": "true"
+  "posten_esignering_feilet_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/feilet"
 }
