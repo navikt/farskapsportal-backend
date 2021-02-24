@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@ConditionalOnExpression("${INTEGRATION_TEST_CONTROLLER_PAA:true}")
+@ConditionalOnExpression("${INTEGRATION_TEST_CONTROLLER_PAA:false}")
 @RequestMapping("/dev/integration-test/management")
 @ProtectedWithClaims(issuer = ISSUER)
 @Slf4j
