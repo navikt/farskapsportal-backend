@@ -72,7 +72,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/naiserator-dev.yml
           VARS: deploy/nais/main.json
-          VAR: ON=true
+          VAR: ON="true"
 
       - name: Deploy to dev-gcp for feature.json
         if: github.ref != 'refs/heads/main'
