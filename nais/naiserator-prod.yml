@@ -45,7 +45,7 @@ spec:
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
       value: virksomhetssertifikat-prod
     - name: ESIGNERING_FULLFOERT_URL
-      value: {{ posten_esignering_fullfoert_url }}
+      value: {{ posten_esignering_suksess_url }}
     - name: ESIGNERING_AVBRUTT_URL
       value: {{ posten_esignering_avbrutt_url }}
     - name: ESIGNERING_FEILET_URL
