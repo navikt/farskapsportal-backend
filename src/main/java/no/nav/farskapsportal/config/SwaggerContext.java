@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.config;
 
+import static com.google.common.base.Predicates.or;
 import static springfox.documentation.builders.PathSelectors.regex;
 
 import java.util.ArrayList;
@@ -26,15 +27,9 @@ public class SwaggerContext {
   @Bean
   public Docket api() {
 
-    return new Docket(DocumentationType.SWAGGER_2)
-        .select()
-        .apis(
-            RequestHandlerSelectors.basePackage(
-                FarskapsportalApplication.class.getPackage().getName()))
-        .paths(regex("/api.*"))
-        .build()
-        .securitySchemes(addSecuritySchemes())
-        .securityContexts(List.of(securityContext()));
+    return new Docket(DocumentationType.SWAGGER_2).select()
+        .apis(RequestHandlerSelectors.basePackage(FarskapsportalApplication.class.getPackage().getName())).paths(or(regex("/api.*"), regex("/dev.*")))
+        .build().securitySchemes(addSecuritySchemes()).securityContexts(List.of(securityContext()));
   }
 
   private List<SecurityScheme> addSecuritySchemes() {
@@ -48,10 +43,7 @@ public class SwaggerContext {
   }
 
   private SecurityContext securityContext() {
-    return SecurityContext.builder()
-        .securityReferences(defaultAuth())
-        .forPaths(PathSelectors.regex("/*.*"))
-        .build();
+    return SecurityContext.builder().securityReferences(defaultAuth()).forPaths(PathSelectors.regex("/*.*")).build();
   }
 
   private List<SecurityReference> defaultAuth() {
