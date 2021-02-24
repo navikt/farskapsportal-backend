@@ -9,8 +9,7 @@
   "gcp_sqlInstances_databases_envVarPrefix": "DB",
   "gcp_sqlInstances_databases_name": "fpdb-main",
   "gcp_sqlInstances_name": "fp-main",
-  "posten_esignering_fullfoert_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/redirect",
+  "posten_esignering_sukess_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/redirect",
   "posten_esignering_avbrutt_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/avbrutt",
   "posten_esignering_feilet_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/feilet"
-
 }
