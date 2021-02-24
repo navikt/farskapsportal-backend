@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.service;
 
+import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
+
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,7 +16,8 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.exception.FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException;
+import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
+import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
@@ -72,11 +75,6 @@ public class PersistenceService {
   @Transactional
   public Farskapserklaering lagreFarskapserklaering(FarskapserklaeringDto dto) {
 
-    var barnErOppgittMedFoedselsnummer = dto.getBarn().getFoedselsnummer() != null && dto.getBarn().getFoedselsnummer().length() > 10;
-
-    Optional<Farskapserklaering> eksisterendeFarskapserklaering = barnErOppgittMedFoedselsnummer ? farskapserklaeringDao
-        .henteUnikFarskapserklaering(dto.getMor().getFoedselsnummer(), dto.getFar().getFoedselsnummer(), dto.getBarn().getFoedselsnummer())
-        : henteEksisterendeFarskapserklaeringForUfoedtBarn(dto);
 
     if (eksisterendeFarskapserklaering.isEmpty()) {
       var eksisterendeMor = forelderDao.henteForelderMedFnr(dto.getMor().getFoedselsnummer());
@@ -89,14 +87,14 @@ public class PersistenceService {
       return farskapserklaeringDao.save(farskapserklaering);
     } else if (gjelderSammeForeldrepar(dto, eksisterendeFarskapserklaering.get())) {
       if (barnErOppgittMedFoedselsnummer) {
-        throw new FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(Feilkode.ERKLAERING_EKSISTERER);
+        throw new EksisterendeFarskapserklaeringException(Feilkode.ERKLAERING_EKSISTERER_BARN);
       }
     }
-    throw new FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException(Feilkode.ERKLAERING_EKSISTERER_UFOEDT);
+    throw new EksisterendeFarskapserklaeringException(Feilkode.ERKLAERING_EKSISTERER_UFOEDT);
   }
 
-  private boolean gjelderSammeForeldrepar(FarskapserklaeringDto ny, Farskapserklaering gammel) {
-    return gammel.getMor().getFoedselsnummer().equals(ny.getMor().getFoedselsnummer()) && gammel.getFar().getFoedselsnummer()
+  private boolean gjelderSammeForeldrepar(FarskapserklaeringDto ny, Farskapserklaering eksisterende) {
+    return eksisterende.getMor().getFoedselsnummer().equals(ny.getMor().getFoedselsnummer()) && eksisterende.getFar().getFoedselsnummer()
         .equals(ny.getFar().getFoedselsnummer());
   }
 
@@ -113,20 +111,22 @@ public class PersistenceService {
 
   public Set<FarskapserklaeringDto> henteFarskapserklaeringer(String foedselsnummer) {
     var farskapserklaeringer = farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(foedselsnummer);
-
     return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
   }
 
-
-  public Set<FarskapserklaeringDto> henteMorsErklaeringer(String fnrMor) {
+  public Optional<FarskapserklaeringDto> henteMorsEksisterendeErklaering(String fnrMor) {
     var farskapserklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
-
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
+    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(toSingletonOrThrow(new FeilIDatagrunnlagException(Feilkode.MOR_HAR_FLERE_ERKLAERINGER))));
   }
 
   public Set<FarskapserklaeringDto> henteFarsErklaeringer(String fnrFar) {
     var farskapserklaeringer = farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
     return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
+  }
+
+  public Optional<FarskapserklaeringDto> henteBarnsEksisterendeErklaering(String fnrBarn) {
+    var farskapserklaeringer = farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn);
+    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(toSingletonOrThrow(new FeilIDatagrunnlagException(Feilkode.BARN_HAR_FLERE_ERLAERINGER))));
   }
 
   @Transactional(readOnly = true)
@@ -178,5 +178,24 @@ public class PersistenceService {
     } else {
       return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
     }
+  }
+
+  private void morKanOppretteNyFarskapserklaering(String fnrMor, FarskapserklaeringDto dto) {
+
+    var barnErOppgittMedFoedselsnummer = dto.getBarn().getFoedselsnummer() != null && dto.getBarn().getFoedselsnummer().length() > 10;
+
+    // Hente eventuell eksisterende farskapserklaering for mor
+    var morsEksisterendeErklaering =  henteMorsEksisterendeErklaering(fnrMor);
+
+    // Hente eventuell eksisterende farskapserklaering for barn, hvis barn oppgitt med fnr
+    var barnsEksisterendeErklaering = barnErOppgittMedFoedselsnummer ? henteBarnsEksisterendeErklaering(dto.getBarn().getFoedselsnummer()) : Optional.empty();
+
+    if (morsEksisterendeErklaering.isPresent()) {
+      throw new EksisterendeFarskapserklaeringException(Feilkode.ERKLAERING_EKSISTERER_BARN);
+    }
+    if (barnsEksisterendeErklaering.isPresent()) {
+      throw new EksisterendeFarskapserklaeringException(Feilkode.ERKLAERING_EKSISTERER_BARN);
+    }
+
   }
 }

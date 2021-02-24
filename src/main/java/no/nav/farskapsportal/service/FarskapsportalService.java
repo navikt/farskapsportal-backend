@@ -157,23 +157,8 @@ public class FarskapsportalService {
   }
 
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
-    // Mor må være myndig
-    Validate.isTrue(erMyndig(fnrMor), "Mor kan ikke bruke løsningen dersom hun ikke er myndig");
-    // Bare mor kan oppretteFarskapserklæring
-    kanOppretteFarskapserklaering(fnrMor);
-    // Kontrollere opplysninger om far i request
-    personopplysningService.riktigNavnRolle(request.getOpplysningerOmFar(), Forelderrolle.FAR);
-    // Far må være myndig
-    Validate.isTrue(erMyndig(request.getOpplysningerOmFar().getFoedselsnummer()), "Far må være myndig");
-    // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
-    validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
-    // Validere alder på nyfødt
-    validereAlderNyfoedt(request.getBarn().getFoedselsnummer());
-    // Kontrollere at mor og far ikke er samme person
-    Validate
-        .isTrue(morOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer()), "Mor og far kan ikke være samme person!");
-    // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
-    Validate.isTrue(termindatoErGyldig(request.getBarn()), "Termindato er ikke innenfor gyldig intervall!");
+    // Sjekker om mor skal kunne opprette ny farskapserklæring
+    validereTilgang(fnrMor, request);
 
     var barn = BarnDto.builder().termindato(request.getBarn().getTermindato()).build();
     if (request.getBarn().getFoedselsnummer() != null && !request.getBarn().getFoedselsnummer().isBlank()) {
@@ -201,6 +186,30 @@ public class FarskapsportalService {
 
     return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor().toString()).build();
   }
+
+  private void validereTilgang(String fnrMor, OppretteFarskaperklaeringRequest request) {
+    // Mor må være myndig
+    Validate.isTrue(erMyndig(fnrMor), "Mor kan ikke bruke løsningen dersom hun ikke er myndig");
+    // Bare mor kan oppretteFarskapserklæring
+    kanOppretteFarskapserklaering(fnrMor);
+    // Kontrollere opplysninger om far i request
+    personopplysningService.riktigNavnRolle(request.getOpplysningerOmFar(), Forelderrolle.FAR);
+    // Far må være myndig
+    Validate.isTrue(erMyndig(request.getOpplysningerOmFar().getFoedselsnummer()), "Far må være myndig");
+    // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
+    validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
+    // Validere alder på nyfødt
+    validereAlderNyfoedt(request.getBarn().getFoedselsnummer());
+    // Kontrollere at mor og far ikke er samme person
+    Validate
+        .isTrue(morOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer()), "Mor og far kan ikke være samme person!");
+    // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
+    Validate.isTrue(termindatoErGyldig(request.getBarn()), "Termindato er ikke innenfor gyldig intervall!");
+    ingenKonfliktMedEksisterendeErklaeringer(fnrMor, request);
+    
+  }
+
+
 
   private void validereAlderNyfoedt(String fnrOppgittBarn) {
     if (fnrOppgittBarn == null || fnrOppgittBarn.length() < 1) {

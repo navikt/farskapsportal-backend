@@ -19,7 +19,7 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.exception.FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException;
+import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -154,7 +154,7 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.save(mappingUtil.toEntity(FARSKAPSERKLAERING));
 
       // when, then
-      assertThrows(FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException.class,
+      assertThrows(EksisterendeFarskapserklaeringException.class,
           () -> persistenceService.lagreFarskapserklaering(FARSKAPSERKLAERING));
     }
   }
