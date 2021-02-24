@@ -44,7 +44,7 @@ spec:
       value: {{ aud }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
       value: virksomhetssertifikat-dev
-    - name: ESIGNERING_FULLFOERT_URL
+    - name: ESIGNERING_SUKSESS_URL
       value: {{ posten_esignering_suksess_url }}
     - name: ESIGNERING_AVBRUTT_URL
       value: {{ posten_esignering_avbrutt_url }}

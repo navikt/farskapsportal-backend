@@ -8,7 +8,7 @@ farskapsportal.egenskaper:
   maks-antall-maaneder-etter-foedsel: 3
   nav.orgnummer: 889640782
   posten.esignering:
-    fullfoert-url: ${ESIGNERING_FULLFOERT_URL}
+    suksess-url: ${ESIGNERING_SUKSESS_URL}
     avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
     feilet-url: ${ESIGNERING_FEILET_URL}
 
@@ -82,7 +82,7 @@ spring:
   config.activate.on-profile: local, test, local-postgres, integration-test
   flyway.enabled: false
 
-ESIGNERING_FULLFOERT_URL: "http://localhost:8080/all-good"
+ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
 ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
 ESIGNERING_FEILET_URL: "http://localhost:8080/damn"
 
