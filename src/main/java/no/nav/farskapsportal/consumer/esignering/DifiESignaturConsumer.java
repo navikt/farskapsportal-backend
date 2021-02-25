@@ -5,13 +5,11 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.core.PAdESReference;
@@ -61,7 +59,7 @@ public class DifiESignaturConsumer {
     var document = DirectDocument.builder("Subject", "document.pdf", dokument.getInnhold()).build();
 
     var exitUrls = ExitUrls
-        .of(URI.create(farskapsportalEgenskaper.getEsigneringFullfoertUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
+        .of(URI.create(farskapsportalEgenskaper.getEsigneringSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
             URI.create(farskapsportalEgenskaper.getEsigneringFeiletUrl()));
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
@@ -108,8 +106,8 @@ public class DifiESignaturConsumer {
       throw new SigneringsjobbFeiletException("Signeringsjobben har status FAILED");
     }
 
-    var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull)
-        .map(signatur -> mapTilDto(signatur)).collect(Collectors.toList());
+    var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(signatur -> mapTilDto(signatur))
+        .collect(Collectors.toList());
 
     var dokumentstatus = DokumentStatusDto.builder().statuslenke(statuslenke).padeslenke(pAdESReference.getpAdESUrl())
         .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY)).signaturer(signaturer).build();
@@ -147,13 +145,14 @@ public class DifiESignaturConsumer {
     signatureierErIkkeNull(signature);
     var tidspunktForSignering = LocalDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
     var statusSignering = mapStatus(signature.getStatus());
-    var harSignert = StatusSignering.FULLFOERT.equals(statusSignering);
-    return SignaturDto.builder().signatureier(signature.getSigner()).harSignert(harSignert).statusSignering(statusSignering).tidspunktForSignering(tidspunktForSignering).build();
+    var harSignert = StatusSignering.SUKSESS.equals(statusSignering);
+    return SignaturDto.builder().signatureier(signature.getSigner()).harSignert(harSignert).statusSignering(statusSignering)
+        .tidspunktForSignering(tidspunktForSignering).build();
   }
 
   private StatusSignering mapStatus(SignerStatus signerStatus) {
     if (SignerStatus.SIGNED.equals(signerStatus)) {
-      return StatusSignering.FULLFOERT;
+      return StatusSignering.SUKSESS;
     } else if (SignerStatus.REJECTED.equals(signerStatus)) {
       return StatusSignering.AVBRUTT;
     } else {

@@ -16,8 +16,8 @@ public class FarskapsportalEgenskaper {
   private int maksAntallMaanederEtterFoedsel;
   @Value("${farskapsportal.egenskaper.nav.orgnummer}")
   private String orgnummerNav;
-  @Value("${farskapsportal.egenskaper.posten.esignering.fullfoert-url}")
-  private String esigneringFullfoertUrl;
+  @Value("${farskapsportal.egenskaper.posten.esignering.suksess-url}")
+  private String esigneringSuksessUrl;
   @Value("${farskapsportal.egenskaper.posten.esignering.avbrutt-url}")
   private String esigneringAvbruttUrl;
   @Value("${farskapsportal.egenskaper.posten.esignering.feilet-url}")
