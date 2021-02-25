@@ -12,6 +12,7 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
+import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersonopplysningService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
@@ -90,7 +91,7 @@ public class FarskapsportalController {
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 404, message = "Fant ikke dokument"), @ApiResponse(code = 500, message = "Serverfeil"),
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
-  public ResponseEntity<byte[]> henteDokumentEtterRedirect(
+  public ResponseEntity<FarskapserklaeringDto> henteDokumentEtterRedirect(
       @ApiParam(name = "status_query_token", type = "String", value = "statusQueryToken som mottatt fra e-signeringsløsningen i redirect-url", required = true) @RequestParam(name = "status_query_token") String statusQueryToken) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var signertDokument = farskapsportalService.henteSignertDokumentEtterRedirect(fnrPaaloggetPerson, statusQueryToken);
