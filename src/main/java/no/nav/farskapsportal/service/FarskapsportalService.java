@@ -245,7 +245,7 @@ public class FarskapsportalService {
    * @return kopi av signert dokument
    */
   @Transactional
-  public byte[] henteSignertDokumentEtterRedirect(String fnrPaaloggetPerson, String statusQueryToken) {
+  public FarskapserklaeringDto henteSignertDokumentEtterRedirect(String fnrPaaloggetPerson, String statusQueryToken) {
 
     // Forelder må være myndig
 
@@ -280,8 +280,12 @@ public class FarskapsportalService {
       }
     }
 
-    // returnerer kopi av signert dokument
-    return difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
+    // Oppdaterer dokumentinnhold
+    var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
+    aktuellFarskapserklaering.getDokument().setInnhold(signertDokument);
+
+    return mappingUtil.toDto(aktuellFarskapserklaering);
+
   }
 
   private boolean morOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
