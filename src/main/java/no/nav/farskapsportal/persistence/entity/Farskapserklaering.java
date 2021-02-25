@@ -74,7 +74,6 @@ public class Farskapserklaering implements Serializable {
 
   @Override
   public String toString() {
-    return "Farskapserklaering gjelder barn med termindato " + barn.getTermindato().toString() + "\n" + "Mor: " + mor.getFornavn() + " " + mor
-        .getEtternavn() + "\n" + "Far: " + far.getFornavn() + " " + far.getEtternavn();
+    return "Farskapserklaering gjelder " + barn.toString() + " med foreldrene: \n -Mor: " + mor.toString() + "\n -Far: " + far.toString();
   }
 }

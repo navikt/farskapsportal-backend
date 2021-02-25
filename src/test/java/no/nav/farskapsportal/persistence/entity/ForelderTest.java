@@ -126,6 +126,6 @@ public class ForelderTest {
 
     // when, then
     assertEquals(
-        toString, "Forelder: " + enForelder.getFornavn() + " " + enForelder.getEtternavn());
+        toString, enForelder.getFornavn() + " " + enForelder.getEtternavn());
   }
 }

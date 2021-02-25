@@ -48,6 +48,7 @@ import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
+import no.nav.farskapsportal.exception.ForskjelligeFedreException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
@@ -492,6 +493,52 @@ public class FarskapsportalServiceTest {
           OppretteFarskaperklaeringRequest.builder().barn(ufoedtBarn).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
+    @Test
+    @DisplayName("Skal kaste ForskjelligeFedreException dersom mor har åpen erklæring med annen far for nyfødte barn")
+    void skalKasteForskjelligeFedreExceptionDersomMorHarAapenErklaeringMedAnnenFarForNyfoedteBarn() {
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var enAnnenFar = ForelderDto.builder().fornavn("Svampe").etternavn("Bob").foedselsnummer(LocalDate.now().minusYears(35).format(DateTimeFormatter.ofPattern("ddMMyy")) + "01011").build();
+      var foedselsdatoNyfoedte = LocalDate.now().minusMonths(1);
+      var nyfoedtBarn1 = henteBarnMedFnr(foedselsdatoNyfoedte);
+      var nyfoedtBarn2 = BarnDto.builder().foedselsnummer(foedselsdatoNyfoedte.format(DateTimeFormatter.ofPattern("ddMMyy")) + "11111").build();
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
+          .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
+      var farskapserklaeringSomVenterPaaEnAnnenFarsSignatur = henteFarskapserklaering(MOR, enAnnenFar, nyfoedtBarn1);
+      var redirectUrlMor = lageUrl("redirect-mor");
+      var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+          .redirectUrlMor(redirectUrlMor).build();
+
+      farskapserklaeringSomVenterPaaEnAnnenFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now());
+
+      assertAll(() -> assertNotNull(farskapserklaeringSomVenterPaaEnAnnenFarsSignatur.getDokument().getSignertAvMor()),
+          () -> assertNotNull(farskapserklaeringSomVenterPaaEnAnnenFarsSignatur.getDokument().getPadesUrl()),
+          () -> assertNull(farskapserklaeringSomVenterPaaEnAnnenFarsSignatur.getDokument().getSignertAvFar()));
+
+      persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaEnAnnenFarsSignatur);
+
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
+          .thenReturn(Set.of(nyfoedtBarn2.getFoedselsnummer()));
+
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+
+      when(personopplysningService.henteFoedselsdato(nyfoedtBarn2.getFoedselsnummer())).thenReturn(foedselsdatoNyfoedte);
+      when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+
+      // when, then
+      assertThrows(ForskjelligeFedreException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+          OppretteFarskaperklaeringRequest.builder().barn(nyfoedtBarn2).opplysningerOmFar(opplysningerOmFar).build()));
+    }
 
     @Test
     @DisplayName("Skal kaste IllegalArgumentException dersom mor og far er samme person")

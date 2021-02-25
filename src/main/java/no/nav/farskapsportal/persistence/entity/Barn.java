@@ -63,6 +63,11 @@ public class Barn implements Serializable {
 
   @Override
   public String toString() {
-    return "Barn knyttet til termindato: " + termindato.toString();
+    if (termindato != null) {
+      return "Barn knyttet til termindato: " + termindato.toString();
+    } else  if (foedselsnummer != null){
+      return "Barn med fødselsnummer som starter med: " + foedselsnummer.substring(0,6);
+    }
+    return "Objektet mangler data";
   }
 }
