@@ -76,7 +76,7 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({PdlApiErrorException.class, ESigneringFeilException.class})
+  @ExceptionHandler({PdlApiErrorException.class, ESigneringFeilException.class, FeilIDatagrunnlagException.class})
   protected ResponseEntity<?> handlePdlApiException(Exception e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
@@ -104,7 +104,7 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({FarskapserklaeringMedSammeParterEksistererAlleredeIDatabasenException.class, MorHarIngenNyfoedteUtenFarException.class,
+  @ExceptionHandler({EksisterendeFarskapserklaeringException.class, MorHarIngenNyfoedteUtenFarException.class,
       ManglerRelasjonException.class, OppretteFarskapserklaeringException.class})
   protected ResponseEntity<?> handleOppretteFarskapExceptions(OppretteFarskapserklaeringException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");

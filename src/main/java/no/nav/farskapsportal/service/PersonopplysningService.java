@@ -21,6 +21,7 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
+import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
 import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
 import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
@@ -117,35 +118,36 @@ public class PersonopplysningService {
     return pdlApiConsumer.henteSivilstand(foedselsnummer);
   }
 
-  private NavnDto henteNavn(KontrollerePersonopplysningerRequest request) {
-    return henteNavn(request.getFoedselsnummer());
+  private NavnDto henteNavn(FarskapserklaeringDto dto) {
+    return henteNavn(dto.getFar().getFoedselsnummer());
   }
 
-  public void riktigNavnRolle(KontrollerePersonopplysningerRequest request, Forelderrolle paakrevdForelderrolle) {
-    Validate.isTrue(request.getFoedselsnummer() != null);
+
+  public void riktigNavnRolleFar(String foedselsnummer, String navn) {
+    Validate.isTrue(foedselsnummer != null);
 
     log.info("Kontrollerer opplysninger om far..");
 
-    var faktiskForelderrolle = bestemmeForelderrolle(request.getFoedselsnummer());
+    var faktiskForelderrolle = bestemmeForelderrolle(foedselsnummer);
 
-    if (!paakrevdForelderrolle.equals(faktiskForelderrolle)) {
+    if (!Forelderrolle.FAR.equals(faktiskForelderrolle)) {
       throw new FeilForelderrollePaaOppgittPersonException(
-          "Forventet forelderrolle: " + paakrevdForelderrolle + ", faktisk forelderrolle: " + faktiskForelderrolle);
+          "Forventet forelderrolle: " + Forelderrolle.FAR + ", faktisk forelderrolle: " + faktiskForelderrolle);
     }
 
-    NavnDto navnDto = henteNavn(request);
+    NavnDto navnDtoFraFolkeregisteret = henteNavn(foedselsnummer);
 
     // Validere input
-    Validate.isTrue(request.getNavn() != null);
-    navnekontroll(request, navnDto);
+    Validate.isTrue(navn != null);
+    navnekontroll(navn, navnDtoFraFolkeregisteret);
     log.info("Sjekk av oppgitt fars fødselsnummer, navn, og kjønn er gjennomført uten feil");
   }
 
-  private void navnekontroll(KontrollerePersonopplysningerRequest navnOppgitt, NavnDto navnFraRegister) {
+  private void navnekontroll(String navn, NavnDto navnFraRegister) {
 
     var sammenslaattNavnFraRegister = navnFraRegister.getFornavn() + hentMellomnavnHvisFinnes(navnFraRegister) + navnFraRegister.getEtternavn();
 
-    boolean navnStemmer = sammenslaattNavnFraRegister.equalsIgnoreCase(navnOppgitt.getNavn().replaceAll("\\s+", ""));
+    boolean navnStemmer = sammenslaattNavnFraRegister.equalsIgnoreCase(navn.replaceAll("\\s+", ""));
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
