@@ -74,6 +74,6 @@ public class Forelder implements Serializable {
 
   @Override
   public String toString() {
-    return "Forelder: " + fornavn + " " + (mellomnavn != null ? mellomnavn + " " : "") + etternavn;
+    return fornavn + " " + (mellomnavn != null ? mellomnavn + " " : "") + etternavn;
   }
 }

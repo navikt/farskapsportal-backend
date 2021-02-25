@@ -151,7 +151,7 @@ public class FarskapserklaeringTest {
 
     // then
     assertEquals(
-        "Farskapserklaering gjelder barn med termindato " + barn.getTermindato() + "\nMor: " + mor.getFornavn() + " " + mor.getEtternavn() + "\nFar: "
-            + far.getFornavn() + " " + far.getEtternavn(), toString);
+        "Farskapserklaering gjelder " + barn.toString() + " med foreldrene: \n -Mor: " + mor.toString() + "\n -Far: "
+            + far.toString(), toString);
   }
 }
