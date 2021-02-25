@@ -64,3 +64,4 @@ spec:
     outbound:
       external:
         - host: api.difitest.signering.posten.no
+        - host: secretmanager.googleapis.com
