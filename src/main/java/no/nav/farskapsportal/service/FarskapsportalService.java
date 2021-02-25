@@ -78,7 +78,7 @@ public class FarskapsportalService {
       // har mor noen nyfødte barn uten registrert far?
       nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrPaaloggetBruker);
 
-      var alleMorsAktiveErklaeringer = persistenceService.henteMorsErklaeringer(fnrPaaloggetBruker);
+      var alleMorsAktiveErklaeringer = persistenceService.henteMorsEksisterendeErklaeringer(fnrPaaloggetBruker);
 
       // Erklæringer som mangler mors signatur
       avventerSignereringPaaloggetBruker = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
@@ -205,8 +205,6 @@ public class FarskapsportalService {
         .isTrue(morOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer()), "Mor og far kan ikke være samme person!");
     // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
     Validate.isTrue(termindatoErGyldig(request.getBarn()), "Termindato er ikke innenfor gyldig intervall!");
-    ingenKonfliktMedEksisterendeErklaeringer(fnrMor, request);
-    
   }
 
 

@@ -60,3 +60,4 @@ spec:
     outbound:
       external:
         - host: api.signering.posten.no
+        - host: secretmanager.googleapis.com
