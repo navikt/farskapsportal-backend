@@ -185,7 +185,8 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnDto);
 
       // when, then
-      assertThrows(OppgittNavnStemmerIkkeMedRegistrertNavnException.class, () -> personopplysningService.riktigNavnRolle(request, Forelderrolle.FAR));
+      assertThrows(OppgittNavnStemmerIkkeMedRegistrertNavnException.class,
+          () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
     }
 
     @Test
@@ -205,7 +206,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnIFolkeregisteret);
 
       // when, then
-      personopplysningService.riktigNavnRolle(request, Forelderrolle.FAR);
+      personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn());
     }
 
     @Test
@@ -225,7 +226,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnIFolkeregisteret);
 
       // when, then
-      personopplysningService.riktigNavnRolle(request, Forelderrolle.FAR);
+      personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn());
     }
 
     @Test
@@ -247,7 +248,8 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnDto);
 
       // when, then
-      assertThrows(FeilForelderrollePaaOppgittPersonException.class, () -> personopplysningService.riktigNavnRolle(request, Forelderrolle.FAR));
+      assertThrows(FeilForelderrollePaaOppgittPersonException.class,
+          () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
     }
   }
 

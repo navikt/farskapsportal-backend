@@ -75,8 +75,7 @@ public class PersistenceService {
   @Transactional
   public Farskapserklaering lagreFarskapserklaering(FarskapserklaeringDto dto) {
 
-    // Validere tilgang
-    morKanOppretteNyFarskapserklaering(dto);
+    ingenKonfliktMedEksisterendeFarskapserklaeringer(dto.getMor().getFoedselsnummer(), dto.getBarn());
 
     var eksisterendeMor = forelderDao.henteForelderMedFnr(dto.getMor().getFoedselsnummer());
     var eksisterendeFar = forelderDao.henteForelderMedFnr(dto.getFar().getFoedselsnummer());
@@ -137,16 +136,16 @@ public class PersistenceService {
     return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
   }
 
-  private void morKanOppretteNyFarskapserklaering(FarskapserklaeringDto dto) {
+  public void ingenKonfliktMedEksisterendeFarskapserklaeringer(String fnrMor, BarnDto barnDto) {
 
-    var barnErOppgittMedFoedselsnummer = dto.getBarn().getFoedselsnummer() != null && dto.getBarn().getFoedselsnummer().length() > 10;
+    var barnErOppgittMedFoedselsnummer = barnDto.getFoedselsnummer() != null && barnDto.getFoedselsnummer().length() > 10;
 
     // Hente eventuelle eksisterende farskapserklaeringer for mor
-    var morsEksisterendeErklaeringer = henteMorsEksisterendeErklaeringer(dto.getMor().getFoedselsnummer());
+    var morsEksisterendeErklaeringer = henteMorsEksisterendeErklaeringer(fnrMor);
 
     // Hente eventuell eksisterende farskapserklaering for barn, hvis barn oppgitt med fnr
     var barnsEksisterendeErklaering =
-        barnErOppgittMedFoedselsnummer ? henteBarnsEksisterendeErklaering(dto.getBarn().getFoedselsnummer()) : Optional.empty();
+        barnErOppgittMedFoedselsnummer ? henteBarnsEksisterendeErklaering(barnDto.getFoedselsnummer()) : Optional.empty();
 
     if (!barnErOppgittMedFoedselsnummer && !morsEksisterendeErklaeringer.isEmpty()) {
       throw new EksisterendeFarskapserklaeringException(Feilkode.ERKLAERING_EKSISTERER_MOR);
