@@ -9,14 +9,8 @@
   "gcp_sqlInstances_databases_envVarPrefix": "DB",
   "gcp_sqlInstances_databases_name": "fpdb-main",
   "gcp_sqlInstances_name": "fp-main",
-<<<<<<< HEAD
-  "posten_esignering_sukess_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/redirect",
-  "posten_esignering_avbrutt_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/avbrutt",
-  "posten_esignering_feilet_url": "https://farskapsportal-api.dev.nav.no/api/v1/farskapsportal/farskapserklaering/signering/feilet"
-=======
   "posten_esignering_suksess_url": "https://farskapsportal.dev.nav.no/suksess",
   "posten_esignering_avbrutt_url": "https://farskapsportal.dev.nav.no/avbrutt",
   "posten_esignering_feilet_url": "https://farskapsportal.dev.nav.no/feilet",
   "integration_test_controller_paa": true
->>>>>>> main
 }
