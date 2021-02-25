@@ -48,10 +48,7 @@ import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
-<<<<<<< HEAD
 import no.nav.farskapsportal.exception.ForskjelligeFedreException;
-=======
->>>>>>> main
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
@@ -496,10 +493,10 @@ public class FarskapsportalServiceTest {
           OppretteFarskaperklaeringRequest.builder().barn(ufoedtBarn).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
-<<<<<<< HEAD
     @Test
     @DisplayName("Skal kaste ForskjelligeFedreException dersom mor har åpen erklæring med annen far for nyfødte barn")
     void skalKasteForskjelligeFedreExceptionDersomMorHarAapenErklaeringMedAnnenFarForNyfoedteBarn() {
+
       // rydde testdata
       farskapserklaeringDao.deleteAll();
 
@@ -543,8 +540,6 @@ public class FarskapsportalServiceTest {
       assertThrows(ForskjelligeFedreException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskaperklaeringRequest.builder().barn(nyfoedtBarn2).opplysningerOmFar(opplysningerOmFar).build()));
     }
-=======
->>>>>>> main
 
     @Test
     @DisplayName("Skal kaste IllegalArgumentException dersom mor og far er samme person")

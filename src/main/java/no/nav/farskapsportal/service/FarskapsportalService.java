@@ -206,11 +206,7 @@ public class FarskapsportalService {
     // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
     Validate.isTrue(termindatoErGyldig(request.getBarn()), "Termindato er ikke innenfor gyldig intervall!");
     // Sjekke at ny farskapserklæring ikke kommmer i konflikt med eksisterende
-<<<<<<< HEAD
     persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer(),
-=======
-    persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(fnrMor,
->>>>>>> main
         BarnDto.builder().termindato(request.getBarn().getTermindato()).foedselsnummer(request.getBarn().getFoedselsnummer()).build());
   }
 
