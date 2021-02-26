@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
@@ -47,19 +48,18 @@ public class PdlApiConsumer {
     var foedselDtosFraPdlEllerFreg = foedselDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (foedselDtosFraPdlEllerFreg.isEmpty()) {
-      throw new PersonIkkeFunnetException("Respons fra PDL inneholdt ingen informasjon om personens foedselsdato...");
+      throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
     }
 
     return foedselDtos.stream().filter(Objects::nonNull).map(FoedselDto::getFoedselsdato).findFirst()
-        .orElseThrow(() -> new PdlApiException("Feil oppstod ved henting av fødselsdato for person"));
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
   public List<FamilierelasjonerDto> henteFamilierelasjoner(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
     var familierelasjonerDtos = respons.getData().getHentPerson().getFamilierelasjoner();
-    var familierelasjonerFraPdlEllerFreg = familierelasjonerDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
+    return familierelasjonerDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
 
-    return familierelasjonerFraPdlEllerFreg;
   }
 
   public KjoennDto henteKjoennUtenHistorikk(String foedselsnummer) {
@@ -82,7 +82,7 @@ public class PdlApiConsumer {
     var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (kjoennFraPdlEllerFreg.isEmpty()) {
-      throw new PersonIkkeFunnetException("Respons fra PDL inneholdt ingen informasjon om kjønn...");
+      throw new RessursIkkeFunnetException(Feilkode.PDL_KJOENN_INGEN_INFO);
     }
 
     return kjoennFraPdlEllerFreg;
@@ -96,7 +96,7 @@ public class PdlApiConsumer {
     var navnFraPdlEllerFreg = navnDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (navnFraPdlEllerFreg.isEmpty()) {
-      throw new PersonIkkeFunnetException("Fant ikke personens navn i PDL");
+      throw new RessursIkkeFunnetException(Feilkode.PDL_NAVN_IKKE_FUNNET);
     }
 
     var navnDto = navnFraPdlEllerFreg.stream().filter(Objects::nonNull)
@@ -116,13 +116,11 @@ public class PdlApiConsumer {
     var sivilstandFraPdlEllerFreg = sivilstandDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (sivilstandFraPdlEllerFreg.isEmpty()) {
-      throw new PersonIkkeFunnetException("Fant ikke informasjon om personens sivilstand i PDL");
+      throw new RessursIkkeFunnetException(Feilkode.PDL_SIVILSTAND_IKKE_FUNNET);
     }
 
-    var sivilstandDto = sivilstandFraPdlEllerFreg.stream().filter(Objects::nonNull)
+    return sivilstandFraPdlEllerFreg.stream().filter(Objects::nonNull)
         .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av sivilstand, forventet bare et innslag av sivilstand på person")));
-
-    return sivilstandDto;
   }
 
   @Retryable(maxAttempts = 10)
@@ -134,6 +132,7 @@ public class PdlApiConsumer {
     try {
       response = restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
     } catch (Exception e) {
+      // Håndterer evnt feil i checkForPdlApiErrors
       e.printStackTrace();
     }
 
@@ -150,7 +149,7 @@ public class PdlApiConsumer {
 
       for (PdlApiError error : errors) {
         if (error.getMessage().contains("Fant ikke person") && error.getCode().contains("not_found")) {
-          throw new PersonIkkeFunnetException("Fant ikke person i PDL");
+          throw new RessursIkkeFunnetException(Feilkode.PDL_PERSON_IKKE_FUNNET);
         }
       }
       throw new PdlApiErrorException(errors);

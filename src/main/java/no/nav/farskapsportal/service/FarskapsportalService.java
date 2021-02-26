@@ -4,7 +4,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -30,8 +29,8 @@ import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
-import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
+import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.apache.commons.lang3.Validate;
@@ -60,20 +59,16 @@ public class FarskapsportalService {
     Set<FarskapserklaeringDto> avventerRegistreringSkatt = new HashSet<>();
     Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
     var kanOppretteFarskapserklaering = false;
-    Optional<Feilkode> feilkodeTilgang;
 
     // Avbryte videre flyt dersom bruker ikke er myndig eller har en rolle som ikke støttes av løsningen
-    feilkodeTilgang = vurdereTilgangBasertPaaAlderOgForeldrerolle(fnrPaaloggetBruker, brukersForelderrolle);
-    if (feilkodeTilgang.isPresent()) {
-      return BrukerinformasjonResponse.builder().feilkodeTilgang(feilkodeTilgang).forelderrolle(brukersForelderrolle)
-          .kanOppretteFarskapserklaering(false).gyldigForelderrolle(false).build();
-    }
+    validereTilgangBasertPaaAlderOgForeldrerolle(fnrPaaloggetBruker, brukersForelderrolle);
 
     if (Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
       // Vurdere om sivilstand kvalifiserer til at mor kan bruke løsningen
-      feilkodeTilgang = getFeilkode(fnrPaaloggetBruker);
-      kanOppretteFarskapserklaering = feilkodeTilgang.isEmpty();
+      validereSivilstand(fnrPaaloggetBruker);
+
+      kanOppretteFarskapserklaering = true;
 
       // har mor noen nyfødte barn uten registrert far?
       nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrPaaloggetBruker);
@@ -105,54 +100,51 @@ public class FarskapsportalService {
       // Avventer registrering hos Skatt. For rolle MOR_ELLER_FAR kan lista allerede inneholde innslag for mor
       avventerRegistreringSkatt.addAll(
           farsErklaeringer.stream().filter(Objects::nonNull).filter(fe -> null != fe.getDokument().getSignertAvFar()).collect(Collectors.toSet()));
-
     }
 
     return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).avventerSigneringMotpart(avventerSigneringMotpart)
         .fnrNyligFoedteBarnUtenRegistrertFar(nyligFoedteBarnSomManglerFar).gyldigForelderrolle(true)
         .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).avventerSigneringBruker(avventerSignereringPaaloggetBruker)
-        .avventerRegistrering(avventerRegistreringSkatt).feilkodeTilgang(feilkodeTilgang).build();
+        .avventerRegistrering(avventerRegistreringSkatt).build();
   }
 
 
-  private Optional<Feilkode> vurdereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
-
+  private void validereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
     // Kun myndige personer kan bruke løsningen
-    if (!erMyndig(foedselsnummer)) {
-      return Optional.of(Feilkode.IKKE_MYNDIG);
-      // Løsningen er ikke åpen for medmor eller person med udefinerbar forelderrolle
-    } else if (Forelderrolle.MEDMOR.equals(forelderrolle) || Forelderrolle.UKJENT.equals(forelderrolle)) {
-      return Optional.of(Feilkode.MEDMOR_ELLER_UKJENT);
+    erMyndig(foedselsnummer);
+
+    // Løsningen er ikke åpen for medmor eller person med udefinerbar forelderrolle
+    if (Forelderrolle.MEDMOR.equals(forelderrolle) || Forelderrolle.UKJENT.equals(forelderrolle)) {
+      throw new ValideringException(Feilkode.MEDMOR_ELLER_UKJENT);
     }
-    return Optional.empty();
   }
 
-  private boolean erMyndig(String foedselsnummer) {
+  private void erMyndig(String foedselsnummer) {
     var foedselsdato = personopplysningService.henteFoedselsdato(foedselsnummer);
-    return LocalDate.now().minusYears(18).isAfter(foedselsdato.minusDays(1));
+    if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
+      throw new ValideringException(Feilkode.IKKE_MYNDIG);
+    }
   }
 
-  private Optional<Feilkode> getFeilkode(String foedselsnummer) {
+  private void validereSivilstand(String foedselsnummer) {
     var sivilstand = personopplysningService.henteSivilstand(foedselsnummer);
-    return switch (sivilstand.getType()) {
-      case GIFT -> Optional.of(Feilkode.MOR_SIVILSTAND_GIFT);
-      case REGISTRERT_PARTNER -> Optional.of(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER);
-      case UOPPGITT -> Optional.of(Feilkode.MOR_SIVILSTAND_UOPPGITT);
-      default -> Optional.empty();
-    };
+    switch (sivilstand.getType()) {
+      case GIFT -> throw new ValideringException(Feilkode.MOR_SIVILSTAND_GIFT);
+      case REGISTRERT_PARTNER -> throw new ValideringException(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER);
+      case UOPPGITT -> throw new ValideringException(Feilkode.MOR_SIVILSTAND_UOPPGITT);
+    }
   }
 
   private void riktigRolleForOpprettingAvErklaering(String fnrPaaloggetPerson) {
     log.info("Sjekker om person kan opprette farskapserklaering..");
 
-    var feilkode = getFeilkode(fnrPaaloggetPerson);
+    validereSivilstand(fnrPaaloggetPerson);
 
     var kjoennPaaloggetPerson = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-    var paaloggetPersonKanOpptreSomMor =
-        feilkode.isEmpty() && (Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson));
+    var paaloggetPersonKanOpptreSomMor = Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson);
 
     if (!paaloggetPersonKanOpptreSomMor) {
-      throw new OppretteFarskapserklaeringException(feilkode.isEmpty() ? Feilkode.FEIL_ROLLE_OPPRETTE : feilkode.get());
+      throw new ValideringException(Feilkode.FEIL_ROLLE_OPPRETTE);
     }
   }
 
@@ -189,13 +181,13 @@ public class FarskapsportalService {
 
   private void validereTilgang(String fnrMor, OppretteFarskaperklaeringRequest request) {
     // Mor må være myndig
-    Validate.isTrue(erMyndig(fnrMor), "Mor kan ikke bruke løsningen dersom hun ikke er myndig");
+    erMyndig(fnrMor);
     // Bare mor kan oppretteFarskapserklæring
     riktigRolleForOpprettingAvErklaering(fnrMor);
     // Kontrollere opplysninger om far i request
     personopplysningService.riktigNavnRolleFar(request.getOpplysningerOmFar().getFoedselsnummer(), request.getOpplysningerOmFar().getNavn());
     // Far må være myndig
-    Validate.isTrue(erMyndig(request.getOpplysningerOmFar().getFoedselsnummer()), "Far må være myndig");
+    erMyndig(request.getOpplysningerOmFar().getFoedselsnummer());
     // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
     validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
     // Validere alder på nyfødt
@@ -204,7 +196,7 @@ public class FarskapsportalService {
     Validate
         .isTrue(morOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer()), "Mor og far kan ikke være samme person!");
     // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
-    Validate.isTrue(termindatoErGyldig(request.getBarn()), "Termindato er ikke innenfor gyldig intervall!");
+    termindatoErGyldig(request.getBarn());
     // Sjekke at ny farskapserklæring ikke kommmer i konflikt med eksisterende
     persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer(),
         BarnDto.builder().termindato(request.getBarn().getTermindato()).foedselsnummer(request.getBarn().getFoedselsnummer()).build());
@@ -248,8 +240,7 @@ public class FarskapsportalService {
   public FarskapserklaeringDto henteSignertDokumentEtterRedirect(String fnrPaaloggetPerson, String statusQueryToken) {
 
     // Forelder må være myndig
-
-    Validate.isTrue(erMyndig(fnrPaaloggetPerson), "Person må være myndig for å bruke løsningen");
+    erMyndig(fnrPaaloggetPerson);
 
     var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
 
@@ -293,16 +284,22 @@ public class FarskapsportalService {
     return !fnrMor.equals(fnrFar);
   }
 
-  private boolean termindatoErGyldig(BarnDto barnDto) {
+  private void termindatoErGyldig(BarnDto barnDto) {
     log.info("Validerer termindato");
+
     if (barnDto.getFoedselsnummer() != null && !barnDto.getFoedselsnummer().isBlank() && barnDto.getFoedselsnummer().length() > 10) {
       log.info("Termindato er ikke oppgitt");
-      return true;
+      return;
     } else {
       var nedreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMinAntallUkerTilTermindato() - 1);
       var oevreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 1);
-      return nedreGrense.isBefore(barnDto.getTermindato()) && oevreGrense.isAfter(barnDto.getTermindato());
+      if (nedreGrense.isBefore(barnDto.getTermindato()) && oevreGrense.isAfter(barnDto.getTermindato())) {
+        log.info("Termindato validert");
+        return;
+      }
     }
+
+    throw new ValideringException(Feilkode.TERMINDATO_UGYLDIG);
   }
 
   @Transactional

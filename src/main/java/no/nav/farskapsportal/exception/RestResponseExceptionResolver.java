@@ -1,13 +1,13 @@
 package no.nav.farskapsportal.exception;
 
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
-import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.FarskapserklaeringFeilResponse;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.esignering.ESigneringFeilException;
 import no.nav.farskapsportal.consumer.pdl.PdlApiErrorException;
-import no.nav.farskapsportal.consumer.pdl.PersonIkkeFunnetException;
+import no.nav.farskapsportal.consumer.pdl.RessursIkkeFunnetException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +50,16 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler(FeilForelderrollePaaOppgittPersonException.class)
-  protected ResponseEntity<?> handleFeilKjoennPaaOppgittFarException(FeilForelderrollePaaOppgittPersonException e) {
+  @ExceptionHandler(ValideringException.class)
+  protected ResponseEntity<?> handleValideringException(ValideringException e) {
+    exceptionLogger.logException(e, "RestResponseExceptionResolver");
+
+    return generereFeilrespons("Validering av innleste verdier feilet!", e.getFeilkode(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ResponseBody
+  @ExceptionHandler({FeilForelderrollePaaOppgittPersonException.class, OppgittNavnStemmerIkkeMedRegistrertNavnException.class})
+  protected ResponseEntity<?> handleUnrecoverableException(UnrecoverableException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     var feilmelding = "Restkall feilet!";
@@ -63,34 +71,38 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler(OppgittNavnStemmerIkkeMedRegistrertNavnException.class)
-  protected ResponseEntity<?> handleOppgittNavnStemmerIkkeMedRegistrertNavnException(OppgittNavnStemmerIkkeMedRegistrertNavnException e) {
+  @ExceptionHandler(PdlApiErrorException.class)
+  protected ResponseEntity<?> handlePdlApiException(PdlApiErrorException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = "Restkall feilet!";
+    var feilmelding = "Feil oppstod i kommunikasjon med PDL!";
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.WARNING, feilmelding);
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
+    return generereFeilrespons(feilmelding, e.getFeilkode(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ResponseBody
-  @ExceptionHandler({PdlApiErrorException.class, ESigneringFeilException.class, FeilIDatagrunnlagException.class})
-  protected ResponseEntity<?> handlePdlApiException(Exception e) {
+  @ExceptionHandler(ESigneringFeilException.class)
+  protected ResponseEntity<?> handleEsigneringFeilException(ESigneringFeilException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = "Restkall feilet!";
+    var feilmelding = "Feil oppstod i kommunikasjon med PDL!";
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.WARNING, feilmelding);
+    return generereFeilrespons(feilmelding, e.getFeilkode(), HttpStatus.INTERNAL_SERVER_ERROR);
 
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.INTERNAL_SERVER_ERROR));
   }
 
   @ResponseBody
-  @ExceptionHandler(PersonIkkeFunnetException.class)
+  @ExceptionHandler(FeilIDatagrunnlagException.class)
+  protected ResponseEntity<?> handleFeilIDatagrunnlagException(FeilIDatagrunnlagException e) {
+    exceptionLogger.logException(e, "RestResponseExceptionResolver");
+
+    var feilmelding = "Feil oppstod i kommunikasjon med PDL!";
+
+    return generereFeilrespons(feilmelding, e.getFeilkode(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ResponseBody
+  @ExceptionHandler(RessursIkkeFunnetException.class)
   protected ResponseEntity<?> handlePersonIkkeFunnetException(Exception e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
@@ -104,36 +116,32 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({EksisterendeFarskapserklaeringException.class, MorHarIngenNyfoedteUtenFarException.class,
-      ManglerRelasjonException.class, OppretteFarskapserklaeringException.class})
+  @ExceptionHandler({EksisterendeFarskapserklaeringException.class, MorHarIngenNyfoedteUtenFarException.class, ManglerRelasjonException.class,
+      OppretteFarskapserklaeringException.class})
   protected ResponseEntity<?> handleOppretteFarskapExceptions(OppretteFarskapserklaeringException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = String.format("Restkall feilet: %s", e.getFeilkode().getBeskrivelse());
+    var feilmelding = "Opprettelse av farskapserklæring feilet!";
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.WARNING, feilmelding);
-
-    var respons = OppretteFarskapserklaeringResponse.builder().feilkode(Optional.of(e.getFeilkode())).build();
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(respons, headers, HttpStatus.BAD_REQUEST));
+    return generereFeilrespons(feilmelding, e.getFeilkode(), HttpStatus.BAD_REQUEST);
   }
 
   @ResponseBody
   @ExceptionHandler({OppretteSigneringsjobbException.class})
-    protected ResponseEntity<?> handleOppretteFarskapExceptions(OppretteSigneringsjobbException e) {
-      exceptionLogger.logException(e, "RestResponseExceptionResolver");
+  protected ResponseEntity<?> handleOppretteSigneringsjobbException(OppretteSigneringsjobbException e) {
+    exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-      var feilmelding = String.format("Restkall feilet: %s", e.getFeilkode().getBeskrivelse());
+    var feilmelding = "Opprettelse av esigneringsjobb hos Posten feilet!";
 
-      HttpHeaders headers = new HttpHeaders();
-      headers.add(HttpHeaders.WARNING, feilmelding);
-
-      e.printStackTrace();
-
-      var respons = OppretteFarskapserklaeringResponse.builder().feilkode(Optional.of(e.getFeilkode())).build();
-
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseEntity<>(respons, headers, HttpStatus.INTERNAL_SERVER_ERROR));
+    return generereFeilrespons(feilmelding, e.getFeilkode(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
+  private ResponseEntity<?> generereFeilrespons(String feilmelding, Feilkode feilkode, HttpStatus httpStatus) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.WARNING, feilmelding);
+
+    var respons = FarskapserklaeringFeilResponse.builder().feilkode(feilkode).feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
+
+    return ResponseEntity.status(httpStatus).body(new ResponseEntity<>(respons, headers, httpStatus));
+  }
 }
