@@ -28,8 +28,6 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
-import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
-import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
 import no.nav.farskapsportal.exception.ValideringException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -168,8 +166,8 @@ public class PersonopplysningServiceTest {
     }
 
     @Test
-    @DisplayName("Skal kaste OppgittNavnStemmerIkkeMedRegistrertNavnException dersom feil navn er oppgitt")
-    void skalKasteOppgittNavnStemmerIkkeMedRegistrertNavnExceptionDersomFeilNavnErOppgitt() {
+    @DisplayName("Skal kaste ValideringException dersom feil navn er oppgitt")
+    void skalKasteValideringExceptionDersomFeilNavnErOppgitt() {
 
       // given
       var personnummer = "12345";
@@ -186,8 +184,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnDto);
 
       // when, then
-      assertThrows(OppgittNavnStemmerIkkeMedRegistrertNavnException.class,
-          () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
+      assertThrows(ValideringException.class, () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
     }
 
     @Test
@@ -249,8 +246,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnDto);
 
       // when, then
-      assertThrows(ValideringException.class,
-          () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
+      assertThrows(ValideringException.class, () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
     }
   }
 

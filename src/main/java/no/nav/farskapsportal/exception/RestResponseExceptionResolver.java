@@ -24,19 +24,6 @@ public class RestResponseExceptionResolver {
   private final ExceptionLogger exceptionLogger;
 
   @ResponseBody
-  @ExceptionHandler(RestClientException.class)
-  protected ResponseEntity<?> handleRestClientException(RestClientException e) {
-    exceptionLogger.logException(e, "RestResponseExceptionResolver");
-
-    var feilmelding = "Restkall feilet!";
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.WARNING, feilmelding);
-
-    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.SERVICE_UNAVAILABLE));
-  }
-
-  @ResponseBody
   @ExceptionHandler(IllegalArgumentException.class)
   protected ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
@@ -55,19 +42,6 @@ public class RestResponseExceptionResolver {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     return generereFeilrespons("Validering av innleste verdier feilet!", e.getFeilkode(), HttpStatus.BAD_REQUEST);
-  }
-
-  @ResponseBody
-  @ExceptionHandler({FeilForelderrollePaaOppgittPersonException.class, OppgittNavnStemmerIkkeMedRegistrertNavnException.class})
-  protected ResponseEntity<?> handleUnrecoverableException(UnrecoverableException e) {
-    exceptionLogger.logException(e, "RestResponseExceptionResolver");
-
-    var feilmelding = "Restkall feilet!";
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.WARNING, feilmelding);
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.BAD_REQUEST));
   }
 
   @ResponseBody
@@ -103,16 +77,10 @@ public class RestResponseExceptionResolver {
 
   @ResponseBody
   @ExceptionHandler(RessursIkkeFunnetException.class)
-  protected ResponseEntity<?> handlePersonIkkeFunnetException(Exception e) {
+  protected ResponseEntity<?> handleRessursIkkeFunnetException(RessursIkkeFunnetException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = "Restkall feilet!";
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.WARNING, feilmelding);
-
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.NOT_FOUND));
-
+    return generereFeilrespons("Oppgitt ressurs ble ikke funnet!", e.getFeilkode(), HttpStatus.NOT_FOUND);
   }
 
   @ResponseBody

@@ -17,7 +17,8 @@ public enum Feilkode {
       "Mor kan ikke opprette farskapserklæringer med forskjellige fedre for samme kull nyfødte"), MOR_SIVILSTAND_GIFT(
       "Mor kan ikke opprette farskapserklæring dersom hun er gift"), MOR_SIVILSTAND_REGISTRERT_PARTNER(
       "Mor kan ikke opprette farskapserklæring dersom hun er registrert partner"), MOR_SIVILSTAND_UOPPGITT(
-      "Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"), OPPRETTE_SIGNERINGSJOBB(
+      "Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"), NAVN_STEMMER_IKKE_MED_REGISTER(
+      "Oppgitt navn til far stemmer ikke med fars navn i Folkeregisteret"), OPPRETTE_SIGNERINGSJOBB(
       "Feil oppstod ved opprettelse av signeringsjobb mot Posten"), PDL_FEIL("Respons fra PDL inneholder feil"), PDL_FOEDSELSDATO_TEKNISK_FEIL(
       "Feil inntraff ved henting av fødselsdato fra PDL for person"), PDL_FOEDSELSDATO_MANGLER(
       "Respons fra PDL inneholdt ingen informasjon om personens foedselsdato..."), PDL_KJOENN_LAVESTE_GYLDIGHETSTIDSPUNKT(

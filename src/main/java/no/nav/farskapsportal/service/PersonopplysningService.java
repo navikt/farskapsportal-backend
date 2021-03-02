@@ -20,8 +20,6 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
-import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
-import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
 import no.nav.farskapsportal.exception.ValideringException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
@@ -146,8 +144,7 @@ public class PersonopplysningService {
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
-      throw new OppgittNavnStemmerIkkeMedRegistrertNavnException(
-          "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret");
+      throw new ValideringException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
 
     log.info("Navnekontroll gjennomført uten feil");
