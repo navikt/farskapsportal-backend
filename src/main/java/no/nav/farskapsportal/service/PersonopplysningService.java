@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Kjoenn;
-import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
@@ -21,10 +20,7 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
-import no.nav.farskapsportal.dto.FarskapserklaeringDto;
-import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
-import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
-import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
+import no.nav.farskapsportal.exception.ValideringException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
 
@@ -86,6 +82,7 @@ public class PersonopplysningService {
     }
 
     // MEDMOR -> Fødekjønn == mann && gjeldende kjønn == kvinne
+    // TODO: Undersøke om person med fødekjønn mann, men med gjeldende kjønn kvinn kan opptre som far
     if (KjoennType.MANN.equals(foedekjoenn.getKjoenn()) && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MEDMOR;
     }
@@ -100,10 +97,10 @@ public class PersonopplysningService {
     }
 
     var minsteGyldighetstidspunkt = kjoennshistorikk.stream().map(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt())
-        .min(LocalDateTime::compareTo).orElseThrow(() -> new PdlApiException("Feil ved henting av laveste gyldighetstidspunkt for kjønnshistorikk"));
+        .min(LocalDateTime::compareTo).orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_LAVESTE_GYLDIGHETSTIDSPUNKT));
     return kjoennshistorikk.stream()
         .filter(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt().equals(minsteGyldighetstidspunkt)).findFirst()
-        .orElseThrow(() -> new PdlApiException("Feil ved henting av originalt kjønn"));
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ORIGINALT));
   }
 
   public KjoennDto henteGjeldendeKjoenn(String foedselsnummer) {
@@ -118,10 +115,6 @@ public class PersonopplysningService {
     return pdlApiConsumer.henteSivilstand(foedselsnummer);
   }
 
-  private NavnDto henteNavn(FarskapserklaeringDto dto) {
-    return henteNavn(dto.getFar().getFoedselsnummer());
-  }
-
 
   public void riktigNavnRolleFar(String foedselsnummer, String navn) {
     Validate.isTrue(foedselsnummer != null);
@@ -131,8 +124,8 @@ public class PersonopplysningService {
     var faktiskForelderrolle = bestemmeForelderrolle(foedselsnummer);
 
     if (!Forelderrolle.FAR.equals(faktiskForelderrolle)) {
-      throw new FeilForelderrollePaaOppgittPersonException(
-          "Forventet forelderrolle: " + Forelderrolle.FAR + ", faktisk forelderrolle: " + faktiskForelderrolle);
+      log.error("Forventet forelderrolle FAR, faktisk rolle: {}", faktiskForelderrolle);
+      throw new ValideringException(Feilkode.FEIL_ROLLE_FAR);
     }
 
     NavnDto navnDtoFraFolkeregisteret = henteNavn(foedselsnummer);
@@ -151,8 +144,7 @@ public class PersonopplysningService {
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
-      throw new OppgittNavnStemmerIkkeMedRegistrertNavnException(
-          "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret");
+      throw new ValideringException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
 
     log.info("Navnekontroll gjennomført uten feil");

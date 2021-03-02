@@ -18,7 +18,6 @@ import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
-import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
@@ -82,7 +81,7 @@ public class PdlApiConsumerTest {
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
       // when, then
-      assertThrows(PersonIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor));
+      assertThrows(RessursIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor));
     }
 
     @Test
@@ -134,7 +133,7 @@ public class PdlApiConsumerTest {
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
       // when, then
-      assertThrows(PersonIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennMedHistorikk(fnrMor));
+      assertThrows(RessursIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennMedHistorikk(fnrMor));
     }
   }
 

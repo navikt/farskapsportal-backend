@@ -13,8 +13,6 @@ import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 @Builder
 public class BrukerinformasjonResponse {
 
-  @ApiModelProperty(value = "Feilkode som påvirker tilgang", example = "false")
-  Optional<Feilkode> feilkodeTilgang;
   @ApiModelProperty(value = "Personen kan initiere prosessen for å erklære farskap", example = "true")
   boolean kanOppretteFarskapserklaering;
   @ApiModelProperty(value = "Personen har en foreldrerolle som er støttet av løsningen", example = "true")

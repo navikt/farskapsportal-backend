@@ -598,8 +598,8 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    @DisplayName("Skal returnere feilkode dersom farskapserklæring allerede eksisterer for utfødt barn med samme foreldre")
-    void skalReturnereFeilkodeDersomFarskapserklaeringAlleredeEksistererForUfoedtBarnMedSammeForeldre() {
+    @DisplayName("Skal gi BAD REQUEST dersom farskapserklæring allerede eksisterer for utfødt barn med samme foreldre")
+    void skalGiBadRequestDersomFarskapserklaeringAlleredeEksistererForUfoedtBarnMedSammeForeldre() {
 
       // given
       farskapserklaeringDao.deleteAll();
@@ -623,7 +623,7 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    @DisplayName("Skal gi BAD REQUEST dersom termindato er utenfor gyldig område")
+    @DisplayName("Skal skal gi BAD REQUEST dersom termindato er utenfor gyldig område")
     void skalGiBadRequestDersomTermindatoErUtenforGyldigOmraade() {
 
       // given
@@ -642,7 +642,7 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    @DisplayName("Skal gi BAD request dersom oppgitt nyfoedt mangler relasjon til mor")
+    @DisplayName("Skal gi BAD REQUEST dersom oppgitt nyfoedt mangler relasjon til mor")
     void skalGiBadRequestDersomOppgittNyfoedtManglerRelasjonTilMor() {
 
       // given
@@ -685,8 +685,8 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    @DisplayName("Opprettelse av farskapserklæring skal gi BAD REQUEST dersom mor er gift")
-    void opprettelseAvFarskapserklaeringSkalGiBadRequestDersomMorErGift() {
+    @DisplayName("Skal gi BAD REQUEST ved opprettelse av farskapserklæring dersom mor er gift")
+    void skalGiBadRequestVedOpprettelseAvFarskapserklaeringDersomMorErGift() {
 
       // given
       var sivilstandMor = Sivilstandtype.GIFT;

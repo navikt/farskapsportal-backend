@@ -85,7 +85,7 @@ public class DifiESignaturConsumer {
       } else if (signer.getPersonalIdentificationNumber().equals(far.getFoedselsnummer())) {
         dokument.setRedirectUrlFar(signer.getRedirectUrl());
       } else {
-        throw new ESigneringFeilException("Redirecturl for ukjent part mottatt fra signeringsløsningen!");
+        throw new ESigneringFeilException(Feilkode.ESIGNERING_REDIRECTURL_UKJENT);
       }
     }
   }
@@ -129,7 +129,7 @@ public class DifiESignaturConsumer {
 
   private void signatureierErIkkeNull(Signature signature) {
     if (signature.getSigner() == null) {
-      throw new ESigneringFeilException("Signatureier er null i respons fra esigneringsløsningen!");
+      throw new ESigneringFeilException(Feilkode.ESIGNERING_SIGNATUREIER_NULL);
     }
   }
 

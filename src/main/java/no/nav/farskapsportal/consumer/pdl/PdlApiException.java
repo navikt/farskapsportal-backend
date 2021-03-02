@@ -1,24 +1,18 @@
 package no.nav.farskapsportal.consumer.pdl;
 
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.exception.UnrecoverableException;
 
 public class PdlApiException extends UnrecoverableException {
-  private static final String default_message = "Det har oppstått en feil i kommunikasjon med PdlApi";
 
-  private final String message;
+  private final Feilkode feilkode;
 
-  public PdlApiException() {
-    super(default_message);
-    this.message = default_message;
+  public PdlApiException(Feilkode feilkode) {
+    super(feilkode.getBeskrivelse());
+    this.feilkode = feilkode;
   }
 
-  public PdlApiException(String message) {
-    super(message);
-    this.message = message;
-  }
-
-  @Override
-  public String getMessage() {
-    return this.message;
+  public Feilkode getFeilkode() {
+    return this.feilkode;
   }
 }

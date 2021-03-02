@@ -20,6 +20,7 @@ import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.exception.ForskjelligeFedreException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
+import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -149,7 +150,7 @@ public class PersistenceService {
         barnErOppgittMedFoedselsnummer ? henteBarnsEksisterendeErklaering(barnDto.getFoedselsnummer()) : Optional.empty();
 
     if (!barnErOppgittMedFoedselsnummer && !morsEksisterendeErklaeringer.isEmpty()) {
-      throw new EksisterendeFarskapserklaeringException(Feilkode.ERKLAERING_EKSISTERER_MOR);
+      throw new ValideringException(Feilkode.ERKLAERING_EKSISTERER_MOR);
     }
 
     if (barnErOppgittMedFoedselsnummer && !morsEksisterendeErklaeringer.isEmpty()) {

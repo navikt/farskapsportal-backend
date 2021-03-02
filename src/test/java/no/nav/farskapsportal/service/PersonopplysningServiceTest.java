@@ -20,7 +20,7 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.consumer.pdl.PersonIkkeFunnetException;
+import no.nav.farskapsportal.consumer.pdl.RessursIkkeFunnetException;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregistermetadataDto;
@@ -28,8 +28,7 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
-import no.nav.farskapsportal.exception.FeilForelderrollePaaOppgittPersonException;
-import no.nav.farskapsportal.exception.OppgittNavnStemmerIkkeMedRegistrertNavnException;
+import no.nav.farskapsportal.exception.ValideringException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -160,15 +159,15 @@ public class PersonopplysningServiceTest {
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
 
-      when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenThrow(PersonIkkeFunnetException.class);
+      when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenThrow(RessursIkkeFunnetException.class);
 
       // when, then
-      assertThrows(PersonIkkeFunnetException.class, () -> personopplysningService.bestemmeForelderrolle(foedselsnummer));
+      assertThrows(RessursIkkeFunnetException.class, () -> personopplysningService.bestemmeForelderrolle(foedselsnummer));
     }
 
     @Test
-    @DisplayName("Skal kaste OppgittNavnStemmerIkkeMedRegistrertNavnException dersom feil navn er oppgitt")
-    void skalKasteOppgittNavnStemmerIkkeMedRegistrertNavnExceptionDersomFeilNavnErOppgitt() {
+    @DisplayName("Skal kaste ValideringException dersom feil navn er oppgitt")
+    void skalKasteValideringExceptionDersomFeilNavnErOppgitt() {
 
       // given
       var personnummer = "12345";
@@ -185,8 +184,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnDto);
 
       // when, then
-      assertThrows(OppgittNavnStemmerIkkeMedRegistrertNavnException.class,
-          () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
+      assertThrows(ValideringException.class, () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
     }
 
     @Test
@@ -248,8 +246,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnDto);
 
       // when, then
-      assertThrows(FeilForelderrollePaaOppgittPersonException.class,
-          () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
+      assertThrows(ValideringException.class, () -> personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn()));
     }
   }
 

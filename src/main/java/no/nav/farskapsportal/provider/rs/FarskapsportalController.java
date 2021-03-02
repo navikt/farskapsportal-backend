@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.BrukerinformasjonResponse;
-import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
@@ -62,7 +62,7 @@ public class FarskapsportalController {
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 404, message = "Fant ikke fødselsnummer eller navn"), @ApiResponse(code = 500, message = "Serverfeil"),
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
-  public ResponseEntity<Void> kontrollereOpplysningerFar(@RequestBody KontrollerePersonopplysningerRequest request) {
+  public ResponseEntity<Feilkode> kontrollereOpplysningerFar(@RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
     personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn());
     log.info("Kontroll av personopplysninger fullført uten feil");
