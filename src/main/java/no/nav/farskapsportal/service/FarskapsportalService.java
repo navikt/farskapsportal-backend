@@ -111,18 +111,11 @@ public class FarskapsportalService {
 
   private void validereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
     // Kun myndige personer kan bruke løsningen
-    erMyndig(foedselsnummer);
+    personopplysningService.erMyndig(foedselsnummer);
 
     // Løsningen er ikke åpen for medmor eller person med udefinerbar forelderrolle
     if (Forelderrolle.MEDMOR.equals(forelderrolle) || Forelderrolle.UKJENT.equals(forelderrolle)) {
       throw new ValideringException(Feilkode.MEDMOR_ELLER_UKJENT);
-    }
-  }
-
-  private void erMyndig(String foedselsnummer) {
-    var foedselsdato = personopplysningService.henteFoedselsdato(foedselsnummer);
-    if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
-      throw new ValideringException(Feilkode.IKKE_MYNDIG);
     }
   }
 
@@ -150,7 +143,9 @@ public class FarskapsportalService {
 
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
     // Sjekker om mor skal kunne opprette ny farskapserklæring
-    validereTilgang(fnrMor, request);
+    validereTilgangMor(fnrMor, request);
+    // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
+    personopplysningService.riktigNavnRolleFar(request.getOpplysningerOmFar().getFoedselsnummer(), request.getOpplysningerOmFar().getNavn());
 
     var barn = BarnDto.builder().termindato(request.getBarn().getTermindato()).build();
     if (request.getBarn().getFoedselsnummer() != null && !request.getBarn().getFoedselsnummer().isBlank()) {
@@ -179,15 +174,11 @@ public class FarskapsportalService {
     return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor().toString()).build();
   }
 
-  private void validereTilgang(String fnrMor, OppretteFarskaperklaeringRequest request) {
+  private void validereTilgangMor(String fnrMor, OppretteFarskaperklaeringRequest request) {
     // Mor må være myndig
-    erMyndig(fnrMor);
+    personopplysningService.erMyndig(fnrMor);
     // Bare mor kan oppretteFarskapserklæring
     riktigRolleForOpprettingAvErklaering(fnrMor);
-    // Kontrollere opplysninger om far i request
-    personopplysningService.riktigNavnRolleFar(request.getOpplysningerOmFar().getFoedselsnummer(), request.getOpplysningerOmFar().getNavn());
-    // Far må være myndig
-    erMyndig(request.getOpplysningerOmFar().getFoedselsnummer());
     // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
     validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
     // Validere alder på nyfødt
@@ -240,7 +231,7 @@ public class FarskapsportalService {
   public FarskapserklaeringDto henteSignertDokumentEtterRedirect(String fnrPaaloggetPerson, String statusQueryToken) {
 
     // Forelder må være myndig
-    erMyndig(fnrPaaloggetPerson);
+    personopplysningService.erMyndig(fnrPaaloggetPerson);
 
     var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
 

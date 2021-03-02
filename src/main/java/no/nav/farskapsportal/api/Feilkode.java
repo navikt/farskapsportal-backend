@@ -10,7 +10,8 @@ public enum Feilkode {
       "Signatureier er null i respons fra esigneringsløsningen!"), ESIGNERING_REDIRECTURL_UKJENT(
       "Redirecturl for ukjent part mottatt fra esigneringsløsningen!"), FEIL_ROLLE_FAR(
       "Personen har ikke riktig rolle for å kunne opptre som far i løsningen"), FEIL_ROLLE_OPPRETTE(
-      "Personen har ikke rettigheter til å opprette farskapserklæring"), IKKE_MYNDIG("Personen er ikke myndig"), INGEN_NYFOEDTE_UTEN_FAR(
+      "Personen har ikke rettigheter til å opprette farskapserklæring"), FOEDSELNUMMER_MANGLER_FAR(
+      "Fødselsnummer mangler for oppgitt far!"), IKKE_MYNDIG("Personen er ikke myndig"), INGEN_NYFOEDTE_UTEN_FAR(
       "Mor er ikke registrert med noen nyfødte barn uten oppgitt far"), NYFODT_ER_FOR_GAMMEL(
       "Gyldighetsperioden for å erklære farskap er utløpt for oppgitt barn"), MEDMOR_ELLER_UKJENT(
       "Medmor eller person med ukjent roll kan ikke benytte løsningen"), FORSKJELLIGE_FEDRE(

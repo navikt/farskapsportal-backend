@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -21,7 +22,6 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.exception.ValideringException;
-import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -115,25 +115,34 @@ public class PersonopplysningService {
     return pdlApiConsumer.henteSivilstand(foedselsnummer);
   }
 
-
   public void riktigNavnRolleFar(String foedselsnummer, String navn) {
-    Validate.isTrue(foedselsnummer != null);
 
-    log.info("Kontrollerer opplysninger om far..");
+    var feilkode =
+        foedselsnummer == null || foedselsnummer.trim().length() < 1 ? Optional.of(Feilkode.FOEDSELNUMMER_MANGLER_FAR) : Optional.<Feilkode>empty();
+    feilkode = navn == null || navn.trim().length() < 1 ? Optional.of(Feilkode.FOEDSELNUMMER_MANGLER_FAR) : feilkode;
 
-    var faktiskForelderrolle = bestemmeForelderrolle(foedselsnummer);
+    feilkode = !Forelderrolle.FAR.equals(bestemmeForelderrolle(foedselsnummer)) ? Optional.of(Feilkode.FEIL_ROLLE_FAR) : feilkode;
 
-    if (!Forelderrolle.FAR.equals(faktiskForelderrolle)) {
-      log.error("Forventet forelderrolle FAR, faktisk rolle: {}", faktiskForelderrolle);
-      throw new ValideringException(Feilkode.FEIL_ROLLE_FAR);
+    if (feilkode.isPresent()) {
+      throw new ValideringException(feilkode.get());
     }
 
     NavnDto navnDtoFraFolkeregisteret = henteNavn(foedselsnummer);
 
     // Validere input
-    Validate.isTrue(navn != null);
     navnekontroll(navn, navnDtoFraFolkeregisteret);
+
+    // Far må være myndig
+    erMyndig(foedselsnummer);
+
     log.info("Sjekk av oppgitt fars fødselsnummer, navn, og kjønn er gjennomført uten feil");
+  }
+
+  public void erMyndig(String foedselsnummer) {
+    var foedselsdato = henteFoedselsdato(foedselsnummer);
+    if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
+      throw new ValideringException(Feilkode.IKKE_MYNDIG);
+    }
   }
 
   private void navnekontroll(String navn, NavnDto navnFraRegister) {
