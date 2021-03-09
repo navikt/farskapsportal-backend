@@ -3,8 +3,7 @@ package no.nav.farskapsportal.api;
 public enum Feilkode {
 
   BARN_MANGLER_RELASJON_TIL_MOR("Oppgitt barn mangler relasjon til mor"), BARN_HAR_FLERE_ERLAERINGER(
-      "Feil i datagrunnlag. Barnet er involvert i mer enn én farskapserklæering"), ERKLAERING_EKSISTERER_UFOEDT(
-      "Det eksisterer allerede en farskapserklæring med samme foreldrepar med termindato innenfor gyldig intervall"), ERKLAERING_EKSISTERER_BARN(
+      "Feil i datagrunnlag. Barnet er involvert i mer enn én farskapserklæering"), ERKLAERING_EKSISTERER_BARN(
       "Det eksisterer allrede en farskapserklæring for oppgitt barn"), ERKLAERING_EKSISTERER_MOR(
       "Mor har eksisterende farskapserklæring. Kan ikke opprette ny erklæring for ufødt barn."), ESIGNERING_SIGNATUREIER_NULL(
       "Signatureier er null i respons fra esigneringsløsningen!"), ESIGNERING_REDIRECTURL_UKJENT(
@@ -29,7 +28,6 @@ public enum Feilkode {
       "Feil ved henting av originalt kjønn fra PDL"), PDL_NAVN_IKKE_FUNNET("Fant ikke personens navn i PDL"), PDL_PERSON_IKKE_FUNNET(
       "Fant ikke person i PDL"), PDL_SIVILSTAND_IKKE_FUNNET("Fant ikke informasjon om personens sivilstand i PDL"), TERMINDATO_UGYLDIG(
       "Oppgitt termindato er ikke innenfor godkjent intervall");
-
 
   private final String beskrivelse;
 
