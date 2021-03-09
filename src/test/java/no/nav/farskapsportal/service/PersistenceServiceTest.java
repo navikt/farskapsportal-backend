@@ -186,6 +186,10 @@ public class PersistenceServiceTest {
     @DisplayName("Skal lagre ny instans av StatusKontrollereFar")
     void skalLagreNyInstansAvStatuskontrollereFar() {
 
+      // rydde testdata
+      statusKontrollereFarDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+
       // given
       var antallDagerTilNullsettingAvForsoek = 1;
       var navnDtoMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
