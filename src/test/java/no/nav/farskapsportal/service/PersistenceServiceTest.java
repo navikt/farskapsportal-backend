@@ -201,7 +201,11 @@ public class PersistenceServiceTest {
       var hentetStatusKontrollereFar = statusKontrollereFarDao.findById(lagretStatusKontrollereFar.getId());
 
       // then
-      assertThat(lagretStatusKontrollereFar).isEqualTo(hentetStatusKontrollereFar.get());
+      assertAll(
+          () -> assertThat(lagretStatusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(hentetStatusKontrollereFar.get().getAntallFeiledeForsoek()),
+          () -> assertThat(lagretStatusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isEqualTo(hentetStatusKontrollereFar.get().getTidspunktSisteFeiledeForsoek()),
+          () -> assertThat(lagretStatusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(hentetStatusKontrollereFar.get().getMor().getFoedselsnummer())
+          );
 
     }
 
