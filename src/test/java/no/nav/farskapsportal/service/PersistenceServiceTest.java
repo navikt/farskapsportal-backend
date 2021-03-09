@@ -203,7 +203,7 @@ public class PersistenceServiceTest {
       // then
       assertAll(
           () -> assertThat(lagretStatusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(hentetStatusKontrollereFar.get().getAntallFeiledeForsoek()),
-          () -> assertThat(lagretStatusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isEqualTo(hentetStatusKontrollereFar.get().getTidspunktSisteFeiledeForsoek()),
+          () -> assertThat(lagretStatusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isEqualToIgnoringSeconds(hentetStatusKontrollereFar.get().getTidspunktSisteFeiledeForsoek()),
           () -> assertThat(lagretStatusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(hentetStatusKontrollereFar.get().getMor().getFoedselsnummer())
           );
 
