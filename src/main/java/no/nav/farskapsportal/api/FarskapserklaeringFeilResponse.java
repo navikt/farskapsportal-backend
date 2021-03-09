@@ -8,5 +8,8 @@ import lombok.Value;
 public class FarskapserklaeringFeilResponse {
   Feilkode feilkode;
   String feilkodebeskrivelse;
+<<<<<<< HEAD
   int antallResterendeForsoek;
+=======
+>>>>>>> main
 }

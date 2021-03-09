@@ -27,6 +27,10 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+<<<<<<< HEAD
+=======
+import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
+>>>>>>> main
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
@@ -179,7 +183,12 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.save(mappingUtil.toEntity(FARSKAPSERKLAERING));
 
       // when, then
+<<<<<<< HEAD
       assertThrows(ValideringException.class, () -> persistenceService.lagreFarskapserklaering(FARSKAPSERKLAERING));
+=======
+      assertThrows(ValideringException.class,
+          () -> persistenceService.lagreFarskapserklaering(FARSKAPSERKLAERING));
+>>>>>>> main
     }
 
     @Test
