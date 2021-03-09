@@ -3,6 +3,7 @@ package no.nav.farskapsportal.service;
 import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -16,25 +17,27 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
-import no.nav.farskapsportal.exception.ForskjelligeFedreException;
 import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 public class PersistenceService {
+
+  private final PersonopplysningService personopplysningService;
 
   private final FarskapsportalEgenskaper farskapsportalEgenskaperConfig;
 
@@ -45,6 +48,8 @@ public class PersistenceService {
   private final ForelderDao forelderDao;
 
   private final DokumentDao dokumentDao;
+
+  private final StatusKontrollereFarDao kontrollereFarDao;
 
   private final MappingUtil mappingUtil;
 
@@ -67,6 +72,14 @@ public class PersistenceService {
     var forelder = forelderDao.findById(id)
         .orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ingen forelder med id %d i databasen", id)));
     return mappingUtil.toDto(forelder);
+  }
+
+  public Optional<ForelderDto> henteForelderMedFoedselsnummer(String foedselsnummer) {
+    var forelder = forelderDao.henteForelderMedFnr(foedselsnummer);
+    if (forelder.isPresent()) {
+      return Optional.of(mappingUtil.toDto(forelder.get()));
+    }
+    return Optional.empty();
   }
 
   public Dokument lagreDokument(DokumentDto dto) {
@@ -128,10 +141,38 @@ public class PersistenceService {
         } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
           return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
         }
-
       default:
         throw new PersonHarFeilRolleException(String.format("Foreldrerolle %s er foreløpig ikke støttet av løsningen.", forelderrolle));
     }
+  }
+
+  @Transactional
+  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, int antallDagerTilForsoekNullstilles) {
+    var statusKontrollereFar = kontrollereFarDao.henteStatusKontrollereFar(fnrMor);
+    if (statusKontrollereFar == null) {
+      return lagreNyStatusKontrollereFar(fnrMor);
+    } else {
+      var tidspunktNaarAntallForsoekNullstilles = statusKontrollereFar.getTidspunktSisteFeiledeForsoek().plusDays(antallDagerTilForsoekNullstilles);
+      var antallFeiledeForsoek =
+          statusKontrollereFar.getTidspunktSisteFeiledeForsoek().isBefore(tidspunktNaarAntallForsoekNullstilles) ? statusKontrollereFar
+              .getAntallFeiledeForsoek() : 0;
+      statusKontrollereFar.setAntallFeiledeForsoek(++antallFeiledeForsoek);
+      statusKontrollereFar.setTidspunktSisteFeiledeForsoek(LocalDateTime.now());
+      return statusKontrollereFar;
+    }
+  }
+
+  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor) {
+    var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
+    var mor = eksisterendeMor.isPresent() ? eksisterendeMor.get() : lagreForelder(getForelderDto(fnrMor, null));
+    var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(LocalDateTime.now()).antallFeiledeForsoek(1)
+        .build();
+    return kontrollereFarDao.save(statusKontrollereFar);
+  }
+
+  public Optional<StatusKontrollereFar> henteStatusKontrollereFar(String fnrMor) {
+    var statusKontrollereFar = kontrollereFarDao.henteStatusKontrollereFar(fnrMor);
+    return statusKontrollereFar == null ? Optional.empty() : Optional.of(kontrollereFarDao.henteStatusKontrollereFar(fnrMor));
   }
 
   private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
@@ -158,7 +199,7 @@ public class PersistenceService {
     }
 
     if (barnsEksisterendeErklaering.isPresent()) {
-      throw new EksisterendeFarskapserklaeringException(Feilkode.ERKLAERING_EKSISTERER_BARN);
+      throw new ValideringException(Feilkode.ERKLAERING_EKSISTERER_BARN);
     }
   }
 
@@ -166,7 +207,7 @@ public class PersistenceService {
       Set<FarskapserklaeringDto> morsEksisterendeFarskapserklaeringer) {
     for (FarskapserklaeringDto farskapserklaering : morsEksisterendeFarskapserklaeringer) {
       if (!fnrFar.equals(farskapserklaering.getFar().getFoedselsnummer())) {
-        throw new ForskjelligeFedreException(Feilkode.FORSKJELLIGE_FEDRE);
+        throw new ValideringException(Feilkode.FORSKJELLIGE_FEDRE);
       }
     }
   }
@@ -211,5 +252,11 @@ public class PersistenceService {
         .henteFarskapserklaeringer(dto.getMor().getFoedselsnummer(), dto.getFar().getFoedselsnummer(), nedreGrense, oevreGrense);
 
     return respons.isEmpty() ? Optional.empty() : respons.stream().findFirst();
+  }
+
+  private ForelderDto getForelderDto(String fnr, Forelderrolle rolle) {
+    var navn = personopplysningService.henteNavn(fnr);
+    return ForelderDto.builder().forelderrolle(rolle).foedselsnummer(fnr).fornavn(navn.getFornavn()).mellomnavn(navn.getMellomnavn())
+        .etternavn(navn.getEtternavn()).build();
   }
 }

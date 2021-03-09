@@ -496,16 +496,26 @@ public class FarskapsportalControllerTest {
     void skalGiOkDersomNavnOgKjoennErRiktig() {
 
       // given
-      var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
+      var fnrFar = "01057244444";
+      var fornavnFar = "Borat";
+      var etternavnFar = "Sagidiyev";
+      var registrertNavn = NavnDto.builder().fornavn(fornavnFar).etternavn(etternavnFar).build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
+      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(registrertNavn), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)));
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavn), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
+          fnrFar);
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+          new HentPersonSivilstand(Sivilstandtype.UGIFT)), MOR.getFoedselsnummer());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
-          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer("01057244444").navn("Borat Sagdiyev").build()),
+          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(fornavnFar + " " + etternavnFar).build()),
           HttpStatus.class);
 
       // then
@@ -517,7 +527,9 @@ public class FarskapsportalControllerTest {
     void skalGiBadRequestDersomOppgittFarErKvinne() {
 
       // given
-      var oppgittNavn = NavnDto.builder().fornavn("Natalya").etternavn("Sagdiyev").build();
+      var oppgittNavn = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
@@ -540,11 +552,15 @@ public class FarskapsportalControllerTest {
 
       // given
       var registrertNavn = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
       stsStub.runSecurityTokenServiceStub("jalla");
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(registrertNavn)));
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonNavn(registrertNavn)));
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
@@ -556,11 +572,13 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    @DisplayName("Skal gi not found dersom person ikke eksisterer i PDL")
-    void skalGiNotFoundDersomPersonIkkeEksistererIPdl() {
+    @DisplayName("Skal gi not found dersom oppgitt far ikke eksisterer i PDL")
+    void skalGiNotFoundDersomOppgittFarIkkeEksistererIPdl() {
 
       // given
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFoedsel(FOEDSELSDATO_MOR, false)));
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
       // when
@@ -840,7 +858,6 @@ public class FarskapsportalControllerTest {
 
       // then
       assertTrue(respons.getStatusCode().is2xxSuccessful());
-
     }
   }
 }

@@ -2,6 +2,7 @@ package no.nav.farskapsportal.util;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,9 +19,11 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,7 +41,6 @@ public class MappingUtilTest {
   private static final ForelderDto FAR_DTO = henteForelder(Forelderrolle.FAR);
   private static final DokumentDto DOKUMENT_DTO = getDokumentDto();
   private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(2).minusDays(13);
-
 
   @Autowired
   private MappingUtil mappingUtil;
@@ -245,5 +247,42 @@ public class MappingUtilTest {
 
     }
 
+    @Test
+    @DisplayName("Skal mappe StatusKontrollereFar - Entitet til DTO")
+    void skalMappeStatusKontrollereFarEntitetTilDto() {
+
+      // given
+      var tidspunktSisteFeiledeForsoek = LocalDateTime.now();
+      var antallFeiledeForsoek = 3;
+      var mor = mappingUtil.toEntity(MOR_DTO);
+      var entitet = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(tidspunktSisteFeiledeForsoek)
+          .antallFeiledeForsoek(antallFeiledeForsoek).build();
+
+      // when
+      var dto = mappingUtil.toDto(entitet);
+
+      // then
+      assertAll(() -> assertThat(MOR_DTO.getFoedselsnummer()).isEqualTo(dto.getMor().getFoedselsnummer()),
+          () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(dto.getTidspunktSisteFeiledeForsoek()),
+          () -> assertThat(antallFeiledeForsoek).isEqualTo(dto.getAntallFeiledeForsoek()));
+    }
+
+    @Test
+    @DisplayName("Skal mappe StatusKontrollereFar - DTO til entitet")
+    void skalMappeStatusKontrollereFarDtoTilEntitet() {
+
+      // given
+      var tidspunktSisteFeiledeForsoek = LocalDateTime.now();
+      var antallFeiledeForsoek = 3;
+      var dto  = StatusKontrollereFarDto.builder().mor(MOR_DTO).tidspunktSisteFeiledeForsoek(tidspunktSisteFeiledeForsoek).antallFeiledeForsoek(antallFeiledeForsoek).build();
+
+      // when
+      var entitet = mappingUtil.toEntity(dto);
+
+      // then
+      assertAll(() -> assertThat(MOR_DTO.getFoedselsnummer()).isEqualTo(entitet.getMor().getFoedselsnummer()),
+          () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(entitet.getTidspunktSisteFeiledeForsoek()),
+          () -> assertThat(antallFeiledeForsoek).isEqualTo(entitet.getAntallFeiledeForsoek()));
+    }
   }
 }

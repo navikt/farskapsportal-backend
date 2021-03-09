@@ -15,7 +15,8 @@ public enum Feilkode {
       "Mor er ikke registrert med noen nyfødte barn uten oppgitt far"), NYFODT_ER_FOR_GAMMEL(
       "Gyldighetsperioden for å erklære farskap er utløpt for oppgitt barn"), MEDMOR_ELLER_UKJENT(
       "Medmor eller person med ukjent roll kan ikke benytte løsningen"), FORSKJELLIGE_FEDRE(
-      "Mor kan ikke opprette farskapserklæringer med forskjellige fedre for samme kull nyfødte"), MOR_SIVILSTAND_GIFT(
+      "Mor kan ikke opprette farskapserklæringer med forskjellige fedre for samme kull nyfødte"), MAKS_ANTALL_FORSOEK(
+      "Mor har brukt opp antall mulige forsøk på å komme frem til riktig kombinasjon av fars fødselsnummer og navn"), MOR_SIVILSTAND_GIFT(
       "Mor kan ikke opprette farskapserklæring dersom hun er gift"), MOR_SIVILSTAND_REGISTRERT_PARTNER(
       "Mor kan ikke opprette farskapserklæring dersom hun er registrert partner"), MOR_SIVILSTAND_UOPPGITT(
       "Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"), NAVN_STEMMER_IKKE_MED_REGISTER(

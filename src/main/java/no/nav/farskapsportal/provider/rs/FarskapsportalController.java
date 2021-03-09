@@ -36,9 +36,6 @@ public class FarskapsportalController {
   private FarskapsportalService farskapsportalService;
 
   @Autowired
-  private PersonopplysningService personopplysningService;
-
-  @Autowired
   private OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
 
   @GetMapping("/brukerinformasjon")
@@ -51,7 +48,6 @@ public class FarskapsportalController {
   public ResponseEntity<BrukerinformasjonResponse> henteBrukerinformasjon() {
     log.info("Henter brukerinformasjon");
     var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(oidcTokenSubjectExtractor.hentPaaloggetPerson());
-
     return new ResponseEntity<>(brukerinformasjon, HttpStatus.OK);
   }
 
@@ -64,7 +60,9 @@ public class FarskapsportalController {
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
   public ResponseEntity<Feilkode> kontrollereOpplysningerFar(@RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
-    personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn());
+    var fnrMor = oidcTokenSubjectExtractor.hentPaaloggetPerson();
+    farskapsportalService.validereMor(fnrMor);
+    farskapsportalService.kontrollereFar(fnrMor, request);
     log.info("Kontroll av personopplysninger fullført uten feil");
     return new ResponseEntity<>(HttpStatus.OK);
   }
