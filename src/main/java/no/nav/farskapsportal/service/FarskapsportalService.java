@@ -219,7 +219,8 @@ public class FarskapsportalService {
   }
 
   private void validereRolleOgAlderFar(String foedselsnummer) {
-    if (!Forelderrolle.FAR.equals(personopplysningService.bestemmeForelderrolle(foedselsnummer))) {
+    var farsForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
+    if (!(Forelderrolle.FAR.equals(farsForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(farsForelderrolle))) {
       throw new ValideringException(Feilkode.FEIL_ROLLE_FAR);
     }
 
