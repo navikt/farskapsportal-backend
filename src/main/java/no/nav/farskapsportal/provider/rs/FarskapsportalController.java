@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,7 +82,7 @@ public class FarskapsportalController {
     return new ResponseEntity(respons, HttpStatus.OK);
   }
 
-  @GetMapping("/farskapserklaering/redirect")
+  @PostMapping("/farskapserklaering/redirect")
   @ApiOperation("Kalles etter redirect fra singeringsløsningen. Henter kopi av signert dokument fra "
       + "dokumentlager for pålogget person. Lagrer padeslenke. Oppdaterer signeringsstatus.")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "Dokumentet ble hentet, og padeslenke lagret uten feil"),

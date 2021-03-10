@@ -765,7 +765,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.GET, null, byte[].class);
+              .toString(), HttpMethod.POST, null, byte[].class);
 
       // then
       assertTrue(respons.getStatusCode().is2xxSuccessful());
@@ -810,7 +810,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.GET, null, byte[].class);
+              .toString(), HttpMethod.POST, null, byte[].class);
 
       // then
       assertTrue(respons.getStatusCode().is2xxSuccessful());
@@ -854,7 +854,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.GET, null, byte[].class);
+              .toString(), HttpMethod.POST, null, byte[].class);
 
       // then
       assertTrue(respons.getStatusCode().is2xxSuccessful());
