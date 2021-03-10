@@ -11,11 +11,6 @@ CREATE TABLE public.status_kontrollere_far
     CONSTRAINT status_kontrollere_far_pkey PRIMARY KEY (id)
 )
 
-    TABLESPACE pg_default;
-
-ALTER TABLE public.status_kontrollere_far
-    OWNER to jkskaar;
+TABLESPACE pg_default;
 
 GRANT ALL ON TABLE public.status_kontrollere_far TO cloudsqliamuser;
-
-GRANT ALL ON TABLE public.status_kontrollere_far TO jkskaar;
