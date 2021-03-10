@@ -25,8 +25,10 @@ import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.exception.UnrecoverableException;
+import no.nav.farskapsportal.exception.ValideringException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -131,9 +133,17 @@ public class PdlApiConsumer {
     GraphQLResponse response = null;
     try {
       response = restTemplate.postForEntity(endpoint, graphQlRequest, GraphQLResponse.class).getBody();
-    } catch (Exception e) {
+    } catch (HttpClientErrorException clientErrorException) {
+      clientErrorException.printStackTrace();
+      if (response == null) {
+        throw new ValideringException(Feilkode.PDL_PERSON_IKKE_FUNNET);
+      }
+    }  catch (Exception e) {
       // Håndterer evnt feil i checkForPdlApiErrors
       e.printStackTrace();
+      if (response == null) {
+        throw e;
+      }
     }
 
     log.info("Respons fra pdl-api: {}", response);

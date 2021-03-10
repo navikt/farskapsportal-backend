@@ -33,7 +33,6 @@ import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
-import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.util.MappingUtil;
@@ -364,7 +363,7 @@ public class FarskapsportalService {
       return persistenceService.henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
     }
 
-    throw new PersonHarFeilRolleException("Pålogget person kan verken opptre som mor eller far i løsningen!");
+    throw new ValideringException(Feilkode.FEIL_ROLLE);
   }
 
   private DokumentStatusDto henteDokumentstatusEtterRedirect(String statusQueryToken, Set<FarskapserklaeringDto> farskapserklaeringDtos) {

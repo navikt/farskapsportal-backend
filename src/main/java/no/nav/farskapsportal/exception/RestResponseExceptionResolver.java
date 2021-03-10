@@ -117,9 +117,10 @@ public class RestResponseExceptionResolver {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    var respons = statusKontrollereFarDto.isPresent() ? FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
-        .feilkodebeskrivelse(feilkode.getBeskrivelse()).build() : FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
-        .antallResterendeForsoek(statusKontrollereFarDto.get().getAntallResterendeForsoek()).feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
+    var respons = statusKontrollereFarDto.isEmpty() ? FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
+        .feilkodebeskrivelse(feilkode.getBeskrivelse()).build() : FarskapserklaeringFeilResponse.builder().feilkode(feilkode).antallResterendeForsoek(
+        Optional.of(statusKontrollereFarDto.get().getAntallResterendeForsoek()))
+        .feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
 
     return ResponseEntity.status(httpStatus).body(new ResponseEntity<>(respons, headers, httpStatus));
   }

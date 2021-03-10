@@ -18,7 +18,6 @@ import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
-import no.nav.farskapsportal.exception.PersonHarFeilRolleException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
@@ -142,7 +141,7 @@ public class PersistenceService {
           return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
         }
       default:
-        throw new PersonHarFeilRolleException(String.format("Foreldrerolle %s er foreløpig ikke støttet av løsningen.", forelderrolle));
+        throw new ValideringException(Feilkode.FEIL_ROLLE);
     }
   }
 
@@ -236,9 +235,8 @@ public class PersistenceService {
         } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
           return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
         }
-
       default:
-        throw new PersonHarFeilRolleException(String.format("Foreldrerolle %s er foreløpig ikke støttet av løsningen.", forelderrolle));
+        throw new ValideringException(Feilkode.FEIL_ROLLE);
     }
   }
 

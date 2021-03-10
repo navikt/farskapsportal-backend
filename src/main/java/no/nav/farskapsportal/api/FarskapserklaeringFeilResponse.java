@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.api;
 
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Value;
 
@@ -8,5 +9,5 @@ import lombok.Value;
 public class FarskapserklaeringFeilResponse {
   Feilkode feilkode;
   String feilkodebeskrivelse;
-  int antallResterendeForsoek;
+  Optional<Integer> antallResterendeForsoek;
 }
