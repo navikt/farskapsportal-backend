@@ -147,10 +147,11 @@ public class PersistenceService {
 
   @Transactional
   public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, int antallDagerTilForsoekNullstilles) {
-    var statusKontrollereFar = kontrollereFarDao.henteStatusKontrollereFar(fnrMor);
-    if (statusKontrollereFar == null) {
+    var muligStatusKontrollereFar = kontrollereFarDao.henteStatusKontrollereFar(fnrMor);
+    if (muligStatusKontrollereFar.isEmpty()) {
       return lagreNyStatusKontrollereFar(fnrMor);
     } else {
+      var statusKontrollereFar = muligStatusKontrollereFar.get();
       var tidspunktNaarAntallForsoekNullstilles = statusKontrollereFar.getTidspunktSisteFeiledeForsoek().plusDays(antallDagerTilForsoekNullstilles);
       var antallFeiledeForsoek =
           statusKontrollereFar.getTidspunktSisteFeiledeForsoek().isBefore(tidspunktNaarAntallForsoekNullstilles) ? statusKontrollereFar
@@ -171,7 +172,7 @@ public class PersistenceService {
 
   public Optional<StatusKontrollereFar> henteStatusKontrollereFar(String fnrMor) {
     var statusKontrollereFar = kontrollereFarDao.henteStatusKontrollereFar(fnrMor);
-    return statusKontrollereFar == null ? Optional.empty() : Optional.of(kontrollereFarDao.henteStatusKontrollereFar(fnrMor));
+    return statusKontrollereFar;
   }
 
   private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
