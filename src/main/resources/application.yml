@@ -7,6 +7,9 @@ farskapsportal.egenskaper:
   maks-antall-uker-til-termindato: 21
   maks-antall-maaneder-etter-foedsel: 3
   nav.orgnummer: 889640782
+  kontroll.far:
+    forsoek-fornyes-etter-antall-dager: 1
+    maks-antall-forsoek: 5
   posten.esignering:
     suksess-url: ${ESIGNERING_SUKSESS_URL}
     avbrutt-url: ${ESIGNERING_AVBRUTT_URL}

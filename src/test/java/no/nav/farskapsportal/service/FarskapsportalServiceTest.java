@@ -11,12 +11,14 @@ import static no.nav.farskapsportal.TestUtils.henteNyligFoedtBarn;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -43,13 +45,13 @@ import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.SignaturDto;
-import no.nav.farskapsportal.exception.EksisterendeFarskapserklaeringException;
-import no.nav.farskapsportal.exception.ForskjelligeFedreException;
+import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
+import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -77,6 +79,8 @@ public class FarskapsportalServiceTest {
   private PersistenceService persistenceService;
   @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired
+  private StatusKontrollereFarDao statusKontrollereFarDao;
   @Autowired
   private FarskapsportalService farskapsportalService;
   @Autowired
@@ -126,6 +130,7 @@ public class FarskapsportalServiceTest {
 
       // given
       farskapserklaeringDao.deleteAll();
+
       var farskapserklaeringSomManglerMorsSignatur = henteFarskapserklaering(MOR, FAR, BARN);
       farskapserklaeringSomManglerMorsSignatur.getDokument().setPadesUrl(null);
 
@@ -513,7 +518,7 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when, then
-      assertThrows(ForskjelligeFedreException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+      assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskaperklaeringRequest.builder().barn(nyfoedtBarn2).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
@@ -730,4 +735,159 @@ public class FarskapsportalServiceTest {
           () -> assertThat(respons.getDokument().getInnhold()).isEqualTo(farskapserklaering.getDokument().getInnhold()));
     }
   }
+
+  @Nested
+  @DisplayName("Teste kontrollereFar")
+  class KontrollereFar {
+
+    @Test
+    @DisplayName("Skal ikke kaste exception dersom fars navn er oppgitt riktig")
+    void skalIkkeKasteExceptionDersomFarsNavnErOppgittRiktig() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
+          .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+      doNothing().when(personopplysningService).navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar);
+
+      // when, then
+      assertDoesNotThrow(() -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
+
+      // rydde testdata
+      statusKontrollereFarDao.deleteAll();
+    }
+
+    @Test
+    @DisplayName("Skal kaste FeilNavnOppgittException dersom fars navn er oppgitt feil")
+    void skalKasteFeilNavnOppgittExceptionDersomFarsNavnErOppgittFeil() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer()).navn("Borat Sagidyev").build();
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+      doThrow(FeilNavnOppgittException.class).when(personopplysningService).navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar);
+
+      // when, then
+      assertThrows(FeilNavnOppgittException.class, () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
+
+      // rydde testdata
+      statusKontrollereFarDao.deleteAll();
+    }
+
+    @Test
+    @DisplayName("Skal kaste exception dersom antall forsøk er brukt opp")
+    void skalKasteExceptionDersomAntallForsoekErBruktOpp() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
+          .navn("Borat Sagidyev").build();
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+      doThrow(FeilNavnOppgittException.class).when(personopplysningService).navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar);
+
+      // when
+      // Bruker opp antall mulige forsøk på å finne frem til riktig kombinasjon av fnr og navn
+      for (int i = 0; i < 5; i++) {
+        assertThrows(FeilNavnOppgittException.class, () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
+      }
+
+      // then
+      // Sjette forsøk gir ValideringsException ettersom antall mulige forsøk er brukt opp
+      assertThrows(ValideringException.class, () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
+
+      // rydde testdata
+      statusKontrollereFarDao.deleteAll();
+
+    }
+  }
+
+  @Nested
+  @DisplayName("Teste validereMor")
+  class ValidereMor {
+
+    @Test
+    void myndigPersonMedFoedekjoennKvinneKanOpptreSomMor() {
+
+      // given
+      doNothing().when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+
+      // when, then
+      assertDoesNotThrow(() -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
+
+    }
+
+    @Test
+    void myndigGiftPersonMedFoedekjoennKvinneKanIkkeOpptreSomMor() {
+
+      // given
+      doNothing().when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.GIFT).build());
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+
+      // when, then
+      assertThrows(ValideringException.class, () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
+
+    }
+
+    @Test
+    void umyndigPersonMedFoedekjoennKvinneKanIkkeOpptreSomMor() {
+
+      // given
+      doThrow(ValideringException.class).when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.GIFT).build());
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+
+      // when, then
+      assertThrows(ValideringException.class, () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
+    }
+
+    @Test
+    void myndigMannMedFoedekjoennKvinneKanOpptreSomMor() {
+
+      // given
+      doNothing().when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR_ELLER_FAR);
+
+      // when, then
+      assertDoesNotThrow(() -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
+    }
+
+    @Test
+    void myndigMannMedFoedekjoennMannKanIkkeOpptreSomMor() {
+
+      // given
+      doNothing().when(personopplysningService).erMyndig(FAR.getFoedselsnummer());
+      when(personopplysningService.henteSivilstand(FAR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+
+      // when, then
+      assertThrows(ValideringException.class, () -> farskapsportalService.validereMor(FAR.getFoedselsnummer()));
+    }
+
+  }
+
+
 }

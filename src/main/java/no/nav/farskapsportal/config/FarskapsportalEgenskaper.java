@@ -14,6 +14,10 @@ public class FarskapsportalEgenskaper {
   private int maksAntallUkerTilTermindato;
   @Value("${farskapsportal.egenskaper.maks-antall-maaneder-etter-foedsel}")
   private int maksAntallMaanederEtterFoedsel;
+  @Value("${farskapsportal.egenskaper.kontroll.far.maks-antall-forsoek}")
+  private int maksAntallForsoek;
+  @Value("${farskapsportal.egenskaper.kontroll.far.forsoek-fornyes-etter-antall-dager}")
+  private int forsoekFornyesEtterAntallDager;
   @Value("${farskapsportal.egenskaper.nav.orgnummer}")
   private String orgnummerNav;
   @Value("${farskapsportal.egenskaper.posten.esignering.suksess-url}")

@@ -6,11 +6,13 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.exception.MappingException;
 import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,9 +40,9 @@ public class MappingUtil {
     try {
       var dto = modelMapper.map(dokument, DokumentDto.class);
 
-      dto.setPadesUrl(dokument.getPadesUrl() != null ? new URI(dokument.getPadesUrl()): null);
+      dto.setPadesUrl(dokument.getPadesUrl() != null ? new URI(dokument.getPadesUrl()) : null);
       dto.setDokumentStatusUrl(dokument.getDokumentStatusUrl() != null ? new URI(dokument.getDokumentStatusUrl()) : null);
-      dto.setRedirectUrlFar(dokument.getRedirectUrlFar() != null ? new URI(dokument.getRedirectUrlFar()): null);
+      dto.setRedirectUrlFar(dokument.getRedirectUrlFar() != null ? new URI(dokument.getRedirectUrlFar()) : null);
       dto.setRedirectUrlMor(dokument.getRedirectUrlMor() != null ? new URI(dokument.getRedirectUrlMor()) : null);
 
       return dto;
@@ -71,5 +73,17 @@ public class MappingUtil {
     farskapserklaeringDto.setDokument(dokumentDto);
 
     return farskapserklaeringDto;
+  }
+
+  public StatusKontrollereFar toEntity(StatusKontrollereFarDto statusKontrollereFarDto) {
+    var mor = toEntity(statusKontrollereFarDto.getMor());
+    return StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(statusKontrollereFarDto.getTidspunktSisteFeiledeForsoek())
+        .antallFeiledeForsoek(statusKontrollereFarDto.getAntallFeiledeForsoek()).build();
+  }
+
+  public StatusKontrollereFarDto toDto(StatusKontrollereFar statusKontrollereFar) {
+    var morDto = toDto(statusKontrollereFar.getMor());
+    return StatusKontrollereFarDto.builder().mor(morDto).tidspunktSisteFeiledeForsoek(statusKontrollereFar.getTidspunktSisteFeiledeForsoek())
+        .antallFeiledeForsoek(statusKontrollereFar.getAntallFeiledeForsoek()).build();
   }
 }

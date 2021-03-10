@@ -1,13 +1,12 @@
 package no.nav.farskapsportal.persistence.entity;
 
-import java.io.Serializable;
+import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,29 +23,24 @@ import org.springframework.validation.annotation.Validated;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-public class Farskapserklaering implements Serializable {
+public class StatusKontrollereFar {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private Barn barn;
-
   @ManyToOne(cascade = CascadeType.ALL)
   private Forelder mor;
 
-  @ManyToOne(cascade = CascadeType.ALL)
-  private Forelder far;
+  private int antallFeiledeForsoek;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private Dokument dokument;
+  private LocalDateTime tidspunktSisteFeiledeForsoek;
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (barn == null ? 0 : barn.hashCode()) + (mor == null ? 0 : mor.hashCode()) + (far == null ? 0 : far.hashCode());
+    result = prime * result + (mor == null ? 0 : mor.hashCode()) + antallFeiledeForsoek * prime + (tidspunktSisteFeiledeForsoek == null ? 0 : tidspunktSisteFeiledeForsoek.hashCode());
 
     return result;
   }
@@ -62,19 +56,23 @@ public class Farskapserklaering implements Serializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final Farskapserklaering other = (Farskapserklaering) obj;
+    final StatusKontrollereFar other = (StatusKontrollereFar) obj;
 
-    if (!barn.equals(other.barn)) {
-      return false;
-    }
     if (!mor.equals(other.mor)) {
       return false;
     }
-    return far.equals(other.far);
+
+    if (antallFeiledeForsoek != other.getAntallFeiledeForsoek()) {
+      return false;
+    }
+
+    return tidspunktSisteFeiledeForsoek.equals(other.tidspunktSisteFeiledeForsoek);
   }
 
   @Override
   public String toString() {
-    return "Farskapserklaering gjelder " + barn.toString() + " med foreldrene: \n -Mor: " + mor.toString() + "\n -Far: " + far.toString();
+    return "StatusKontrollereFar gjelder " + mor.toString()  + " Antall feilede forsøk for å kontrollere navn mot fødselsnummer til far: " + antallFeiledeForsoek + "."
+        + "\n Tidspunkt siste feilede forsøk: " + tidspunktSisteFeiledeForsoek;
   }
+
 }

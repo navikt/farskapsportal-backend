@@ -202,6 +202,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(request.getFoedselsnummer())).thenReturn(kjoennDto);
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(request.getFoedselsnummer())).thenReturn(List.of(kjoennDto));
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnIFolkeregisteret);
+      when(pdlApiConsumerMock.henteFoedselsdato(anyString())).thenReturn(foedselsdato);
 
       // when, then
       personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn());
@@ -222,14 +223,15 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(request.getFoedselsnummer())).thenReturn(kjoennDto);
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(request.getFoedselsnummer())).thenReturn(List.of(kjoennDto));
       when(pdlApiConsumerMock.hentNavnTilPerson(request.getFoedselsnummer())).thenReturn(navnIFolkeregisteret);
+      when(pdlApiConsumerMock.henteFoedselsdato(anyString())).thenReturn(foedselsdato);
 
       // when, then
       personopplysningService.riktigNavnRolleFar(request.getFoedselsnummer(), request.getNavn());
     }
 
     @Test
-    @DisplayName("Skal gi bad request dersom oppgitt far ikke er mann")
-    void skalGiBadRequestDersomOppgittFarIkkeErMann() {
+    @DisplayName("Skal kaste ValideringException dersom oppgitt far ikke er mann")
+    void skalKasteValideringExceptionDersomOppgittFarIkkeErMann() {
 
       // given
       var personnummer = "12345";
