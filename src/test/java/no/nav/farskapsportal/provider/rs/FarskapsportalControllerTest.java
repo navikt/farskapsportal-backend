@@ -7,6 +7,8 @@ import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.henteNyligFoedtBarn;
+import static no.nav.farskapsportal.TestUtils.lageUrl;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -31,6 +33,8 @@ import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.BrukerinformasjonResponse;
+import no.nav.farskapsportal.api.FarskapserklaeringFeilResponse;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
@@ -52,13 +56,13 @@ import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
-import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
-import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
-import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.junit.jupiter.api.DisplayName;
@@ -114,6 +118,8 @@ public class FarskapsportalControllerTest {
   @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
   @Autowired
+  private ForelderDao forelderDao;
+  @Autowired
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
   @Autowired
   private MappingUtil mappingUtil;
@@ -153,22 +159,12 @@ public class FarskapsportalControllerTest {
     return getBaseUrlForStubs() + "/api/v1/farskapsportal/farskapserklaering/redirect";
   }
 
-  private String getBaseUrlForStubs() {
-    return "http://localhost:" + localServerPort;
+  private String initHenteNyRedirectUrl() {
+    return getBaseUrlForStubs() + "/api/v1/farskapsportal/redirect-url/ny";
   }
 
-  private void ryddeTestdata(FarskapserklaeringDto feDto) {
-    var nedreGrenseTermindato = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMinAntallUkerTilTermindato());
-    var oevreGrenseTermindato = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato());
-
-    var fes = farskapserklaeringDao
-        .henteFarskapserklaeringer(feDto.getMor().getFoedselsnummer(), feDto.getFar().getFoedselsnummer(), nedreGrenseTermindato,
-            oevreGrenseTermindato);
-    if (!fes.isEmpty()) {
-      for (Farskapserklaering fe : fes) {
-        farskapserklaeringDao.delete(fe);
-      }
-    }
+  private String getBaseUrlForStubs() {
+    return "http://localhost:" + localServerPort;
   }
 
   private void brukeStandardMocks(String fnrPaaloggetBruker) {
@@ -194,10 +190,9 @@ public class FarskapsportalControllerTest {
     stsStub.runSecurityTokenServiceStub("jalla");
 
     when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrPaaloggetBruker);
-    var redirectUrlMor = URI.create(REDIRECT_URL);
 
-    var pdf = DokumentDto.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-        .redirectUrlMor(redirectUrlMor).build();
+    var pdf = Dokument.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build()).build();
 
     when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
     doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
@@ -261,14 +256,14 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal liste farskapserklæringer som venter på fars signatur ved henting av brukerinformasjon for mor")
     void skalListeFarskapserklaeringerSomVenterPaaFarVedHentingAvBrukerinformasjonForMor() {
 
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
       // given
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
 
-      // Slette dersom allerede eksisterer i databasen
-      ryddeTestdata(farskapserklaeringSomVenterPaaFar);
-
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
@@ -303,14 +298,14 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal liste farskapserklæringer som venter på mors signatur ved henting av brukerinformasjon for mor")
     void skalListeFarskapserklaeringerSomVenterPaaMorVedHentingAvBrukerinformasjonForMor() {
 
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
       // given
       var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaMor.getDokument().setPadesUrl(null);
 
-      // Slette dersom allerede eksisterer i databasen
-      ryddeTestdata(farskapserklaeringSomVenterPaaMor);
-
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaMor);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
@@ -343,14 +338,14 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal liste farskapserklæringer som venter på far ved henting av brukerinformasjon for far")
     void skalListeFarskapserklaeringerSomVenterPaaFarVedHentingAvBrukerinformasjonForFar() {
 
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
       // given
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
-      // Slette dersom allerede eksisterer i databasen
-      ryddeTestdata(farskapserklaeringSomVenterPaaFar);
-
-      persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
+      persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
@@ -383,16 +378,16 @@ public class FarskapsportalControllerTest {
     @DisplayName("Farskapserklæringer som venter på mor skal ikke dukke opp i fars liste")
     void skalIkkeListeFarskapserklaeringerSomVenterPaaMorVedHentingAvBrukerinformasjonForFar() {
 
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
       // given
       var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaMor.getDokument().setPadesUrl(null);
       farskapserklaeringSomVenterPaaMor.getDokument().setSignertAvMor(null);
       farskapserklaeringSomVenterPaaMor.getDokument().setSignertAvFar(null);
 
-      // Slette dersom allerede eksisterer i databasen
-      ryddeTestdata(farskapserklaeringSomVenterPaaMor);
-
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaMor);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
@@ -465,7 +460,7 @@ public class FarskapsportalControllerTest {
       signertFarskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now());
       signertFarskapserklaering.getDokument().setSignertAvFar(LocalDateTime.now());
 
-      persistenceService.lagreFarskapserklaering(signertFarskapserklaering);
+      persistenceService.lagreNyFarskapserklaering(signertFarskapserklaering);
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
@@ -624,7 +619,7 @@ public class FarskapsportalControllerTest {
 
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
-      var eksisterendeFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringSomVenterPaaFar);
+      var eksisterendeFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
       brukeStandardMocks(MOR.getFoedselsnummer());
 
@@ -730,11 +725,12 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal hente signert dokument for mor etter redirect")
     void skalHenteSignertDokumentForMorEtterRedirect() {
 
+      // rydde testdata
+      forelderDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+
       // given
       var farskapserklaeringUtenSignaturer = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
-
-      // Slette dersom allerede eksisterer i databasen
-      ryddeTestdata(farskapserklaeringUtenSignaturer);
 
       farskapserklaeringUtenSignaturer.getDokument().setPadesUrl(null);
 
@@ -742,7 +738,7 @@ public class FarskapsportalControllerTest {
           () -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getSignertAvFar()),
           () -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getPadesUrl()));
 
-      var lagretFarskapserklaering = persistenceService.lagreFarskapserklaering(farskapserklaeringUtenSignaturer);
+      var lagretFarskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringUtenSignaturer));
 
       var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
@@ -779,15 +775,16 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal hente signert dokument for far etter redirect")
     void skalHenteSignertDokumentForFarEtterRedirect() {
 
+      // Rydde testdata
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+
       // given
       var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
 
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
-      // Slette dersom allerede eksisterer i databasen
-      ryddeTestdata(farskapserklaeringSignertAvMor);
-
-      var lagretFarskapserklaeringSignertAvMor = persistenceService.lagreFarskapserklaering(farskapserklaeringSignertAvMor);
+      var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
@@ -823,15 +820,14 @@ public class FarskapsportalControllerTest {
     @DisplayName("SkaLagreOppdatertPadesUrlVedHentingAvDokument")
     void skalLagreOppdatertPadesUrlVedHentingAvDokument() throws URISyntaxException {
 
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+
       // given
       var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
-
-      // Slette dersom allerede eksisterer i databasen
-      ryddeTestdata(farskapserklaeringSignertAvMor);
-
-      var farskapserklaering = mappingUtil.toEntity(farskapserklaeringSignertAvMor);
-      var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(farskapserklaering);
+      var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
@@ -860,4 +856,71 @@ public class FarskapsportalControllerTest {
       assertTrue(respons.getStatusCode().is2xxSuccessful());
     }
   }
+
+  @Nested
+  @DisplayName("Hente ny redirect-url")
+  class HenteNyRedirectUrl {
+
+    @Test
+    void skalHenteNyRedirectUrlForFarDersomFarskapserklaeringEksisterer() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var nyRedirectUrl = lageUrl("redirect-url-far");
+      var undertegnerUrlFar = lageUrl("/signer-url-far");
+
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
+
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
+      when(difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrlFar)).thenReturn(nyRedirectUrl);
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(
+          UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId()).build().encode()
+              .toString(), HttpMethod.GET, null, String.class);
+
+      // then
+      assertThat(nyRedirectUrl.toString()).isEqualTo(respons.getBody());
+    }
+
+    @Test
+    void skalGiFeilkodeFantIkkeFarskapserklaeringVedHentingAvNyRedirectUrlDersomFarskapserklaeringIkkeFinnes() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var nyRedirectUrl = lageUrl("redirect-url-far");
+      var undertegnerUrlFar = lageUrl("/signer-url-far");
+
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
+
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
+    persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
+      when(difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrlFar)).thenReturn(nyRedirectUrl);
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(
+          UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", 5).build().encode()
+              .toString(), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
+
+      // then
+      var farskapserklaeringFeilResponse = respons.getBody();
+
+      assertAll(
+          () -> assertThat(HttpStatus.BAD_REQUEST).isEqualTo(respons.getStatusCode()),
+          () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING).isEqualTo(farskapserklaeringFeilResponse.getFeilkode()),
+          () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING.getBeskrivelse()).isEqualTo(farskapserklaeringFeilResponse.getFeilkodebeskrivelse()),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty()
+      );
+    }
+  }
 }
+

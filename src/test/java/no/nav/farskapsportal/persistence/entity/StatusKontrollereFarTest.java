@@ -4,11 +4,11 @@ package no.nav.farskapsportal.persistence.entity;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatObject;
 
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,10 +22,10 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class StatusKontrollereFarTest {
 
+  private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
+
   @Autowired
   private MappingUtil mappingUtil;
-
-  private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
 
   @Test
   @DisplayName("To objekter med samme mor, antall feilede forsøk, og tidspunkt for siste feilede forsøk skal gi samme hashkode")
@@ -34,8 +34,10 @@ public class StatusKontrollereFarTest {
     // given
     var tidspunktForSisteFeiledeForsoek = LocalDateTime.now();
     var antallFeiledeForsoek = 2;
-    var objekt1 = StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek).antallFeiledeForsoek(antallFeiledeForsoek).build();
-    var objekt2  =StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek).antallFeiledeForsoek(antallFeiledeForsoek).build();
+    var objekt1 = StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek)
+        .antallFeiledeForsoek(antallFeiledeForsoek).build();
+    var objekt2 = StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek)
+        .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
     // then
     assertThat(objekt1.hashCode()).isEqualTo(objekt2.hashCode());
@@ -48,13 +50,14 @@ public class StatusKontrollereFarTest {
     // given
     var tidspunktForSisteFeiledeForsoek = LocalDateTime.now();
     var antallFeiledeForsoek = 2;
-    var objekt1 = StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek).antallFeiledeForsoek(antallFeiledeForsoek).build();
-    var objekt2  =StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek.plusHours(1)).antallFeiledeForsoek(antallFeiledeForsoek).build();
+    var objekt1 = StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek)
+        .antallFeiledeForsoek(antallFeiledeForsoek).build();
+    var objekt2 = StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek.plusHours(1))
+        .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
     // then
     assertThat(objekt1.hashCode()).isNotEqualTo(objekt2.hashCode());
   }
-
 
 
 }

@@ -33,10 +33,10 @@ public class Farskapserklaering implements Serializable {
   @OneToOne(cascade = CascadeType.ALL)
   private Barn barn;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private Forelder mor;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private Forelder far;
 
   @OneToOne(cascade = CascadeType.ALL)

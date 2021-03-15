@@ -22,7 +22,6 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
-import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
@@ -84,10 +83,10 @@ public class FarskapsportalConfig {
 
   @Bean
   public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapsportalEgenskaper farskapsportalEgenskaper,
-      FarskapserklaeringDao farskapserklaeringDao, MappingUtil mappingUtil, BarnDao barnDao, ForelderDao forelderDao, DokumentDao dokumentDao,
+      FarskapserklaeringDao farskapserklaeringDao, MappingUtil mappingUtil, BarnDao barnDao, ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao) {
-    return new PersistenceService(personopplysningService, farskapsportalEgenskaper, farskapserklaeringDao, barnDao, forelderDao, dokumentDao,
-        kontrollereFarDao, mappingUtil);
+    return new PersistenceService(personopplysningService, farskapsportalEgenskaper, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
+        mappingUtil);
   }
 
   @Bean

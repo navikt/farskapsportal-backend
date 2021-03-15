@@ -1,13 +1,10 @@
 package no.nav.farskapsportal.persistence.entity;
 
-import java.io.Serializable;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,29 +21,17 @@ import org.springframework.validation.annotation.Validated;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dokument implements Serializable {
+public class Signeringsinformasjon {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  private String dokumentnavn;
+  private LocalDateTime signeringstidspunkt;
 
-  @Column(length = 100000000)
-  private byte[] innhold;
+  private String redirectUrl;
 
-  private String dokumentStatusUrl;
+  private String statusUrl;
 
-  private String padesUrl;
-
-  @OneToOne(cascade = CascadeType.ALL)
-  private Signeringsinformasjon signeringsinformasjonMor;
-
-  @OneToOne(cascade = CascadeType.ALL)
-  private Signeringsinformasjon signeringsinformasjonFar;
-
-  @Override
-  public String toString() {
-    return "Dokumentnavn: " + dokumentnavn;
-  }
+  private String undertegnerUrl;
 }

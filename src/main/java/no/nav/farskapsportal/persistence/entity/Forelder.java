@@ -43,10 +43,10 @@ public class Forelder implements Serializable {
   @Column(updatable = false)
   private String etternavn;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "mor", cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "mor", cascade = CascadeType.MERGE)
   private Set<Farskapserklaering> erklaeringerMor = new HashSet<>();
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "far", cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "far", cascade = CascadeType.MERGE)
   private Set<Farskapserklaering> erklaeringerFar = new HashSet<>();
 
   @Override

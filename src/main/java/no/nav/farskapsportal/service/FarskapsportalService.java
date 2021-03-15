@@ -144,6 +144,7 @@ public class FarskapsportalService {
     }
   }
 
+  @Transactional
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
     // Sjekker om mor skal kunne opprette ny farskapserklæring
     validereTilgangMor(fnrMor, request);
@@ -158,17 +159,18 @@ public class FarskapsportalService {
     var mor = getForelderDto(fnrMor, null);
     var far = getForelderDto(request.getOpplysningerOmFar().getFoedselsnummer(), Forelderrolle.FAR);
 
-    var farskapserklaeringDto = FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).build();
-    var dokumentDto = pdfGeneratorConsumer.genererePdf(farskapserklaeringDto);
+    var farskapserklaering = Farskapserklaering.builder().barn(mappingUtil.toEntity(barn)).mor(mappingUtil.toEntity(mor))
+        .far(mappingUtil.toEntity(far)).build();
+    var dokument = pdfGeneratorConsumer.genererePdf(farskapserklaering);
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-url-ers
-    difiESignaturConsumer.oppretteSigneringsjobb(dokumentDto, mor, far);
-    farskapserklaeringDto.setDokument(dokumentDto);
+    difiESignaturConsumer.oppretteSigneringsjobb(dokument, mappingUtil.toEntity(mor), mappingUtil.toEntity(far));
+    farskapserklaering.setDokument(dokument);
 
     log.info("Lagre farskapserklæring");
-    persistenceService.lagreFarskapserklaering(farskapserklaeringDto);
+    persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
-    return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokumentDto.getRedirectUrlMor().toString()).build();
+    return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokument.getSigneringsinformasjonMor().getRedirectUrl()).build();
   }
 
   private ForelderDto getForelderDto(String fnr, Forelderrolle rolle) {
@@ -310,9 +312,9 @@ public class FarskapsportalService {
     // Oppdatere foreldrenes signeringsstatus
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {
       if (aktuellFarskapserklaering.getMor().getFoedselsnummer().equals(signatur.getSignatureier())) {
-        aktuellFarskapserklaering.getDokument().setSignertAvMor(signatur.getTidspunktForSignering());
+        aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForSignering());
       } else if (aktuellFarskapserklaering.getFar().getFoedselsnummer().equals(signatur.getSignatureier())) {
-        aktuellFarskapserklaering.getDokument().setSignertAvFar(signatur.getTidspunktForSignering());
+        aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForSignering());
       } else {
         throw new HentingAvDokumentFeiletException("Dokumentets signatureiere er forskjellige fra partene som er registrert i farskapserklæringen!");
       }
@@ -375,5 +377,10 @@ public class FarskapsportalService {
     // potensielt ha flere farskapserklæringer som er startet men hvor signeringsprosessen ikke
     // er fullført. Returnerer statuslenke som hører til statusQueryToken.
     return difiESignaturConsumer.henteDokumentstatusEtterRedirect(statusQueryToken, dokumentStatuslenker);
+  }
+
+  public URI henteNyRedirectUrl(String fnrPaaloggetPerson, int idFarskapserklaering) {
+    var undertegnerUrl = persistenceService.henteUndertegnerUrl(fnrPaaloggetPerson, idFarskapserklaering);
+    return difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrl);
   }
 }

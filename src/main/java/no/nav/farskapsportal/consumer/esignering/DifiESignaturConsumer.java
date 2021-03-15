@@ -25,17 +25,19 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.direct.Signature;
 import no.digipost.signature.client.direct.SignerStatus;
 import no.digipost.signature.client.direct.StatusReference;
+import no.digipost.signature.client.direct.WithSignerUrl;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
-import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.DokumentStatusDto;
-import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.exception.PadesUrlIkkeTilgjengeligException;
 import no.nav.farskapsportal.exception.SigneringsjobbFeiletException;
+import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import org.apache.commons.lang3.Validate;
 
 @Slf4j
@@ -52,7 +54,7 @@ public class DifiESignaturConsumer {
    * @param mor første signerer
    * @param far andre signerer
    */
-  public void oppretteSigneringsjobb(DokumentDto dokument, ForelderDto mor, ForelderDto far) {
+  public void oppretteSigneringsjobb(Dokument dokument, Forelder mor, Forelder far) {
 
     log.info("Oppretter signeringsjobb");
 
@@ -74,16 +76,18 @@ public class DifiESignaturConsumer {
       throw new OppretteSigneringsjobbException(Feilkode.OPPRETTE_SIGNERINGSJOBB);
     }
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
-    dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl());
+    dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl().toString());
 
     log.info("Antall signerere i respons: {}", directJob.getSigners().size());
 
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
       Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra PDL!");
       if (signer.getPersonalIdentificationNumber().equals(mor.getFoedselsnummer())) {
-        dokument.setRedirectUrlMor(signer.getRedirectUrl());
+        dokument.setSigneringsinformasjonMor(
+            Signeringsinformasjon.builder().undertegnerUrl(signer.getSignerUrl().toString()).redirectUrl(signer.getRedirectUrl().toString()).build());
       } else if (signer.getPersonalIdentificationNumber().equals(far.getFoedselsnummer())) {
-        dokument.setRedirectUrlFar(signer.getRedirectUrl());
+        dokument.setSigneringsinformasjonFar(
+            Signeringsinformasjon.builder().undertegnerUrl(signer.getSignerUrl().toString()).redirectUrl(signer.getRedirectUrl().toString()).build());
       } else {
         throw new ESigneringFeilException(Feilkode.ESIGNERING_REDIRECTURL_UKJENT);
       }
@@ -139,6 +143,11 @@ public class DifiESignaturConsumer {
     } catch (IOException e) {
       throw new HentingAvDokumentFeiletException("Feil oppstod ved lesing av dokument-bytes");
     }
+  }
+
+  public URI henteNyRedirectUrl(URI signerUrl) {
+    var directSignerResponse = client.requestNewRedirectUrl(WithSignerUrl.of(signerUrl));
+    return directSignerResponse.getSignerUrl();
   }
 
   private SignaturDto mapTilDto(Signature signature) {

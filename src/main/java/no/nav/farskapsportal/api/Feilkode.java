@@ -7,7 +7,10 @@ public enum Feilkode {
       "Det eksisterer allrede en farskapserklæring for oppgitt barn"), ERKLAERING_EKSISTERER_MOR(
       "Mor har eksisterende farskapserklæring. Kan ikke opprette ny erklæring for ufødt barn."), ESIGNERING_SIGNATUREIER_NULL(
       "Signatureier er null i respons fra esigneringsløsningen!"), ESIGNERING_REDIRECTURL_UKJENT(
-      "Redirecturl for ukjent part mottatt fra esigneringsløsningen!"), FEIL_ROLLE(
+      "Redirecturl for ukjent part mottatt fra esigneringsløsningen!"), FEILFORMATERT_URL_NY_REDIRECT(
+      "Feilformatert redirect-url mottatt fra e-signeringsløsningen"), FEILFORMATERT_URL_UNDERTEGNERURL(
+      "URL for å hente ny redirect-url er feilformattert"), FANT_IKKE_FARSKAPSERKLAERING(
+      "Oppgitt farskapserklæring ble ikke funnet i databasen"), FEIL_ROLLE(
       "Pålogget person kan verken opptre som mor eller far i løsningen!"), FEIL_ROLLE_FAR(
       "Personen har ikke riktig rolle for å kunne opptre som far i løsningen"), FEIL_ROLLE_OPPRETTE(
       "Personen har ikke rettigheter til å opprette farskapserklæring"), FOEDSELNUMMER_MANGLER_FAR(

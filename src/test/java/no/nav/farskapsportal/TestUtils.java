@@ -10,6 +10,11 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.persistence.entity.Barn;
+import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.persistence.entity.Forelder;
+import org.springframework.transaction.annotation.Transactional;
 
 public class TestUtils {
 
@@ -55,12 +60,12 @@ public class TestUtils {
     if (Forelderrolle.MOR.equals(forelderrolle)) {
       var personnummerMor = "12340";
       return ForelderDto.builder().foedselsnummer(FOEDSELSDATO_MOR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
-          .fornavn("Ronaldina").etternavn("McDonald").forelderrolle(Forelderrolle.MOR).build();
+          .fornavn("Ronaldina").etternavn("McDonald").build();
     } else {
       var personnummerFar = "12345";
 
       return ForelderDto.builder().foedselsnummer(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar).fornavn("Ronald")
-          .etternavn("McDonald").forelderrolle(Forelderrolle.FAR).build();
+          .etternavn("McDonald").build();
     }
   }
 }

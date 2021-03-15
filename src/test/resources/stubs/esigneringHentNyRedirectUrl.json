@@ -1,0 +1,14 @@
+{
+"request": {
+  "method": "POST",
+  "urlPattern": "/api/12345678910/direct/signature-jobs/1/signers/1"
+},
+"response": {
+  "status": 200,
+  "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><direct-signer-response xmlns=\"http://signering.posten.no/schema/v1\" href=\"http://localhost:8096/api/12345678910/direct/signature-jobs/1/signers/1\"><personal-identification-number>12345678910</personal-identification-number><redirect-url>https://mors-redirect.signering.posten.no#/redirect/23626jqqqqgew82562</redirect-url></direct-signer-response>",
+  "headers": {
+    "Content-Type": "application/xml",
+    "Media-Type": "application/octet-stream"
+  }
+}
+}

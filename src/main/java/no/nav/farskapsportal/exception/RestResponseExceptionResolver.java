@@ -112,16 +112,17 @@ public class RestResponseExceptionResolver {
     return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  private ResponseEntity<?> generereFeilrespons(String feilmelding, Feilkode feilkode, Optional<StatusKontrollereFarDto> statusKontrollereFarDto,
-      HttpStatus httpStatus) {
+  private ResponseEntity<FarskapserklaeringFeilResponse> generereFeilrespons(String feilmelding, Feilkode feilkode,
+      Optional<StatusKontrollereFarDto> statusKontrollereFarDto, HttpStatus httpStatus) {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    var respons = statusKontrollereFarDto.isEmpty() ? FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
-        .feilkodebeskrivelse(feilkode.getBeskrivelse()).build() : FarskapserklaeringFeilResponse.builder().feilkode(feilkode).antallResterendeForsoek(
-        Optional.of(statusKontrollereFarDto.get().getAntallResterendeForsoek()))
-        .feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
+    var respons =
+        statusKontrollereFarDto.isEmpty() ? FarskapserklaeringFeilResponse.builder().feilkode(feilkode).feilkodebeskrivelse(feilkode.getBeskrivelse())
+            .build() : FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
+            .antallResterendeForsoek(Optional.of(statusKontrollereFarDto.get().getAntallResterendeForsoek()))
+            .feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
 
-    return ResponseEntity.status(httpStatus).body(new ResponseEntity<>(respons, headers, httpStatus));
+    return new ResponseEntity<>(respons, headers, httpStatus);
   }
 }

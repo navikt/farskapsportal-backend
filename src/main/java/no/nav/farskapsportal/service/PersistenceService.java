@@ -2,6 +2,8 @@ package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -14,18 +16,15 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.dto.BarnDto;
-import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
+import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
-import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
-import no.nav.farskapsportal.persistence.entity.Barn;
-import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
@@ -46,57 +45,57 @@ public class PersistenceService {
 
   private final ForelderDao forelderDao;
 
-  private final DokumentDao dokumentDao;
-
   private final StatusKontrollereFarDao kontrollereFarDao;
 
   private final MappingUtil mappingUtil;
-
-  public Barn lagreBarn(BarnDto dto) {
-    var entity = mappingUtil.toEntity(dto);
-    return barnDao.save(entity);
-  }
 
   public BarnDto henteBarn(int id) {
     var barn = barnDao.findById(id).orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ikke barn med id %d i databasen", id)));
     return mappingUtil.toDto(barn);
   }
 
-  public Forelder lagreForelder(ForelderDto forelderDto) {
-    var forelder = mappingUtil.toEntity(forelderDto);
-    return forelderDao.save(forelder);
-  }
-
-  public ForelderDto henteForelder(int id) {
+  public Forelder henteForelder(int id) {
     var forelder = forelderDao.findById(id)
         .orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ingen forelder med id %d i databasen", id)));
-    return mappingUtil.toDto(forelder);
+    return forelder;
   }
 
-  public Optional<ForelderDto> henteForelderMedFoedselsnummer(String foedselsnummer) {
+  public Optional<Forelder> henteForelderMedFoedselsnummer(String foedselsnummer) {
     var forelder = forelderDao.henteForelderMedFnr(foedselsnummer);
     if (forelder.isPresent()) {
-      return Optional.of(mappingUtil.toDto(forelder.get()));
+      return Optional.of(forelder.get());
     }
     return Optional.empty();
   }
 
-  public Dokument lagreDokument(DokumentDto dto) {
-    var dokument = mappingUtil.toEntity(dto);
-    return dokumentDao.save(dokument);
+  @Transactional
+  public Farskapserklaering lagreNyFarskapserklaering(Farskapserklaering nyFarskapserklaering) {
+
+    ingenKonfliktMedEksisterendeFarskapserklaeringer(nyFarskapserklaering.getMor().getFoedselsnummer(),
+        nyFarskapserklaering.getFar().getFoedselsnummer(), mappingUtil.toDto(nyFarskapserklaering.getBarn()));
+
+    var eksisterendeMor = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getMor().getFoedselsnummer());
+    var eksisterendeFar = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getFar().getFoedselsnummer());
+
+    var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> nyFarskapserklaering.getMor()))
+        .far(eksisterendeFar.orElseGet(() -> nyFarskapserklaering.getFar())).barn(nyFarskapserklaering.getBarn())
+        .dokument(nyFarskapserklaering.getDokument()).build();
+
+    return farskapserklaeringDao.save(farskapserklaering);
   }
 
   @Transactional
-  public Farskapserklaering lagreFarskapserklaering(FarskapserklaeringDto dto) {
+  public Farskapserklaering lagreNyFarskapserklaering(FarskapserklaeringDto farskapserklaeringDto) {
 
-    ingenKonfliktMedEksisterendeFarskapserklaeringer(dto.getMor().getFoedselsnummer(), dto.getFar().getFoedselsnummer(), dto.getBarn());
+    ingenKonfliktMedEksisterendeFarskapserklaeringer(farskapserklaeringDto.getMor().getFoedselsnummer(),
+        farskapserklaeringDto.getFar().getFoedselsnummer(), farskapserklaeringDto.getBarn());
 
-    var eksisterendeMor = forelderDao.henteForelderMedFnr(dto.getMor().getFoedselsnummer());
-    var eksisterendeFar = forelderDao.henteForelderMedFnr(dto.getFar().getFoedselsnummer());
+    var eksisterendeMor = forelderDao.henteForelderMedFnr(farskapserklaeringDto.getMor().getFoedselsnummer());
+    var eksisterendeFar = forelderDao.henteForelderMedFnr(farskapserklaeringDto.getFar().getFoedselsnummer());
 
-    var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> mappingUtil.toEntity(dto.getMor())))
-        .far(eksisterendeFar.orElseGet(() -> mappingUtil.toEntity(dto.getFar()))).barn(mappingUtil.toEntity(dto.getBarn()))
-        .dokument(mappingUtil.toEntity(dto.getDokument())).build();
+    var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> mappingUtil.toEntity(farskapserklaeringDto.getMor())))
+        .far(eksisterendeFar.orElseGet(() -> mappingUtil.toEntity(farskapserklaeringDto.getFar())))
+        .barn(mappingUtil.toEntity(farskapserklaeringDto.getBarn())).dokument(mappingUtil.toEntity(farskapserklaeringDto.getDokument())).build();
 
     return farskapserklaeringDao.save(farskapserklaering);
   }
@@ -164,7 +163,7 @@ public class PersistenceService {
 
   private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
-    var mor = eksisterendeMor.isPresent() ? eksisterendeMor.get() : lagreForelder(getForelderDto(fnrMor, null));
+    var mor = eksisterendeMor.isPresent() ? eksisterendeMor.get() : forelderDao.save(mappingUtil.toEntity(getForelder(fnrMor, null)));
     var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(LocalDateTime.now()).antallFeiledeForsoek(1)
         .build();
     return kontrollereFarDao.save(statusKontrollereFar);
@@ -173,6 +172,24 @@ public class PersistenceService {
   public Optional<StatusKontrollereFar> henteStatusKontrollereFar(String fnrMor) {
     var statusKontrollereFar = kontrollereFarDao.henteStatusKontrollereFar(fnrMor);
     return statusKontrollereFar;
+  }
+
+  public URI henteUndertegnerUrl(String foedselsnummerUndertegner, int idFarskapserklaering) {
+    var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
+    if (farskapserklaering.isPresent()) {
+      return velgeRiktigUndertegnerUrl(foedselsnummerUndertegner, farskapserklaering.get());
+    }
+    throw new ValideringException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+  }
+
+  private URI velgeRiktigUndertegnerUrl(String foedselsnummerUndertegner, Farskapserklaering farskapserklaering) {
+
+    try {
+      return new URI(foedselsnummerUndertegner.equals(farskapserklaering.getMor().getFoedselsnummer()) ? farskapserklaering.getDokument()
+          .getSigneringsinformasjonMor().getUndertegnerUrl() : farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl());
+    } catch (URISyntaxException e) {
+      throw new InternFeilException(Feilkode.FEILFORMATERT_URL_UNDERTEGNERURL);
+    }
   }
 
   private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
@@ -253,9 +270,9 @@ public class PersistenceService {
     return respons.isEmpty() ? Optional.empty() : respons.stream().findFirst();
   }
 
-  private ForelderDto getForelderDto(String fnr, Forelderrolle rolle) {
+  private ForelderDto getForelder(String fnr, Forelderrolle rolle) {
     var navn = personopplysningService.henteNavn(fnr);
-    return ForelderDto.builder().forelderrolle(rolle).foedselsnummer(fnr).fornavn(navn.getFornavn()).mellomnavn(navn.getMellomnavn())
-        .etternavn(navn.getEtternavn()).build();
+    return ForelderDto.builder().foedselsnummer(fnr).fornavn(navn.getFornavn()).mellomnavn(navn.getMellomnavn()).etternavn(navn.getEtternavn())
+        .build();
   }
 }
