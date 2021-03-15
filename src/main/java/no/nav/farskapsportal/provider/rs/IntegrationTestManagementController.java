@@ -8,7 +8,9 @@ import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.SigneringsinformasjonDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class IntegrationTestManagementController {
   @Autowired
   private StatusKontrollereFarDao statusKontrollereFarDao;
 
+  @Autowired
+  private SigneringsinformasjonDao signeringsinformasjonDao;
+
   @GetMapping("/testdata/slette")
   @ApiOperation("Sletter lokale testdata. Tilgjengelig kun i DEV.")
   public String sletteTestdata() {
@@ -49,6 +54,7 @@ public class IntegrationTestManagementController {
       forelderDao.deleteAll();
       dokumentDao.deleteAll();
       barnDao.deleteAll();
+      signeringsinformasjonDao.deleteAll();
     } catch(Exception e) {
       e.printStackTrace();
     }
