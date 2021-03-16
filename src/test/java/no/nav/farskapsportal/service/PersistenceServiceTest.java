@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import javax.transaction.Transactional;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
@@ -25,7 +24,6 @@ import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -185,7 +183,14 @@ public class PersistenceServiceTest {
 
     @BeforeAll
     void setupTestdata() {
-      lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      statusKontrollereFarDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+
+      lagretFarskapserklaering = mappingUtil.toEntity(FARSKAPSERKLAERING);
+      lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().setUndertegnerUrl("https://esignering.no/signer-mor");
+      lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl("https://esignering.no/signer-far");
+      farskapserklaeringDao.save(lagretFarskapserklaering);
     }
 
     @Test
@@ -214,10 +219,6 @@ public class PersistenceServiceTest {
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
-
-      // Clean up test data
-      farskapserklaering.get().getDokument().setPadesUrl(padesUrl);
-      farskapserklaeringDao.save(farskapserklaering.get());
     }
 
     @Test
@@ -297,63 +298,29 @@ public class PersistenceServiceTest {
     }
 
     @Test
-    @Transactional
-    @DisplayName("Skal hente undertegnerUrl for far dersom oppgitt fødselsnummer og farskapserklaering finnes")
-    void skalHenteUndertegnerUrlForFarDersomOppgittFoedselsnummerOgFarskapserklaeringFinnes() {
+    void skalHenteFarskapserklaeringForIdSomFinnesIDatabasen() {
 
       // given
-      var undertegnerUrlFar = "https://posten.esignering.no/signer-far";
-      var farskapserklaeringFraDatabase = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
-      farskapserklaeringFraDatabase.get().getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar);
+      assertNotNull(lagretFarskapserklaering);
 
       // when
-      var undertegnerUrl = persistenceService.henteUndertegnerUrl(FAR.getFoedselsnummer(), lagretFarskapserklaering.getId());
+      var farskapserklaering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
 
       // then
-      assertThat(farskapserklaeringFraDatabase.get().getDokument().getSigneringsinformasjonFar().getUndertegnerUrl())
-          .isEqualTo(undertegnerUrl.toString());
+      assertThat(lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl())
+          .isEqualTo(farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl());
     }
 
-    @Test
-    @Transactional
-    @DisplayName("Skal hente undertegnerUrl for mor dersom oppgitt fødselsnummer og farskapserklaering finnes")
-    void skalHenteUndertegnerUrlForMorDersomOppgittFoedselsnummerOgFarskapserklaeringFinnes() {
-
-      // given
-      var undertegnerUrlMor = "https://posten.esignering.no/signer-mor";
-      var farskapserklaeringFraDatabase = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
-      farskapserklaeringFraDatabase.get().getDokument().getSigneringsinformasjonMor().setUndertegnerUrl(undertegnerUrlMor);
-
-      // when
-      var undertegnerUrl = persistenceService.henteUndertegnerUrl(MOR.getFoedselsnummer(), farskapserklaeringFraDatabase.get().getId());
-
-      // then
-      assertThat(farskapserklaeringFraDatabase.get().getDokument().getSigneringsinformasjonMor().getUndertegnerUrl())
-          .isEqualTo(undertegnerUrl.toString());
-    }
 
     @Test
     @DisplayName("Skal kaste ValideringException ved henting av undertegnerUrl dersom farskapserklaering ikke finnes")
     void skalKasteValideringExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
 
-      // given, when, then
-      assertThrows(ValideringException.class,
-          () -> persistenceService.henteUndertegnerUrl(MOR.getFoedselsnummer(), lagretFarskapserklaering.getId()+1));
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("Skal kaste InternFeilException ved henting av undertegnerUrl dersom farskapserklaering URL er feilformatert")
-    void skalKasteInternFeilExceptionVedHentingAvUndertegnerurlDersomUrlErFeilformatert() {
-
       // given
-      var feilformatertUndertegnerUrlMor = "hakke-bakke skogen";
-      var farskapserklaeringFraDatabase = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
-      farskapserklaeringFraDatabase.get().getDokument().getSigneringsinformasjonMor().setUndertegnerUrl(feilformatertUndertegnerUrlMor);
+      assertNotNull(lagretFarskapserklaering);
 
       // when, then
-      assertThrows(InternFeilException.class,
-          () -> persistenceService.henteUndertegnerUrl(MOR.getFoedselsnummer(), farskapserklaeringFraDatabase.get().getId()));
+      assertThrows(ValideringException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId() + 1));
     }
 
   }

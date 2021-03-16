@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.service;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
@@ -30,6 +31,7 @@ import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.exception.FarskapserklaeringIkkeFunnetException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
+import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
@@ -379,8 +381,40 @@ public class FarskapsportalService {
     return difiESignaturConsumer.henteDokumentstatusEtterRedirect(statusQueryToken, dokumentStatuslenker);
   }
 
+  @Transactional
   public URI henteNyRedirectUrl(String fnrPaaloggetPerson, int idFarskapserklaering) {
-    var undertegnerUrl = persistenceService.henteUndertegnerUrl(fnrPaaloggetPerson, idFarskapserklaering);
-    return difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrl);
+    var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
+    validereAtPersonErForelderIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    var undertegnerUrl = velgeRiktigUndertegnerUrl(fnrPaaloggetPerson, farskapserklaering);
+    var nyRedirectUrl = difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrl);
+
+    if (personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setRedirectUrl(nyRedirectUrl.toString());
+    } else {
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setRedirectUrl(nyRedirectUrl.toString());
+    }
+
+    return nyRedirectUrl;
+  }
+
+  private void validereAtPersonErForelderIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
+    if (foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer()) || foedselsnummer
+        .equals(farskapserklaering.getFar().getFoedselsnummer())) {
+      return;
+    }
+    throw new ValideringException(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING);
+  }
+
+  private boolean personErMorIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
+    return foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer());
+  }
+
+  private URI velgeRiktigUndertegnerUrl(String foedselsnummerUndertegner, Farskapserklaering farskapserklaering) {
+    try {
+      return new URI(foedselsnummerUndertegner.equals(farskapserklaering.getMor().getFoedselsnummer()) ? farskapserklaering.getDokument()
+          .getSigneringsinformasjonMor().getUndertegnerUrl() : farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl());
+    } catch (URISyntaxException e) {
+      throw new InternFeilException(Feilkode.FEILFORMATERT_URL_UNDERTEGNERURL);
+    }
   }
 }

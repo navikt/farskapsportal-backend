@@ -30,8 +30,9 @@ public enum Feilkode {
       "Feil ved henting av laveste gyldighetstidspunkt for kjønnshistorikk"), PDL_KJOENN_INGEN_INFO(
       "Respons fra PDL inneholdt ingen informasjon om kjønn..."), PDL_KJOENN_ORIGINALT(
       "Feil ved henting av originalt kjønn fra PDL"), PDL_NAVN_IKKE_FUNNET("Fant ikke personens navn i PDL"), PDL_PERSON_IKKE_FUNNET(
-      "Fant ikke person i PDL"), PDL_SIVILSTAND_IKKE_FUNNET("Fant ikke informasjon om personens sivilstand i PDL"), TERMINDATO_UGYLDIG(
-      "Oppgitt termindato er ikke innenfor godkjent intervall");
+      "Fant ikke person i PDL"), PDL_SIVILSTAND_IKKE_FUNNET(
+      "Fant ikke informasjon om personens sivilstand i PDL"), PERSON_IKKE_PART_I_FARSKAPSERKLAERING(
+      "Pålogget person er ikke forelder i oppgitt farskapserklaering"), TERMINDATO_UGYLDIG("Oppgitt termindato er ikke innenfor godkjent intervall");
 
   private final String beskrivelse;
 

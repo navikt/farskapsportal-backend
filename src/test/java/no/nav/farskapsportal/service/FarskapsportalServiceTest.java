@@ -21,7 +21,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -764,9 +763,36 @@ public class FarskapsportalServiceTest {
 
       // when
       var returnertRedirectUrl = farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, idFarskapserklaering);
+      var oppdatertFarskapserklaering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
 
       // then
-      assertThat(nyRedirectUrl).isEqualTo(returnertRedirectUrl);
+      assertAll(() -> assertThat(nyRedirectUrl).isEqualTo(returnertRedirectUrl), () -> assertThat(nyRedirectUrl.toString())
+          .isEqualTo(oppdatertFarskapserklaering.getDokument().getSigneringsinformasjonMor().getRedirectUrl()));
+    }
+
+    @Test
+    void skalOppdatereLagretFarskapserklaeringMedNyRedirectUrlForFar() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var undertegnerUrlFar = lageUrl("/signer-url-far");
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      var fnrPaaloggetPerson = FAR.getFoedselsnummer();
+      var nyRedirectUrlFar = lageUrl("ny-redirect-far");
+      when(difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrlFar)).thenReturn(nyRedirectUrlFar);
+
+      // when
+      var returnertRedirectUrl = farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, lagretFarskapserklaering.getId());
+      var oppdatertFarskapserklaering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
+
+      // then
+      assertAll(() -> assertThat(nyRedirectUrlFar).isEqualTo(returnertRedirectUrl), () -> assertThat(nyRedirectUrlFar.toString())
+          .isEqualTo(oppdatertFarskapserklaering.getDokument().getSigneringsinformasjonFar().getRedirectUrl()));
     }
 
     @Test
@@ -780,7 +806,27 @@ public class FarskapsportalServiceTest {
       var idFarskapserklaeringSomIkkeEksisterer = 0;
 
       // when, then
-      assertThrows(ValideringException.class, () -> farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, idFarskapserklaeringSomIkkeEksisterer));
+      assertThrows(ValideringException.class,
+          () -> farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, idFarskapserklaeringSomIkkeEksisterer));
+    }
+
+    @Test
+    void skalKasteValideringExceptionDersomPaaloggetPersonIkkeErPartIFarskapserklaering() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var undertegnerUrlMor = lageUrl("/signer-url-mor");
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setUndertegnerUrl(undertegnerUrlMor.toString());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      var fnrPaaloggetPerson = "00000000000";
+
+      // when, then
+      assertThrows(ValideringException.class, () -> farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, lagretFarskapserklaering.getId()));
     }
   }
 

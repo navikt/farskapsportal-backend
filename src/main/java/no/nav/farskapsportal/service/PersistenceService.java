@@ -174,22 +174,12 @@ public class PersistenceService {
     return statusKontrollereFar;
   }
 
-  public URI henteUndertegnerUrl(String foedselsnummerUndertegner, int idFarskapserklaering) {
+  public Farskapserklaering henteFarskapserklaeringForId(int idFarskapserklaering) {
     var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
     if (farskapserklaering.isPresent()) {
-      return velgeRiktigUndertegnerUrl(foedselsnummerUndertegner, farskapserklaering.get());
+      return farskapserklaering.get();
     }
     throw new ValideringException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
-  }
-
-  private URI velgeRiktigUndertegnerUrl(String foedselsnummerUndertegner, Farskapserklaering farskapserklaering) {
-
-    try {
-      return new URI(foedselsnummerUndertegner.equals(farskapserklaering.getMor().getFoedselsnummer()) ? farskapserklaering.getDokument()
-          .getSigneringsinformasjonMor().getUndertegnerUrl() : farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl());
-    } catch (URISyntaxException e) {
-      throw new InternFeilException(Feilkode.FEILFORMATERT_URL_UNDERTEGNERURL);
-    }
   }
 
   private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
