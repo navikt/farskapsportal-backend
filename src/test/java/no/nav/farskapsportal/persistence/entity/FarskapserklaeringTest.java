@@ -29,14 +29,17 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var etDokument = Dokument.builder().dokumentnavn("signertErklaeringMor.pdf").dokumentStatusUrl("").redirectUrlFar(redirectUrlFar)
-        .redirectUrlMor(redirectUrlMor).padesUrl("").build();
+    var etDokument = Dokument.builder().dokumentnavn("signertErklaeringMor.pdf").dokumentStatusUrl("")
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build()).padesUrl("").build();
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(etDokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
     var enAnnenMor = Forelder.builder().foedselsnummer("31019123450").fornavn("Greta").etternavn("Xyz").build();
-    var etAnnetDokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+    var etAnnetDokument = Dokument.builder().padesUrl("")
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).dokumentStatusUrl("")
         .dokumentnavn("EtAnnetDokument.pdf").build();
 
     var enAnnenFarskapserklaering = Farskapserklaering.builder().barn(etAnnetBarn).mor(enAnnenMor).far(far).dokument(etAnnetDokument).build();
@@ -55,7 +58,8 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+    var dokument = Dokument.builder().padesUrl("").signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).dokumentStatusUrl("")
         .dokumentnavn("farskapserklaering.pdf").build();
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
@@ -80,7 +84,8 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+    var dokument = Dokument.builder().padesUrl("").signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).dokumentStatusUrl("")
         .dokumentnavn("farskapserklaering.pdf").build();
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
@@ -106,7 +111,8 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+    var dokument = Dokument.builder().padesUrl("").signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).dokumentStatusUrl("")
         .dokumentnavn("farskapserklaering.pdf").build();
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
@@ -138,7 +144,8 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().padesUrl("").redirectUrlMor(redirectUrlMor).redirectUrlFar(redirectUrlFar).dokumentStatusUrl("")
+    var dokument = Dokument.builder().padesUrl("").signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).dokumentStatusUrl("")
         .dokumentnavn("farskapserklaering.pdf").build();
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
@@ -150,8 +157,7 @@ public class FarskapserklaeringTest {
     var toString = farskapserklaering.toString();
 
     // then
-    assertEquals(
-        "Farskapserklaering gjelder " + barn.toString() + " med foreldrene: \n -Mor: " + mor.toString() + "\n -Far: "
-            + far.toString(), toString);
+    assertEquals("Farskapserklaering gjelder " + barn.toString() + " med foreldrene: \n -Mor: " + mor.toString() + "\n -Far: " + far.toString(),
+        toString);
   }
 }

@@ -117,10 +117,11 @@ public class PdlApiConsumerTest {
       var historikk = pdlApiConsumer.henteKjoennMedHistorikk(fnrMor);
 
       // then
-      assertAll(() -> assertEquals(historikk.size(), 2, "Historikken skal inneholde to elementer"), () -> assertTrue(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.MANN)).findFirst().get().getMetadata().getHistorisk(),
+      assertAll(() -> assertEquals(historikk.size(), 2, "Historikken skal inneholde to elementer"),
+          () -> assertTrue(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.MANN)).findFirst().get().getMetadata().getHistorisk(),
               "Personen har mann som historisk kjønn"), () -> Assertions
-          .assertFalse(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.KVINNE)).findFirst().get().getMetadata().getHistorisk(),
-              "Personen har kvinne som gjeldende kjønn"));
+              .assertFalse(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.KVINNE)).findFirst().get().getMetadata().getHistorisk(),
+                  "Personen har kvinne som gjeldende kjønn"));
     }
 
     @Test

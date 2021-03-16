@@ -33,7 +33,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Set<Farskapserklaering> henteMorsErklaeringer(String fnrMor);
 
   @Query(
-      "select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.dokument.signertAvMor is not null")
+      "select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null")
   Set<Farskapserklaering> henteFarsErklaeringer(String fnrFar);
 
   @Query(

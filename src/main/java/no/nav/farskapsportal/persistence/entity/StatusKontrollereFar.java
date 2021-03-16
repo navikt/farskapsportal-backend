@@ -29,7 +29,7 @@ public class StatusKontrollereFar {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private Forelder mor;
 
   private int antallFeiledeForsoek;
