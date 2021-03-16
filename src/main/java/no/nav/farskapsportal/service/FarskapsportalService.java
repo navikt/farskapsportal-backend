@@ -149,7 +149,11 @@ public class FarskapsportalService {
   }
 
   @Transactional
+<<<<<<< HEAD
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskapserklaeringRequest request) {
+=======
+  public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
+>>>>>>> main
     // Sjekker om mor skal kunne opprette ny farskapserklæring
     validereTilgangMor(fnrMor, request);
     // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
@@ -225,7 +229,8 @@ public class FarskapsportalService {
   }
 
   private void validereRolleOgAlderFar(String foedselsnummer) {
-    if (!Forelderrolle.FAR.equals(personopplysningService.bestemmeForelderrolle(foedselsnummer))) {
+    var farsForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
+    if (!(Forelderrolle.FAR.equals(farsForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(farsForelderrolle))) {
       throw new ValideringException(Feilkode.FEIL_ROLLE_FAR);
     }
 
@@ -419,6 +424,7 @@ public class FarskapsportalService {
       throw new InternFeilException(Feilkode.FEILFORMATERT_URL_UNDERTEGNERURL);
     }
   }
+<<<<<<< HEAD
 
   @Transactional
   public OppdatereFarskapserklaeringResponse oppdatereFarskapserklaering(String fnrPaaloggetPerson, OppdatereFarskapserklaeringRequest request) {
@@ -434,4 +440,6 @@ public class FarskapsportalService {
 
     return OppdatereFarskapserklaeringResponse.builder().oppdatertFarskapserklaeringDto(mappingUtil.toDto(farskapserklaering)).build();
   }
+=======
+>>>>>>> main
 }

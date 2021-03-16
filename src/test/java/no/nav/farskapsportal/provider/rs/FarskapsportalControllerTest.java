@@ -165,10 +165,13 @@ public class FarskapsportalControllerTest {
     return getBaseUrlForStubs() + "/api/v1/farskapsportal/redirect-url/ny";
   }
 
+<<<<<<< HEAD
   private String initOppdatereFarskapserklaering() {
     return getBaseUrlForStubs() + "/api/v1/farskapsportal/farskapserklaering/oppdatere";
   }
 
+=======
+>>>>>>> main
   private String getBaseUrlForStubs() {
     return "http://localhost:" + localServerPort;
   }
@@ -887,8 +890,13 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
+<<<<<<< HEAD
           UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId()).build()
               .encode().toString(), HttpMethod.POST, null, String.class);
+=======
+          UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId()).build().encode()
+              .toString(), HttpMethod.POST, null, String.class);
+>>>>>>> main
 
       // then
       assertThat(nyRedirectUrl.toString()).isEqualTo(respons.getBody());
@@ -907,19 +915,30 @@ public class FarskapsportalControllerTest {
       var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
 
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
+<<<<<<< HEAD
       persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+=======
+    persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+>>>>>>> main
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       when(difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrlFar)).thenReturn(nyRedirectUrl);
 
       // when
+<<<<<<< HEAD
       var respons = httpHeaderTestRestTemplate
           .exchange(UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", 5).build().encode().toString(),
               HttpMethod.POST, null, FarskapserklaeringFeilResponse.class);
+=======
+      var respons = httpHeaderTestRestTemplate.exchange(
+          UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", 5).build().encode()
+              .toString(), HttpMethod.POST, null, FarskapserklaeringFeilResponse.class);
+>>>>>>> main
 
       // then
       var farskapserklaeringFeilResponse = respons.getBody();
 
+<<<<<<< HEAD
       assertAll(() -> assertThat(HttpStatus.BAD_REQUEST).isEqualTo(respons.getStatusCode()),
           () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING).isEqualTo(farskapserklaeringFeilResponse.getFeilkode()),
           () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING.getBeskrivelse()).isEqualTo(farskapserklaeringFeilResponse.getFeilkodebeskrivelse()),
@@ -1001,6 +1020,14 @@ public class FarskapsportalControllerTest {
       assertAll(
           () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
           () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING));
+=======
+      assertAll(
+          () -> assertThat(HttpStatus.BAD_REQUEST).isEqualTo(respons.getStatusCode()),
+          () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING).isEqualTo(farskapserklaeringFeilResponse.getFeilkode()),
+          () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING.getBeskrivelse()).isEqualTo(farskapserklaeringFeilResponse.getFeilkodebeskrivelse()),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty()
+      );
+>>>>>>> main
     }
   }
 }

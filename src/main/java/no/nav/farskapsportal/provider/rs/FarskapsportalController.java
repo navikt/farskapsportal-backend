@@ -102,9 +102,15 @@ public class FarskapsportalController {
   @PostMapping("/redirect-url/ny")
   @ApiOperation("Henter ny redirect-url for signering av dokument")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "Ny redirect-url ble hentet uten feil"),
+<<<<<<< HEAD
       @ApiResponse(code = 400, message = "Feil opplysninger oppgitt"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 404, message = "Fant ikke farskapserklæring"), @ApiResponse(code = 500, message = "Serverfeil"),
+=======
+      @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
+      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(code = 404, message = "Fant ikke dokument"), @ApiResponse(code = 500, message = "Serverfeil"),
+>>>>>>> main
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
   public ResponseEntity<String> henteNyRedirectUrl(
       @ApiParam(name = "id_farskapserklaering", type = "int", value = "Id til aktuell farskapserklaering", required = true) @RequestParam(name = "id_farskapserklaering") int idFarskapserklaering) {
@@ -112,6 +118,7 @@ public class FarskapsportalController {
     var redirectUrl = farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, idFarskapserklaering);
     return new ResponseEntity<>(redirectUrl.toString(), HttpStatus.OK);
   }
+<<<<<<< HEAD
 
   @PutMapping("/farskapserklaering/oppdatere")
   @ApiOperation("Oppdaterer farskapserklæring")
@@ -126,4 +133,6 @@ public class FarskapsportalController {
     var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
     return new ResponseEntity<>(respons, HttpStatus.CREATED);
   }
+=======
+>>>>>>> main
 }
