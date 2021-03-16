@@ -15,7 +15,9 @@ import no.nav.farskapsportal.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
@@ -147,7 +149,7 @@ public class FarskapsportalService {
   }
 
   @Transactional
-  public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
+  public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskapserklaeringRequest request) {
     // Sjekker om mor skal kunne opprette ny farskapserklæring
     validereTilgangMor(fnrMor, request);
     // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
@@ -239,7 +241,7 @@ public class FarskapsportalService {
     riktigRolleForOpprettingAvErklaering(fnrMor);
   }
 
-  private void validereTilgangMor(String fnrMor, OppretteFarskaperklaeringRequest request) {
+  private void validereTilgangMor(String fnrMor, OppretteFarskapserklaeringRequest request) {
     validereMor(fnrMor);
     // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
     validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
@@ -417,5 +419,20 @@ public class FarskapsportalService {
     } catch (URISyntaxException e) {
       throw new InternFeilException(Feilkode.FEILFORMATERT_URL_UNDERTEGNERURL);
     }
+  }
+
+  @Transactional
+  public OppdatereFarskapserklaeringResponse oppdatereFarskapserklaering(String fnrPaaloggetPerson, OppdatereFarskapserklaeringRequest request) {
+
+    var farskapserklaering = persistenceService.henteFarskapserklaeringForId(request.getIdFarskapserklaering());
+    validereAtPersonErForelderIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+
+    if (personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
+      farskapserklaering.setMorBorSammenMedFar(request.isBorSammen());
+    } else {
+      farskapserklaering.setFarBorSammenMedMor(request.isBorSammen());
+    }
+
+    return OppdatereFarskapserklaeringResponse.builder().oppdatertFarskapserklaeringDto(mappingUtil.toDto(farskapserklaering)).build();
   }
 }

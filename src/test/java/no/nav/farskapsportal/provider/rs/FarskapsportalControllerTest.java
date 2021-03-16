@@ -37,7 +37,9 @@ import no.nav.farskapsportal.api.FarskapserklaeringFeilResponse;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
@@ -161,6 +163,10 @@ public class FarskapsportalControllerTest {
 
   private String initHenteNyRedirectUrl() {
     return getBaseUrlForStubs() + "/api/v1/farskapsportal/redirect-url/ny";
+  }
+
+  private String initOppdatereFarskapserklaering() {
+    return getBaseUrlForStubs() + "/api/v1/farskapsportal/farskapserklaering/oppdatere";
   }
 
   private String getBaseUrlForStubs() {
@@ -599,7 +605,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -625,7 +631,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -647,7 +653,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
-          OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
+          OppretteFarskapserklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
               .build()), OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -663,7 +669,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -690,7 +696,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -708,7 +714,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskaperklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_MED_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -881,8 +887,8 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId()).build().encode()
-              .toString(), HttpMethod.POST, null, String.class);
+          UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId()).build()
+              .encode().toString(), HttpMethod.POST, null, String.class);
 
       // then
       assertThat(nyRedirectUrl.toString()).isEqualTo(respons.getBody());
@@ -899,27 +905,101 @@ public class FarskapsportalControllerTest {
       var undertegnerUrlFar = lageUrl("/signer-url-far");
 
       var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
-
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
-    persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       when(difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrlFar)).thenReturn(nyRedirectUrl);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", 5).build().encode()
-              .toString(), HttpMethod.POST, null, FarskapserklaeringFeilResponse.class);
+      var respons = httpHeaderTestRestTemplate
+          .exchange(UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", 5).build().encode().toString(),
+              HttpMethod.POST, null, FarskapserklaeringFeilResponse.class);
 
       // then
       var farskapserklaeringFeilResponse = respons.getBody();
 
-      assertAll(
-          () -> assertThat(HttpStatus.BAD_REQUEST).isEqualTo(respons.getStatusCode()),
+      assertAll(() -> assertThat(HttpStatus.BAD_REQUEST).isEqualTo(respons.getStatusCode()),
           () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING).isEqualTo(farskapserklaeringFeilResponse.getFeilkode()),
           () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING.getBeskrivelse()).isEqualTo(farskapserklaeringFeilResponse.getFeilkodebeskrivelse()),
-          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty()
-      );
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty());
+    }
+  }
+
+  @Nested
+  @DisplayName("Oppdatere farskapserklæring")
+  class OppdatereFarskapserklaering {
+
+    @Test
+    void skalOppdatereFarBorSammenMedMor() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
+          initHttpEntity(OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build()),
+          OppdatereFarskapserklaeringResponse.class);
+
+      // then
+      assertAll(() -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.CREATED),
+          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue(),
+          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isNull());
+    }
+
+    @Test
+    void skalOppdatereMorBorSammenMedFar() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
+          initHttpEntity(OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(false).build()),
+          OppdatereFarskapserklaeringResponse.class);
+
+      // then
+      assertAll(() -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.CREATED),
+          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isFalse(),
+          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isNull());
+    }
+
+    @Test
+    void skalGiFeilkodePersonIkkePartIFarskapserklaeringDersomPaaloggetPersonIkkeErPartIOppgittFarskapserklaering() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn("12345678910");
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
+          initHttpEntity(OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build()),
+          FarskapserklaeringFeilResponse.class);
+
+      // then
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING));
     }
   }
 }

@@ -31,7 +31,8 @@ import lombok.SneakyThrows;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
@@ -48,7 +49,6 @@ import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
-import no.nav.farskapsportal.exception.OppretteFarskapserklaeringException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
@@ -348,7 +348,7 @@ public class FarskapsportalServiceTest {
 
       // when
       var respons = farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build());
+          OppretteFarskapserklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build());
 
       // then
       assertEquals(pdf.getSigneringsinformasjonMor().getRedirectUrl(), respons.getRedirectUrlForSigneringMor());
@@ -388,7 +388,7 @@ public class FarskapsportalServiceTest {
 
       // when
       var respons = farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(barnFoedtInnenforGyldigIntervall).opplysningerOmFar(opplysningerOmFar).build());
+          OppretteFarskapserklaeringRequest.builder().barn(barnFoedtInnenforGyldigIntervall).opplysningerOmFar(opplysningerOmFar).build());
 
       // then
       assertEquals(pdf.getSigneringsinformasjonMor().getRedirectUrl(), respons.getRedirectUrlForSigneringMor());
@@ -436,7 +436,7 @@ public class FarskapsportalServiceTest {
 
       // when
       var respons = farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(barnFoedtInnenforGyldigIntervall).opplysningerOmFar(opplysningerOmFar).build());
+          OppretteFarskapserklaeringRequest.builder().barn(barnFoedtInnenforGyldigIntervall).opplysningerOmFar(opplysningerOmFar).build());
 
       // then
       assertThat(redirectUrlMor).isEqualTo(respons.getRedirectUrlForSigneringMor());
@@ -475,7 +475,7 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(ufoedtBarn).opplysningerOmFar(opplysningerOmFar).build()));
+          OppretteFarskapserklaeringRequest.builder().barn(ufoedtBarn).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
     @Test
@@ -523,7 +523,7 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(nyfoedtBarn2).opplysningerOmFar(opplysningerOmFar).build()));
+          OppretteFarskapserklaeringRequest.builder().barn(nyfoedtBarn2).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
     @Test
@@ -550,7 +550,7 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(IllegalArgumentException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build()));
+          OppretteFarskapserklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
     @Test
@@ -582,7 +582,7 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(opplysningerOmFar).build()));
+          OppretteFarskapserklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
     @Test
@@ -619,7 +619,7 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(ManglerRelasjonException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(barnUtenRelasjonTilMor).opplysningerOmFar(opplysningerOmFar).build()));
+          OppretteFarskapserklaeringRequest.builder().barn(barnUtenRelasjonTilMor).opplysningerOmFar(opplysningerOmFar).build()));
 
     }
 
@@ -654,7 +654,7 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(MorHarIngenNyfoedteUtenFarException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
+          OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
     @Test
@@ -691,7 +691,7 @@ public class FarskapsportalServiceTest {
 
       // when, then
       assertThrows(NyfoedtErForGammelException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskaperklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
+          OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
     }
   }
 
@@ -1050,5 +1050,66 @@ public class FarskapsportalServiceTest {
 
   }
 
+  @Nested
+  class OppdaterFarskapserklaering {
 
+    @Test
+    void skalOppdatereBorSammeninformasjonForMorDersomPersonErMorIFarskapserklaeringen() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      var fnrPaaloggetPerson = MOR.getFoedselsnummer();
+      var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build();
+
+      // when
+      var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
+
+      // then
+      assertAll(() -> assertThat(respons.getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isTrue(),
+          () -> assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isNull());
+    }
+
+    @Test
+    void skalOppdatereBorSammeninformasjonForFaDersomPersonErFarIFarskapserklaeringen() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      var fnrPaaloggetPerson = FAR.getFoedselsnummer();
+      var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build();
+
+      // when
+      var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
+
+      // then
+      assertAll(() -> assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue(),
+          () -> assertThat(respons.getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isNull());
+    }
+
+    @Test
+    void skalKasteValideringExceptionDersomPersonIkkeErPartIFarskapserklaeringeg() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      var fnrPaaloggetPerson = "12345678910";
+      var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build();
+
+      // when, then
+      assertThrows(ValideringException.class, () -> farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request));
+    }
+  }
 }

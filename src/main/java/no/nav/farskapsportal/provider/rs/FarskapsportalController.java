@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.api.OppretteFarskaperklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.service.FarskapsportalService;
@@ -20,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -73,7 +77,7 @@ public class FarskapsportalController {
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 404, message = "Fant ikke fødselsnummer eller navn"), @ApiResponse(code = 500, message = "Serverfeil"),
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
-  public ResponseEntity<OppretteFarskaperklaeringRequest> nyFarskapserklaering(@RequestBody OppretteFarskaperklaeringRequest request) {
+  public ResponseEntity<OppretteFarskapserklaeringResponse> nyFarskapserklaering(@RequestBody OppretteFarskapserklaeringRequest request) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var respons = farskapsportalService.oppretteFarskapserklaering(fnrPaaloggetPerson, request);
 
@@ -98,14 +102,27 @@ public class FarskapsportalController {
   @PostMapping("/redirect-url/ny")
   @ApiOperation("Henter ny redirect-url for signering av dokument")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "Ny redirect-url ble hentet uten feil"),
-      @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
+      @ApiResponse(code = 400, message = "Feil opplysninger oppgitt"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(code = 404, message = "Fant ikke dokument"), @ApiResponse(code = 500, message = "Serverfeil"),
+      @ApiResponse(code = 404, message = "Fant ikke farskapserklæring"), @ApiResponse(code = 500, message = "Serverfeil"),
       @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
   public ResponseEntity<String> henteNyRedirectUrl(
       @ApiParam(name = "id_farskapserklaering", type = "int", value = "Id til aktuell farskapserklaering", required = true) @RequestParam(name = "id_farskapserklaering") int idFarskapserklaering) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var redirectUrl = farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, idFarskapserklaering);
     return new ResponseEntity<>(redirectUrl.toString(), HttpStatus.OK);
+  }
+
+  @PutMapping("/farskapserklaering/oppdatere")
+  @ApiOperation("Oppdaterer farskapserklæring")
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Farskapserklæring oppdatert uten feil"),
+      @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
+      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(code = 404, message = "Fant ikke farskapserklæring"), @ApiResponse(code = 500, message = "Serverfeil"),
+      @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
+  public ResponseEntity<OppdatereFarskapserklaeringResponse> oppdatereFarskapserklaering(@RequestBody OppdatereFarskapserklaeringRequest request) {
+    var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
+    var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
+    return new ResponseEntity<>(respons, HttpStatus.CREATED);
   }
 }

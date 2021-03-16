@@ -39,6 +39,10 @@ public class Farskapserklaering implements Serializable {
   @ManyToOne(cascade = CascadeType.PERSIST)
   private Forelder far;
 
+  private Boolean morBorSammenMedFar;
+
+  private Boolean farBorSammenMedMor;
+
   @OneToOne(cascade = CascadeType.ALL)
   private Dokument dokument;
 
