@@ -149,11 +149,7 @@ public class FarskapsportalService {
   }
 
   @Transactional
-<<<<<<< HEAD
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskapserklaeringRequest request) {
-=======
-  public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskaperklaeringRequest request) {
->>>>>>> main
     // Sjekker om mor skal kunne opprette ny farskapserklæring
     validereTilgangMor(fnrMor, request);
     // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
@@ -424,7 +420,6 @@ public class FarskapsportalService {
       throw new InternFeilException(Feilkode.FEILFORMATERT_URL_UNDERTEGNERURL);
     }
   }
-<<<<<<< HEAD
 
   @Transactional
   public OppdatereFarskapserklaeringResponse oppdatereFarskapserklaering(String fnrPaaloggetPerson, OppdatereFarskapserklaeringRequest request) {
@@ -432,7 +427,7 @@ public class FarskapsportalService {
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(request.getIdFarskapserklaering());
     validereAtPersonErForelderIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
 
-    if  (personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
+    if (personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
       farskapserklaering.setMorBorSammenMedFar(request.isBorSammen());
     } else {
       farskapserklaering.setFarBorSammenMedMor(request.isBorSammen());
@@ -440,6 +435,4 @@ public class FarskapsportalService {
 
     return OppdatereFarskapserklaeringResponse.builder().oppdatertFarskapserklaeringDto(mappingUtil.toDto(farskapserklaering)).build();
   }
-=======
->>>>>>> main
 }
