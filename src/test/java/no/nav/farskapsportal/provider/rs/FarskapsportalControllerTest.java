@@ -882,7 +882,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId()).build().encode()
-              .toString(), HttpMethod.GET, null, String.class);
+              .toString(), HttpMethod.POST, null, String.class);
 
       // then
       assertThat(nyRedirectUrl.toString()).isEqualTo(respons.getBody());
@@ -909,7 +909,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", 5).build().encode()
-              .toString(), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
+              .toString(), HttpMethod.POST, null, FarskapserklaeringFeilResponse.class);
 
       // then
       var farskapserklaeringFeilResponse = respons.getBody();

@@ -95,7 +95,7 @@ public class FarskapsportalController {
     return new ResponseEntity<>(signertDokument, HttpStatus.OK);
   }
 
-  @GetMapping("/redirect-url/ny")
+  @PostMapping("/redirect-url/ny")
   @ApiOperation("Henter ny redirect-url for signering av dokument")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "Ny redirect-url ble hentet uten feil"),
       @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
