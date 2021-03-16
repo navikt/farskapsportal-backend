@@ -21,6 +21,10 @@ public class FarskapserklaeringDto {
   private ForelderDto mor;
   @ApiModelProperty("Barnets far")
   private ForelderDto far;
+  @ApiModelProperty("Mor oppgir om hun bor sammen med far")
+  Boolean morBorSammenMedFar;
+  @ApiModelProperty("Far oppgir om han bor sammen med mor")
+  Boolean farBorSammenMedMor;
   @ApiModelProperty("Farskapserklæringsdokumentet")
   private DokumentDto dokument;
 }
