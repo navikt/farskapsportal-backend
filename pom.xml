@@ -47,6 +47,8 @@
     <springframework-retry.version>1.3.1</springframework-retry.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <nimbus-jose-jwt.version>8.21</nimbus-jose-jwt.version>
+    <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
+    <jaxb-impl.version>3.0.0.</jaxb-impl.version>
 
     <!-- test -->
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
@@ -298,6 +300,17 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-java8</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>${jaxb-api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
     </dependency>
 
     <!-- guava -->

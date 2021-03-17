@@ -32,7 +32,8 @@ public enum Feilkode {
       "Feil ved henting av originalt kjønn fra PDL"), PDL_NAVN_IKKE_FUNNET("Fant ikke personens navn i PDL"), PDL_PERSON_IKKE_FUNNET(
       "Fant ikke person i PDL"), PDL_SIVILSTAND_IKKE_FUNNET(
       "Fant ikke informasjon om personens sivilstand i PDL"), PERSON_IKKE_PART_I_FARSKAPSERKLAERING(
-      "Pålogget person er ikke forelder i oppgitt farskapserklaering"), TERMINDATO_UGYLDIG("Oppgitt termindato er ikke innenfor godkjent intervall");
+      "Pålogget person er ikke forelder i oppgitt farskapserklaering"), SKATT_MELDINGSFORMAT(
+      "Feil oppstod ved opprettelse av farskapsmelding til Skatt"), TERMINDATO_UGYLDIG("Oppgitt termindato er ikke innenfor godkjent intervall");
 
   private final String beskrivelse;
 

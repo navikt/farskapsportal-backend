@@ -5,6 +5,7 @@ import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATIO
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
+import io.swagger.models.Model;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
+import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -61,6 +63,16 @@ public class FarskapsportalConfig {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     return new SecurityTokenServiceConsumer(restTemplate, consumerEndpoint);
   }
+
+  @Bean
+  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+      @Value("${url.skatt.endpoint}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+    log.info("Oppretter SkattConsumer med url {}", baseUrl);
+    consumerEndpoint.addEndpoint(HENTE_IDTOKEN_FOR_SERVICEUSER, endpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+    return new SkattConsumer(restTemplate, consumerEndpoint);
+  }
+
 
   @Bean
   public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,

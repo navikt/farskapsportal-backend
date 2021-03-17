@@ -112,6 +112,16 @@ public class RestResponseExceptionResolver {
     return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
+  @ResponseBody
+  @ExceptionHandler(DatamappingException.class)
+  protected  ResponseEntity<?> handleDatamappingException(DatamappingException e){
+    exceptionLogger.logException(e.getOriginalException(), "RestResponseExceptionResolver");
+
+    var feilmelding = "Feil oppstod ved mapping av data";
+
+    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
   private ResponseEntity<FarskapserklaeringFeilResponse> generereFeilrespons(String feilmelding, Feilkode feilkode,
       Optional<StatusKontrollereFarDto> statusKontrollereFarDto, HttpStatus httpStatus) {
     HttpHeaders headers = new HttpHeaders();
