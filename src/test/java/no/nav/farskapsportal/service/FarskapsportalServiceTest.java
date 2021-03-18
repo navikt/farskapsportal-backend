@@ -27,12 +27,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.Rolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
@@ -125,7 +127,9 @@ public class FarskapsportalServiceTest {
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
-      assertEquals(brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 1);
+      assertAll(() -> assertEquals(1, brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()), () -> assertEquals(1,
+          brukerinformasjon.getAvventerSigneringMotpart().stream().filter(fe -> fe.getPaaloggetBrukersRolle().equals(Rolle.MOR))
+              .collect(Collectors.toSet()).size()));
 
     }
 
@@ -153,9 +157,10 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
       // then
-      assertAll(() -> assertEquals(brukerinformasjon.getAvventerSigneringBruker().size(), 1),
-          () -> assertEquals(brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size(), 0),
-          () -> assertEquals(brukerinformasjon.getAvventerSigneringMotpart().size(), 0));
+      assertAll(() -> assertEquals(1,
+          brukerinformasjon.getAvventerSigneringBruker().stream().filter(fe -> fe.getPaaloggetBrukersRolle().equals(Rolle.MOR))
+              .collect(Collectors.toSet()).size()), () -> assertEquals(0, brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()),
+          () -> assertEquals(0, brukerinformasjon.getAvventerSigneringMotpart().size()));
     }
 
     @Test
@@ -180,7 +185,8 @@ public class FarskapsportalServiceTest {
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
 
-      assertEquals(1, brukerinformasjon.getAvventerSigneringMotpart().size());
+      assertEquals(1, brukerinformasjon.getAvventerSigneringMotpart().stream().filter(fe -> fe.getPaaloggetBrukersRolle().equals(Rolle.MOR))
+          .collect(Collectors.toSet()).size());
 
     }
 
@@ -281,7 +287,8 @@ public class FarskapsportalServiceTest {
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
 
       // then
-      assertEquals(1, brukerinformasjon.getAvventerSigneringBruker().size());
+      assertEquals(1, brukerinformasjon.getAvventerSigneringBruker().stream().filter(fe -> fe.getPaaloggetBrukersRolle().equals(Rolle.FAR))
+          .collect(Collectors.toSet()).size());
     }
 
     @Test

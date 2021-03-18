@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import no.nav.farskapsportal.api.Rolle;
 
 @Builder
 @Getter
@@ -15,6 +16,8 @@ import lombok.Setter;
 public class FarskapserklaeringDto {
   @ApiModelProperty("Unik id for farskapserklæring")
   private int idFarskapserklaering;
+  @ApiModelProperty("Paalogget brukers rolle i farskapserklæringen")
+  private Rolle paaloggetBrukersRolle;
   @ApiModelProperty("Barnet farskapserklæringen gjelder")
   private BarnDto barn;
   @ApiModelProperty("Barnets mor")
