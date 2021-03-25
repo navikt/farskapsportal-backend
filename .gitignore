@@ -3,8 +3,6 @@ target/
 **/src/main/**/target/
 **/src/test/**/target/
 *.orig
-*.pdf
-Farskapsportal.pdf
 
 ### STS ###
 .apt_generated
@@ -37,3 +35,4 @@ build/
 ### Maven ###
 .mvn/
 
+fp.pdf
