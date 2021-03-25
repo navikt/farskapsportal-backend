@@ -19,10 +19,6 @@ public class DokumentDto {
   private String dokumentnavn;
   @ApiModelProperty("Dokumentinnhold")
   private byte[] innhold;
-  @ApiModelProperty("Url for å be om status på signeringsoppdrag")
-  private URI dokumentStatusUrl;
-  @ApiModelProperty("Url for å hente kopi av signert dokument")
-  private URI padesUrl;
   @ApiModelProperty("Mors Url for å utføre dokumentsignering hos Posten")
   private URI redirectUrlMor;
   @ApiModelProperty("Fars Url for å utføre dokumentsignering hos Posten")

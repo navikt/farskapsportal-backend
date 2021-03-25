@@ -2,8 +2,6 @@ package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -19,7 +17,6 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
-import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -60,14 +57,6 @@ public class PersistenceService {
     return forelder;
   }
 
-  public Optional<Forelder> henteForelderMedFoedselsnummer(String foedselsnummer) {
-    var forelder = forelderDao.henteForelderMedFnr(foedselsnummer);
-    if (forelder.isPresent()) {
-      return Optional.of(forelder.get());
-    }
-    return Optional.empty();
-  }
-
   @Transactional
   public Farskapserklaering lagreNyFarskapserklaering(Farskapserklaering nyFarskapserklaering) {
 
@@ -100,11 +89,6 @@ public class PersistenceService {
     return farskapserklaeringDao.save(farskapserklaering);
   }
 
-  public Set<FarskapserklaeringDto> henteFarskapserklaeringer(String foedselsnummer) {
-    var farskapserklaeringer = farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(foedselsnummer);
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
-  }
-
   public Set<FarskapserklaeringDto> henteMorsEksisterendeErklaeringer(String fnrMor) {
     var farskapserklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
     return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
@@ -113,6 +97,10 @@ public class PersistenceService {
   public Set<FarskapserklaeringDto> henteFarsErklaeringer(String fnrFar) {
     var farskapserklaeringer = farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
     return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
+  }
+
+  public Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder) {
+    return farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder);
   }
 
   public Optional<FarskapserklaeringDto> henteBarnsEksisterendeErklaering(String fnrBarn) {
@@ -132,7 +120,7 @@ public class PersistenceService {
       case MOR:
         return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
       case FAR:
-        return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
+        return farskapserklaeringDao.henteFarskapserklaeringerForFar(fnrForelder);
       case MOR_ELLER_FAR:
         if (KjoennType.KVINNE.equals(gjeldendeKjoenn)) {
           return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
@@ -255,7 +243,7 @@ public class PersistenceService {
     var oevreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaperConfig.getMaksAntallUkerTilTermindato());
 
     var respons = farskapserklaeringDao
-        .henteFarskapserklaeringer(dto.getMor().getFoedselsnummer(), dto.getFar().getFoedselsnummer(), nedreGrense, oevreGrense);
+        .henteFarskapserklaeringerForForelder(dto.getMor().getFoedselsnummer(), dto.getFar().getFoedselsnummer(), nedreGrense, oevreGrense);
 
     return respons.isEmpty() ? Optional.empty() : respons.stream().findFirst();
   }

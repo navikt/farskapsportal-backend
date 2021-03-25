@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.dto;
+package no.nav.farskapsportal.consumer.esignering.api;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
@@ -19,8 +19,8 @@ public class SignaturDto {
   @ApiModelProperty("Signering er gjennomført")
   boolean harSignert;
 
-  @ApiModelProperty("Tidspunkt for signering")
-  LocalDateTime tidspunktForSignering;
+  @ApiModelProperty("Tidspunkt for siste statusendring")
+  LocalDateTime tidspunktForStatus;
 
   @ApiModelProperty("Status signering")
   StatusSignering statusSignering;

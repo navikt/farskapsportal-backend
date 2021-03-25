@@ -43,6 +43,13 @@ public class RestTemplateConfig {
   }
 
   @Bean
+  @Qualifier("skatt")
+  @Scope("prototype")
+  public HttpHeaderRestTemplate skattRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+    return httpHeaderRestTemplate;
+  }
+
+  @Bean
   @Qualifier("pdl-api")
   @Scope("prototype")
   public HttpHeaderRestTemplate pdlApiRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
