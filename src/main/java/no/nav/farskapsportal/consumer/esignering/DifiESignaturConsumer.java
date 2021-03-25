@@ -147,7 +147,7 @@ public class DifiESignaturConsumer {
 
   public URI henteNyRedirectUrl(URI signerUrl) {
     var directSignerResponse = client.requestNewRedirectUrl(WithSignerUrl.of(signerUrl));
-    return directSignerResponse.getSignerUrl();
+    return directSignerResponse.getRedirectUrl();
   }
 
   private SignaturDto mapTilDto(Signature signature) {
