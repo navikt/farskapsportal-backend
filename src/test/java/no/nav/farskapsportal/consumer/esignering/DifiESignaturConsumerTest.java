@@ -1,13 +1,18 @@
 package no.nav.farskapsportal.consumer.esignering;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.FarskapsportalLocalConfig.PADES;
+import static no.nav.farskapsportal.TestUtils.lageUrl;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -121,13 +126,34 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runGetStatus(STATUS_URL, PADES_URL, MOR.getFoedselsnummer());
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteDokumentstatusEtterRedirect("jadda", Set.of(new URI(STATUS_URL)));
+      var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda", Set.of(new URI(STATUS_URL)));
 
       // then
       assertNotNull(dokumentStatusDto, "Retur-objekt skal ikke være null");
       assertEquals(STATUS_URL, dokumentStatusDto.getStatuslenke().toString(), "Status-url skal være riktig");
       assertNotNull(dokumentStatusDto.getPadeslenke(), "Pades-url skal være satt");
       assertEquals(PADES_URL, dokumentStatusDto.getPadeslenke().toString(), "Pades-url skal være riktig");
+    }
+  }
+
+  @Nested
+  @DisplayName("Hente signert dokument")
+  class HenteSignertDokument {
+
+    @Test
+    void skalHenteSignertDokumentFraPostenEsignering() throws IOException {
+
+      // given
+      ClassLoader classLoader = getClass().getClassLoader();
+      var inputStream = classLoader.getResourceAsStream("__files/Farskapsportal.pdf");
+      var originaltInnhold = inputStream.readAllBytes();
+      difiESignaturStub.runGetSignedDocument(PADES);
+
+      // when
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUrl(PADES));
+
+      // then
+      assertArrayEquals(originaltInnhold, dokumentinnhold);
     }
   }
 }

@@ -24,10 +24,13 @@ management:
 url:
   pdl-api:
     base-url: ${APIGW_URL}
-    graphql-endpoint: "/pdl-api/graphql"
+    graphql: "/pdl-api/graphql"
   sts:
     base-url: ${APIGW_URL}
-    security-token-service-endpoint: "/security-token-service/rest/v1/sts/token"
+    security-token-service: "/security-token-service/rest/v1/sts/token"
+  skatt:
+    base-url: ${SKATT_URL}
+    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1"
 
 farskapsportal-api:
   servicebruker.brukernavn: srvfarskapsportal
@@ -69,6 +72,7 @@ spring:
   jpa.hibernate.hbmddl-auto: create-drop
 
 ########## Mock props ##########
+SKATT_STUB_HOST: http://localhost:8080
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
@@ -76,6 +80,7 @@ APIKEY_STS_FP: keyForZoneCrossing
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
+  skatt.base-url: ${SKATT_STUB_HOST}
 
 farskapsportal-api.servicebruker.brukernavn: se-vault
 farskapsportal-api.servicebruker.passord: se-vault
@@ -84,6 +89,8 @@ farskapsportal-api.servicebruker.passord: se-vault
 spring:
   config.activate.on-profile: local, test, local-postgres, integration-test
   flyway.enabled: false
+
+local.server.port: 8080
 
 ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
 ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
@@ -145,6 +152,7 @@ APIKEY_STS_FP: keyForZoneCrossing
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
+  skatt.base-url: ${WIREMOCK_URL}
 
 farskapsportal-api:
   servicebruker.brukernavn: se-vault

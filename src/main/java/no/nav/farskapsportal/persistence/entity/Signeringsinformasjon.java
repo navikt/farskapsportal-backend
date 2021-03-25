@@ -31,7 +31,5 @@ public class Signeringsinformasjon {
 
   private String redirectUrl;
 
-  private String statusUrl;
-
   private String undertegnerUrl;
 }

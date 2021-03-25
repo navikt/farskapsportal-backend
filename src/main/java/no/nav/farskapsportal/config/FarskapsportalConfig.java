@@ -3,6 +3,7 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
+import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -55,7 +57,7 @@ public class FarskapsportalConfig {
 
   @Bean
   SecurityTokenServiceConsumer securityTokenServiceConsumer(@Qualifier("sts") RestTemplate restTemplate, @Value("${url.sts.base-url}") String baseUrl,
-      @Value("${url.sts.security-token-service-endpoint}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+      @Value("${url.sts.security-token-service}") String endpoint, ConsumerEndpoint consumerEndpoint) {
     log.info("Oppretter SecurityTokenServiceConsumer med url {}", baseUrl);
     consumerEndpoint.addEndpoint(HENTE_IDTOKEN_FOR_SERVICEUSER, endpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
@@ -63,8 +65,17 @@ public class FarskapsportalConfig {
   }
 
   @Bean
+  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+      @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+    log.info("Oppretter SkattConsumer med url {}", baseUrl);
+    consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+    return new SkattConsumer(restTemplate, consumerEndpoint);
+  }
+
+  @Bean
   public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,
-      @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
+      @Value("${url.pdl-api.graphql}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
@@ -73,7 +84,7 @@ public class FarskapsportalConfig {
 
   @Bean
   public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${url.pdl-api.base-url}") String baseUrl, @Value("${url.pdl-api.graphql-endpoint}") String pdlApiEndpoint,
+      @Value("${url.pdl-api.base-url}") String baseUrl, @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
@@ -97,10 +108,12 @@ public class FarskapsportalConfig {
   @Bean
   public FarskapsportalService farskapsportalService(FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer, PersistenceService persistenceService, PersonopplysningService personopplysningService,
+      SkattConsumer skattConsumer,
       MappingUtil mappingUtil) {
 
     return FarskapsportalService.builder().farskapsportalEgenskaper(farskapsportalEgenskaper).difiESignaturConsumer(difiESignaturConsumer)
         .pdfGeneratorConsumer(pdfGeneratorConsumer).persistenceService(persistenceService).personopplysningService(personopplysningService)
+        .skattConsumer(skattConsumer)
         .mappingUtil(mappingUtil).build();
   }
 

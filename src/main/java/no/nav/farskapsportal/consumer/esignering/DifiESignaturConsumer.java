@@ -29,12 +29,12 @@ import no.digipost.signature.client.direct.WithSignerUrl;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
-import no.nav.farskapsportal.dto.DokumentStatusDto;
-import no.nav.farskapsportal.dto.SignaturDto;
+import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
+import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
+import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.exception.PadesUrlIkkeTilgjengeligException;
-import no.nav.farskapsportal.exception.SigneringsjobbFeiletException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
@@ -75,6 +75,8 @@ public class DifiESignaturConsumer {
       e.printStackTrace();
       throw new OppretteSigneringsjobbException(Feilkode.OPPRETTE_SIGNERINGSJOBB);
     }
+
+    directJobResponse.getSigners().get(0).getSignerUrl();
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
     dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl().toString());
 
@@ -95,9 +97,9 @@ public class DifiESignaturConsumer {
   }
 
   /**
-   * Hente dokumentstatus etter at bruker har blitt redirektet med statusQueryToken fra signeringsløsningen.
+   * Hente dokumentstatus.
    */
-  public DokumentStatusDto henteDokumentstatusEtterRedirect(String statusQueryToken, Set<URI> statuslenker) {
+  public DokumentStatusDto henteStatus(String statusQueryToken, Set<URI> statuslenker) {
 
     var directJobStatusResponseMap = henteSigneringsjobbstatus(statuslenker, statusQueryToken);
     var statuslenke = directJobStatusResponseMap.keySet().stream().findAny().get();
@@ -105,15 +107,17 @@ public class DifiESignaturConsumer {
 
     var pAdESReference = directJobStatusResponse.getpAdESUrl();
     var statusJobb = directJobStatusResponse.getStatus();
+    var bekreftelseslenke = directJobStatusResponse.getConfirmationReference().getConfirmationUrl();
 
     if (statusJobb.equals(DirectJobStatus.FAILED)) {
-      throw new SigneringsjobbFeiletException("Signeringsjobben har status FAILED");
+      throw new EsigneringConsumerException("Signeringsjobben har status FAILED");
     }
 
     var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(signatur -> mapTilDto(signatur))
         .collect(Collectors.toList());
 
     var dokumentstatus = DokumentStatusDto.builder().statuslenke(statuslenke).padeslenke(pAdESReference.getpAdESUrl())
+        .bekreftelseslenke(bekreftelseslenke)
         .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY)).signaturer(signaturer).build();
 
     return dokumentstatus;
@@ -152,11 +156,11 @@ public class DifiESignaturConsumer {
 
   private SignaturDto mapTilDto(Signature signature) {
     signatureierErIkkeNull(signature);
-    var tidspunktForSignering = LocalDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
+    var tidspunktForStatus = LocalDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
     var statusSignering = mapStatus(signature.getStatus());
     var harSignert = StatusSignering.SUKSESS.equals(statusSignering);
     return SignaturDto.builder().signatureier(signature.getSigner()).harSignert(harSignert).statusSignering(statusSignering)
-        .tidspunktForSignering(tidspunktForSignering).build();
+        .tidspunktForStatus(tidspunktForStatus).build();
   }
 
   private StatusSignering mapStatus(SignerStatus signerStatus) {

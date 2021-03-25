@@ -22,7 +22,6 @@ public class SignertDokumentTest {
     var signertDokument =
         Dokument.builder()
             .dokumentnavn("farsSignerteErklaering.pdf")
-            .padesUrl("")
             .build();
 
     var toString = signertDokument.toString();

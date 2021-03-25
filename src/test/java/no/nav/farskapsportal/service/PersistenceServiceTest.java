@@ -35,7 +35,6 @@ import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.util.MappingUtil;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -95,7 +94,7 @@ public class PersistenceServiceTest {
       var redirectUrlMor = "https://esignering.no/redirect-mor";
       var redirectUrlFar = "https://esignering.no/redirect-far";
 
-      var dokument = Dokument.builder().dokumentnavn("farskapserklaring.pdf").padesUrl("")
+      var dokument = Dokument.builder().dokumentnavn("farskapserklaring.pdf")
           .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
           .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).build();
 
@@ -179,18 +178,18 @@ public class PersistenceServiceTest {
   @TestInstance(Lifecycle.PER_CLASS)
   class Hente {
 
-    Farskapserklaering lagretFarskapserklaering;
-
-    @BeforeAll
-    void setupTestdata() {
+    private Farskapserklaering lagreFarskapserklaering() {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      return farskapserklaeringDao.save(mappingUtil.toEntity(FARSKAPSERKLAERING));
+    }
 
-      lagretFarskapserklaering = mappingUtil.toEntity(FARSKAPSERKLAERING);
-      lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().setUndertegnerUrl("https://esignering.no/signer-mor");
-      lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl("https://esignering.no/signer-far");
-      farskapserklaeringDao.save(lagretFarskapserklaering);
+    void lagreFarskapserklaeringSignertAvMor() {
+      var farskapserklaeringSignertAvMor = lagreFarskapserklaering();
+      farskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.posten.no/" + MOR.getFoedselsnummer() + "/pades");
+      farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(15));
+      farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
     }
 
     @Test
@@ -198,12 +197,7 @@ public class PersistenceServiceTest {
     void skalHenteFarskapserklaeringEtterRedirectForMor() {
 
       // given
-      var farskapserklaering = farskapserklaeringDao
-          .henteUnikFarskapserklaering(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), FARSKAPSERKLAERING.getFar().getFoedselsnummer(),
-              FARSKAPSERKLAERING.getBarn().getTermindato());
-      var padesUrl = farskapserklaering.get().getDokument().getPadesUrl();
-      farskapserklaering.get().getDokument().setPadesUrl(null);
-      var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaering.get());
+      var lagretFarskapserklaering = lagreFarskapserklaering();
 
       assertAll(() -> assertNull(lagretFarskapserklaering.getDokument().getPadesUrl()),
           () -> assertNull(lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
@@ -225,12 +219,15 @@ public class PersistenceServiceTest {
     @DisplayName("Skal hente farskapserklæring i forbindelse med fars redirect fra signeringsløsningen")
     void skalHenteFarskapserklaeringEtterRedirectForFar() {
 
-      // given default farskapserklæering, when
+      // given
+      lagreFarskapserklaeringSignertAvMor();
+
+      //when
       var farskapserklaeringerEtterRedirect = persistenceService
           .henteFarskapserklaeringerEtterRedirect(FAR.getFoedselsnummer(), Forelderrolle.FAR, KjoennType.MANN).stream().findFirst().get();
 
       // then
-      assertAll(() -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
+      assertAll(() -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument(),
           "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
@@ -238,10 +235,16 @@ public class PersistenceServiceTest {
     }
 
     @Test
-    @DisplayName("Skal hente lagret farskapserklæring")
-    void skalHenteLagretFarskapserklaering() {
-      var hentedeFarskapserklaeringer = persistenceService.henteFarskapserklaeringer(FAR.getFoedselsnummer());
+    @DisplayName("Skal hente farskapserklæring som venter på far")
+    void skalHenteFarskapserklaeringSomVenterPaaFar() {
 
+      // given
+      lagreFarskapserklaeringSignertAvMor();
+
+      // when
+      var hentedeFarskapserklaeringer = persistenceService.henteFarsErklaeringer(FAR.getFoedselsnummer());
+
+      // then
       var hentetFarskapserklaering = hentedeFarskapserklaeringer.stream().filter(f -> FAR.getFoedselsnummer().equals(f.getFar().getFoedselsnummer()))
           .findFirst().get();
 
@@ -253,7 +256,10 @@ public class PersistenceServiceTest {
     @DisplayName("Skal hente lagret barn")
     void skalHenteLagretBarn() {
 
-      // given, when
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
+
+      // when
       var hentetBarn = persistenceService.henteBarn(lagretFarskapserklaering.getBarn().getId());
 
       // then
@@ -263,6 +269,9 @@ public class PersistenceServiceTest {
     @Test
     @DisplayName("Skal hente lagret mor")
     void skalHenteLagretMor() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
 
       // when
       var hentetMor = persistenceService.henteForelder(lagretFarskapserklaering.getMor().getId());
@@ -274,7 +283,14 @@ public class PersistenceServiceTest {
     @Test
     @DisplayName("Skal hente lagret far")
     void skalHenteLagretFar() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
+
+      // when
       var hentetFar = persistenceService.henteForelder(lagretFarskapserklaering.getFar().getId());
+
+      // then
       assertEquals(lagretFarskapserklaering.getFar().getFoedselsnummer(), hentetFar.getFoedselsnummer());
     }
 
@@ -301,6 +317,7 @@ public class PersistenceServiceTest {
     void skalHenteFarskapserklaeringForIdSomFinnesIDatabasen() {
 
       // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
       assertNotNull(lagretFarskapserklaering);
 
       // when
@@ -317,6 +334,7 @@ public class PersistenceServiceTest {
     void skalKasteValideringExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
 
       // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
       assertNotNull(lagretFarskapserklaering);
 
       // when, then

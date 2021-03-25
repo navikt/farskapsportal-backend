@@ -8,6 +8,7 @@ import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.henteNyligFoedtBarn;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
+import static no.nav.farskapsportal.TestUtils.tilUri;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,6 +46,8 @@ import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
+import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
@@ -56,11 +59,10 @@ import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
+import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
-import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.dto.SignaturDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
@@ -115,6 +117,8 @@ public class FarskapsportalControllerTest {
   private PdfGeneratorConsumer pdfGeneratorConsumer;
   @MockBean
   private DifiESignaturConsumer difiESignaturConsumer;
+  @MockBean
+  private SkattConsumer skattConsumer;
   @Autowired
   private PersistenceService persistenceService;
   @Autowired
@@ -309,7 +313,7 @@ public class FarskapsportalControllerTest {
 
       // given
       var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
-      farskapserklaeringSomVenterPaaMor.getDokument().setPadesUrl(null);
+      farskapserklaeringSomVenterPaaMor.getDokument();
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
@@ -389,7 +393,6 @@ public class FarskapsportalControllerTest {
 
       // given
       var farskapserklaeringSomVenterPaaMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
-      farskapserklaeringSomVenterPaaMor.getDokument().setPadesUrl(null);
       farskapserklaeringSomVenterPaaMor.getDokument().setSignertAvMor(null);
       farskapserklaeringSomVenterPaaMor.getDokument().setSignertAvFar(null);
 
@@ -726,7 +729,6 @@ public class FarskapsportalControllerTest {
   @DisplayName("Teste henteDokumentEtterRedirect")
   class HenteDokumentEtterRedirect {
 
-    @SneakyThrows
     @Test
     @DisplayName("Skal hente signert dokument for mor etter redirect")
     void skalHenteSignertDokumentForMorEtterRedirect() {
@@ -738,13 +740,12 @@ public class FarskapsportalControllerTest {
       // given
       var farskapserklaeringUtenSignaturer = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
 
-      farskapserklaeringUtenSignaturer.getDokument().setPadesUrl(null);
-
       assertAll(() -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getSignertAvMor()),
-          () -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getSignertAvFar()),
-          () -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getPadesUrl()));
+          () -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getSignertAvFar()));
 
       var lagretFarskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringUtenSignaturer));
+      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
 
       var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
@@ -756,11 +757,19 @@ public class FarskapsportalControllerTest {
           List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
           MOR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
-          DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
-              .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
-              SignaturDto.builder().signatureier(MOR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
-                  .build())).build());
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(tilUri(statuslenke))
+              .erSigneringsjobbenFerdig(true)
+              .padeslenke(lageUrl("/pades"))
+              .signaturer(List.of(
+                  SignaturDto.builder()
+                      .signatureier(MOR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .build()))
+              .build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaering.getDokument().getInnhold());
 
@@ -791,10 +800,14 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
+      lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl("https://esignering.no/status");
+      lagretFarskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.no/" + MOR.getFoedselsnummer() + "/status");
+      farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
+      doNothing().when(skattConsumer).registrereFarskap(lagretFarskapserklaeringSignertAvMor);
       stsStub.runSecurityTokenServiceStub("jalla");
       Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
@@ -802,11 +815,16 @@ public class FarskapsportalControllerTest {
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
           FAR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
-          DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
-              .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
-              SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
-                  .build())).build());
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
+              .padeslenke(lageUrl("/pades"))
+
+              .signaturer(List.of(
+                  SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
 
@@ -834,9 +852,10 @@ public class FarskapsportalControllerTest {
       var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
+      lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
       Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
@@ -845,11 +864,18 @@ public class FarskapsportalControllerTest {
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(registrertNavnFar)),
           FAR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteDokumentstatusEtterRedirect(any(), any())).thenReturn(
-          DokumentStatusDto.builder().statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
-              .padeslenke(new URI("https://permanent-pades-url.no/")).signaturer(List.of(
-              SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForSignering(LocalDateTime.now().minusSeconds(3))
-                  .build())).build());
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .statuslenke(lageUrl("/status"))
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .erSigneringsjobbenFerdig(true)
+              .padeslenke(lageUrl("/pades"))
+              .signaturer(List.of(SignaturDto.builder()
+                  .signatureier(FAR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .build()))
+              .build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
 
@@ -874,7 +900,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var nyRedirectUrl = lageUrl("redirect-url-far");
+      var nyRedirectUrl = lageUrl("/redirect-url-far");
       var undertegnerUrlFar = lageUrl("/signer-url-far");
 
       var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
@@ -901,7 +927,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var nyRedirectUrl = lageUrl("redirect-url-far");
+      var nyRedirectUrl = lageUrl("/redirect-url-far");
       var undertegnerUrlFar = lageUrl("/signer-url-far");
 
       var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
@@ -969,7 +995,8 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
-          initHttpEntity(OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(false).build()),
+          initHttpEntity(
+              OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(false).build()),
           OppdatereFarskapserklaeringResponse.class);
 
       // then

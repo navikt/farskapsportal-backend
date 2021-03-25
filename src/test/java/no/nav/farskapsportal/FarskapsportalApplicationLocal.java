@@ -1,6 +1,8 @@
 package no.nav.farskapsportal;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import com.google.common.net.HttpHeaders;
@@ -10,11 +12,15 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
+import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
+import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
@@ -24,18 +30,24 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.web.client.RootUriTemplateHandler;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @ComponentScan(excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = FarskapsportalApplication.class)})
 @EnableJwtTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController", "org.springframework"})
 @Import(TokenGeneratorConfiguration.class)
+@Slf4j
 public class FarskapsportalApplicationLocal {
 
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
@@ -51,6 +63,7 @@ public class FarskapsportalApplicationLocal {
     app.setAdditionalProfiles(profile);
     app.run(args);
   }
+
 
   private static String generateTestToken() {
     TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
@@ -114,6 +127,27 @@ public class FarskapsportalApplicationLocal {
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
       Flyway.configure().ignoreMissingMigrations(true).baselineOnMigrate(true).dataSource(dataSource).load().migrate();
+    }
+  }
+
+  @Lazy
+  @Configuration
+  @Profile(PROFILE_LOCAL)
+  class SkattStubConfiguration {
+
+    @LocalServerPort
+    private int localServerPort;
+
+    @Bean
+    SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
+        @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+
+      var baseUrl = "http://localhost:" + localServerPort;
+      log.info("baseUrl: {}", baseUrl);
+
+      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
+      restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+      return new SkattConsumer(restTemplate, consumerEndpoint);
     }
   }
 }

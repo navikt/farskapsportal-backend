@@ -48,8 +48,9 @@ public class MappingUtilTest {
   private static DokumentDto getDokumentDto() {
     try {
       return DokumentDto.builder().innhold("en farskapserklæring".getBytes(StandardCharsets.UTF_8)).dokumentnavn("Farskapserklæring.pdf")
-          .padesUrl(new URI("https://pades.posten.no/")).redirectUrlFar(new URI("https://redirectUrlFar.posten.no/")).innhold("Gjelder barn".getBytes())
-          .redirectUrlMor(new URI("https://redirectUrlMor.posten.no/")).dokumentStatusUrl(new URI("https://dokumentStatusUrl.posten.no/"))
+          .redirectUrlFar(new URI("https://redirectUrlFar.posten.no/"))
+          .innhold("Gjelder barn".getBytes())
+          .redirectUrlMor(new URI("https://redirectUrlMor.posten.no/"))
           .signertAvMor(LocalDateTime.now()).signertAvFar(LocalDateTime.now()).build();
     } catch (URISyntaxException uriSyntaxException) {
       uriSyntaxException.printStackTrace();
@@ -172,9 +173,7 @@ public class MappingUtilTest {
 
       // then
       assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getDokumentnavn()),
-          () -> assertEquals(DOKUMENT_DTO.getDokumentStatusUrl().toString(), dokument.getDokumentStatusUrl()),
           () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), dokument.getInnhold())),
-          () -> assertEquals(DOKUMENT_DTO.getPadesUrl().toString(), dokument.getPadesUrl()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokument.getSigneringsinformasjonFar().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokument.getSigneringsinformasjonMor().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar().toString(), dokument.getSigneringsinformasjonFar().getRedirectUrl()),
@@ -192,8 +191,7 @@ public class MappingUtilTest {
       var dokumentDto = mappingUtil.toDto(dokument);
 
       // then
-      assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentStatusUrl(), dokumentDto.getDokumentStatusUrl()),
-          () -> assertEquals(DOKUMENT_DTO.getPadesUrl(), dokumentDto.getPadesUrl()),
+      assertAll(
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlMor(), dokumentDto.getRedirectUrlMor()),
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar(), dokumentDto.getRedirectUrlFar()),
           () -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokumentDto.getDokumentnavn()),
@@ -245,6 +243,33 @@ public class MappingUtilTest {
           () -> assertEquals(TERMINDATO, farskapserklaeringDto.getBarn().getTermindato()),
           () -> assertEquals(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt(),
               farskapserklaeringDto.getDokument().getSignertAvMor()));
+    }
+
+    @Test
+    @DisplayName("Skal mappe farskapserklaering som er send til Skatt - Entitet til DTO")
+    void skalMappeFarskapserklaeringSomErSendtTilSkattEntitetTilDto() {
+
+      // given
+      var dokument = mappingUtil.toEntity(DOKUMENT_DTO);
+      var far = mappingUtil.toEntity(FAR_DTO);
+      var mor = mappingUtil.toEntity(MOR_DTO);
+      var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
+          .meldingsidSkatt("asgagg").sendtTilSkatt(LocalDateTime.now().minusDays(3))
+          .build();
+
+      // when
+      var farskapserklaeringDto = mappingUtil.toDto(farskapserklaering);
+
+      // then
+      assertAll(
+          () -> assertEquals(FAR_DTO.getFoedselsnummer(), farskapserklaeringDto.getFar().getFoedselsnummer()),
+          () -> assertEquals(MOR_DTO.getFoedselsnummer(), farskapserklaeringDto.getMor().getFoedselsnummer()),
+          () -> assertEquals(TERMINDATO, farskapserklaeringDto.getBarn().getTermindato()),
+          () -> assertEquals(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt(),
+              farskapserklaeringDto.getDokument().getSignertAvMor()),
+          () -> assertEquals(farskapserklaeringDto.getMeldingsidSkatt(), farskapserklaering.getMeldingsidSkatt()),
+          () -> assertEquals(farskapserklaeringDto.getSendtTilSkatt(), farskapserklaering.getSendtTilSkatt())
+      );
     }
 
     @Test

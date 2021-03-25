@@ -1,6 +1,8 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -45,6 +47,10 @@ public class Farskapserklaering implements Serializable {
 
   @OneToOne(cascade = CascadeType.ALL)
   private Dokument dokument;
+
+  private String meldingsidSkatt;
+
+  private LocalDateTime sendtTilSkatt;
 
   @Override
   public int hashCode() {
