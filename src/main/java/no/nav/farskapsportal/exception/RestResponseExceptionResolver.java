@@ -55,18 +55,19 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler(PdlApiErrorException.class)
-  protected ResponseEntity<?> handlePdlApiException(PdlApiErrorException e) {
+  @ExceptionHandler({MappingException.class, EsigneringConsumerException.class})
+  protected ResponseEntity<?> handleInternFeilException(UnrecoverableException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = "Feil oppstod i kommunikasjon med PDL!";
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.WARNING, "En intern feil har oppstått!");
 
-    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.INTERNAL_SERVER_ERROR));
   }
 
   @ResponseBody
-  @ExceptionHandler(ESigneringFeilException.class)
-  protected ResponseEntity<?> handleEsigneringFeilException(ESigneringFeilException e) {
+  @ExceptionHandler(PdlApiErrorException.class)
+  protected ResponseEntity<?> handlePdlApiException(PdlApiErrorException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     var feilmelding = "Feil oppstod i kommunikasjon med PDL!";
@@ -79,7 +80,7 @@ public class RestResponseExceptionResolver {
   protected ResponseEntity<?> handleFeilIDatagrunnlagException(FeilIDatagrunnlagException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = "Feil oppstod i kommunikasjon med PDL!";
+    var feilmelding = "Feil i datagrunnlag";
 
     return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -113,11 +114,11 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler(DatamappingException.class)
-  protected  ResponseEntity<?> handleDatamappingException(DatamappingException e){
+  @ExceptionHandler(SkattConsumerException.class)
+  protected  ResponseEntity<?> handleSkattConsumerException(SkattConsumerException e){
     exceptionLogger.logException(e.getOriginalException(), "RestResponseExceptionResolver");
 
-    var feilmelding = "Feil oppstod ved mapping av data";
+    var feilmelding = "Feil oppstod i konsument mot Skatt";
 
     return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }

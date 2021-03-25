@@ -1,0 +1,14 @@
+{
+"request": {
+  "method": "POST",
+  "urlPattern": "/api/11111122222/direct/signature-jobs/1/signers/2"
+},
+"response": {
+  "status": 200,
+  "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><direct-signer-response xmlns=\"http://signering.posten.no/schema/v1\" href=\"http://localhost:8096/api/11111122222/direct/signature-jobs/1/signers/1\"><personal-identification-number>11111122222</personal-identification-number><redirect-url>https://fars-redirect-ny.signering.posten.no#/redirect/23626jqqqqgew82562</redirect-url></direct-signer-response>",
+  "headers": {
+    "Content-Type": "application/xml",
+    "Media-Type": "application/octet-stream"
+  }
+}
+}

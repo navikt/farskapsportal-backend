@@ -39,6 +39,8 @@ public class Dokument implements Serializable {
 
   private String padesUrl;
 
+  private String bekreftelsesUrl;
+
   @OneToOne(cascade = CascadeType.ALL)
   private Signeringsinformasjon signeringsinformasjonMor;
 

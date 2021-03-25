@@ -11,16 +11,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"dokumenttype", "multipartnavn"})
 public class Vedlegg {
-
-  @XmlElement
-  private Tekst dokumenttype;
 
   @XmlElement
   private Tekst multipartnavn;

@@ -7,11 +7,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Getter
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class DatamappingException extends UnrecoverableException {
+public class SkattConsumerException extends UnrecoverableException {
   private final Feilkode feilkode;
   private final Exception originalException;
 
-  public DatamappingException(Feilkode feilkode, Exception originalException) {
+  public SkattConsumerException(Feilkode feilkode) {
+    super(feilkode.getBeskrivelse());
+    this.feilkode = feilkode;
+    this.originalException = this;
+  }
+
+  public SkattConsumerException(Feilkode feilkode, Exception originalException) {
     super(feilkode.getBeskrivelse());
     this.feilkode = feilkode;
     this.originalException = originalException;

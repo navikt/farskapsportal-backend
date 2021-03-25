@@ -26,7 +26,7 @@ public class Far {
   @XmlElement
   private Dato datoForErklaeringen;
 
-  @XmlValue
+  @XmlElement
   private Boolsk harSignert;
 
 }

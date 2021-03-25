@@ -11,20 +11,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"innsendertype", "navn", "identitet"})
 public class Innsender {
 
   @XmlElement
   private InnsendertypeForRegistreringAvFarskap innsendertype;
 
-  @XmlElement
-  private Navn navn;
-
-  @XmlElement
-  private NorskIdentifikator identitet;
 }

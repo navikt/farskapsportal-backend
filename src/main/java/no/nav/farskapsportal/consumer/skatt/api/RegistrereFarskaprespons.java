@@ -5,15 +5,19 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ForeldreansvarUtenFellesBosted {
+public class RegistrereFarskaprespons {
 
   @XmlElement
-  private Dato datoForAvtalen;
+  private Tekst idFarskapserklaeringSkatt;
 
 }

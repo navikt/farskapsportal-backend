@@ -33,16 +33,17 @@ public class MappingUtil {
   }
 
   public Dokument toEntity(DokumentDto dokumentDto) {
-    var signeringsinformasjonMor = Signeringsinformasjon.builder().redirectUrl(dokumentDto.getRedirectUrlMor().toString())
+    var signeringsinformasjonMor = Signeringsinformasjon.builder()
+        .redirectUrl(dokumentDto.getRedirectUrlMor().toString())
         .signeringstidspunkt(dokumentDto.getSignertAvMor()).build();
 
-    var signeringsinformasjonFar = Signeringsinformasjon.builder().redirectUrl(dokumentDto.getRedirectUrlFar().toString())
+    var signeringsinformasjonFar = Signeringsinformasjon.builder()
+        .redirectUrl(dokumentDto.getRedirectUrlFar().toString())
         .signeringstidspunkt(dokumentDto.getSignertAvFar()).build();
 
     return Dokument.builder().innhold(dokumentDto.getInnhold()).signeringsinformasjonMor(signeringsinformasjonMor)
         .signeringsinformasjonFar(signeringsinformasjonFar)
-        .dokumentStatusUrl(dokumentDto.getDokumentStatusUrl() != null ? dokumentDto.getDokumentStatusUrl().toString() : null)
-        .dokumentnavn(dokumentDto.getDokumentnavn()).padesUrl(dokumentDto.getPadesUrl() != null ? dokumentDto.getPadesUrl().toString() : null)
+        .dokumentnavn(dokumentDto.getDokumentnavn())
         .build();
   }
 
@@ -50,9 +51,6 @@ public class MappingUtil {
 
     try {
       var dto = modelMapper.map(dokument, DokumentDto.class);
-
-      dto.setPadesUrl(dokument.getPadesUrl() != null ? new URI(dokument.getPadesUrl()) : null);
-      dto.setDokumentStatusUrl(dokument.getDokumentStatusUrl() != null ? new URI(dokument.getDokumentStatusUrl()) : null);
       dto.setRedirectUrlFar(
           dokument.getSigneringsinformasjonFar().getRedirectUrl() != null ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null);
       dto.setRedirectUrlMor(

@@ -24,7 +24,7 @@ public class Mor {
   @XmlElement
   private Dato datoForErklaeringen;
 
-  @XmlValue
+ @XmlElement
   private Boolsk harSignert;
 
 

@@ -21,23 +21,24 @@ import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
+import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
-import no.nav.farskapsportal.dto.DokumentDto;
-import no.nav.farskapsportal.dto.DokumentStatusDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.dto.SignaturDto;
-import no.nav.farskapsportal.exception.FarskapserklaeringIkkeFunnetException;
+import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
+import no.nav.farskapsportal.exception.MappingException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
 import no.nav.farskapsportal.exception.ValideringException;
+import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.apache.commons.lang3.Validate;
@@ -53,6 +54,7 @@ public class FarskapsportalService {
   private final FarskapsportalEgenskaper farskapsportalEgenskaper;
   private final PdfGeneratorConsumer pdfGeneratorConsumer;
   private final DifiESignaturConsumer difiESignaturConsumer;
+  private final SkattConsumer skattConsumer;
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
   private final MappingUtil mappingUtil;
@@ -299,37 +301,63 @@ public class FarskapsportalService {
     var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
 
     if (farskapserklaeringer.size() < 1) {
-      throw new FarskapserklaeringIkkeFunnetException("Fant ingen påbegynt farskapserklæring for pålogget bruker");
+      throw new ValideringException(Feilkode.PERSON_HAR_INGEN_VENTENDE_FARSKAPSERKLAERINGER);
     }
 
-    // Henter dokument fra Postens signeringstjeneste
-    var dokumentStatusDto = henteDokumentstatusEtterRedirect(statusQueryToken,
-        farskapserklaeringer.stream().map(fe -> mappingUtil.toDto(fe)).collect(Collectors.toSet()));
+    // Henter status på signeringsjobben fra Postens signeringstjeneste
+    var dokumentStatusDto = henteDokumentstatus(statusQueryToken, farskapserklaeringer);
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
     var aktuellFarskapserklaering = farskapserklaeringer.stream().filter(Objects::nonNull)
         .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
-        .stream().findAny().orElseThrow(() -> new FarskapserklaeringIkkeFunnetException("Fant ikke farskapserklæring"));
+        .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.INGEN_TREFF_PAA_TOKEN));
 
-    // oppdatere padeslenke i aktuell farskapserklæring
-    aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
-
-    // Oppdatere foreldrenes signeringsstatus
+    // Oppdatere foreldrenes signeringsinfo
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {
-      if (aktuellFarskapserklaering.getMor().getFoedselsnummer().equals(signatur.getSignatureier())) {
-        aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForSignering());
-      } else if (aktuellFarskapserklaering.getFar().getFoedselsnummer().equals(signatur.getSignatureier())) {
-        aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForSignering());
-      } else {
-        throw new HentingAvDokumentFeiletException("Dokumentets signatureiere er forskjellige fra partene som er registrert i farskapserklæringen!");
+      if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getMor().getFoedselsnummer()) && aktuellFarskapserklaering.getMor().getFoedselsnummer().equals(signatur.getSignatureier())) {
+        validereInnholdStatusrespons(dokumentStatusDto);
+        aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
+        aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
+        if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
+          var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
+          aktuellFarskapserklaering.getDokument().setInnhold(signertDokument);
+          return mappingUtil.toDto(aktuellFarskapserklaering);
+        }
+
+        if (aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null) {
+          throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
+        }  else {
+          throw new ValideringException(Feilkode.SIGNERING_IKKE_GJENOMFOERT);
+        }
+
+
+
+      } else if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getFar().getFoedselsnummer()) && aktuellFarskapserklaering.getFar().getFoedselsnummer().equals(signatur.getSignatureier())) {
+        validereInnholdStatusrespons(dokumentStatusDto);
+        aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
+        aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
+        if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
+          var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
+          aktuellFarskapserklaering.getDokument().setInnhold(signertDokument);
+          skattConsumer.registrereFarskap(aktuellFarskapserklaering);
+        }
+        return mappingUtil.toDto(aktuellFarskapserklaering);
       }
     }
 
-    // Oppdaterer dokumentinnhold
-    var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
-    aktuellFarskapserklaering.getDokument().setInnhold(signertDokument);
+    throw new HentingAvDokumentFeiletException("Dokumentets signatureiere er forskjellige fra partene som er registrert i farskapserklæringen!");
+  }
 
-    return mappingUtil.toDto(aktuellFarskapserklaering);
+  private void validereInnholdStatusrespons(DokumentStatusDto dokumentStatusDto) {
+    try {
+      Validate.isTrue(dokumentStatusDto.getStatuslenke() != null, "Statuslenke mangler");
+      Validate.isTrue(dokumentStatusDto.getBekreftelseslenke() != null, "Bekreftelseslenke mangler");
+      Validate.isTrue(dokumentStatusDto.getPadeslenke() != null, "Padeslenke mangler");
+    } catch (IllegalArgumentException iae) {
+      throw new EsigneringConsumerException("Manglende data retunert fra status-kall mot esigneringstjenesten", iae);
+    }
   }
 
   private boolean morOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
@@ -355,39 +383,69 @@ public class FarskapsportalService {
     throw new ValideringException(Feilkode.TERMINDATO_UGYLDIG);
   }
 
-  @Transactional
-  Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrPaaloggetPerson) {
+  private Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrPaaloggetPerson) {
 
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-    var gjeldendeKjoenn = personopplysningService.henteGjeldendeKjoenn(fnrPaaloggetPerson);
 
-    if ((Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) && KjoennType.KVINNE
-        .equals(gjeldendeKjoenn.getKjoenn())) {
-      return persistenceService.henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
+    var foreldersFarskapserklaeringer = persistenceService.henteFarskapserklaeringerForForelder(fnrPaaloggetPerson);
 
-    } else if ((Forelderrolle.FAR.equals(brukersForelderrolle)) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle) && KjoennType.MANN
-        .equals(gjeldendeKjoenn.getKjoenn())) {
-      return persistenceService.henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson, brukersForelderrolle, gjeldendeKjoenn.getKjoenn());
+    if (Forelderrolle.MOR.equals(brukersForelderrolle)) {
+      return foreldersFarskapserklaeringer.stream()
+          .filter(Objects::nonNull)
+          .filter(fe -> fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null)
+          .collect(Collectors.toSet());
+    } else if (Forelderrolle.FAR.equals(brukersForelderrolle)) {
+      return foreldersFarskapserklaeringer.stream()
+          .filter(Objects::nonNull)
+          .filter(fe -> (fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null))
+          .filter(fe -> (fe.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null))
+          .collect(Collectors.toSet());
+    } else if (Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
+      // pålogget person kan potensielt være både mor og far i eksisterende farskapserklæringer
+      var feMor = foreldersFarskapserklaeringer.stream()
+          .filter(Objects::nonNull)
+          .filter(fe -> fnrPaaloggetPerson.equals(fe.getMor().getFoedselsnummer()))
+          .filter(fe -> (fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null))
+          .collect(Collectors.toSet());
+      var feFar = foreldersFarskapserklaeringer.stream().filter(Objects::nonNull)
+          .filter(fe -> fnrPaaloggetPerson.equals(fe.getFar().getFoedselsnummer()))
+          .filter(fe -> (fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null))
+          .filter(fe -> (fe.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null))
+          .collect(Collectors.toSet());
+
+      feMor.addAll(feFar);
+      return feMor;
     }
 
     throw new ValideringException(Feilkode.FEIL_ROLLE);
   }
 
-  private DokumentStatusDto henteDokumentstatusEtterRedirect(String statusQueryToken, Set<FarskapserklaeringDto> farskapserklaeringDtos) {
+  private DokumentStatusDto henteDokumentstatus(String statusQueryToken, Set<Farskapserklaering> farskapserklaeringer) {
 
-    Set<URI> dokumentStatuslenker = farskapserklaeringDtos.stream().map(FarskapserklaeringDto::getDokument).map(DokumentDto::getDokumentStatusUrl)
+    Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getDokumentStatusUrl)
+        .map(url -> tilUri(url))
         .collect(Collectors.toSet());
 
     // Mangler sikker identifisering av hvilken statuslenke tokenet er tilknyuttet. Forelder kan
     // potensielt ha flere farskapserklæringer som er startet men hvor signeringsprosessen ikke
     // er fullført. Returnerer statuslenke som hører til statusQueryToken.
-    return difiESignaturConsumer.henteDokumentstatusEtterRedirect(statusQueryToken, dokumentStatuslenker);
+    return difiESignaturConsumer.henteStatus(statusQueryToken, dokumentStatuslenker);
+  }
+
+  private URI tilUri(String url) {
+    try {
+      return new URI(url);
+    } catch (URISyntaxException urise) {
+      throw new MappingException("Lagret status-URL har feil format", urise);
+    }
   }
 
   @Transactional
   public URI henteNyRedirectUrl(String fnrPaaloggetPerson, int idFarskapserklaering) {
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
     validereAtPersonErForelderIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    validereAtPaaloggetPersonIkkeAlleredeHarSignert(fnrPaaloggetPerson, farskapserklaering);
+
     var undertegnerUrl = velgeRiktigUndertegnerUrl(fnrPaaloggetPerson, farskapserklaering);
     var nyRedirectUrl = difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrl);
 
@@ -398,6 +456,16 @@ public class FarskapsportalService {
     }
 
     return nyRedirectUrl;
+  }
+
+  private void validereAtPaaloggetPersonIkkeAlleredeHarSignert(String fnrPaaloggetPerson, Farskapserklaering farskapserklaering) {
+    boolean erMor = personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    if (erMor && farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
+        return;
+    } else if (!erMor && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null) {
+      return;
+    }
+    throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
   }
 
   private void validereAtPersonErForelderIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {

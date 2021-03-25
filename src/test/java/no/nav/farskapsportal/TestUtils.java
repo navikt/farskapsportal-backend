@@ -10,20 +10,26 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.persistence.entity.Barn;
-import no.nav.farskapsportal.persistence.entity.Dokument;
-import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
-import org.springframework.transaction.annotation.Transactional;
 
 public class TestUtils {
 
   public final static LocalDate FOEDSELSDATO_FAR = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
   public final static LocalDate FOEDSELSDATO_MOR = FOEDSELSDATO_FAR.plusYears(4);
+  public final static ForelderDto FAR = henteForelder(Forelderrolle.FAR);
+  public final static ForelderDto MOR = henteForelder(Forelderrolle.MOR);
 
   public static URI lageUrl(String kontekst) {
     try {
-      return new URI("https://esignering.no/" + kontekst);
+      return new URI("http://localhost:8096" + kontekst);
+    } catch (URISyntaxException uriSyntaxException) {
+      throw new RuntimeException("Feil syntaks i test URI");
+    }
+  }
+
+  public static URI tilUri(String url) {
+    try {
+      return new URI(url);
     } catch (URISyntaxException uriSyntaxException) {
       throw new RuntimeException("Feil syntaks i test URI");
     }
@@ -31,8 +37,8 @@ public class TestUtils {
 
   public static FarskapserklaeringDto henteFarskapserklaering(ForelderDto mor, ForelderDto far, BarnDto barn) {
 
-    var dokument = DokumentDto.builder().dokumentnavn("farskapserklaering.pdf").dokumentStatusUrl(lageUrl("status")).padesUrl(lageUrl("pades"))
-        .redirectUrlMor(lageUrl("redirect-mor")).redirectUrlFar(lageUrl("redirect-far"))
+    var dokument = DokumentDto.builder().dokumentnavn("farskapserklaering.pdf").redirectUrlMor(lageUrl("redirect-mor"))
+        .redirectUrlFar(lageUrl("/redirect-far"))
         .innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build();
 
     return FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
