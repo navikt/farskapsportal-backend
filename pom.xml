@@ -11,7 +11,7 @@
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.38-SNAPSHOT</version>
+  <version>0.0.42-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -35,9 +35,9 @@
 
     <!-- other -->
     <guava.version>30.1-jre</guava.version>
-    <apache.commons-lang.version>3.11</apache.commons-lang.version>
+    <apache.commons-lang.version>3.12.0</apache.commons-lang.version>
     <apache.commons-io.version>2.8.0</apache.commons-io.version>
-    <apache.pdfbox.version>2.0.22</apache.pdfbox.version>
+    <apache.pdfbox.version>2.0.23</apache.pdfbox.version>
     <modelmapper.version>2.3.9</modelmapper.version>
     <guava.version>30.1-jre</guava.version>
     <jersey-hk2.version>2.33</jersey-hk2.version>

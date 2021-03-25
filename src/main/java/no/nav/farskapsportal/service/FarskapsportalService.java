@@ -19,6 +19,7 @@ import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.Rolle;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
@@ -61,7 +62,6 @@ public class FarskapsportalService {
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
 
-    // hente rolle
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetBruker);
     Set<FarskapserklaeringDto> avventerSignereringPaaloggetBruker = new HashSet<>();
     Set<FarskapserklaeringDto> avventerSigneringMotpart = new HashSet<>();
@@ -87,15 +87,18 @@ public class FarskapsportalService {
       // Erklæringer som mangler mors signatur
       avventerSignereringPaaloggetBruker = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
           .filter(fe -> fe.getDokument().getSignertAvMor() == null).collect(Collectors.toSet());
+      avventerSignereringPaaloggetBruker.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
 
       // Hente mors erklæringer som bare mangler fars signatur
       avventerSigneringMotpart = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull).filter(fe -> fe.getDokument().getSignertAvMor() != null)
           .filter(fe -> fe.getDokument().getSignertAvFar() == null).collect(Collectors.toSet());
+      avventerSigneringMotpart.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
 
       // Mors erklaeringer som er signert av begge foreldrene
       avventerRegistreringSkatt = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
           .filter(fe -> fe.getDokument().getSignertAvMor() != null).filter(fe -> fe.getDokument().getSignertAvFar() != null)
           .collect(Collectors.toSet());
+      avventerRegistreringSkatt.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
     }
 
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
@@ -105,10 +108,12 @@ public class FarskapsportalService {
       // Mangler fars signatur
       avventerSignereringPaaloggetBruker.addAll(
           farsErklaeringer.stream().filter(Objects::nonNull).filter(fe -> null == fe.getDokument().getSignertAvFar()).collect(Collectors.toSet()));
+      avventerSignereringPaaloggetBruker.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.FAR));
 
       // Avventer registrering hos Skatt. For rolle MOR_ELLER_FAR kan lista allerede inneholde innslag for mor
       avventerRegistreringSkatt.addAll(
           farsErklaeringer.stream().filter(Objects::nonNull).filter(fe -> null != fe.getDokument().getSignertAvFar()).collect(Collectors.toSet()));
+      avventerRegistreringSkatt.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.FAR));
     }
 
     return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).avventerSigneringMotpart(avventerSigneringMotpart)
