@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -68,7 +69,7 @@ public class PdfGeneratorConsumer {
       pdf.save(baos);
       pdf.close();
 
-      return Dokument.builder().dokumentnavn(dokumentnavn).innhold(baos.toByteArray()).build();
+      return Dokument.builder().dokumentnavn(dokumentnavn).dokumentinnhold(Dokumentinnhold.builder().innhold(baos.toByteArray()).build()).build();
 
     } catch (IOException ioe) {
       throw new PdfgenereringFeiletException("Opprettelse av PDF-dokument for farskapserklæring feilet!");

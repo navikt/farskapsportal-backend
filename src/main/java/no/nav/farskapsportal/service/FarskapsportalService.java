@@ -87,18 +87,18 @@ public class FarskapsportalService {
       // Erklæringer som mangler mors signatur
       avventerSignereringPaaloggetBruker = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
           .filter(fe -> fe.getDokument().getSignertAvMor() == null).collect(Collectors.toSet());
-      avventerSignereringPaaloggetBruker.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
+      avventerSignereringPaaloggetBruker.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
 
       // Hente mors erklæringer som bare mangler fars signatur
       avventerSigneringMotpart = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull).filter(fe -> fe.getDokument().getSignertAvMor() != null)
           .filter(fe -> fe.getDokument().getSignertAvFar() == null).collect(Collectors.toSet());
-      avventerSigneringMotpart.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
+      avventerSigneringMotpart.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
 
       // Mors erklaeringer som er signert av begge foreldrene
       avventerRegistreringSkatt = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
           .filter(fe -> fe.getDokument().getSignertAvMor() != null).filter(fe -> fe.getDokument().getSignertAvFar() != null)
           .collect(Collectors.toSet());
-      avventerRegistreringSkatt.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
+      avventerRegistreringSkatt.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
     }
 
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
@@ -108,12 +108,12 @@ public class FarskapsportalService {
       // Mangler fars signatur
       avventerSignereringPaaloggetBruker.addAll(
           farsErklaeringer.stream().filter(Objects::nonNull).filter(fe -> null == fe.getDokument().getSignertAvFar()).collect(Collectors.toSet()));
-      avventerSignereringPaaloggetBruker.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.FAR));
+      avventerSignereringPaaloggetBruker.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.FAR));
 
       // Avventer registrering hos Skatt. For rolle MOR_ELLER_FAR kan lista allerede inneholde innslag for mor
       avventerRegistreringSkatt.addAll(
           farsErklaeringer.stream().filter(Objects::nonNull).filter(fe -> null != fe.getDokument().getSignertAvFar()).collect(Collectors.toSet()));
-      avventerRegistreringSkatt.stream().forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.FAR));
+      avventerRegistreringSkatt.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.FAR));
     }
 
     return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).avventerSigneringMotpart(avventerSigneringMotpart)
@@ -338,7 +338,7 @@ public class FarskapsportalService {
         if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
-          aktuellFarskapserklaering.getDokument().setInnhold(signertDokument);
+          aktuellFarskapserklaering.getDokument().getDokumentinnhold().setInnhold(signertDokument);
           return mappingUtil.toDto(aktuellFarskapserklaering);
         }
 
@@ -357,7 +357,7 @@ public class FarskapsportalService {
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
-          aktuellFarskapserklaering.getDokument().setInnhold(signertDokument);
+          aktuellFarskapserklaering.getDokument().getDokumentinnhold().setInnhold(signertDokument);
           skattConsumer.registrereFarskap(aktuellFarskapserklaering);
         }
         return mappingUtil.toDto(aktuellFarskapserklaering);

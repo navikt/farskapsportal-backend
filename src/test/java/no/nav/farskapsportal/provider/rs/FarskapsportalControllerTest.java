@@ -66,6 +66,7 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.MappingUtil;
@@ -201,8 +202,12 @@ public class FarskapsportalControllerTest {
 
     when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrPaaloggetBruker);
 
-    var pdf = Dokument.builder().dokumentnavn("Farskapserklæering.pdf").innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build()).build();
+    var pdf = Dokument.builder()
+        .dokumentnavn("Farskapserklæering.pdf")
+        .dokumentinnhold(Dokumentinnhold.builder()
+            .innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build())
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build())
+        .build();
 
     when(pdfGeneratorConsumer.genererePdf(any())).thenReturn(pdf);
     doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
@@ -771,7 +776,7 @@ public class FarskapsportalControllerTest {
                       .build()))
               .build());
 
-      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaering.getDokument().getInnhold());
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
@@ -826,7 +831,8 @@ public class FarskapsportalControllerTest {
                       .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
                       .build())).build());
 
-      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
@@ -877,7 +883,8 @@ public class FarskapsportalControllerTest {
                   .build()))
               .build());
 
-      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getInnhold());
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(

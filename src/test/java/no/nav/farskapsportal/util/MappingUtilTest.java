@@ -173,7 +173,7 @@ public class MappingUtilTest {
 
       // then
       assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getDokumentnavn()),
-          () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), dokument.getInnhold())),
+          () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), dokument.getDokumentinnhold().getInnhold())),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokument.getSigneringsinformasjonFar().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokument.getSigneringsinformasjonMor().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar().toString(), dokument.getSigneringsinformasjonFar().getRedirectUrl()),
@@ -220,7 +220,7 @@ public class MappingUtilTest {
       assertAll(() -> assertEquals(FAR_DTO.getFoedselsnummer(), farskapserklaering.getFar().getFoedselsnummer()),
           () -> assertEquals(MOR_DTO.getFoedselsnummer(), farskapserklaering.getMor().getFoedselsnummer()),
           () -> assertEquals(TERMINDATO, farskapserklaering.getBarn().getTermindato()),
-          () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), farskapserklaering.getDokument().getInnhold())));
+          () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), farskapserklaering.getDokument().getDokumentinnhold().getInnhold())));
     }
 
     @Test

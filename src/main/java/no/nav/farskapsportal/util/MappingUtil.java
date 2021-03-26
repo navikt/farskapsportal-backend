@@ -10,6 +10,7 @@ import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.exception.MappingException;
 import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
@@ -41,7 +42,9 @@ public class MappingUtil {
         .redirectUrl(dokumentDto.getRedirectUrlFar().toString())
         .signeringstidspunkt(dokumentDto.getSignertAvFar()).build();
 
-    return Dokument.builder().innhold(dokumentDto.getInnhold()).signeringsinformasjonMor(signeringsinformasjonMor)
+    return Dokument.builder().dokumentinnhold(Dokumentinnhold.builder()
+        .innhold(dokumentDto.getInnhold()).build())
+        .signeringsinformasjonMor(signeringsinformasjonMor)
         .signeringsinformasjonFar(signeringsinformasjonFar)
         .dokumentnavn(dokumentDto.getDokumentnavn())
         .build();
@@ -50,19 +53,19 @@ public class MappingUtil {
   public DokumentDto toDto(Dokument dokument) {
 
     try {
-      var dto = modelMapper.map(dokument, DokumentDto.class);
-      dto.setRedirectUrlFar(
-          dokument.getSigneringsinformasjonFar().getRedirectUrl() != null ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null);
-      dto.setRedirectUrlMor(
-          dokument.getSigneringsinformasjonMor().getRedirectUrl() != null ? new URI(dokument.getSigneringsinformasjonMor().getRedirectUrl()) : null);
-      dto.setSignertAvMor(dokument.getSigneringsinformasjonMor().getSigneringstidspunkt());
-      dto.setRedirectUrlMor(
-          dokument.getSigneringsinformasjonMor().getRedirectUrl() != null ? new URI(dokument.getSigneringsinformasjonMor().getRedirectUrl()) : null);
-      dto.setSignertAvFar(dokument.getSigneringsinformasjonFar().getSigneringstidspunkt());
-      dto.setRedirectUrlFar(
-          dokument.getSigneringsinformasjonFar().getRedirectUrl() != null ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null);
+      return DokumentDto.builder()
+          .dokumentnavn(dokument.getDokumentnavn())
+          .innhold(dokument.getDokumentinnhold().getInnhold())
+          .redirectUrlFar(dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
+              ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null)
+          .redirectUrlMor(dokument.getSigneringsinformasjonMor().getRedirectUrl() != null
+              ? new URI(dokument.getSigneringsinformasjonMor().getRedirectUrl()) : null)
+          .signertAvMor(dokument.getSigneringsinformasjonMor().getSigneringstidspunkt())
+          .signertAvFar(dokument.getSigneringsinformasjonFar().getSigneringstidspunkt())
+          .redirectUrlFar(dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
+              ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null)
+          .build();
 
-      return dto;
     } catch (URISyntaxException uriSyntaxException) {
       throw new MappingException("Mapping dokument entitet til Dto feilet", uriSyntaxException);
     }

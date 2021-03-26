@@ -3,7 +3,6 @@ package no.nav.farskapsportal.consumer.esignering;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.FarskapsportalLocalConfig.PADES;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +26,7 @@ import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -75,9 +75,12 @@ public class DifiESignaturConsumerTest {
       var farsRedirectUrl = "https://fars-redirect-url.no/";
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
-      var dokument = Dokument.builder().dokumentnavn("Farskapsportal.pdf")
-          .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).dokumentStatusUrl("https://getstatus.no/")
-          .build();
+      var dokument = Dokument.builder()
+          .dokumentnavn("Farskapsportal.pdf")
+          .dokumentinnhold(Dokumentinnhold.builder()
+              .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
+          .dokumentStatusUrl("https://getstatus.no/").build();
+
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
 
@@ -99,9 +102,13 @@ public class DifiESignaturConsumerTest {
       var farsRedirectUrl = "https://fars-redirect-url.no/";
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
-      var dokument = Dokument.builder().dokumentnavn("Farskapsportal.pdf")
-          .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).dokumentStatusUrl("https://getstatus.no/")
+      var dokument = Dokument.builder()
+          .dokumentnavn("Farskapsportal.pdf")
+          .dokumentinnhold(Dokumentinnhold.builder()
+              .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
+          .dokumentStatusUrl("https://getstatus.no/")
           .build();
+      
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
 
