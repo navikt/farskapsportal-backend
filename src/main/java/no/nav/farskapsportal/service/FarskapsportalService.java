@@ -157,10 +157,13 @@ public class FarskapsportalService {
 
   @Transactional
   public OppretteFarskapserklaeringResponse oppretteFarskapserklaering(String fnrMor, OppretteFarskapserklaeringRequest request) {
+
     // Sjekker om mor skal kunne opprette ny farskapserklæring
     validereTilgangMor(fnrMor, request);
+
     // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
-    personopplysningService.riktigNavnRolleFar(request.getOpplysningerOmFar().getFoedselsnummer(), request.getOpplysningerOmFar().getNavn());
+    kontrollereNavnOgNummerFar(fnrMor, request.getOpplysningerOmFar());
+    validereFar(request.getOpplysningerOmFar().getFoedselsnummer());
 
     var barn = BarnDto.builder().termindato(request.getBarn().getTermindato()).build();
     if (request.getBarn().getFoedselsnummer() != null && !request.getBarn().getFoedselsnummer().isBlank()) {
@@ -192,7 +195,7 @@ public class FarskapsportalService {
 
   public void kontrollereFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
     antallsbegrensetKontrollAvNavnOgNummerPaaFar(fnrMor, request);
-    validereRolleOgAlderFar(request.getFoedselsnummer());
+    validereFar(request.getFoedselsnummer());
   }
 
   private void antallsbegrensetKontrollAvNavnOgNummerPaaFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
@@ -218,11 +221,13 @@ public class FarskapsportalService {
   }
 
   private void validereOppgittNavnFar(String foedselsnummerFar, String fulltNavnFar) {
-    var feilkode = foedselsnummerFar == null || foedselsnummerFar.trim().length() < 1 ? Optional.of(Feilkode.FOEDSELNUMMER_MANGLER_FAR)
-        : Optional.<Feilkode>empty();
-    feilkode = fulltNavnFar == null || fulltNavnFar.trim().length() < 1 ? Optional.of(Feilkode.FOEDSELNUMMER_MANGLER_FAR) : feilkode;
-    if (feilkode.isPresent()) {
-      throw new ValideringException(feilkode.get());
+
+    if (foedselsnummerFar == null || foedselsnummerFar.trim().length() < 1) {
+      throw new ValideringException(Feilkode.FOEDSELNUMMER_MANGLER_FAR);
+    }
+
+    if (fulltNavnFar == null || fulltNavnFar.trim().length() < 1) {
+      throw new ValideringException(Feilkode.KONTROLLERE_FAR_NAVN_MANGLER);
     }
 
     NavnDto navnDtoFraFolkeregisteret = personopplysningService.henteNavn(foedselsnummerFar);
@@ -231,24 +236,30 @@ public class FarskapsportalService {
     personopplysningService.navnekontroll(fulltNavnFar, navnDtoFraFolkeregisteret);
   }
 
-  private void validereRolleOgAlderFar(String foedselsnummer) {
-    var farsForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
-    if (!(Forelderrolle.FAR.equals(farsForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(farsForelderrolle))) {
-      throw new ValideringException(Feilkode.FEIL_ROLLE_FAR);
-    }
+  private void validereFar(String foedselsnummer) {
 
     // Far må være myndig
     personopplysningService.erMyndig(foedselsnummer);
+
+    var farsForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
+
+    // Far må ha foreldrerolle FAR eller MOR_ELLER_FAR
+    if (!(Forelderrolle.FAR.equals(farsForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(farsForelderrolle))) {
+      throw new ValideringException(Feilkode.FEIL_ROLLE_FAR);
+    }
   }
 
   public void validereMor(String fnrMor) {
+
     // Mor må være myndig
     personopplysningService.erMyndig(fnrMor);
+
     // Bare mor kan oppretteFarskapserklæring
     riktigRolleForOpprettingAvErklaering(fnrMor);
   }
 
   private void validereTilgangMor(String fnrMor, OppretteFarskapserklaeringRequest request) {
+    // Validere alder og rolle
     validereMor(fnrMor);
     // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
     validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
@@ -319,7 +330,8 @@ public class FarskapsportalService {
 
     // Oppdatere foreldrenes signeringsinfo
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {
-      if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getMor().getFoedselsnummer()) && aktuellFarskapserklaering.getMor().getFoedselsnummer().equals(signatur.getSignatureier())) {
+      if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getMor().getFoedselsnummer()) && aktuellFarskapserklaering.getMor().getFoedselsnummer()
+          .equals(signatur.getSignatureier())) {
         validereInnholdStatusrespons(dokumentStatusDto);
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
@@ -332,13 +344,13 @@ public class FarskapsportalService {
 
         if (aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null) {
           throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
-        }  else {
+        } else {
           throw new ValideringException(Feilkode.SIGNERING_IKKE_GJENOMFOERT);
         }
 
 
-
-      } else if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getFar().getFoedselsnummer()) && aktuellFarskapserklaering.getFar().getFoedselsnummer().equals(signatur.getSignatureier())) {
+      } else if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getFar().getFoedselsnummer()) && aktuellFarskapserklaering.getFar()
+          .getFoedselsnummer().equals(signatur.getSignatureier())) {
         validereInnholdStatusrespons(dokumentStatusDto);
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
@@ -428,7 +440,7 @@ public class FarskapsportalService {
   private DokumentStatusDto henteDokumentstatus(String statusQueryToken, Set<Farskapserklaering> farskapserklaeringer) {
 
     Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getDokumentStatusUrl)
-        .map(url -> tilUri(url))
+        .map(this::tilUri)
         .collect(Collectors.toSet());
 
     // Mangler sikker identifisering av hvilken statuslenke tokenet er tilknyuttet. Forelder kan
@@ -466,7 +478,7 @@ public class FarskapsportalService {
   private void validereAtPaaloggetPersonIkkeAlleredeHarSignert(String fnrPaaloggetPerson, Farskapserklaering farskapserklaering) {
     boolean erMor = personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
     if (erMor && farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
-        return;
+      return;
     } else if (!erMor && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null) {
       return;
     }
