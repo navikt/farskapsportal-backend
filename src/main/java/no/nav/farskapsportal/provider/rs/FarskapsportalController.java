@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -124,5 +125,18 @@ public class FarskapsportalController {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
     return new ResponseEntity<>(respons, HttpStatus.CREATED);
+  }
+
+  @GetMapping("/farskapserklaering/{idFarskapserklaering}/dokument")
+  @ApiOperation("Henter dokument for en farskapserklæring")
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "Dokument hentet uten feil"),
+      @ApiResponse(code = 400, message = "Feil opplysinger oppgitt"),
+      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(code = 404, message = "Fant ikke farskapserklæring eller dokument"), @ApiResponse(code = 500, message = "Serverfeil"),
+      @ApiResponse(code = 503, message = "Tjeneste utilgjengelig")})
+  public ResponseEntity<byte[]> henteDokument(@PathVariable int idFarskapserklaering) {
+    var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
+    var respons = farskapsportalService.henteDokumentinnhold(fnrPaaloggetPerson, idFarskapserklaering);
+    return new ResponseEntity<>(respons, HttpStatus.OK);
   }
 }

@@ -17,6 +17,7 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -167,7 +168,7 @@ public class PersistenceService {
     if (farskapserklaering.isPresent()) {
       return farskapserklaering.get();
     }
-    throw new ValideringException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+    throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
   }
 
   private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {

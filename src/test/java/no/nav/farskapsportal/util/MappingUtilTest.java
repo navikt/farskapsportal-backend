@@ -4,8 +4,8 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
@@ -173,7 +172,7 @@ public class MappingUtilTest {
 
       // then
       assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getDokumentnavn()),
-          () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), dokument.getDokumentinnhold().getInnhold())),
+          () -> assertArrayEquals(DOKUMENT_DTO.getInnhold(), dokument.getDokumentinnhold().getInnhold()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokument.getSigneringsinformasjonFar().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokument.getSigneringsinformasjonMor().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar().toString(), dokument.getSigneringsinformasjonFar().getRedirectUrl()),
@@ -197,7 +196,7 @@ public class MappingUtilTest {
           () -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokumentDto.getDokumentnavn()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokumentDto.getSignertAvMor()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokumentDto.getSignertAvFar()),
-          () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), dokumentDto.getInnhold())));
+          () -> assertArrayEquals(DOKUMENT_DTO.getInnhold(), dokumentDto.getInnhold()));
     }
   }
 
@@ -220,7 +219,7 @@ public class MappingUtilTest {
       assertAll(() -> assertEquals(FAR_DTO.getFoedselsnummer(), farskapserklaering.getFar().getFoedselsnummer()),
           () -> assertEquals(MOR_DTO.getFoedselsnummer(), farskapserklaering.getMor().getFoedselsnummer()),
           () -> assertEquals(TERMINDATO, farskapserklaering.getBarn().getTermindato()),
-          () -> assertTrue(Arrays.equals(DOKUMENT_DTO.getInnhold(), farskapserklaering.getDokument().getDokumentinnhold().getInnhold())));
+          () -> assertArrayEquals(DOKUMENT_DTO.getInnhold(), farskapserklaering.getDokument().getDokumentinnhold().getInnhold()));
     }
 
     @Test

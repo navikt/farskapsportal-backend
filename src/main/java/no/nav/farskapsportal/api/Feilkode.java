@@ -9,6 +9,7 @@ public enum Feilkode {
   ESIGNERING_SIGNATUREIER_NULL("Signatureier er null i respons fra esigneringsløsningen!"),
   ESIGNERING_REDIRECTURL_UKJENT("Redirecturl for ukjent part mottatt fra esigneringsløsningen!"),
   FARSKAPSERKLAERING_MANGLER_SIGNATUR("Farskapserklæringen er ikke signert av begge foreldrene"),
+  FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR("Mor har ikke signert farskapserklæringen"),
   FEILFORMATERT_URL_UNDERTEGNERURL("URL for å hente ny redirect-url er feilformattert"),
   FANT_IKKE_FARSKAPSERKLAERING("Oppgitt farskapserklæring ble ikke funnet i databasen"),
   FEIL_ROLLE("Pålogget person kan verken opptre som mor eller far i løsningen!"),

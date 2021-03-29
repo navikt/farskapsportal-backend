@@ -24,6 +24,7 @@ import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -330,15 +331,15 @@ public class PersistenceServiceTest {
 
 
     @Test
-    @DisplayName("Skal kaste ValideringException ved henting av undertegnerUrl dersom farskapserklaering ikke finnes")
-    void skalKasteValideringExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
+    @DisplayName("Skal kaste RessursIkkeFunnetException ved henting av undertegnerUrl dersom farskapserklaering ikke finnes")
+    void skalKasteRessursIkkeFunnetExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
 
       // given
       var lagretFarskapserklaering = lagreFarskapserklaering();
       assertNotNull(lagretFarskapserklaering);
 
       // when, then
-      assertThrows(ValideringException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId() + 1));
+      assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId() + 1));
     }
 
   }

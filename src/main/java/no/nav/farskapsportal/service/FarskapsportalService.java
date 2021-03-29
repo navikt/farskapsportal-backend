@@ -485,6 +485,10 @@ public class FarskapsportalService {
     throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
   }
 
+  private boolean morHarSignert(Farskapserklaering farskapserklaering) {
+    return farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null;
+  }
+
   private void validereAtPersonErForelderIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
     if (foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer()) || foedselsnummer
         .equals(farskapserklaering.getFar().getFoedselsnummer())) {
@@ -519,5 +523,18 @@ public class FarskapsportalService {
     }
 
     return OppdatereFarskapserklaeringResponse.builder().oppdatertFarskapserklaeringDto(mappingUtil.toDto(farskapserklaering)).build();
+  }
+
+  public byte[] henteDokumentinnhold(String fnrForelder, int idFarskapserklaering) {
+    var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
+    validereAtPersonErForelderIFarskapserklaering(fnrForelder, farskapserklaering);
+
+    if (personErMorIFarskapserklaering(fnrForelder, farskapserklaering)) {
+      return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
+    } else if (morHarSignert(farskapserklaering)) {
+      return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
+    } else {
+      throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
+    }
   }
 }
