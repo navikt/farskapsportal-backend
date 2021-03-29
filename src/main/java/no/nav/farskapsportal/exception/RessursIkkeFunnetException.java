@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.consumer.pdl;
+package no.nav.farskapsportal.exception;
 
 import lombok.Getter;
 import no.nav.farskapsportal.api.Feilkode;

@@ -57,7 +57,7 @@ public class SkattConsumer {
     HttpHeaders requestHeadersAttachment = new HttpHeaders();
     requestHeadersAttachment.setContentType(MediaType.IMAGE_PNG);// extract mediatype from file extension
     HttpEntity<ByteArrayResource> attachmentPart;
-    ByteArrayResource fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getInnhold()) {
+    ByteArrayResource fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getDokumentinnhold().getInnhold()) {
       @Override
       public String getFilename() {
         return farskapserklaering.getDokument().getDokumentnavn();

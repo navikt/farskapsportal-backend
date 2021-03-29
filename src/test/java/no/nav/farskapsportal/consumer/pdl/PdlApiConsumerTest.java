@@ -26,6 +26,7 @@ import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSubQuery;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

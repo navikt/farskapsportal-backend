@@ -5,7 +5,6 @@ import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
@@ -48,7 +47,7 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
 
     // when, then
-    assertDoesNotThrow(() ->skattConsumer.registrereFarskap(farskapserklaering));
+    assertDoesNotThrow(() -> skattConsumer.registrereFarskap(farskapserklaering));
   }
 
   @Test
@@ -58,9 +57,9 @@ public class SkattConsumerTest {
     var farskapserklaering = mappingUtil.toEntity(FARSKAPSERKLAERING);
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().setInnhold("".getBytes());
+    farskapserklaering.getDokument().getDokumentinnhold().setInnhold("".getBytes());
 
     // when, then
-    assertThrows(SkattConsumerException.class, () ->  skattConsumer.registrereFarskap(farskapserklaering));
+    assertThrows(SkattConsumerException.class, () -> skattConsumer.registrereFarskap(farskapserklaering));
   }
 }

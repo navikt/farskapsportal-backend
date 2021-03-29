@@ -58,7 +58,7 @@ public class DifiESignaturConsumer {
 
     log.info("Oppretter signeringsjobb");
 
-    var document = DirectDocument.builder("Subject", "document.pdf", dokument.getInnhold()).build();
+    var document = DirectDocument.builder("Subject", "document.pdf", dokument.getDokumentinnhold().getInnhold()).build();
 
     var exitUrls = ExitUrls
         .of(URI.create(farskapsportalEgenskaper.getEsigneringSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
@@ -68,7 +68,7 @@ public class DifiESignaturConsumer {
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
 
     var directJob = DirectJob.builder(document, exitUrls, List.of(morSignerer, farSignerer)).build();
-    DirectJobResponse directJobResponse = null;
+    DirectJobResponse directJobResponse;
     try {
       directJobResponse = client.create(directJob);
     } catch (Exception e) {
@@ -113,14 +113,14 @@ public class DifiESignaturConsumer {
       throw new EsigneringConsumerException("Signeringsjobben har status FAILED");
     }
 
-    var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(signatur -> mapTilDto(signatur))
+    var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(this::mapTilDto)
         .collect(Collectors.toList());
 
-    var dokumentstatus = DokumentStatusDto.builder().statuslenke(statuslenke).padeslenke(pAdESReference.getpAdESUrl())
+    return DokumentStatusDto.builder().statuslenke(statuslenke).padeslenke(pAdESReference.getpAdESUrl())
         .bekreftelseslenke(bekreftelseslenke)
         .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY)).signaturer(signaturer).build();
 
-    return dokumentstatus;
+
   }
 
   private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {

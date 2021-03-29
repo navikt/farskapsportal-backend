@@ -24,6 +24,7 @@ import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.UnrecoverableException;
 import no.nav.farskapsportal.exception.ValideringException;
 import org.apache.commons.lang3.Validate;
