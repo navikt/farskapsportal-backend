@@ -26,5 +26,4 @@ public class FarskapsportalEgenskaper {
   private String esigneringAvbruttUrl;
   @Value("${farskapsportal.egenskaper.posten.esignering.feilet-url}")
   private String esigneringFeiletUrl;
-
 }

@@ -13,21 +13,27 @@ import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
+import no.nav.farskapsportal.consumer.skatt.api.Far;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
+import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.persistence.entity.Meldingslogg;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.util.MappingUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -45,6 +51,8 @@ public class PersistenceService {
 
   private final StatusKontrollereFarDao kontrollereFarDao;
 
+  private final MeldingsloggDao meldingsloggDao;
+
   private final MappingUtil mappingUtil;
 
   public BarnDto henteBarn(int id) {
@@ -58,6 +66,14 @@ public class PersistenceService {
     return forelder;
   }
 
+  public Farskapserklaering oppdatereFarskapserklaering(Farskapserklaering farskapserklaering) {
+    if (farskapserklaeringDao.findById(farskapserklaering.getId()).isEmpty()) {
+      throw new InternFeilException(Feilkode.INTERN_FEIL_OPPDATERING_AV_ERKLAERING);
+    }
+
+    return  farskapserklaeringDao.save(farskapserklaering);
+  }
+
   @Transactional
   public Farskapserklaering lagreNyFarskapserklaering(Farskapserklaering nyFarskapserklaering) {
 
@@ -67,11 +83,10 @@ public class PersistenceService {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getMor().getFoedselsnummer());
     var eksisterendeFar = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getFar().getFoedselsnummer());
 
-    var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> nyFarskapserklaering.getMor()))
-        .far(eksisterendeFar.orElseGet(() -> nyFarskapserklaering.getFar())).barn(nyFarskapserklaering.getBarn())
-        .dokument(nyFarskapserklaering.getDokument()).build();
+    nyFarskapserklaering.setMor(eksisterendeMor.orElseGet(() -> nyFarskapserklaering.getMor()));
+    nyFarskapserklaering.setFar(eksisterendeFar.orElseGet(() -> nyFarskapserklaering.getFar()));
 
-    return farskapserklaeringDao.save(farskapserklaering);
+    return farskapserklaeringDao.save(nyFarskapserklaering);
   }
 
   @Transactional
@@ -197,6 +212,15 @@ public class PersistenceService {
     if (barnsEksisterendeErklaering.isPresent()) {
       throw new ValideringException(Feilkode.ERKLAERING_EKSISTERER_BARN);
     }
+  }
+
+  public Set<Farskapserklaering> henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt() {
+    return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
+  }
+
+  public Meldingslogg oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, long meldingsidSkatt) {
+    var nyttInnslag = Meldingslogg.builder().tidspunktForOversendelse(tidspunktForOverfoering).meldingsidSkatt(meldingsidSkatt).build();
+    return  meldingsloggDao.save(nyttInnslag);
   }
 
   private void farForskjelligFraFarIEksisterendeFarskapserklaeringForNyfoedt(String fnrFar,

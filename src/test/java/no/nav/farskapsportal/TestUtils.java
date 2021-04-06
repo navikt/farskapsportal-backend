@@ -10,7 +10,6 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.persistence.entity.Forelder;
 
 public class TestUtils {
 
@@ -58,6 +57,10 @@ public class TestUtils {
 
   public static BarnDto henteBarnMedFnr(LocalDate foedselsdato) {
     var personnummer = "12340";
+    return henteBarnMedFnr(foedselsdato, personnummer);
+  }
+
+  public static BarnDto henteBarnMedFnr(LocalDate foedselsdato, String personnummer) {
     var fnrBarn = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
     return BarnDto.builder().foedselsnummer(fnrBarn).build();
   }

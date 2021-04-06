@@ -8,6 +8,7 @@ import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.persistence.dao.SigneringsinformasjonDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
@@ -42,6 +43,9 @@ public class IntegrationTestManagementController {
   private StatusKontrollereFarDao statusKontrollereFarDao;
 
   @Autowired
+  private MeldingsloggDao meldingsloggDao;
+
+  @Autowired
   private SigneringsinformasjonDao signeringsinformasjonDao;
 
   @GetMapping("/testdata/slette")
@@ -55,6 +59,7 @@ public class IntegrationTestManagementController {
       dokumentDao.deleteAll();
       barnDao.deleteAll();
       signeringsinformasjonDao.deleteAll();
+      meldingsloggDao.deleteAll();
     } catch(Exception e) {
       e.printStackTrace();
     }

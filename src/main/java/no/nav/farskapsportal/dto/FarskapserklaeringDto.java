@@ -32,7 +32,7 @@ public class FarskapserklaeringDto {
   @ApiModelProperty("Farskapserklæringsdokumentet")
   private DokumentDto dokument;
   @ApiModelProperty("Unik ID for farskapserklæringen som brukes ved oversendelse til Skatt")
-  private String meldingsidSkatt;
+  private long meldingsidSkatt;
   @ApiModelProperty("Tidspunkt farskapserklæringen ble sendt til Skatt")
   private LocalDateTime sendtTilSkatt;
 }

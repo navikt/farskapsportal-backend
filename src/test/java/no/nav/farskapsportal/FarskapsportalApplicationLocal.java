@@ -1,7 +1,7 @@
 package no.nav.farskapsportal;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
@@ -19,7 +19,6 @@ import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
-import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
@@ -30,7 +29,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -80,7 +78,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST})
   public KeyStoreConfig keyStoreConfig() throws IOException {
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
@@ -93,7 +91,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile(PROFILE_INTEGRATION_TEST)
+  @Profile({PROFILE_INTEGRATION_TEST})
   public KeyStoreConfig keyStoreConfigLive(@Value("${VIRKSOMHETSSERTIFIKAT_PASSORD}") String passord) throws IOException {
 
     byte[] bytes;
@@ -113,7 +111,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))

@@ -716,8 +716,8 @@ public class FarskapsportalServiceTest {
   }
 
   @Nested
-  @DisplayName("Teste henteSignertDokumentEtterRedirect")
-  class HenteSignertDokumentEtterRedirect {
+  @DisplayName("Teste oppdatereStatus")
+  class OppdatereStatus {
 
     @Test
     @DisplayName("Far skal se dokument etter redirect dersom status query token er gyldig")
@@ -753,7 +753,7 @@ public class FarskapsportalServiceTest {
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaering.getDokument().getInnhold());
 
       // when
-      var respons = farskapsportalService.henteSignertDokumentEtterRedirect(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+      var respons = farskapsportalService.oppdatereStatus(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
 
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
 
@@ -1164,6 +1164,7 @@ public class FarskapsportalServiceTest {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
 
       // given
       var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
@@ -1238,4 +1239,5 @@ public class FarskapsportalServiceTest {
     }
 
   }
+
 }

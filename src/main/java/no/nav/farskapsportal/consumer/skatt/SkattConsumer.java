@@ -34,8 +34,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @AllArgsConstructor
@@ -46,6 +49,7 @@ public class SkattConsumer {
 
   private final ConsumerEndpoint consumerEndpoint;
 
+  @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
   public void registrereFarskap(Farskapserklaering farskapserklaering) {
 
     var xml = byggeMeldingTilSkatt(farskapserklaering);
