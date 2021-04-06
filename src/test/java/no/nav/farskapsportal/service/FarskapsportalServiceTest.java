@@ -1164,7 +1164,10 @@ public class FarskapsportalServiceTest {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
+<<<<<<< HEAD
       forelderDao.deleteAll();
+=======
+>>>>>>> main
 
       // given
       var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
@@ -1239,5 +1242,8 @@ public class FarskapsportalServiceTest {
     }
 
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
 }

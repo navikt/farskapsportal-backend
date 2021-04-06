@@ -18,7 +18,10 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
+<<<<<<< HEAD
 import no.nav.farskapsportal.exception.InternFeilException;
+=======
+>>>>>>> main
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
