@@ -55,6 +55,10 @@ public class SkattConsumer {
     var xml = byggeMeldingTilSkatt(farskapserklaering);
     MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
+    if (farskapserklaering.getDokument().getDokumentinnhold().getInnhold().length < 1) {
+      throw new SkattConsumerException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
+    }
+
     HttpHeaders requestHeaders = new HttpHeaders();
     requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);//Main request's headers
 

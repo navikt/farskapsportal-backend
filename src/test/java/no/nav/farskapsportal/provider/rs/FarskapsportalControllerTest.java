@@ -22,6 +22,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -747,7 +748,6 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
 
-
       // given
       var farskapserklaeringUtenSignaturer = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
 
@@ -755,6 +755,8 @@ public class FarskapsportalControllerTest {
           () -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getSignertAvFar()));
 
       var lagretFarskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringUtenSignaturer));
+      lagretFarskapserklaering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       lagretFarskapserklaering.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
@@ -819,6 +821,8 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
+      lagretFarskapserklaeringSignertAvMor.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl("https://esignering.no/status");
       lagretFarskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.no/" + MOR.getFoedselsnummer() + "/status");
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
@@ -882,6 +886,8 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
+          .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
@@ -1085,13 +1091,15 @@ public class FarskapsportalControllerTest {
 
       var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusDays(2));
+      farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
+          .innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
       farskapserklaeringDao.save(farskapserklaering);
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, byte[].class);
 
       // then
-      assertArrayEquals(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR).getDokument().getInnhold(), respons.getBody());
+      assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), respons.getBody());
     }
 
     @Test

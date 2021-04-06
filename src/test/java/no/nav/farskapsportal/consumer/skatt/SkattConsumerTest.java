@@ -14,6 +14,7 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.SkattConsumerException;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,7 @@ public class SkattConsumerTest {
     var farskapserklaering = mappingUtil.toEntity(FARSKAPSERKLAERING);
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
 
     // when, then
     assertDoesNotThrow(() -> skattConsumer.registrereFarskap(farskapserklaering));
@@ -57,7 +59,7 @@ public class SkattConsumerTest {
     var farskapserklaering = mappingUtil.toEntity(FARSKAPSERKLAERING);
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getDokumentinnhold().setInnhold("".getBytes());
+    farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("".getBytes()).build());
 
     // when, then
     assertThrows(SkattConsumerException.class, () -> skattConsumer.registrereFarskap(farskapserklaering));

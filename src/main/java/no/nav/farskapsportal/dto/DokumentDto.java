@@ -17,8 +17,6 @@ import lombok.Setter;
 public class DokumentDto {
   @ApiModelProperty(value = "Navn på farskapserklæringsdokument", example = "farskapserklaering.pdf")
   private String dokumentnavn;
-  @ApiModelProperty("Dokumentinnhold")
-  private byte[] innhold;
   @ApiModelProperty("Mors Url for å utføre dokumentsignering hos Posten")
   private URI redirectUrlMor;
   @ApiModelProperty("Fars Url for å utføre dokumentsignering hos Posten")

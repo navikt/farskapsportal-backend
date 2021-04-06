@@ -38,7 +38,7 @@ public class TestUtils {
 
     var dokument = DokumentDto.builder().dokumentnavn("farskapserklaering.pdf").redirectUrlMor(lageUrl("redirect-mor"))
         .redirectUrlFar(lageUrl("/redirect-far"))
-        .innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build();
+        .build();
 
     return FarskapserklaeringDto.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }

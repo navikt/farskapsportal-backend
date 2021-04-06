@@ -10,7 +10,6 @@ import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.exception.MappingException;
 import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Dokument;
-import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
@@ -42,8 +41,7 @@ public class MappingUtil {
         .redirectUrl(dokumentDto.getRedirectUrlFar().toString())
         .signeringstidspunkt(dokumentDto.getSignertAvFar()).build();
 
-    return Dokument.builder().dokumentinnhold(Dokumentinnhold.builder()
-        .innhold(dokumentDto.getInnhold()).build())
+    return Dokument.builder()
         .signeringsinformasjonMor(signeringsinformasjonMor)
         .signeringsinformasjonFar(signeringsinformasjonFar)
         .dokumentnavn(dokumentDto.getDokumentnavn())
@@ -55,7 +53,6 @@ public class MappingUtil {
     try {
       return DokumentDto.builder()
           .dokumentnavn(dokument.getDokumentnavn())
-          .innhold(dokument.getDokumentinnhold().getInnhold())
           .redirectUrlFar(dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
               ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null)
           .redirectUrlMor(dokument.getSigneringsinformasjonMor().getRedirectUrl() != null

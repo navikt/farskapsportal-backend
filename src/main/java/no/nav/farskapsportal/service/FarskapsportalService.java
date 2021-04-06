@@ -43,6 +43,7 @@ import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
 import no.nav.farskapsportal.exception.SkattConsumerException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.apache.commons.lang3.Validate;
@@ -352,7 +353,7 @@ public class FarskapsportalService {
         if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
-          aktuellFarskapserklaering.getDokument().getDokumentinnhold().setInnhold(signertDokument);
+          aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           return mappingUtil.toDto(aktuellFarskapserklaering);
         }
 
@@ -370,7 +371,7 @@ public class FarskapsportalService {
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
-          aktuellFarskapserklaering.getDokument().getDokumentinnhold().setInnhold(signertDokument);
+          aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
               aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
         }
