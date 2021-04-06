@@ -1110,12 +1110,8 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(farskapserklaering);
 
       // when
-<<<<<<< HEAD
       var respons = httpHeaderTestRestTemplate
           .exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
-=======
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
->>>>>>> main
 
       // then
       assertAll(
@@ -1136,12 +1132,8 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
-<<<<<<< HEAD
       var respons = httpHeaderTestRestTemplate
           .exchange(initHenteDokumentinnhold(idFarskapserklaeringSomIkkeFinnes), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
-=======
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteDokumentinnhold(idFarskapserklaeringSomIkkeFinnes), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
->>>>>>> main
 
       // then
       assertAll(

@@ -46,7 +46,6 @@ import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.apache.commons.lang3.Validate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -315,8 +314,8 @@ public class FarskapsportalService {
   }
 
   /**
-   * Oppdaterer status på signeringsjobb. Kalles etter at bruker har fullført signering.
-   * Lagrer pades-url for fremtidige dokument-nedlastinger (Transactional)
+   * Oppdaterer status på signeringsjobb. Kalles etter at bruker har fullført signering. Lagrer pades-url for fremtidige dokument-nedlastinger
+   * (Transactional)
    *
    * @param fnrPaaloggetPerson fødselsnummer til pålogget person
    * @param statusQueryToken tilgangstoken fra e-signeringsløsningen
@@ -346,10 +345,6 @@ public class FarskapsportalService {
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {
       if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getMor().getFoedselsnummer()) && aktuellFarskapserklaering.getMor().getFoedselsnummer()
           .equals(signatur.getSignatureier())) {
-<<<<<<< HEAD
-
-=======
->>>>>>> main
         validereInnholdStatusrespons(dokumentStatusDto);
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
@@ -366,11 +361,7 @@ public class FarskapsportalService {
         } else {
           throw new ValideringException(Feilkode.SIGNERING_IKKE_GJENOMFOERT);
         }
-<<<<<<< HEAD
-=======
 
-
->>>>>>> main
       } else if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getFar().getFoedselsnummer()) && aktuellFarskapserklaering.getFar()
           .getFoedselsnummer().equals(signatur.getSignatureier())) {
         validereInnholdStatusrespons(dokumentStatusDto);
@@ -380,12 +371,8 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().getDokumentinnhold().setInnhold(signertDokument);
-<<<<<<< HEAD
           aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
               aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
-=======
-          skattConsumer.registrereFarskap(aktuellFarskapserklaering);
->>>>>>> main
         }
         return mappingUtil.toDto(aktuellFarskapserklaering);
       }
