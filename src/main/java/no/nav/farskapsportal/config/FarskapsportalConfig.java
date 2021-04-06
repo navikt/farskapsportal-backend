@@ -105,7 +105,7 @@ public class FarskapsportalConfig {
   public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapsportalEgenskaper farskapsportalEgenskaper,
       FarskapserklaeringDao farskapserklaeringDao, MappingUtil mappingUtil, BarnDao barnDao, ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao, MeldingsloggDao meldingsloggDao) {
-    return new PersistenceService(personopplysningService, farskapsportalEgenskaper, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
+    return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
         meldingsloggDao, mappingUtil);
   }
 
