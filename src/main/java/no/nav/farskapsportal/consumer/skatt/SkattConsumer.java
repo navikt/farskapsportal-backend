@@ -34,8 +34,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @AllArgsConstructor
@@ -46,10 +49,15 @@ public class SkattConsumer {
 
   private final ConsumerEndpoint consumerEndpoint;
 
+  @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
   public void registrereFarskap(Farskapserklaering farskapserklaering) {
 
     var xml = byggeMeldingTilSkatt(farskapserklaering);
     MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
+
+    if (farskapserklaering.getDokument().getDokumentinnhold().getInnhold().length < 1) {
+      throw new SkattConsumerException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
+    }
 
     HttpHeaders requestHeaders = new HttpHeaders();
     requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);//Main request's headers

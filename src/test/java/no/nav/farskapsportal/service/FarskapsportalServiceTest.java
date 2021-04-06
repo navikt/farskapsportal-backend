@@ -22,6 +22,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -716,12 +717,11 @@ public class FarskapsportalServiceTest {
   }
 
   @Nested
-  @DisplayName("Teste henteSignertDokumentEtterRedirect")
-  class HenteSignertDokumentEtterRedirect {
+  @DisplayName("Teste oppdatereStatus")
+  class OppdatereStatus {
 
     @Test
-    @DisplayName("Far skal se dokument etter redirect dersom status query token er gyldig")
-    void farSkalSeDokumentEtterRedirectDersomStatusQueryTokenErGyldig() {
+    void skalOppdatereSigneringsinformasjonForFarEtterRedirectDersomStatusQueryTokenErGyldig() {
 
       // given
       farskapserklaeringDao.deleteAll();
@@ -730,6 +730,7 @@ public class FarskapsportalServiceTest {
       var farskapserklaering = henteFarskapserklaering(MOR, FAR, BARN);
       var padesFar = lageUrl("/padesFar");
       farskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(3));
+      var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
 
       assertNull(farskapserklaering.getDokument().getSignertAvFar());
 
@@ -750,16 +751,18 @@ public class FarskapsportalServiceTest {
               SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
                   .build())).build());
 
-      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaering.getDokument().getInnhold());
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
 
       // when
-      var respons = farskapsportalService.henteSignertDokumentEtterRedirect(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+      farskapsportalService.oppdatereStatus(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
 
-      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
       // then
-      assertAll(() -> assertNotNull(oppdatertFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()),
-          () -> assertThat(respons.getDokument().getInnhold()).isEqualTo(farskapserklaering.getDokument().getInnhold()));
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt())
+      );
     }
   }
 
@@ -1150,13 +1153,15 @@ public class FarskapsportalServiceTest {
       // given
       var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaering.getDokument().setDokumentinnhold(
+          Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
       farskapserklaeringDao.save(farskapserklaering);
 
       // when
       var dokumentinnhold = farskapsportalService.henteDokumentinnhold(FAR.getFoedselsnummer(), farskapserklaering.getId());
 
       // then
-      assertArrayEquals(henteFarskapserklaering(MOR, FAR, BARN).getDokument().getInnhold(), dokumentinnhold);
+      assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
     }
 
     @Test
@@ -1164,6 +1169,7 @@ public class FarskapsportalServiceTest {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
 
       // given
       var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
@@ -1213,13 +1219,15 @@ public class FarskapsportalServiceTest {
 
       // given
       var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
+      farskapserklaering.getDokument().setDokumentinnhold(
+          Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
+      farskapserklaeringDao.save(farskapserklaering);
 
       // when
       var dokumentinnhold = farskapsportalService.henteDokumentinnhold(MOR.getFoedselsnummer(), farskapserklaering.getId());
 
       // then
-      assertArrayEquals(henteFarskapserklaering(MOR, FAR, BARN).getDokument().getInnhold(), dokumentinnhold);
-
+      assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
     }
 
     @Test
@@ -1234,8 +1242,6 @@ public class FarskapsportalServiceTest {
       // when, then
       assertThrows(RessursIkkeFunnetException.class, () -> farskapsportalService
           .henteDokumentinnhold(FAR.getFoedselsnummer(), idFarskapserklaeringSomIkkeFinnes));
-
     }
-
   }
 }

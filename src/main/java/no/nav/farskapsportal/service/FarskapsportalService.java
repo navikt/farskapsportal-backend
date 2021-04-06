@@ -1,13 +1,16 @@
 package no.nav.farskapsportal.service;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.CRC32;
 import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +35,15 @@ import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
-import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MappingException;
 import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
 import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
+import no.nav.farskapsportal.exception.SkattConsumerException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.util.MappingUtil;
 import org.apache.commons.lang3.Validate;
@@ -59,6 +63,16 @@ public class FarskapsportalService {
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
   private final MappingUtil mappingUtil;
+
+  private static long getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
+    var crc32 = new CRC32();
+    var outputstream = new ByteArrayOutputStream();
+    outputstream.writeBytes(dokument);
+    outputstream.writeBytes(tidspunktForSignering.toString().getBytes());
+    crc32.update(outputstream.toByteArray());
+
+    return crc32.getValue();
+  }
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
 
@@ -121,7 +135,6 @@ public class FarskapsportalService {
         .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).avventerSigneringBruker(avventerSignereringPaaloggetBruker)
         .avventerRegistrering(avventerRegistreringSkatt).build();
   }
-
 
   private void validereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
     // Kun myndige personer kan bruke løsningen
@@ -302,14 +315,15 @@ public class FarskapsportalService {
   }
 
   /**
-   * Henter signert dokument. Lagrer pades-url for fremtidige dokument-nedlastinger (Transactional)
+   * Oppdaterer status på signeringsjobb. Kalles etter at bruker har fullført signering. Lagrer pades-url for fremtidige dokument-nedlastinger
+   * (Transactional)
    *
    * @param fnrPaaloggetPerson fødselsnummer til pålogget person
    * @param statusQueryToken tilgangstoken fra e-signeringsløsningen
    * @return kopi av signert dokument
    */
-  @Transactional
-  public FarskapserklaeringDto henteSignertDokumentEtterRedirect(String fnrPaaloggetPerson, String statusQueryToken) {
+  @Transactional(dontRollbackOn = {SkattConsumerException.class})
+  public FarskapserklaeringDto oppdatereStatus(String fnrPaaloggetPerson, String statusQueryToken) {
 
     // Forelder må være myndig
     personopplysningService.erMyndig(fnrPaaloggetPerson);
@@ -335,10 +349,11 @@ public class FarskapsportalService {
         validereInnholdStatusrespons(dokumentStatusDto);
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
+
         if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
-          aktuellFarskapserklaering.getDokument().getDokumentinnhold().setInnhold(signertDokument);
+          aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           return mappingUtil.toDto(aktuellFarskapserklaering);
         }
 
@@ -348,7 +363,6 @@ public class FarskapsportalService {
           throw new ValideringException(Feilkode.SIGNERING_IKKE_GJENOMFOERT);
         }
 
-
       } else if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getFar().getFoedselsnummer()) && aktuellFarskapserklaering.getFar()
           .getFoedselsnummer().equals(signatur.getSignatureier())) {
         validereInnholdStatusrespons(dokumentStatusDto);
@@ -357,14 +371,15 @@ public class FarskapsportalService {
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
-          aktuellFarskapserklaering.getDokument().getDokumentinnhold().setInnhold(signertDokument);
-          skattConsumer.registrereFarskap(aktuellFarskapserklaering);
+          aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
+          aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
+              aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
         }
         return mappingUtil.toDto(aktuellFarskapserklaering);
       }
     }
 
-    throw new HentingAvDokumentFeiletException("Dokumentets signatureiere er forskjellige fra partene som er registrert i farskapserklæringen!");
+    throw new ValideringException(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING);
   }
 
   private void validereInnholdStatusrespons(DokumentStatusDto dokumentStatusDto) {

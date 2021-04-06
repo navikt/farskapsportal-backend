@@ -22,7 +22,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -63,6 +63,7 @@ import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
@@ -736,16 +737,16 @@ public class FarskapsportalControllerTest {
   }
 
   @Nested
-  @DisplayName("Teste henteDokumentEtterRedirect")
-  class HenteDokumentEtterRedirect {
+  @DisplayName("Teste oppdatereStatusEtterRedirect")
+  class OppdatereStatusEtterRedirect {
 
     @Test
-    @DisplayName("Skal hente signert dokument for mor etter redirect")
-    void skalHenteSignertDokumentForMorEtterRedirect() {
+    @DisplayName("Skal oppdatere status på signeringsjobb etter mors redirect")
+    void skalOppdatereStatusPaaSigneringsjobbEtterMorsRedirect() {
 
       // rydde testdata
-      forelderDao.deleteAll();
       farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
 
       // given
       var farskapserklaeringUtenSignaturer = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
@@ -754,6 +755,8 @@ public class FarskapsportalControllerTest {
           () -> assertNull(farskapserklaeringUtenSignaturer.getDokument().getSignertAvFar()));
 
       var lagretFarskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringUtenSignaturer));
+      lagretFarskapserklaering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       lagretFarskapserklaering.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
@@ -786,10 +789,18 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.POST, null, byte[].class);
+              .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
-      assertTrue(respons.getStatusCode().is2xxSuccessful());
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
+          () -> assertThat(respons.getBody().getDokument().getSignertAvMor()).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()).isNull()
+      );
 
       // clean-up testdata
       farskapserklaeringDao.delete(lagretFarskapserklaering);
@@ -797,8 +808,8 @@ public class FarskapsportalControllerTest {
 
     @SneakyThrows
     @Test
-    @DisplayName("Skal hente signert dokument for far etter redirect")
-    void skalHenteSignertDokumentForFarEtterRedirect() {
+    @DisplayName("Skal oppdatere status for signeringsjobb etter redirect")
+    void skalOppdatereStatusForSigneringsjobbEtterRedirect() {
 
       // Rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -810,6 +821,8 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
+      lagretFarskapserklaeringSignertAvMor.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl("https://esignering.no/status");
       lagretFarskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.no/" + MOR.getFoedselsnummer() + "/status");
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
@@ -842,28 +855,39 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.POST, null, byte[].class);
+              .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
-      assertTrue(respons.getStatusCode().is2xxSuccessful());
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaeringSignertAvMor.getId());
+
+      assertAll(
+          () -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
+          () -> assertThat(respons.getBody().getSendtTilSkatt()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getMeldingsidSkatt()).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()).isNotNull()
+      );
 
       // clean-up testdata
       farskapserklaeringDao.delete(lagretFarskapserklaeringSignertAvMor);
     }
 
     @Test
-    @DisplayName("SkaLagreOppdatertPadesUrlVedHentingAvDokument")
-    void skalLagreOppdatertPadesUrlVedHentingAvDokument() throws URISyntaxException {
+    @DisplayName("SkaLagreOppdatertPadesUrlVedOppdateringAvStatus")
+    void skalLagreOppdatertPadesUrlVedOppdateringAvStatus() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
 
       // given
+      var oppdatertPades = lageUrl("/pades-opppdatert");
       var farskapserklaeringSignertAvMor = henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mappingUtil.toEntity(farskapserklaeringSignertAvMor));
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
+          .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
@@ -880,7 +904,7 @@ public class FarskapsportalControllerTest {
               .statuslenke(lageUrl("/status"))
               .bekreftelseslenke(lageUrl("/confirmation"))
               .erSigneringsjobbenFerdig(true)
-              .padeslenke(lageUrl("/pades"))
+              .padeslenke(oppdatertPades)
               .signaturer(List.of(SignaturDto.builder()
                   .signatureier(FAR.getFoedselsnummer())
                   .harSignert(true)
@@ -894,10 +918,20 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
-              .toString(), HttpMethod.POST, null, byte[].class);
+              .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
-      assertTrue(respons.getStatusCode().is2xxSuccessful());
+
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaeringSignertAvMor.getId());
+
+      assertAll(
+          () -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
+          () -> assertThat(respons.getBody().getMeldingsidSkatt()).isNotNull(),
+          () -> assertThat(respons.getBody().getSendtTilSkatt()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getPadesUrl()).isEqualTo(oppdatertPades.toString()),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()).isNotNull()
+      );
     }
   }
 
@@ -1057,13 +1091,15 @@ public class FarskapsportalControllerTest {
 
       var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR));
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusDays(2));
+      farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
+          .innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
       farskapserklaeringDao.save(farskapserklaering);
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, byte[].class);
 
       // then
-      assertArrayEquals(henteFarskapserklaering(MOR, FAR, BARN_UTEN_FNR).getDokument().getInnhold(), respons.getBody());
+      assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), respons.getBody());
     }
 
     @Test
@@ -1082,7 +1118,8 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(farskapserklaering);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
+      var respons = httpHeaderTestRestTemplate
+          .exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
 
       // then
       assertAll(
@@ -1103,7 +1140,8 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteDokumentinnhold(idFarskapserklaeringSomIkkeFinnes), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
+      var respons = httpHeaderTestRestTemplate
+          .exchange(initHenteDokumentinnhold(idFarskapserklaeringSomIkkeFinnes), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
 
       // then
       assertAll(

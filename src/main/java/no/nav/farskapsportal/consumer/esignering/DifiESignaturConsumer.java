@@ -32,7 +32,7 @@ import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.exception.EsigneringConsumerException;
-import no.nav.farskapsportal.exception.HentingAvDokumentFeiletException;
+import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.exception.PadesUrlIkkeTilgjengeligException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
@@ -145,7 +145,7 @@ public class DifiESignaturConsumer {
     try {
       return client.getPAdES(PAdESReference.of(padesUrl)).readAllBytes();
     } catch (IOException e) {
-      throw new HentingAvDokumentFeiletException("Feil oppstod ved lesing av dokument-bytes");
+      throw new InternFeilException(Feilkode.PADESURL_FEILFORMATERT);
     }
   }
 

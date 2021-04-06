@@ -3,6 +3,7 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
@@ -26,7 +27,9 @@ import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.scheduled.OverfoereTilSkatt;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.service.PersonopplysningService;
@@ -42,6 +45,7 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -74,6 +78,11 @@ public class FarskapsportalConfig {
   }
 
   @Bean
+  public OverfoereTilSkatt overfoereTilSkatt(PersistenceService persistenceService, SkattConsumer skattConsumer) {
+    return OverfoereTilSkatt.builder().persistenceService(persistenceService).skattConsumer(skattConsumer).build();
+  }
+
+  @Bean
   public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,
       @Value("${url.pdl-api.graphql}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
@@ -95,9 +104,9 @@ public class FarskapsportalConfig {
   @Bean
   public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapsportalEgenskaper farskapsportalEgenskaper,
       FarskapserklaeringDao farskapserklaeringDao, MappingUtil mappingUtil, BarnDao barnDao, ForelderDao forelderDao,
-      StatusKontrollereFarDao kontrollereFarDao) {
-    return new PersistenceService(personopplysningService, farskapsportalEgenskaper, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
-        mappingUtil);
+      StatusKontrollereFarDao kontrollereFarDao, MeldingsloggDao meldingsloggDao) {
+    return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
+        meldingsloggDao, mappingUtil);
   }
 
   @Bean
@@ -145,7 +154,7 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  @Profile(PROFILE_INTEGRATION_TEST)
+  @Profile({PROFILE_INTEGRATION_TEST})
   public KeyStoreConfig keyStoreConfigLive(@Value("${VIRKSOMHETSSERTIFIKAT_PASSORD}") String passord) throws IOException {
     var classLoader = getClass().getClassLoader();
     var filnavn = "test_VS_decrypt_2018-2021.jceks";

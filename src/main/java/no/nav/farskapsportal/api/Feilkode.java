@@ -4,6 +4,7 @@ public enum Feilkode {
 
   BARN_MANGLER_RELASJON_TIL_MOR("Oppgitt barn mangler relasjon til mor"),
   BARN_HAR_FLERE_ERLAERINGER("Feil i datagrunnlag. Barnet er involvert i mer enn én farskapserklæering"),
+  DOKUMENT_MANGLER_INNOHLD("Farskapserklæringsdokumentet er uten innhold"),
   ERKLAERING_EKSISTERER_BARN("Det eksisterer allrede en farskapserklæring for oppgitt barn"),
   ERKLAERING_EKSISTERER_MOR("Mor har eksisterende farskapserklæring. Kan ikke opprette ny erklæring for ufødt barn."),
   ESIGNERING_SIGNATUREIER_NULL("Signatureier er null i respons fra esigneringsløsningen!"),
@@ -19,6 +20,7 @@ public enum Feilkode {
   IKKE_MYNDIG("Personen er ikke myndig"),
   INGEN_NYFOEDTE_UTEN_FAR("Mor er ikke registrert med noen nyfødte barn uten oppgitt far"),
   INGEN_TREFF_PAA_TOKEN("Ingen treff på oppgitt token i personens påbegyntes farskapserklaeringer"),
+  INTERN_FEIL_OPPDATERING_AV_ERKLAERING("En feil oppstod ved oppdatering av farskapserklæring"),
   NYFODT_ER_FOR_GAMMEL("Gyldighetsperioden for å erklære farskap er utløpt for oppgitt barn"),
   MEDMOR_ELLER_UKJENT("Medmor eller person med ukjent roll kan ikke benytte løsningen"),
   FORSKJELLIGE_FEDRE("Mor kan ikke opprette farskapserklæringer med forskjellige fedre for samme kull nyfødte"),
@@ -29,6 +31,7 @@ public enum Feilkode {
   MOR_SIVILSTAND_UOPPGITT("Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"),
   NAVN_STEMMER_IKKE_MED_REGISTER("Oppgitt navn til far stemmer ikke med fars navn i Folkeregisteret"),
   OPPRETTE_SIGNERINGSJOBB("Feil oppstod ved opprettelse av signeringsjobb mot Posten"),
+  PADESURL_FEILFORMATERT("PAdES-url mottatt fre Esigneringsløsningen var ikke formatert riktig"),
   PDL_FEIL("Respons fra PDL inneholder feil"),
   PDL_FOEDSELSDATO_TEKNISK_FEIL("Feil inntraff ved henting av fødselsdato fra PDL for person"),
   PDL_FOEDSELSDATO_MANGLER("Respons fra PDL inneholdt ingen informasjon om personens foedselsdato..."),
