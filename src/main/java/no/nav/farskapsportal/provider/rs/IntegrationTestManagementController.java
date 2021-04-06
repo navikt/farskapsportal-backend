@@ -6,12 +6,12 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
+import no.nav.farskapsportal.persistence.dao.DokumentinnholdDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.persistence.dao.SigneringsinformasjonDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
-import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -33,6 +33,9 @@ public class IntegrationTestManagementController {
   private DokumentDao dokumentDao;
 
   @Autowired
+  private DokumentinnholdDao dokumentinnholdDao;
+
+  @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
 
   @Autowired
@@ -40,6 +43,9 @@ public class IntegrationTestManagementController {
 
   @Autowired
   private StatusKontrollereFarDao statusKontrollereFarDao;
+
+  @Autowired
+  private MeldingsloggDao meldingsloggDao;
 
   @Autowired
   private SigneringsinformasjonDao signeringsinformasjonDao;
@@ -53,9 +59,11 @@ public class IntegrationTestManagementController {
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
       dokumentDao.deleteAll();
+      dokumentinnholdDao.deleteAll();
       barnDao.deleteAll();
       signeringsinformasjonDao.deleteAll();
-    } catch(Exception e) {
+      meldingsloggDao.deleteAll();
+    } catch (Exception e) {
       e.printStackTrace();
     }
 

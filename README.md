@@ -44,6 +44,13 @@ Run/Debug-konfigen som vist i bildet under:
 
 ![img.png](img.png)
 
+##### Simulere signering lokalt
+
+Gjør et postkall mot signeringsendepunktet i EsigneringStubController for å simulere signering for en part:
+ >curl -X POST http://localhost:8080/esignering/api/12345678910/direct/signature-jobs/1/redirect
+
+Etter signering kan endepunktet for mottak av status_query_token etter redirect kalles med en hvilken som helst streng som token.
+
 ### Wiremock
 
 Wiremock under enhetstesting for restcontroller og konsument-klassene. Ved enhetstesting (Spring-profil test), legges testdata inn via

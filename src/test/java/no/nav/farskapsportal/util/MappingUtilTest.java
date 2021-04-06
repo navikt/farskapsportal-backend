@@ -4,12 +4,10 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,9 +44,8 @@ public class MappingUtilTest {
 
   private static DokumentDto getDokumentDto() {
     try {
-      return DokumentDto.builder().innhold("en farskapserklæring".getBytes(StandardCharsets.UTF_8)).dokumentnavn("Farskapserklæring.pdf")
+      return DokumentDto.builder().dokumentnavn("Farskapserklæring.pdf")
           .redirectUrlFar(new URI("https://redirectUrlFar.posten.no/"))
-          .innhold("Gjelder barn".getBytes())
           .redirectUrlMor(new URI("https://redirectUrlMor.posten.no/"))
           .signertAvMor(LocalDateTime.now()).signertAvFar(LocalDateTime.now()).build();
     } catch (URISyntaxException uriSyntaxException) {
@@ -172,7 +169,6 @@ public class MappingUtilTest {
 
       // then
       assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getDokumentnavn()),
-          () -> assertArrayEquals(DOKUMENT_DTO.getInnhold(), dokument.getDokumentinnhold().getInnhold()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokument.getSigneringsinformasjonFar().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokument.getSigneringsinformasjonMor().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar().toString(), dokument.getSigneringsinformasjonFar().getRedirectUrl()),
@@ -195,8 +191,8 @@ public class MappingUtilTest {
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar(), dokumentDto.getRedirectUrlFar()),
           () -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokumentDto.getDokumentnavn()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokumentDto.getSignertAvMor()),
-          () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokumentDto.getSignertAvFar()),
-          () -> assertArrayEquals(DOKUMENT_DTO.getInnhold(), dokumentDto.getInnhold()));
+          () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokumentDto.getSignertAvFar())
+      );
     }
   }
 
@@ -218,8 +214,8 @@ public class MappingUtilTest {
       // then
       assertAll(() -> assertEquals(FAR_DTO.getFoedselsnummer(), farskapserklaering.getFar().getFoedselsnummer()),
           () -> assertEquals(MOR_DTO.getFoedselsnummer(), farskapserklaering.getMor().getFoedselsnummer()),
-          () -> assertEquals(TERMINDATO, farskapserklaering.getBarn().getTermindato()),
-          () -> assertArrayEquals(DOKUMENT_DTO.getInnhold(), farskapserklaering.getDokument().getDokumentinnhold().getInnhold()));
+          () -> assertEquals(TERMINDATO, farskapserklaering.getBarn().getTermindato())
+      );
     }
 
     @Test
@@ -253,7 +249,7 @@ public class MappingUtilTest {
       var far = mappingUtil.toEntity(FAR_DTO);
       var mor = mappingUtil.toEntity(MOR_DTO);
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
-          .meldingsidSkatt("asgagg").sendtTilSkatt(LocalDateTime.now().minusDays(3))
+          .meldingsidSkatt(123444L).sendtTilSkatt(LocalDateTime.now().minusDays(3))
           .build();
 
       // when
