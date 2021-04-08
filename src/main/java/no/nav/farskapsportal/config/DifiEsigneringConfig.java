@@ -1,9 +1,6 @@
 package no.nav.farskapsportal.config;
 
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LOCAL;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,7 +44,6 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
-  @Profile({PROFILE_LIVE, PROFILE_LOCAL, PROFILE_INTEGRATION_TEST, PROFILE_SCHEDULED_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, FarskapsportalEgenskaper farskapsportalEgenskaper) {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(ServiceUri.DIFI_TEST)
         .globalSender(new Sender(farskapsportalEgenskaper.getOrgnummerNav())).build();

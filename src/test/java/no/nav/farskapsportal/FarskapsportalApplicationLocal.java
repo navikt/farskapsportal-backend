@@ -1,12 +1,9 @@
 package no.nav.farskapsportal;
 
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import com.google.common.net.HttpHeaders;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,6 +43,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -57,6 +55,8 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class FarskapsportalApplicationLocal {
 
+  public static final String PROFILE_INTEGRATION_TEST = "integration-test";
+  public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
   public static final String PROFILE_LOCAL = "local";
   public static final String PROFILE_TEST = "test";
@@ -88,44 +88,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Qualifier(PROFILE_SKATT_SSL_TEST)
-  public HttpHeaderRestTemplate skattLocalRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
-
-    KeyStore keyStore;
-    var keystorePwd = "qwer1234";
-    HttpComponentsClientHttpRequestFactory requestFactory;
-
-    try {
-      keyStore = KeyStore.getInstance("jks");
-      var classPathResoure = new ClassPathResource("client-selfsigned.jks");
-      var inputStream = classPathResoure.getInputStream();
-      keyStore.load(inputStream, keystorePwd.toCharArray());
-
-      var socketFactory = new SSLConnectionSocketFactory(new SSLContextBuilder()
-          .loadTrustMaterial(null, new TrustSelfSignedStrategy())
-          .loadKeyMaterial(keyStore, keystorePwd.toCharArray()).build(),
-          NoopHostnameVerifier.INSTANCE);
-
-      var httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory)
-          .setMaxConnTotal(Integer.valueOf(5))
-          .setMaxConnPerRoute(Integer.valueOf(5))
-          .build();
-
-      requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-      requestFactory.setReadTimeout(Integer.valueOf(10000));
-      requestFactory.setConnectTimeout(Integer.valueOf(10000));
-
-      httpHeaderRestTemplate.setRequestFactory(requestFactory);
-
-    } catch (Exception exception) {
-      exception.printStackTrace();
-    }
-
-    return httpHeaderRestTemplate;
-  }
-
-  @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
   public KeyStoreConfig keyStoreConfig() throws IOException {
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
@@ -138,26 +101,6 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_INTEGRATION_TEST})
-  public KeyStoreConfig keyStoreConfigLive(@Value("${VIRKSOMHETSSERTIFIKAT_PASSORD}") String passord) throws IOException {
-
-    byte[] bytes;
-
-    var classLoader = getClass().getClassLoader();
-    var filnavn = "test_VS_decrypt_2018-2021.jceks";
-    try (InputStream inputStream = classLoader.getResourceAsStream(filnavn)) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Fant ikke " + filnavn);
-      } else {
-        bytes = inputStream.readAllBytes();
-      }
-    }
-    return KeyStoreConfig
-        .fromJavaKeyStore(new ByteArrayInputStream(bytes), "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", passord,
-            passord);
-  }
-
-  @Bean
   @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
@@ -167,11 +110,66 @@ public class FarskapsportalApplicationLocal {
 
   @Lazy
   @Configuration
-  @Profile(PROFILE_SKATT_SSL_TEST)
-  class SkattStubSslConfiguration {
+  @Profile({PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
+  static class SkattStubSslConfiguration {
 
     @LocalServerPort
     private int localServerPort;
+
+    @Value("${sertifikat.passord}")
+    private String keystorePassword;
+
+    @Value("${sertifikat.keystore-type}")
+    private String keystoreType;
+
+    @Value("${sertifikat.keystore-name}")
+    private String keystoreName;
+
+    @Bean
+    @Qualifier(PROFILE_SKATT_SSL_TEST)
+    public HttpHeaderRestTemplate skattLocalIntegrationRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+
+      KeyStore keyStore;
+      HttpComponentsClientHttpRequestFactory requestFactory;
+
+      try {
+        keyStore = KeyStore.getInstance(keystoreType);
+        var classPathResoure = new ClassPathResource(keystoreName);
+        var inputStream = classPathResoure.getInputStream();
+        keyStore.load(inputStream, keystorePassword.toCharArray());
+
+        var socketFactory = new SSLConnectionSocketFactory(new SSLContextBuilder()
+            .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+            .loadKeyMaterial(keyStore, keystorePassword.toCharArray()).build(),
+            NoopHostnameVerifier.INSTANCE);
+
+        var httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory)
+            .setMaxConnTotal(5)
+            .setMaxConnPerRoute(5)
+            .build();
+
+        requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        requestFactory.setReadTimeout(10000);
+        requestFactory.setConnectTimeout(10000);
+
+        httpHeaderRestTemplate.setRequestFactory(requestFactory);
+
+      } catch (Exception exception) {
+        exception.printStackTrace();
+      }
+
+      return httpHeaderRestTemplate;
+    }
+
+    @Bean
+    @Qualifier(PROFILE_INTEGRATION_TEST)
+    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+        @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+      log.info("Oppretter SkattConsumer med url {}", baseUrl);
+      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
+      restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+      return new SkattConsumer(restTemplate, consumerEndpoint);
+    }
 
     @Bean
     @Qualifier("sikret")
@@ -200,7 +198,7 @@ public class FarskapsportalApplicationLocal {
 
   @Configuration
   @Profile(PROFILE_LOCAL_POSTGRES)
-  public class FlywayConfiguration {
+  public static class FlywayConfiguration {
 
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
@@ -211,7 +209,7 @@ public class FarskapsportalApplicationLocal {
   @Lazy
   @Configuration
   @Profile(PROFILE_SCHEDULED_TEST)
-  class SkattStubConfiguration {
+  static class SkattStubConfiguration {
 
     @LocalServerPort
     private int localServerPort;

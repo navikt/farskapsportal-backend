@@ -1,17 +1,13 @@
 package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Optional;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
@@ -149,20 +145,6 @@ public class FarskapsportalConfig {
   @Bean
   public ModelMapper modelMapper() {
     return new ModelMapper();
-  }
-
-  @Bean
-  @Profile({PROFILE_INTEGRATION_TEST})
-  public KeyStoreConfig keyStoreConfigLive(@Value("${VIRKSOMHETSSERTIFIKAT_PASSORD}") String passord) throws IOException {
-    var classLoader = getClass().getClassLoader();
-    var filnavn = "test_VS_decrypt_2018-2021.jceks";
-    try (InputStream inputStream = classLoader.getResourceAsStream(filnavn)) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Fant ikke " + filnavn);
-      } else {
-        return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", passord, passord);
-      }
-    }
   }
 
   @FunctionalInterface

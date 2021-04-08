@@ -46,6 +46,7 @@ public class RestTemplateConfig {
   @Qualifier("skatt")
   @Scope("prototype")
   public HttpHeaderRestTemplate skattRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+      // TODO: fyll inn med virksomhetssertifikat fra GCP secret
     return httpHeaderRestTemplate;
   }
 

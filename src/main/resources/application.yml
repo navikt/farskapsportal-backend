@@ -116,7 +116,7 @@ url.esignering: ${WIREMOCK_URL}
 
 ---
 
-spring.config.activate.on-profile: local, integration-test
+spring.config.activate.on-profile: local
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
@@ -186,6 +186,27 @@ server:
     trust-store: classpath:server-selfsigned.jks
     trust-store-password: qwer1234
     turst-store-type: JKS
+
+sertifikat:
+  passord: qwer1234
+  keystore-type: jks
+  keystore-name: client-selfsigned.jks
+
+
+---
+spring.config.activate.on-profile: integration-test
+
+farskapsportal.egenskaper:
+  skatt:
+    intervall.overfoering: 3600000
+
+url:
+  skatt.base-url: https://folkeregisteret-api-ekstern.sits.no
+
+sertifikat:
+  passord: ${KEYSTORE_PASSWORD}
+  keystore-type: jceks
+  keystore-name: test_VS_decrypt_2018-2021.jceks
 
 ---
 
