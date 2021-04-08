@@ -28,7 +28,7 @@ import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Meldingslogg;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
-import no.nav.farskapsportal.util.MappingUtil;
+import no.nav.farskapsportal.util.Mapper;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -46,11 +46,11 @@ public class PersistenceService {
 
   private final MeldingsloggDao meldingsloggDao;
 
-  private final MappingUtil mappingUtil;
+  private final Mapper mapper;
 
   public BarnDto henteBarn(int id) {
     var barn = barnDao.findById(id).orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ikke barn med id %d i databasen", id)));
-    return mappingUtil.toDto(barn);
+    return mapper.toDto(barn);
   }
 
   public Forelder henteForelder(int id) {
@@ -70,7 +70,7 @@ public class PersistenceService {
   public Farskapserklaering lagreNyFarskapserklaering(Farskapserklaering nyFarskapserklaering) {
 
     ingenKonfliktMedEksisterendeFarskapserklaeringer(nyFarskapserklaering.getMor().getFoedselsnummer(),
-        nyFarskapserklaering.getFar().getFoedselsnummer(), mappingUtil.toDto(nyFarskapserklaering.getBarn()));
+        nyFarskapserklaering.getFar().getFoedselsnummer(), mapper.toDto(nyFarskapserklaering.getBarn()));
 
     var eksisterendeMor = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getMor().getFoedselsnummer());
     var eksisterendeFar = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getFar().getFoedselsnummer());
@@ -90,21 +90,21 @@ public class PersistenceService {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(farskapserklaeringDto.getMor().getFoedselsnummer());
     var eksisterendeFar = forelderDao.henteForelderMedFnr(farskapserklaeringDto.getFar().getFoedselsnummer());
 
-    var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> mappingUtil.toEntity(farskapserklaeringDto.getMor())))
-        .far(eksisterendeFar.orElseGet(() -> mappingUtil.toEntity(farskapserklaeringDto.getFar())))
-        .barn(mappingUtil.toEntity(farskapserklaeringDto.getBarn())).dokument(mappingUtil.toEntity(farskapserklaeringDto.getDokument())).build();
+    var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> mapper.toEntity(farskapserklaeringDto.getMor())))
+        .far(eksisterendeFar.orElseGet(() -> mapper.toEntity(farskapserklaeringDto.getFar())))
+        .barn(mapper.toEntity(farskapserklaeringDto.getBarn())).dokument(mapper.toEntity(farskapserklaeringDto.getDokument())).build();
 
     return farskapserklaeringDao.save(farskapserklaering);
   }
 
   public Set<FarskapserklaeringDto> henteMorsEksisterendeErklaeringer(String fnrMor) {
     var farskapserklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
   }
 
   public Set<FarskapserklaeringDto> henteFarsErklaeringer(String fnrFar) {
     var farskapserklaeringer = farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder) {
@@ -118,7 +118,7 @@ public class PersistenceService {
       return Optional.empty();
     }
 
-    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto)
+    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto)
         .collect(toSingletonOrThrow(new FeilIDatagrunnlagException(Feilkode.BARN_HAR_FLERE_ERLAERINGER))));
   }
 
@@ -159,7 +159,7 @@ public class PersistenceService {
 
   private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
-    var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mappingUtil.toEntity(henteForelder(fnrMor))));
+    var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
     var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(LocalDateTime.now()).antallFeiledeForsoek(1)
         .build();
     return statusKontrollereFarDao.save(statusKontrollereFar);
@@ -178,7 +178,7 @@ public class PersistenceService {
   }
 
   private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mappingUtil::toDto).collect(Collectors.toSet());
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
   }
 
   public void ingenKonfliktMedEksisterendeFarskapserklaeringer(String fnrMor, String fnrFar, BarnDto barnDto) {

@@ -89,7 +89,7 @@ public class SkattConsumer {
           HttpMethod.POST,
           requestEntity, Void.class);
     } catch (Exception e) {
-      throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
+      throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET, e);
     }
   }
 

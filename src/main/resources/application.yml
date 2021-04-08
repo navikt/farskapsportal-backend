@@ -66,7 +66,7 @@ no.nav:
 
 ---
 spring:
-  config.activate.on-profile: test, local, integration-test, scheduled-test
+  config.activate.on-profile: test, local, integration-test, scheduled-test, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -89,7 +89,7 @@ farskapsportal-api.servicebruker.passord: se-vault
 
 ---
 spring:
-  config.activate.on-profile: local, test, local-postgres, integration-test, scheduled-test
+  config.activate.on-profile: local, test, local-postgres, integration-test, scheduled-test, skatt-ssl-test
   flyway.enabled: false
 
 local.server.port: 8080
@@ -167,6 +167,25 @@ wiremock.server:
 ---
 spring.config.activate.on-profile: scheduled-test
 farskapsportal.egenskaper.skatt.intervall.overfoering: 3000
+
+---
+spring.config.activate.on-profile: skatt-ssl-test
+
+# SSL-oppsett med selfsigned server og klient-sertifikat for SkattStubController.
+# Brukes av SkattConsumerSslTest.
+server:
+  port: 9002
+  ssl:
+    enabled: true
+    client-auth: need
+    key-store: classpath:server-selfsigned.jks
+    key-store-password: qwer1234
+    key-alias: nt-ms
+    key-store-type: JKS
+    key-store-provider: SUN
+    trust-store: classpath:server-selfsigned.jks
+    trust-store-password: qwer1234
+    turst-store-type: JKS
 
 ---
 

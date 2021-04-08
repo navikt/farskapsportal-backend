@@ -1,8 +1,10 @@
 package no.nav.farskapsportal;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_LOCAL;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_LOCAL_POSTGRES;
+import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SKATT_SSL_TEST;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;

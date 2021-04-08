@@ -3,7 +3,6 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
@@ -33,7 +32,7 @@ import no.nav.farskapsportal.scheduled.OverfoereTilSkatt;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.service.PersonopplysningService;
-import no.nav.farskapsportal.util.MappingUtil;
+import no.nav.farskapsportal.util.Mapper;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.flywaydb.core.Flyway;
@@ -45,7 +44,6 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -103,10 +101,10 @@ public class FarskapsportalConfig {
 
   @Bean
   public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapsportalEgenskaper farskapsportalEgenskaper,
-      FarskapserklaeringDao farskapserklaeringDao, MappingUtil mappingUtil, BarnDao barnDao, ForelderDao forelderDao,
+      FarskapserklaeringDao farskapserklaeringDao, Mapper mapper, BarnDao barnDao, ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao, MeldingsloggDao meldingsloggDao) {
     return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
-        meldingsloggDao, mappingUtil);
+        meldingsloggDao, mapper);
   }
 
   @Bean
@@ -118,12 +116,12 @@ public class FarskapsportalConfig {
   public FarskapsportalService farskapsportalService(FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer, PersistenceService persistenceService, PersonopplysningService personopplysningService,
       SkattConsumer skattConsumer,
-      MappingUtil mappingUtil) {
+      Mapper mapper) {
 
     return FarskapsportalService.builder().farskapsportalEgenskaper(farskapsportalEgenskaper).difiESignaturConsumer(difiESignaturConsumer)
         .pdfGeneratorConsumer(pdfGeneratorConsumer).persistenceService(persistenceService).personopplysningService(personopplysningService)
         .skattConsumer(skattConsumer)
-        .mappingUtil(mappingUtil).build();
+        .mapper(mapper).build();
   }
 
   @Bean

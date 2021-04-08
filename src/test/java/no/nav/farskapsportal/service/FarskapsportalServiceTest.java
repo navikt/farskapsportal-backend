@@ -62,7 +62,7 @@ import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.util.MappingUtil;
+import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -101,7 +101,7 @@ public class FarskapsportalServiceTest {
   @Autowired
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
   @Autowired
-  private MappingUtil mappingUtil;
+  private Mapper mapper;
 
   @Nested
   @DisplayName("Teste henteBrukerinformasjon")
@@ -777,7 +777,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
       var undertegnerUrlMor = lageUrl("/signer-url-mor");
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setUndertegnerUrl(undertegnerUrlMor.toString());
 
@@ -805,7 +805,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
       var undertegnerUrlFar = lageUrl("/signer-url-far");
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
@@ -845,7 +845,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
       var undertegnerUrlMor = lageUrl("/signer-url-mor");
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setUndertegnerUrl(undertegnerUrlMor.toString());
 
@@ -1087,7 +1087,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       var fnrPaaloggetPerson = MOR.getFoedselsnummer();
@@ -1108,7 +1108,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       var fnrPaaloggetPerson = FAR.getFoedselsnummer();
@@ -1129,7 +1129,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var farskapserklaering = mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
+      var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN));
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       var fnrPaaloggetPerson = "12345678910";
@@ -1151,7 +1151,7 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
-      var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
+      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
       farskapserklaering.getDokument().setDokumentinnhold(
           Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
@@ -1172,7 +1172,7 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
-      var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
+      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
       farskapserklaeringDao.save(farskapserklaering);
 
@@ -1201,7 +1201,7 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
-      var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
+      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
       farskapserklaeringDao.save(farskapserklaering);
 
       // when, then
@@ -1218,7 +1218,7 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
-      var farskapserklaering = farskapserklaeringDao.save(mappingUtil.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
+      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaering(MOR, FAR, BARN)));
       farskapserklaering.getDokument().setDokumentinnhold(
           Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
       farskapserklaeringDao.save(farskapserklaering);

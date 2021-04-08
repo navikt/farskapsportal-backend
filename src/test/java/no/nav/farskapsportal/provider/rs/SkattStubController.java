@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.provider.rs;
 
+import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SKATT_SSL_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import wiremock.org.apache.commons.io.IOUtils;
 @Unprotected
 @RequestMapping("/folkeregisteret/mottak/api")
 @Slf4j
-@ActiveProfiles(PROFILE_TEST)
+@ActiveProfiles({PROFILE_TEST, PROFILE_SKATT_SSL_TEST})
 public class SkattStubController {
 
   @PostMapping(value = "/registrering_av_farskap_v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_XML_VALUE})
@@ -38,7 +39,8 @@ public class SkattStubController {
     ForespoerselOmRegistreringAvFarskap forespoersel = (ForespoerselOmRegistreringAvFarskap) context.createUnmarshaller()
         .unmarshal(IOUtils.toInputStream(xml));
 
-    return LocalDate.now().equals(tilLocalDate(forespoersel.getRegistreringsdato().getDate())) && dokument != null && dokument.length > 0 ? new ResponseEntity<>(HttpStatus.OK)
+    return LocalDate.now().equals(tilLocalDate(forespoersel.getRegistreringsdato().getDate())) && dokument != null && dokument.length > 0
+        ? new ResponseEntity<>(HttpStatus.OK)
         : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   }
 
