@@ -2,6 +2,12 @@ spring:
   devtools.add-properties: false
   main.allow-bean-definition-overriding: true
 
+consumer.skatt:
+  maks-antall-forbindelser: 5
+  maks-antall-forbindelser-per-rute: 5
+  maks-ventetid-lesing: 10000
+  maks-ventetid-forbindelse: 10000
+
 farskapsportal.egenskaper:
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21
