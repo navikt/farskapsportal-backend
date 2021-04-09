@@ -10,6 +10,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.consumer.skatt.api.ForespoerselOmRegistreringAvFarskap;
+import no.nav.farskapsportal.consumer.skatt.api.MeldingOmRegistreringAvFarskap;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,11 +36,11 @@ public class SkattStubController {
     log.info("Vedlegg og XML");
     var dokument = vedlegg.getBytes();
 
-    JAXBContext context = JAXBContext.newInstance(ForespoerselOmRegistreringAvFarskap.class);
-    ForespoerselOmRegistreringAvFarskap forespoersel = (ForespoerselOmRegistreringAvFarskap) context.createUnmarshaller()
+    JAXBContext context = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class);
+    var meldingOmRegistreringAvFarskap = (MeldingOmRegistreringAvFarskap) context.createUnmarshaller()
         .unmarshal(IOUtils.toInputStream(xml));
 
-    return LocalDate.now().equals(tilLocalDate(forespoersel.getRegistreringsdato().getDate())) && dokument != null && dokument.length > 0
+    return LocalDate.now().equals(tilLocalDate(meldingOmRegistreringAvFarskap.getForespoerselOmRegistreringAvFarskap().getRegistreringsdato().getDate())) && dokument != null && dokument.length > 0
         ? new ResponseEntity<>(HttpStatus.OK)
         : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   }

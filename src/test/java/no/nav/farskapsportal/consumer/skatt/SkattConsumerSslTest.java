@@ -52,6 +52,8 @@ public class SkattConsumerSslTest {
     var farskapserklaering = mapper.toEntity(FARSKAPSERKLAERING);
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering.setMeldingsidSkatt(123L);
+    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
     farskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
 
@@ -68,6 +70,8 @@ public class SkattConsumerSslTest {
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+    farskapserklaering.setMeldingsidSkatt(123L);
+    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then
     assertThrows(SkattConsumerException.class, () -> skattConsumerUsikret.registrereFarskap(farskapserklaering));
