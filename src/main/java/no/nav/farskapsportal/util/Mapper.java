@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MappingUtil {
+public class Mapper {
 
   @Autowired
   private ModelMapper modelMapper;

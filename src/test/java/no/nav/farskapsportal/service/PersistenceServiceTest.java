@@ -35,7 +35,7 @@ import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
-import no.nav.farskapsportal.util.MappingUtil;
+import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -74,7 +74,7 @@ public class PersistenceServiceTest {
   @Autowired
   private StatusKontrollereFarDao statusKontrollereFarDao;
   @Autowired
-  private MappingUtil mappingUtil;
+  private Mapper mapper;
 
   @Test
   void skalSetteAntallFeiledeForseokTilEnDersomTidspunktForNullstillingErNaadd() {
@@ -140,7 +140,7 @@ public class PersistenceServiceTest {
       forelderDao.deleteAll();
 
       // given
-      farskapserklaeringDao.save(mappingUtil.toEntity(FARSKAPSERKLAERING));
+      farskapserklaeringDao.save(mapper.toEntity(FARSKAPSERKLAERING));
 
       // when, then
       assertThrows(ValideringException.class, () -> persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING));
@@ -183,7 +183,7 @@ public class PersistenceServiceTest {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
-      return farskapserklaeringDao.save(mappingUtil.toEntity(FARSKAPSERKLAERING));
+      return farskapserklaeringDao.save(mapper.toEntity(FARSKAPSERKLAERING));
     }
 
     void lagreFarskapserklaeringSignertAvMor() {
@@ -454,7 +454,7 @@ public class PersistenceServiceTest {
     }
 
     private StatusKontrollereFar lagreStatusKontrollereFarMedMor(int antallFeil, LocalDateTime tidspunktSisteFeil) {
-      return statusKontrollereFarDao.save(StatusKontrollereFar.builder().mor(mappingUtil.toEntity(MOR)).antallFeiledeForsoek(antallFeil)
+      return statusKontrollereFarDao.save(StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).antallFeiledeForsoek(antallFeil)
           .tidspunktSisteFeiledeForsoek(tidspunktSisteFeil).build());
     }
   }

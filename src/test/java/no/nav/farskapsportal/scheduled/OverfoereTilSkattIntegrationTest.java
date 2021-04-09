@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.scheduled;
 
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;

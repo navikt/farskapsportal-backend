@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.consumer.skatt;
 
-import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SKATT_SSL_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
@@ -19,14 +19,15 @@ import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("SkattConsumer")
-@ActiveProfiles(PROFILE_TEST)
+@ActiveProfiles(PROFILE_SKATT_SSL_TEST)
 @SpringBootTest(classes = FarskapsportalApplicationLocal.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class SkattConsumerTest {
+public class SkattConsumerSslTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
@@ -34,13 +35,34 @@ public class SkattConsumerTest {
   private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaering(MOR, FAR, UFOEDT_BARN);
 
   @Autowired
-  private SkattConsumer skattConsumer;
+  @Qualifier("sikret")
+  private SkattConsumer skattConsumerSikret;
+
+  @Autowired
+  @Qualifier("usikret")
+  private SkattConsumer skattConsumerUsikret;
 
   @Autowired
   private Mapper mapper;
 
   @Test
-  void skalIkkeKasteExceptionDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {
+  void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
+
+    // given
+    var farskapserklaering = mapper.toEntity(FARSKAPSERKLAERING);
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering.setMeldingsidSkatt(123L);
+    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+    farskapserklaering.getDokument()
+        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+
+    // when, then
+    assertDoesNotThrow(() -> skattConsumerSikret.registrereFarskap(farskapserklaering));
+  }
+
+  @Test
+  void skalKasteSkattConsumerExceptionDersomKommunikasjonMotSkattSkjerOverUsikretProtokoll() {
 
     // given
     var farskapserklaering = mapper.toEntity(FARSKAPSERKLAERING);
@@ -52,21 +74,6 @@ public class SkattConsumerTest {
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then
-    assertDoesNotThrow(() -> skattConsumer.registrereFarskap(farskapserklaering));
-  }
-
-  @Test
-  void skalKasteExceptionDersomRegistreringHosSkattFeiler() {
-
-    // given
-    var farskapserklaering = mapper.toEntity(FARSKAPSERKLAERING);
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("".getBytes()).build());
-    farskapserklaering.setMeldingsidSkatt(123L);
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
-
-    // when, then
-    assertThrows(SkattConsumerException.class, () -> skattConsumer.registrereFarskap(farskapserklaering));
+    assertThrows(SkattConsumerException.class, () -> skattConsumerUsikret.registrereFarskap(farskapserklaering));
   }
 }

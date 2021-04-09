@@ -45,7 +45,7 @@ import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
-import no.nav.farskapsportal.util.MappingUtil;
+import no.nav.farskapsportal.util.Mapper;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
 
@@ -62,7 +62,7 @@ public class FarskapsportalService {
   private final SkattConsumer skattConsumer;
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
-  private final MappingUtil mappingUtil;
+  private final Mapper mapper;
 
   private static long getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
     var crc32 = new CRC32();
@@ -186,12 +186,12 @@ public class FarskapsportalService {
     var mor = getForelderDto(fnrMor, null);
     var far = getForelderDto(request.getOpplysningerOmFar().getFoedselsnummer(), Forelderrolle.FAR);
 
-    var farskapserklaering = Farskapserklaering.builder().barn(mappingUtil.toEntity(barn)).mor(mappingUtil.toEntity(mor))
-        .far(mappingUtil.toEntity(far)).build();
+    var farskapserklaering = Farskapserklaering.builder().barn(mapper.toEntity(barn)).mor(mapper.toEntity(mor))
+        .far(mapper.toEntity(far)).build();
     var dokument = pdfGeneratorConsumer.genererePdf(farskapserklaering);
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-url-ers
-    difiESignaturConsumer.oppretteSigneringsjobb(dokument, mappingUtil.toEntity(mor), mappingUtil.toEntity(far));
+    difiESignaturConsumer.oppretteSigneringsjobb(dokument, mapper.toEntity(mor), mapper.toEntity(far));
     farskapserklaering.setDokument(dokument);
 
     log.info("Lagre farskapserklæring");
@@ -224,7 +224,7 @@ public class FarskapsportalService {
     try {
       validereOppgittNavnFar(request.getFoedselsnummer(), request.getNavn());
     } catch (FeilNavnOppgittException e) {
-      var statusKontrollereFarDto = mappingUtil
+      var statusKontrollereFarDto = mapper
           .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getForsoekFornyesEtterAntallDager()));
       e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
       var resterendeAntallForsoek = farskapsportalEgenskaper.getMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
@@ -354,7 +354,7 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
-          return mappingUtil.toDto(aktuellFarskapserklaering);
+          return mapper.toDto(aktuellFarskapserklaering);
         }
 
         if (aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null) {
@@ -375,7 +375,7 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
               aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
         }
-        return mappingUtil.toDto(aktuellFarskapserklaering);
+        return mapper.toDto(aktuellFarskapserklaering);
       }
     }
 
@@ -537,7 +537,7 @@ public class FarskapsportalService {
       farskapserklaering.setFarBorSammenMedMor(request.isBorSammen());
     }
 
-    return OppdatereFarskapserklaeringResponse.builder().oppdatertFarskapserklaeringDto(mappingUtil.toDto(farskapserklaering)).build();
+    return OppdatereFarskapserklaeringResponse.builder().oppdatertFarskapserklaeringDto(mapper.toDto(farskapserklaering)).build();
   }
 
   public byte[] henteDokumentinnhold(String fnrForelder, int idFarskapserklaering) {

@@ -1,12 +1,13 @@
 package no.nav.farskapsportal.config;
 
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LOCAL;
-import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
@@ -16,7 +17,6 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.gcp.secretmanager.AccessSecretVersion;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -43,11 +43,11 @@ public class DifiEsigneringConfig {
     log.info("lengde sertifikat: {}", secretPayload.getData().size());
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
-    return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", sertifikatP12Passord, sertifikatP12Passord);
+    return KeyStoreConfig
+        .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", sertifikatP12Passord, sertifikatP12Passord);
   }
 
   @Bean
-  @Profile({PROFILE_LIVE, PROFILE_LOCAL, PROFILE_INTEGRATION_TEST, PROFILE_SCHEDULED_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, FarskapsportalEgenskaper farskapsportalEgenskaper) {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(ServiceUri.DIFI_TEST)
         .globalSender(new Sender(farskapsportalEgenskaper.getOrgnummerNav())).build();

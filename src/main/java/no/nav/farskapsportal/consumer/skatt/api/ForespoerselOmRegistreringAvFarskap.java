@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {"registreringsdato", "avsendersSaksreferanse", "innsender", "mottak", "saksbehandlersVurdering", "vedlegg",
-    "barnet", "far", "mor", "foreldreBorSammen"})
+    "barn", "far", "mor", "foreldreBorSammen"})
 public class ForespoerselOmRegistreringAvFarskap {
 
   @XmlElement
@@ -39,7 +39,7 @@ public class ForespoerselOmRegistreringAvFarskap {
   private Vedlegg vedlegg;
 
   @XmlElement
-  private Barn barnet;
+  private Barn barn;
 
   @XmlElement
   private Far far;

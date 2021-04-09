@@ -8,7 +8,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.Feilkode;
@@ -16,19 +15,23 @@ import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.skatt.api.Barn;
 import no.nav.farskapsportal.consumer.skatt.api.Boolsk;
 import no.nav.farskapsportal.consumer.skatt.api.Dato;
+import no.nav.farskapsportal.consumer.skatt.api.DatoKlokkeslett;
 import no.nav.farskapsportal.consumer.skatt.api.Far;
 import no.nav.farskapsportal.consumer.skatt.api.Foedselsnummer;
 import no.nav.farskapsportal.consumer.skatt.api.ForespoerselOmRegistreringAvFarskap;
 import no.nav.farskapsportal.consumer.skatt.api.Informasjonsmottak;
 import no.nav.farskapsportal.consumer.skatt.api.Innsender;
 import no.nav.farskapsportal.consumer.skatt.api.InnsendertypeForRegistreringAvFarskap;
+import no.nav.farskapsportal.consumer.skatt.api.Innsending;
 import no.nav.farskapsportal.consumer.skatt.api.KanalForRegistreringAvFarskap;
+import no.nav.farskapsportal.consumer.skatt.api.MeldingOmRegistreringAvFarskap;
 import no.nav.farskapsportal.consumer.skatt.api.Mor;
 import no.nav.farskapsportal.consumer.skatt.api.SaksbehandlersVurdering;
 import no.nav.farskapsportal.consumer.skatt.api.Tekst;
 import no.nav.farskapsportal.consumer.skatt.api.Vedlegg;
 import no.nav.farskapsportal.exception.SkattConsumerException;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import org.apache.commons.lang3.Validate;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +47,9 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor
 @Slf4j
 public class SkattConsumer {
+
+  // Kontrolleres ikke av Skatt
+  private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
 
   private final RestTemplate restTemplate;
 
@@ -89,19 +95,19 @@ public class SkattConsumer {
           HttpMethod.POST,
           requestEntity, Void.class);
     } catch (Exception e) {
-      throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
+      throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET, e);
     }
   }
 
   private String byggeMeldingTilSkatt(Farskapserklaering farskapserklaering) {
 
     try {
-      var forespoerselOmRegistreringAvFarskap = tilForespoerselOmRegistreringAvFarskap(farskapserklaering);
+      var meldingOmRegistreringAvFarskap = tilMeldingOmRegistreringAvFarskap(farskapserklaering);
 
       var xmlString = new StringWriter();
-      Marshaller marshaller = JAXBContext.newInstance(ForespoerselOmRegistreringAvFarskap.class).createMarshaller();
+      Marshaller marshaller = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class).createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(forespoerselOmRegistreringAvFarskap, xmlString);
+      marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
 
       return xmlString.toString();
     } catch (JAXBException jaxbe) {
@@ -109,36 +115,60 @@ public class SkattConsumer {
     }
   }
 
-  private ForespoerselOmRegistreringAvFarskap tilForespoerselOmRegistreringAvFarskap(Farskapserklaering farskapserklaering) {
+  private MeldingOmRegistreringAvFarskap tilMeldingOmRegistreringAvFarskap(Farskapserklaering farskapserklaering) {
 
-    return ForespoerselOmRegistreringAvFarskap.builder()
-        .far(Far.builder()
-            .datoForErklaeringen(henteDatoForErklaeringen(farskapserklaering))
-            .foedselsEllerDNummer(tilFoedsedslsnummer(farskapserklaering.getFar().getFoedselsnummer()))
-            .harSignert(tilBoolsk(farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null))
+    validereFarskapserklaeringKlarTilOversendelse(farskapserklaering);
+
+    return MeldingOmRegistreringAvFarskap.builder()
+        .innsending(Innsending.builder()
+            .avsendersInnsendingstidspunkt(tilDatoKlokkeslett(farskapserklaering.getSendtTilSkatt()))
+            .kildesystem(new Tekst(AVSENDER_KILDESYSTEM))
+            .avsendersMeldingsidentifikator(new Tekst(Long.toString(farskapserklaering.getMeldingsidSkatt())))
             .build())
-        .mor(Mor.builder()
-            .datoForErklaeringen(henteDatoForErklaeringen(farskapserklaering))
-            .foedselsEllerDNummer(tilFoedsedslsnummer(farskapserklaering.getMor().getFoedselsnummer()))
-            .harSignert(tilBoolsk(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null))
+        .forespoerselOmRegistreringAvFarskap(ForespoerselOmRegistreringAvFarskap.builder()
+            .far(Far.builder()
+                .datoForErklaeringen(henteDatoForErklaeringen(farskapserklaering))
+                .foedselsEllerDNummer(tilFoedsedslsnummer(farskapserklaering.getFar().getFoedselsnummer()))
+                .harSignert(tilBoolsk(farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null))
+                .build())
+            .mor(Mor.builder()
+                .datoForErklaeringen(henteDatoForErklaeringen(farskapserklaering))
+                .foedselsEllerDNummer(tilFoedsedslsnummer(farskapserklaering.getMor().getFoedselsnummer()))
+                .harSignert(tilBoolsk(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null))
+                .build())
+            .barn(Barn.builder()
+                .erFoedt(tilBoolsk(farskapserklaering.getBarn().getFoedselsnummer() != null))
+                .termindato(tilDato(farskapserklaering.getBarn().getTermindato()))
+                .foedselsEllerDNummer(
+                    farskapserklaering.getBarn().getFoedselsnummer() != null ? tilFoedsedslsnummer(farskapserklaering.getBarn().getFoedselsnummer())
+                        : null).build())
+            .registreringsdato(tilDato(LocalDate.now()))
+            .innsender(new Innsender(new InnsendertypeForRegistreringAvFarskap("nav")))
+            .mottak(Informasjonsmottak.builder()
+                .informasjonskanal(new KanalForRegistreringAvFarskap("elektroniskMelding"))
+                .mottakstidspunktFraOpprinneligkanal(tilDato(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()))
+                .build())
+            .saksbehandlersVurdering(SaksbehandlersVurdering.builder().skjemaErAttestert(tilBoolsk(true))
+                .vedlagtFarskapsskjemaErOriginalt(tilBoolsk(true)).build())
+            .vedlegg(new Vedlegg(new Tekst(farskapserklaering.getDokument().getDokumentnavn())))
+            .foreldreBorSammen(new Boolsk(true))
             .build())
-        .barnet(Barn.builder()
-            .erFoedt(tilBoolsk(farskapserklaering.getBarn().getFoedselsnummer() != null))
-            .termindato(tilDato(farskapserklaering.getBarn().getTermindato()))
-            .foedselsEllerDNummer(
-                farskapserklaering.getBarn().getFoedselsnummer() != null ? tilFoedsedslsnummer(farskapserklaering.getBarn().getFoedselsnummer())
-                    : null).build())
-        .registreringsdato(tilDato(LocalDate.now()))
-        .innsender(new Innsender(new InnsendertypeForRegistreringAvFarskap("nav")))
-        .mottak(Informasjonsmottak.builder()
-            .informasjonskanal(new KanalForRegistreringAvFarskap("elektroniskMelding"))
-            .mottakstidspunktFraOpprinneligkanal(tilDato(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()))
-            .build())
-        .saksbehandlersVurdering(SaksbehandlersVurdering.builder().skjemaErAttestert(tilBoolsk(true))
-            .vedlagtFarskapsskjemaErOriginalt(tilBoolsk(true)).build())
-        .vedlegg(new Vedlegg(new Tekst(farskapserklaering.getDokument().getDokumentnavn())))
-        .foreldreBorSammen(new Boolsk(true))
         .build();
+  }
+
+  private void validereFarskapserklaeringKlarTilOversendelse(Farskapserklaering farskapserklaering) {
+    try {
+      Validate.isTrue(farskapserklaering.getSendtTilSkatt() != null);
+      Validate.isTrue(farskapserklaering.getMeldingsidSkatt() > 0L);
+      Validate.isTrue(farskapserklaering.getFar().getFoedselsnummer() != null);
+      Validate.isTrue(farskapserklaering.getMor().getFoedselsnummer() != null);
+      Validate.isTrue(farskapserklaering.getDokument().getDokumentnavn() != null);
+      Validate.isTrue(farskapserklaering.getDokument().getDokumentinnhold().getInnhold() != null);
+      Validate.isTrue(farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null);
+      Validate.isTrue(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null);
+    } catch (IllegalArgumentException iae) {
+      throw new SkattConsumerException(Feilkode.FARSKAPSERKLAERING_MANGLER_DATA, iae);
+    }
   }
 
   private Dato henteDatoForErklaeringen(Farskapserklaering farskapserklaering) {
@@ -149,13 +179,17 @@ public class SkattConsumer {
     return tilDato(signeringstidspunktFar);
   }
 
+  private DatoKlokkeslett tilDatoKlokkeslett(LocalDateTime localDateTime) {
+    return new DatoKlokkeslett(localDateTime.toString());
+  }
+
   private Dato tilDato(LocalDateTime localDateTime) {
     return tilDato(LocalDate.from(localDateTime));
   }
 
   private Dato tilDato(LocalDate localDate) {
     try {
-      XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(LocalDate.from(localDate).toString());
+      var xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(LocalDate.from(localDate).toString());
       return new Dato(xmlGregorianCalendar);
     } catch (DatatypeConfigurationException dce) {
       throw new SkattConsumerException(Feilkode.SKATT_MELDINGSFORMAT, dce);

@@ -30,9 +30,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("MappingUtilTest")
-@SpringBootTest(classes = {MappingUtil.class, ModelMapper.class})
+@SpringBootTest(classes = {Mapper.class, ModelMapper.class})
 @ActiveProfiles(PROFILE_TEST)
-public class MappingUtilTest {
+public class MapperTest {
 
   private static final ForelderDto MOR_DTO = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR_DTO = henteForelder(Forelderrolle.FAR);
@@ -40,7 +40,7 @@ public class MappingUtilTest {
   private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(2).minusDays(13);
 
   @Autowired
-  private MappingUtil mappingUtil;
+  private Mapper mapper;
 
   private static DokumentDto getDokumentDto() {
     try {
@@ -67,7 +67,7 @@ public class MappingUtilTest {
       var barn = Barn.builder().termindato(TERMINDATO).build();
 
       // when
-      var barnDto = mappingUtil.toDto(barn);
+      var barnDto = mapper.toDto(barn);
 
       // then
       assertEquals(TERMINDATO, barnDto.getTermindato());
@@ -83,7 +83,7 @@ public class MappingUtilTest {
       var barn = Barn.builder().foedselsnummer(foedselsnummer).build();
 
       // when
-      var barnDto = mappingUtil.toDto(barn);
+      var barnDto = mapper.toDto(barn);
 
       // then
       assertEquals(foedselsnummer, barnDto.getFoedselsnummer());
@@ -98,7 +98,7 @@ public class MappingUtilTest {
       var barnDto = BarnDto.builder().termindato(TERMINDATO).build();
 
       // when
-      var barn = mappingUtil.toEntity(barnDto);
+      var barn = mapper.toEntity(barnDto);
 
       // then
       assertEquals(TERMINDATO, barn.getTermindato());
@@ -114,7 +114,7 @@ public class MappingUtilTest {
       var barnDto = BarnDto.builder().foedselsnummer(foedselsnummer).build();
 
       // when
-      var barn = mappingUtil.toEntity(barnDto);
+      var barn = mapper.toEntity(barnDto);
 
       // then
       assertEquals(barnDto.getFoedselsnummer(), barn.getFoedselsnummer());
@@ -130,7 +130,7 @@ public class MappingUtilTest {
     void skalMappeForelderDtoTilEntitet() {
 
       // given, when
-      var forelder = mappingUtil.toEntity(FAR_DTO);
+      var forelder = mapper.toEntity(FAR_DTO);
 
       // then
       assertAll(() -> assertEquals(FAR_DTO.getFoedselsnummer(), forelder.getFoedselsnummer()),
@@ -146,7 +146,7 @@ public class MappingUtilTest {
       var forelder = Forelder.builder().fornavn("Sponge").etternavn("Bob").foedselsnummer("12345678910").build();
 
       // when
-      var forelderDto = mappingUtil.toDto(forelder);
+      var forelderDto = mapper.toDto(forelder);
 
       // then
       assertAll(() -> assertEquals(forelder.getFoedselsnummer(), forelderDto.getFoedselsnummer()),
@@ -165,7 +165,7 @@ public class MappingUtilTest {
     void skalMappeDokumentDtoTilEntitet() {
 
       // given, when
-      var dokument = mappingUtil.toEntity(DOKUMENT_DTO);
+      var dokument = mapper.toEntity(DOKUMENT_DTO);
 
       // then
       assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getDokumentnavn()),
@@ -180,10 +180,10 @@ public class MappingUtilTest {
     void skalMappeDokumentEntitetTilDto() {
 
       // given
-      var dokument = mappingUtil.toEntity(DOKUMENT_DTO);
+      var dokument = mapper.toEntity(DOKUMENT_DTO);
 
       // when
-      var dokumentDto = mappingUtil.toDto(dokument);
+      var dokumentDto = mapper.toDto(dokument);
 
       // then
       assertAll(
@@ -209,7 +209,7 @@ public class MappingUtilTest {
           .dokument(DOKUMENT_DTO).build();
 
       // when
-      var farskapserklaering = mappingUtil.toEntity(farskapserklaeringDto);
+      var farskapserklaering = mapper.toEntity(farskapserklaeringDto);
 
       // then
       assertAll(() -> assertEquals(FAR_DTO.getFoedselsnummer(), farskapserklaering.getFar().getFoedselsnummer()),
@@ -223,14 +223,14 @@ public class MappingUtilTest {
     void skalMappeFarskapserklaeringEntitetTilDto() {
 
       // given
-      var dokument = mappingUtil.toEntity(DOKUMENT_DTO);
-      var far = mappingUtil.toEntity(FAR_DTO);
-      var mor = mappingUtil.toEntity(MOR_DTO);
+      var dokument = mapper.toEntity(DOKUMENT_DTO);
+      var far = mapper.toEntity(FAR_DTO);
+      var mor = mapper.toEntity(MOR_DTO);
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
           .build();
 
       // when
-      var farskapserklaeringDto = mappingUtil.toDto(farskapserklaering);
+      var farskapserklaeringDto = mapper.toDto(farskapserklaering);
 
       // then
       assertAll(() -> assertEquals(FAR_DTO.getFoedselsnummer(), farskapserklaeringDto.getFar().getFoedselsnummer()),
@@ -245,15 +245,15 @@ public class MappingUtilTest {
     void skalMappeFarskapserklaeringSomErSendtTilSkattEntitetTilDto() {
 
       // given
-      var dokument = mappingUtil.toEntity(DOKUMENT_DTO);
-      var far = mappingUtil.toEntity(FAR_DTO);
-      var mor = mappingUtil.toEntity(MOR_DTO);
+      var dokument = mapper.toEntity(DOKUMENT_DTO);
+      var far = mapper.toEntity(FAR_DTO);
+      var mor = mapper.toEntity(MOR_DTO);
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
           .meldingsidSkatt(123444L).sendtTilSkatt(LocalDateTime.now().minusDays(3))
           .build();
 
       // when
-      var farskapserklaeringDto = mappingUtil.toDto(farskapserklaering);
+      var farskapserklaeringDto = mapper.toDto(farskapserklaering);
 
       // then
       assertAll(
@@ -274,12 +274,12 @@ public class MappingUtilTest {
       // given
       var tidspunktSisteFeiledeForsoek = LocalDateTime.now();
       var antallFeiledeForsoek = 3;
-      var mor = mappingUtil.toEntity(MOR_DTO);
+      var mor = mapper.toEntity(MOR_DTO);
       var entitet = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(tidspunktSisteFeiledeForsoek)
           .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
       // when
-      var dto = mappingUtil.toDto(entitet);
+      var dto = mapper.toDto(entitet);
 
       // then
       assertAll(() -> assertThat(MOR_DTO.getFoedselsnummer()).isEqualTo(dto.getMor().getFoedselsnummer()),
@@ -298,7 +298,7 @@ public class MappingUtilTest {
           .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
       // when
-      var entitet = mappingUtil.toEntity(dto);
+      var entitet = mapper.toEntity(dto);
 
       // then
       assertAll(() -> assertThat(MOR_DTO.getFoedselsnummer()).isEqualTo(entitet.getMor().getFoedselsnummer()),

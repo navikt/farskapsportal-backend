@@ -9,6 +9,7 @@ public enum Feilkode {
   ERKLAERING_EKSISTERER_MOR("Mor har eksisterende farskapserklæring. Kan ikke opprette ny erklæring for ufødt barn."),
   ESIGNERING_SIGNATUREIER_NULL("Signatureier er null i respons fra esigneringsløsningen!"),
   ESIGNERING_REDIRECTURL_UKJENT("Redirecturl for ukjent part mottatt fra esigneringsløsningen!"),
+  FARSKAPSERKLAERING_MANGLER_DATA("Farskapserklæringen mangler påkrevde data"),
   FARSKAPSERKLAERING_MANGLER_SIGNATUR("Farskapserklæringen er ikke signert av begge foreldrene"),
   FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR("Mor har ikke signert farskapserklæringen"),
   FEILFORMATERT_URL_UNDERTEGNERURL("URL for å hente ny redirect-url er feilformattert"),

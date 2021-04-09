@@ -36,3 +36,4 @@ build/
 .mvn/
 
 fp.pdf
+test_VS_decrypt_*
