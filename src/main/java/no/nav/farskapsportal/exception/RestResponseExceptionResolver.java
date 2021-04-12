@@ -116,8 +116,6 @@ public class RestResponseExceptionResolver {
   protected  ResponseEntity<?> handleSkattConsumerException(SkattConsumerException e){
     exceptionLogger.logException(e.getOriginalException(), "RestResponseExceptionResolver");
 
-    e.printStackTrace();
-
     var feilmelding = "Feil oppstod i konsument mot Skatt";
 
     return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
