@@ -22,7 +22,7 @@ public class OverfoereTilSkatt {
   @Value("${farskapsportal.egenskaper.skatt.intervall.overfoering}")
   private long intervallMellomForsoek;
 
-  @Scheduled(fixedDelayString = "${farskapsportal.egenskaper.skatt.intervall.overfoering}")
+  @Scheduled(initialDelay = 60000, fixedDelayString = "${farskapsportal.egenskaper.skatt.intervall.overfoering}")
   void vurdereOverfoeringTilSkatt() {
     log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til skatt");
     var farskapserklaeringer = persistenceService.henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt();
