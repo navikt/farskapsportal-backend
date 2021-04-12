@@ -186,8 +186,12 @@ public class FarskapsportalService {
     var mor = getForelderDto(fnrMor, null);
     var far = getForelderDto(request.getOpplysningerOmFar().getFoedselsnummer(), Forelderrolle.FAR);
 
-    var farskapserklaering = Farskapserklaering.builder().barn(mapper.toEntity(barn)).mor(mapper.toEntity(mor))
-        .far(mapper.toEntity(far)).build();
+    var farskapserklaering = Farskapserklaering.builder()
+        .barn(mapper.toEntity(barn))
+        .mor(mapper.toEntity(mor))
+        .far(mapper.toEntity(far))
+        .morBorSammenMedFar(request.isMorBorSammenMedFar())
+        .build();
     var dokument = pdfGeneratorConsumer.genererePdf(farskapserklaering);
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-url-ers
