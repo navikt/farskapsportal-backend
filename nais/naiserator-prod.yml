@@ -60,4 +60,5 @@ spec:
     outbound:
       external:
         - host: api.signering.posten.no
+        - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com

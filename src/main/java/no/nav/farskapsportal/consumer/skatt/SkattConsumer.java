@@ -69,7 +69,7 @@ public class SkattConsumer {
     requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);//Main request's headers
 
     HttpHeaders requestHeadersAttachment = new HttpHeaders();
-    requestHeadersAttachment.setContentType(MediaType.IMAGE_PNG);// extract mediatype from file extension
+    requestHeadersAttachment.setContentType(MediaType.APPLICATION_PDF);// extract mediatype from file extension
     HttpEntity<ByteArrayResource> attachmentPart;
     ByteArrayResource fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getDokumentinnhold().getInnhold()) {
       @Override
@@ -95,6 +95,7 @@ public class SkattConsumer {
           HttpMethod.POST,
           requestEntity, Void.class);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET, e);
     }
   }
