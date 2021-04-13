@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,4 +33,10 @@ public class Signeringsinformasjon {
   private String redirectUrl;
 
   private String undertegnerUrl;
+
+  private String xadesUrl;
+
+  @Column(length = 100000000)
+  private byte[] xadesXml;
+
 }

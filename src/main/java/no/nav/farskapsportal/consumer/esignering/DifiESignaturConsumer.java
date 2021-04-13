@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.core.PAdESReference;
+import no.digipost.signature.client.core.XAdESReference;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectDocument;
 import no.digipost.signature.client.direct.DirectJob;
@@ -148,6 +149,14 @@ public class DifiESignaturConsumer {
       throw new InternFeilException(Feilkode.PADESURL_FEILFORMATERT);
     }
   }
+  
+  public byte[] henteXadesXml(URI xadesUrl) {
+    try {
+      return client.getXAdES(XAdESReference.of(xadesUrl)).readAllBytes();
+    } catch (IOException e) {
+      throw new InternFeilException(Feilkode.XADESURL_FEILFORMATERT);
+    }
+  }
 
   public URI henteNyRedirectUrl(URI signerUrl) {
     var directSignerResponse = client.requestNewRedirectUrl(WithSignerUrl.of(signerUrl));
@@ -159,7 +168,11 @@ public class DifiESignaturConsumer {
     var tidspunktForStatus = LocalDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
     var statusSignering = mapStatus(signature.getStatus());
     var harSignert = StatusSignering.SUKSESS.equals(statusSignering);
-    return SignaturDto.builder().signatureier(signature.getSigner()).harSignert(harSignert).statusSignering(statusSignering)
+    return SignaturDto.builder()
+        .signatureier(signature.getSigner())
+        .harSignert(harSignert)
+        .xadeslenke(signature.getxAdESUrl() != null ? signature.getxAdESUrl().getxAdESUrl() : null)
+        .statusSignering(statusSignering)
         .tidspunktForStatus(tidspunktForStatus).build();
   }
 

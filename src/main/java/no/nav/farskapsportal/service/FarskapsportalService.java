@@ -348,6 +348,7 @@ public class FarskapsportalService {
 
     // Oppdatere foreldrenes signeringsinfo
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {
+      // Oppdatere for mor
       if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getMor().getFoedselsnummer()) && aktuellFarskapserklaering.getMor().getFoedselsnummer()
           .equals(signatur.getSignatureier())) {
         validereInnholdStatusrespons(dokumentStatusDto);
@@ -358,6 +359,8 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
+          var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xadesXml);
           return mapper.toDto(aktuellFarskapserklaering);
         }
 
@@ -367,6 +370,7 @@ public class FarskapsportalService {
           throw new ValideringException(Feilkode.SIGNERING_IKKE_GJENOMFOERT);
         }
 
+        // Oppdatere for far - sette meldingsidSkatt
       } else if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getFar().getFoedselsnummer()) && aktuellFarskapserklaering.getFar()
           .getFoedselsnummer().equals(signatur.getSignatureier())) {
         validereInnholdStatusrespons(dokumentStatusDto);
@@ -376,6 +380,8 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
+          var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(xadesXml);
           aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
               aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
         }

@@ -48,7 +48,8 @@ public enum Feilkode {
   SIGNERING_IKKE_GJENOMFOERT("Person har ikke gjennomført signering"),
   SKATT_OVERFOERING_FEILET("Overføring av farskapsmelding til Skatt feilet"),
   SKATT_MELDINGSFORMAT("Feil oppstod ved opprettelse av farskapsmelding til Skatt"),
-  TERMINDATO_UGYLDIG("Oppgitt termindato er ikke innenfor godkjent intervall");
+  TERMINDATO_UGYLDIG("Oppgitt termindato er ikke innenfor godkjent intervall"),
+  XADESURL_FEILFORMATERT("XAdES-url mottatt fre Esigneringsløsningen var ikke formatert riktig");
 
   private final String beskrivelse;
 

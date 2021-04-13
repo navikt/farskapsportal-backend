@@ -88,7 +88,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
   public KeyStoreConfig keyStoreConfig() throws IOException {
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
@@ -100,8 +100,30 @@ public class FarskapsportalApplicationLocal {
     }
   }
 
+  @Configuration
+  @Profile(PROFILE_INTEGRATION_TEST)
+  static class EsigneringIntegrationTestConfig {
+
+    @Value("${KEYSTORE_PASSWORD}")
+    String keystorePassword;
+
+    @Bean
+    @Profile(PROFILE_INTEGRATION_TEST)
+    public KeyStoreConfig keyStoreConfig() throws IOException {
+      var classLoader = getClass().getClassLoader();
+      try (InputStream inputStream = classLoader.getResourceAsStream("test_VS_decrypt_2018-2021.jceks")) {
+        if (inputStream == null) {
+          throw new IllegalArgumentException("Fant ikke test_VS_decrypt_2018-2021.jceks");
+        } else {
+          return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", keystorePassword, keystorePassword);
+        }
+      }
+    }
+  }
+
+
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))

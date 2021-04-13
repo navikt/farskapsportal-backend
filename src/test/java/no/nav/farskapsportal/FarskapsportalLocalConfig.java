@@ -1,6 +1,5 @@
 package no.nav.farskapsportal;
 
-import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_LOCAL;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_LOCAL_POSTGRES;
 
@@ -20,6 +19,7 @@ import org.springframework.context.annotation.Profile;
 public class FarskapsportalLocalConfig {
 
   public static final String PADES = "/pades";
+  public static final String XADES = "/xades";
 
   @Autowired
   private DifiESignaturStub difiESignaturStub;
@@ -36,5 +36,6 @@ public class FarskapsportalLocalConfig {
   @Bean
   public void runStubs() {
     difiESignaturStub.runGetSignedDocument(PADES);
+    difiESignaturStub.runGetSignedDocument(XADES);
   }
 }
