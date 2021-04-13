@@ -735,6 +735,54 @@ public class FarskapsportalServiceTest {
   class OppdatereStatus {
 
     @Test
+    void skalOppdatereSigneringsinformasjonForMorEtterRedirectDersomStatusQueryTokenErGyldig() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+
+      var statuslenke = lageUrl("/status");
+      var farskapserklaering = henteFarskapserklaering(MOR, FAR, BARN);
+      var padesMor = lageUrl("/padesMor");
+      var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+      var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+
+      assertNull(farskapserklaering.getDokument().getSignertAvMor());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.henteGjeldendeKjoenn(MOR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.KVINNE).build());
+
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(statuslenke)
+              .erSigneringsjobbenFerdig(true)
+              .padeslenke(padesMor).signaturer(List.of(
+              SignaturDto.builder().signatureier(MOR.getFoedselsnummer()).harSignert(true).tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .build())).build());
+
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+
+      // when
+      farskapsportalService.oppdatereStatus(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      // then
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
+          () -> assertArrayEquals(farskapserklaeringDokumentinnhold, oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
+          () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getXadesXml())
+      );
+    }
+
+    @Test
     void skalOppdatereSigneringsinformasjonForFarEtterRedirectDersomStatusQueryTokenErGyldig() {
 
       // given
@@ -745,6 +793,7 @@ public class FarskapsportalServiceTest {
       var padesFar = lageUrl("/padesFar");
       farskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(3));
       var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+      var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
       assertNull(farskapserklaering.getDokument().getSignertAvFar());
 
@@ -766,6 +815,7 @@ public class FarskapsportalServiceTest {
                   .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
 
       // when
       farskapsportalService.oppdatereStatus(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
@@ -775,7 +825,9 @@ public class FarskapsportalServiceTest {
       // then
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
-          () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt())
+          () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()),
+          () -> assertArrayEquals(farskapserklaeringDokumentinnhold, oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
+          () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml())
       );
     }
   }

@@ -70,7 +70,7 @@ public class SkattConsumer {
 
     HttpHeaders requestHeadersAttachment = new HttpHeaders();
     requestHeadersAttachment.setContentType(MediaType.APPLICATION_PDF);// extract mediatype from file extension
-    HttpEntity<ByteArrayResource> attachmentPart;
+    HttpEntity<ByteArrayResource> padesDokument;
     ByteArrayResource fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getDokumentinnhold().getInnhold()) {
       @Override
       public String getFilename() {
@@ -78,8 +78,8 @@ public class SkattConsumer {
       }
     };
 
-    attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
-    multipartRequest.set("vedlegg", attachmentPart);
+    padesDokument = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+    multipartRequest.set("vedlegg", padesDokument);
 
     HttpHeaders requestHeadersJSON = new HttpHeaders();
     requestHeadersJSON.setContentType(MediaType.APPLICATION_XML);

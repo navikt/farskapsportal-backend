@@ -45,7 +45,7 @@ public class RestTemplateConfig {
 
   @Value("${consumer.skatt.maks-ventetid-lesing}")
   private int consumerSkattMaksVentetidLesing;
-  
+
   @Bean
   @Qualifier("base")
   @Scope("prototype")

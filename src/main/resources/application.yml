@@ -208,6 +208,7 @@ farskapsportal.egenskaper:
 
 url:
   skatt.base-url: https://folkeregisteret-api-ekstern.sits.no
+  esignering: https://api.difitest.signering.posten.no/api
 
 sertifikat:
   passord: ${KEYSTORE_PASSWORD}
