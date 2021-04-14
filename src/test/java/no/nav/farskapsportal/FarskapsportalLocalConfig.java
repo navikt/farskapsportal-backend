@@ -36,6 +36,6 @@ public class FarskapsportalLocalConfig {
   @Bean
   public void runStubs() {
     difiESignaturStub.runGetSignedDocument(PADES);
-    difiESignaturStub.runGetSignedDocument(XADES);
+    difiESignaturStub.runGetXades(XADES);
   }
 }

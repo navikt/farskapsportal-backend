@@ -117,9 +117,12 @@ public class DifiESignaturConsumer {
     var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(this::mapTilDto)
         .collect(Collectors.toList());
 
-    return DokumentStatusDto.builder().statuslenke(statuslenke).padeslenke(pAdESReference.getpAdESUrl())
+    return DokumentStatusDto.builder()
+        .statuslenke(statuslenke)
+        .padeslenke(pAdESReference.getpAdESUrl())
         .bekreftelseslenke(bekreftelseslenke)
-        .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY)).signaturer(signaturer).build();
+        .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY))
+        .signaturer(signaturer).build();
 
 
   }

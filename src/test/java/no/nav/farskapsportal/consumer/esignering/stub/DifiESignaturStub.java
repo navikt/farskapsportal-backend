@@ -6,6 +6,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -73,5 +74,16 @@ public class DifiESignaturStub {
                     .withHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
                     .withStatus(200)
                     .withBodyFile("Farskapsportal.pdf")));
+  }
+
+  public void runGetXades(String xadesPath) {
+    stubFor(
+        get(urlPathMatching("/\\d+" + xadesPath))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                    .withStatus(200)
+                    .withBody("Jeg har signert".getBytes(StandardCharsets.UTF_8))));
+
   }
 }

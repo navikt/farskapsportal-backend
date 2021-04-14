@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.api.xml.XMLDirectSignatureJobStatus;
 import no.digipost.signature.api.xml.XMLDirectSignatureJobStatusResponse;
 import no.digipost.signature.api.xml.XMLDirectSignerStatusValue;
+import no.digipost.signature.api.xml.XMLSignerSpecificUrl;
 import no.digipost.signature.api.xml.XMLSignerStatus;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
@@ -82,6 +83,9 @@ public class EsigneringStubController {
     statusrespons.setPadesUrl(lageUrl("/pades"));
     statusrespons.setSignatureJobId(1);
     statusrespons.setDeleteDocumentsUrl(lageUrl("/delete-docs"));
+
+    statusrespons.getXadesUrls().add(morHarSignert ? new XMLSignerSpecificUrl(lageUrl("/" + FNR_MOR + "/xades"),FNR_MOR) : null);
+    statusrespons.getXadesUrls().add(morHarSignert && farHarSignert ? new XMLSignerSpecificUrl(lageUrl("/" + FNR_FAR + "/xades"),FNR_FAR) : null);
 
     var sw = new StringWriter();
 

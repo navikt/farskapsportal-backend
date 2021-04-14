@@ -5,6 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,10 +70,12 @@ public class FarskapsportalService {
     var crc32 = new CRC32();
     var outputstream = new ByteArrayOutputStream();
     outputstream.writeBytes(dokument);
-    outputstream.writeBytes(tidspunktForSignering.toString().getBytes());
     crc32.update(outputstream.toByteArray());
 
-    return crc32.getValue();
+    var zonedDateTime = tidspunktForSignering.atZone(ZoneId.systemDefault());
+    var epoch = tidspunktForSignering.toEpochSecond(zonedDateTime.getOffset());
+
+    return crc32.getValue() + epoch;
   }
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
@@ -357,6 +361,7 @@ public class FarskapsportalService {
 
         if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesUrl(signatur.getXadeslenke().toString());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
@@ -378,6 +383,7 @@ public class FarskapsportalService {
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke().toString());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
