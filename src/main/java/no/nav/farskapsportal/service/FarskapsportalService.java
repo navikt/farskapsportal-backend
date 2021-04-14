@@ -360,6 +360,7 @@ public class FarskapsportalService {
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
 
         if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
+          validereInnholdSignaturinformasjon(signatur);
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesUrl(signatur.getXadeslenke().toString());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
@@ -382,8 +383,9 @@ public class FarskapsportalService {
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
+          validereInnholdSignaturinformasjon(signatur);
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
-          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke().toString());
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke() != null ? signatur.getXadeslenke().toString() : null);
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
@@ -405,6 +407,14 @@ public class FarskapsportalService {
       Validate.isTrue(dokumentStatusDto.getPadeslenke() != null, "Padeslenke mangler");
     } catch (IllegalArgumentException iae) {
       throw new EsigneringConsumerException("Manglende data retunert fra status-kall mot esigneringstjenesten", iae);
+    }
+  }
+
+  private void validereInnholdSignaturinformasjon(SignaturDto signatur) {
+    try {
+      Validate.isTrue(signatur.getXadeslenke() != null, "XAdES-lenke mangler");
+    } catch (IllegalArgumentException iae) {
+      throw new EsigneringConsumerException("Manglende data retunert fra status-kall mot esigneringstjenesten, ingen XAdES-lenke", iae);
     }
   }
 

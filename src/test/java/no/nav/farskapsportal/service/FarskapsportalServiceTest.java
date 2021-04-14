@@ -765,7 +765,11 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .erSigneringsjobbenFerdig(true)
               .padeslenke(padesMor).signaturer(List.of(
-              SignaturDto.builder().signatureier(MOR.getFoedselsnummer()).harSignert(true).tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+              SignaturDto.builder()
+                  .signatureier(MOR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
                   .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
@@ -815,7 +819,11 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .erSigneringsjobbenFerdig(true)
               .padeslenke(padesFar).signaturer(List.of(
-              SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+              SignaturDto.builder()
+                  .signatureier(FAR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
                   .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
