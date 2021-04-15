@@ -765,15 +765,11 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .erSigneringsjobbenFerdig(true)
               .padeslenke(padesMor).signaturer(List.of(
-<<<<<<< HEAD
               SignaturDto.builder()
                   .signatureier(MOR.getFoedselsnummer())
                   .harSignert(true)
                   .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
                   .xadeslenke(lageUrl("/xades"))
-=======
-              SignaturDto.builder().signatureier(MOR.getFoedselsnummer()).harSignert(true).tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
->>>>>>> main
                   .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
@@ -788,12 +784,8 @@ public class FarskapsportalServiceTest {
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
-<<<<<<< HEAD
           () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
               oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
-=======
-          () -> assertArrayEquals(farskapserklaeringDokumentinnhold, oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
->>>>>>> main
           () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getXadesXml())
       );
     }
@@ -846,12 +838,8 @@ public class FarskapsportalServiceTest {
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()),
-<<<<<<< HEAD
           () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
               oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
-=======
-          () -> assertArrayEquals(farskapserklaeringDokumentinnhold, oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
->>>>>>> main
           () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml())
       );
     }
