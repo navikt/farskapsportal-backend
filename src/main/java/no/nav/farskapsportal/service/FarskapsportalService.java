@@ -5,6 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,14 +66,16 @@ public class FarskapsportalService {
   private final PersonopplysningService personopplysningService;
   private final Mapper mapper;
 
-  private static long getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
+  private static String getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
     var crc32 = new CRC32();
     var outputstream = new ByteArrayOutputStream();
     outputstream.writeBytes(dokument);
-    outputstream.writeBytes(tidspunktForSignering.toString().getBytes());
     crc32.update(outputstream.toByteArray());
 
-    return crc32.getValue();
+    var zonedDateTime = tidspunktForSignering.atZone(ZoneId.systemDefault());
+    var epoch = tidspunktForSignering.toEpochSecond(zonedDateTime.getOffset());
+
+    return crc32.toString() + epoch;
   }
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
@@ -356,7 +360,9 @@ public class FarskapsportalService {
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
 
         if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
+          validereInnholdSignaturinformasjon(signatur);
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesUrl(signatur.getXadeslenke().toString());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
@@ -377,7 +383,9 @@ public class FarskapsportalService {
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
+          validereInnholdSignaturinformasjon(signatur);
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke().toString());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
@@ -399,6 +407,14 @@ public class FarskapsportalService {
       Validate.isTrue(dokumentStatusDto.getPadeslenke() != null, "Padeslenke mangler");
     } catch (IllegalArgumentException iae) {
       throw new EsigneringConsumerException("Manglende data retunert fra status-kall mot esigneringstjenesten", iae);
+    }
+  }
+
+  private void validereInnholdSignaturinformasjon(SignaturDto signatur) {
+    try {
+      Validate.isTrue(signatur.getXadeslenke() != null, "XAdES-lenke mangler");
+    } catch (IllegalArgumentException iae) {
+      throw new EsigneringConsumerException("Manglende data retunert fra status-kall mot esigneringstjenesten, ingen XAdES-lenke", iae);
     }
   }
 

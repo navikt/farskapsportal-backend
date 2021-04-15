@@ -781,6 +781,7 @@ public class FarskapsportalControllerTest {
                       .signatureier(MOR.getFoedselsnummer())
                       .harSignert(true)
                       .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
                       .build()))
               .build());
 
@@ -845,8 +846,11 @@ public class FarskapsportalControllerTest {
               .padeslenke(lageUrl("/pades"))
 
               .signaturer(List.of(
-                  SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true)
+                  SignaturDto.builder()
+                      .signatureier(FAR.getFoedselsnummer())
+                      .harSignert(true)
                       .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
                       .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
@@ -908,6 +912,7 @@ public class FarskapsportalControllerTest {
               .signaturer(List.of(SignaturDto.builder()
                   .signatureier(FAR.getFoedselsnummer())
                   .harSignert(true)
+                  .xadeslenke(lageUrl("/xades"))
                   .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
                   .build()))
               .build());
@@ -921,7 +926,6 @@ public class FarskapsportalControllerTest {
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
-
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaeringSignertAvMor.getId());
 
       assertAll(

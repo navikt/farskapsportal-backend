@@ -48,7 +48,7 @@ public class Farskapserklaering implements Serializable {
   @OneToOne(cascade = CascadeType.ALL)
   private Dokument dokument;
 
-  private long meldingsidSkatt;
+  private String meldingsidSkatt;
 
   private LocalDateTime sendtTilSkatt;
 

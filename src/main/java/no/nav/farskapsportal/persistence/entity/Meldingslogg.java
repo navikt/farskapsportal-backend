@@ -32,6 +32,6 @@ public class Meldingslogg implements Serializable {
   private LocalDateTime tidspunktForOversendelse;
 
   @NaturalId
-  private long meldingsidSkatt;
+  private String meldingsidSkatt;
 
 }

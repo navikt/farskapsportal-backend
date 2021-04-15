@@ -249,7 +249,7 @@ public class MapperTest {
       var far = mapper.toEntity(FAR_DTO);
       var mor = mapper.toEntity(MOR_DTO);
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
-          .meldingsidSkatt(123444L).sendtTilSkatt(LocalDateTime.now().minusDays(3))
+          .meldingsidSkatt("123444").sendtTilSkatt(LocalDateTime.now().minusDays(3))
           .build();
 
       // when

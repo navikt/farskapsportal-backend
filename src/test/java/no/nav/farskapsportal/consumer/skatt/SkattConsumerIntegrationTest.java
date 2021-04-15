@@ -45,7 +45,7 @@ public class SkattConsumerIntegrationTest {
     var farskapserklaering = mapper.toEntity(FARSKAPSERKLAERING);
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.setMeldingsidSkatt(12345L);
+    farskapserklaering.setMeldingsidSkatt("12345");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
     farskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());

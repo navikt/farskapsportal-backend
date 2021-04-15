@@ -22,14 +22,17 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.CRC32;
 import lombok.SneakyThrows;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
@@ -441,7 +444,7 @@ public class FarskapsportalServiceTest {
       assertAll(() -> assertNotNull(eksisterendeFarskapserklaeringUfoedtBarnVenterPaaFarsSignatur.getDokument().getSignertAvMor()),
           () -> assertNull(eksisterendeFarskapserklaeringUfoedtBarnVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
 
-     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(eksisterendeFarskapserklaeringUfoedtBarnVenterPaaFarsSignatur);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(eksisterendeFarskapserklaeringUfoedtBarnVenterPaaFarsSignatur);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
@@ -762,7 +765,11 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .erSigneringsjobbenFerdig(true)
               .padeslenke(padesMor).signaturer(List.of(
-              SignaturDto.builder().signatureier(MOR.getFoedselsnummer()).harSignert(true).tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+              SignaturDto.builder()
+                  .signatureier(MOR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
                   .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
@@ -777,7 +784,8 @@ public class FarskapsportalServiceTest {
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
-          () -> assertArrayEquals(farskapserklaeringDokumentinnhold, oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
+          () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
+              oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
           () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getXadesXml())
       );
     }
@@ -811,7 +819,11 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .erSigneringsjobbenFerdig(true)
               .padeslenke(padesFar).signaturer(List.of(
-              SignaturDto.builder().signatureier(FAR.getFoedselsnummer()).harSignert(true).tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+              SignaturDto.builder()
+                  .signatureier(FAR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
                   .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
@@ -826,7 +838,8 @@ public class FarskapsportalServiceTest {
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()),
-          () -> assertArrayEquals(farskapserklaeringDokumentinnhold, oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
+          () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
+              oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
           () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml())
       );
     }

@@ -209,7 +209,7 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
   }
 
-  public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, long meldingsidSkatt) {
+  public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {
     var nyttInnslag = Meldingslogg.builder().tidspunktForOversendelse(tidspunktForOverfoering).meldingsidSkatt(meldingsidSkatt).build();
     meldingsloggDao.save(nyttInnslag);
   }
