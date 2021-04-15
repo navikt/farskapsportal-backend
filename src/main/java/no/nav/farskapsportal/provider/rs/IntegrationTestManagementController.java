@@ -3,6 +3,7 @@ package no.nav.farskapsportal.provider.rs;
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 
 import io.swagger.annotations.ApiOperation;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
@@ -12,6 +13,7 @@ import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.persistence.dao.SigneringsinformasjonDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -68,5 +70,12 @@ public class IntegrationTestManagementController {
     }
 
     return "Testdata slettet fra Farskapsportal public-skjema";
+  }
+
+  @GetMapping("/signeringsinformasjon")
+  @ApiOperation("Viser innhold i signeringsinformasjon-tabellen")
+  public Signeringsinformasjon henteSigneringsinformasjon() {
+    var respons = signeringsinformasjonDao.findAll();
+    return respons.iterator().next();
   }
 }

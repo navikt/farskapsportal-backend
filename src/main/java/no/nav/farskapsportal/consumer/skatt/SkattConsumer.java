@@ -124,7 +124,7 @@ public class SkattConsumer {
         .innsending(Innsending.builder()
             .avsendersInnsendingstidspunkt(tilDatoKlokkeslett(farskapserklaering.getSendtTilSkatt()))
             .kildesystem(new Tekst(AVSENDER_KILDESYSTEM))
-            .avsendersMeldingsidentifikator(new Tekst(Long.toString(farskapserklaering.getMeldingsidSkatt())))
+            .avsendersMeldingsidentifikator(new Tekst(farskapserklaering.getMeldingsidSkatt()))
             .build())
         .forespoerselOmRegistreringAvFarskap(ForespoerselOmRegistreringAvFarskap.builder()
             .far(Far.builder()
@@ -160,7 +160,7 @@ public class SkattConsumer {
   private void validereFarskapserklaeringKlarTilOversendelse(Farskapserklaering farskapserklaering) {
     try {
       Validate.isTrue(farskapserklaering.getSendtTilSkatt() != null);
-      Validate.isTrue(farskapserklaering.getMeldingsidSkatt() > 0L);
+      Validate.isTrue(farskapserklaering.getMeldingsidSkatt() != null);
       Validate.isTrue(farskapserklaering.getFar().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getMor().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getDokument().getDokumentnavn() != null);

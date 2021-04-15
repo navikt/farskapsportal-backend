@@ -66,7 +66,7 @@ public class FarskapsportalService {
   private final PersonopplysningService personopplysningService;
   private final Mapper mapper;
 
-  private static long getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
+  private static String getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
     var crc32 = new CRC32();
     var outputstream = new ByteArrayOutputStream();
     outputstream.writeBytes(dokument);
@@ -75,7 +75,7 @@ public class FarskapsportalService {
     var zonedDateTime = tidspunktForSignering.atZone(ZoneId.systemDefault());
     var epoch = tidspunktForSignering.toEpochSecond(zonedDateTime.getOffset());
 
-    return crc32.getValue() + epoch;
+    return crc32.toString() + epoch;
   }
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
@@ -385,7 +385,7 @@ public class FarskapsportalService {
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
           validereInnholdSignaturinformasjon(signatur);
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
-          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke() != null ? signatur.getXadeslenke().toString() : null);
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke().toString());
           var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());

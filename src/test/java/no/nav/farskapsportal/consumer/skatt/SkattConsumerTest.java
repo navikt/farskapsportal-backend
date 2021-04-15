@@ -48,7 +48,7 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-    farskapserklaering.setMeldingsidSkatt(123L);
+    farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then
@@ -63,7 +63,7 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("".getBytes()).build());
-    farskapserklaering.setMeldingsidSkatt(123L);
+    farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then

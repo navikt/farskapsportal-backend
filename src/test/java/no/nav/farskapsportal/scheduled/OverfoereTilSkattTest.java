@@ -66,7 +66,7 @@ public class OverfoereTilSkattTest {
     var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.setMeldingsidSkatt(1234l);
+    farskapserklaering.setMeldingsidSkatt("1234");
     var lagretSignertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
     assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
 
@@ -98,14 +98,14 @@ public class OverfoereTilSkattTest {
     var farskapserklaering1 = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
     farskapserklaering1.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering1.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering1.setMeldingsidSkatt(1234l);
+    farskapserklaering1.setMeldingsidSkatt("1234");
     var lagretSignertFarskapserklaering1 = persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
     assert (lagretSignertFarskapserklaering1.getSendtTilSkatt() == null);
 
     var farskapserklaering2 = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222")));
     farskapserklaering2.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering2.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering2.setMeldingsidSkatt(2345l);
+    farskapserklaering2.setMeldingsidSkatt("2345");
     var lagretSignertFarskapserklaering2 = persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
     assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
 
@@ -147,7 +147,7 @@ public class OverfoereTilSkattTest {
         .toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222")));
     farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaeringSignertAvBeggeParter.setMeldingsidSkatt(2345l);
+    farskapserklaeringSignertAvBeggeParter.setMeldingsidSkatt("2345");
     var lagretFarskapserklaeringSignertAvBeggeParter = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSignertAvBeggeParter);
     assert (lagretFarskapserklaeringSignertAvBeggeParter.getSendtTilSkatt() == null);
 
@@ -163,7 +163,7 @@ public class OverfoereTilSkattTest {
 
     assertAll(
         () -> assertThat(farskapserklaeringIkkeSendtTilSkatt).isPresent(),
-        () -> assertThat(farskapserklaeringIkkeSendtTilSkatt.get().getMeldingsidSkatt()).isEqualTo(0L),
+        () -> assertThat(farskapserklaeringIkkeSendtTilSkatt.get().getMeldingsidSkatt()).isNull(),
         () -> assertThat(farskapserklaeringIkkeSendtTilSkatt.get().getSendtTilSkatt()).isNull(),
         () -> assertThat(farskapserklaeringSendtTilSkatt).isPresent(),
         () -> assertThat(logginnslag.iterator()).hasNext(),
@@ -185,7 +185,7 @@ public class OverfoereTilSkattTest {
     var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.setMeldingsidSkatt(1234l);
+    farskapserklaering.setMeldingsidSkatt("1234");
     var lagretSignertFarskapserklaering1 = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
     assert (lagretSignertFarskapserklaering1.getSendtTilSkatt() == null);
 

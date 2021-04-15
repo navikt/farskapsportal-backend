@@ -63,7 +63,7 @@ public class OverfoereTilSkattIntegrationTest {
         .lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "11111")));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     sendingsklarFarskapserklaering1.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(10));
-    sendingsklarFarskapserklaering1.setMeldingsidSkatt(4564l);
+    sendingsklarFarskapserklaering1.setMeldingsidSkatt("4564");
     assertNull(sendingsklarFarskapserklaering1.getSendtTilSkatt());
     farskapserklaeringDao.save(sendingsklarFarskapserklaering1);
 
@@ -71,7 +71,7 @@ public class OverfoereTilSkattIntegrationTest {
         .lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "22222")));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     sendingsklarFarskapserklaering2.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(10));
-    sendingsklarFarskapserklaering2.setMeldingsidSkatt(4564l);
+    sendingsklarFarskapserklaering2.setMeldingsidSkatt("4564");
     assertNull(sendingsklarFarskapserklaering2.getSendtTilSkatt());
     farskapserklaeringDao.save(sendingsklarFarskapserklaering2);
 
@@ -106,11 +106,11 @@ public class OverfoereTilSkattIntegrationTest {
     );
   }
 
-  private boolean meldingsIdFinnesIMeldingslogg(long meldingsidSkatt) {
+  private boolean meldingsIdFinnesIMeldingslogg(String meldingsidSkatt) {
     var meldingsloggAlleInnslag = meldingsloggDao.findAll().iterator();
     while (meldingsloggAlleInnslag.hasNext()) {
       var innslag = meldingsloggAlleInnslag.next();
-      if (innslag.getMeldingsidSkatt() == meldingsidSkatt) {
+      if (innslag.getMeldingsidSkatt().equals(meldingsidSkatt)) {
         return true;
       }
     }
