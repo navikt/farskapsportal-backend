@@ -75,7 +75,7 @@ public class FarskapsportalService {
     var zonedDateTime = tidspunktForSignering.atZone(ZoneId.systemDefault());
     var epoch = tidspunktForSignering.toEpochSecond(zonedDateTime.getOffset());
 
-    return crc32.toString() + epoch;
+    return String.valueOf(crc32.getValue()) + epoch;
   }
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {

@@ -58,6 +58,7 @@ public class FarskapsportalApplicationLocal {
   public static final String PROFILE_INTEGRATION_TEST = "integration-test";
   public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
+  public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
   public static final String PROFILE_LOCAL = "local";
   public static final String PROFILE_TEST = "test";
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
@@ -88,7 +89,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
   public KeyStoreConfig keyStoreConfig() throws IOException {
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
@@ -123,7 +124,7 @@ public class FarskapsportalApplicationLocal {
 
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))
@@ -219,7 +220,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Configuration
-  @Profile(PROFILE_LOCAL_POSTGRES)
+  @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   public static class FlywayConfiguration {
 
     @Autowired
