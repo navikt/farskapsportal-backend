@@ -95,7 +95,7 @@ farskapsportal-api.servicebruker.passord: se-vault
 
 ---
 spring:
-  config.activate.on-profile: local, test, local-postgres, integration-test, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test, scheduled-test, skatt-ssl-test
   flyway.enabled: false
 
 local.server.port: 8080
@@ -131,7 +131,7 @@ wiremock.server:
 
 ---
 spring:
-  config.activate.on-profile: local-postgres
+  config.activate.on-profile: local-postgres, remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -169,6 +169,17 @@ farskapsportal-api:
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
+
+---
+spring:
+  config.activate.on-profile: remote-postgres
+  datasource:
+    username: ${REMOTE_POSTGRES_USER}
+    url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
+    password: ${REMOTE_POSTGRES_PWD}
+    databaseName: farskapsportaldb-feature
+
+
 
 ---
 spring.config.activate.on-profile: scheduled-test
