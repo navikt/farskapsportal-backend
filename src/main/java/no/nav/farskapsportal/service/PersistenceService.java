@@ -111,14 +111,14 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder);
   }
 
-  public Optional<FarskapserklaeringDto> henteBarnsEksisterendeErklaering(String fnrBarn) {
+  public Optional<Farskapserklaering> henteBarnsEksisterendeErklaering(String fnrBarn) {
     var farskapserklaeringer = farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn);
 
     if (farskapserklaeringer.isEmpty()) {
       return Optional.empty();
     }
 
-    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto)
+    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull)
         .collect(toSingletonOrThrow(new FeilIDatagrunnlagException(Feilkode.BARN_HAR_FLERE_ERLAERINGER))));
   }
 
@@ -186,7 +186,7 @@ public class PersistenceService {
     var barnErOppgittMedFoedselsnummer = barnDto.getFoedselsnummer() != null && barnDto.getFoedselsnummer().length() > 10;
 
     // Hente eventuelle eksisterende farskapserklaeringer for mor
-    var morsEksisterendeErklaeringer = henteMorsEksisterendeErklaeringer(fnrMor);
+    var morsEksisterendeErklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
 
     // Hente eventuell eksisterende farskapserklaering for barn, hvis barn oppgitt med fnr
     var barnsEksisterendeErklaering =
@@ -215,8 +215,8 @@ public class PersistenceService {
   }
 
   private void farForskjelligFraFarIEksisterendeFarskapserklaeringForNyfoedt(String fnrFar,
-      Set<FarskapserklaeringDto> morsEksisterendeFarskapserklaeringer) {
-    for (FarskapserklaeringDto farskapserklaering : morsEksisterendeFarskapserklaeringer) {
+      Set<Farskapserklaering> morsEksisterendeFarskapserklaeringer) {
+    for (Farskapserklaering farskapserklaering : morsEksisterendeFarskapserklaeringer) {
       if (!fnrFar.equals(farskapserklaering.getFar().getFoedselsnummer())) {
         throw new ValideringException(Feilkode.FORSKJELLIGE_FEDRE);
       }

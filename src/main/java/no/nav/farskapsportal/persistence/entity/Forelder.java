@@ -34,15 +34,6 @@ public class Forelder implements Serializable {
   @Column(updatable = false)
   private String foedselsnummer;
 
-  @Column(updatable = false)
-  private String fornavn;
-
-  @Column(updatable = false)
-  private String mellomnavn;
-
-  @Column(updatable = false)
-  private String etternavn;
-
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mor", cascade = CascadeType.MERGE)
   private Set<Farskapserklaering> erklaeringerMor = new HashSet<>();
 
@@ -70,10 +61,5 @@ public class Forelder implements Serializable {
     }
     final Forelder other = (Forelder) obj;
     return foedselsnummer.equals(other.foedselsnummer);
-  }
-
-  @Override
-  public String toString() {
-    return fornavn + " " + (mellomnavn != null ? mellomnavn + " " : "") + etternavn;
   }
 }

@@ -50,6 +50,7 @@ public class DifiESignaturConsumerTest {
   private static final ForelderDto FAR = ForelderDto.builder().foedselsnummer("11111122222").fornavn("Rask").etternavn("Karaffel").build();
   private static final String STATUS_URL = "http://localhost:8096/api/12345678910/direct/signature-jobs/1/status";
   private static final String PADES_URL = "https://api.signering.posten.no/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/pades";
+
   @Mock
   DirectClient directClientMock;
 
@@ -58,6 +59,7 @@ public class DifiESignaturConsumerTest {
 
   @Autowired
   private DifiESignaturConsumer difiESignaturConsumer;
+
   @Autowired
   private DifiESignaturStub difiESignaturStub;
 
@@ -81,8 +83,8 @@ public class DifiESignaturConsumerTest {
               .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
           .dokumentStatusUrl("https://getstatus.no/").build();
 
-      var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
+      var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       // when
       difiESignaturConsumer.oppretteSigneringsjobb(dokument, mor, far);
@@ -108,9 +110,9 @@ public class DifiESignaturConsumerTest {
               .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
           .dokumentStatusUrl("https://getstatus.no/")
           .build();
-      
-      var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+
+      var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
+      var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(directClientMock, farskapsportalEgenskaper);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);

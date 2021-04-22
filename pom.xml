@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.4.2</version>
+    <version>2.4.4</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
@@ -20,10 +20,13 @@
     <java.version>15</java.version>
 
     <!-- build -->
+    <spring-boot.version>2.4.4</spring-boot.version>
+    <flyway-maven-plugin.version>7.8.0</flyway-maven-plugin.version>
+    <maven.surefire.version>2.22.2</maven.surefire.version>
+    <maven-compiler-plugin.version.version>3.8.1</maven-compiler-plugin.version.version>
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
-    <maven.surefire.version>2.22.0</maven.surefire.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -37,7 +40,8 @@
     <guava.version>30.1.1-jre</guava.version>
     <apache.commons-lang.version>3.12.0</apache.commons-lang.version>
     <apache.commons-io.version>2.8.0</apache.commons-io.version>
-    <apache.pdfbox.version>2.0.23</apache.pdfbox.version>
+    <jsoup.version>1.10.2</jsoup.version>
+    <openhtml.version>1.0.8</openhtml.version>
     <modelmapper.version>2.3.9</modelmapper.version>
     <guava.version>30.1.1-jre</guava.version>
     <jersey-hk2.version>2.33</jersey-hk2.version>
@@ -112,23 +116,27 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring-boot.version}</version>
       </plugin>
       <plugin>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-maven-plugin</artifactId>
+        <version>${flyway-maven-plugin.version}</version>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.version}</version>
         <configuration>
           <excludes>
             <exclude>**/*IntegrationTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version.version}</version>
         <configuration>
           <release>${java.version}</release>
           <source>${java.version}</source>
@@ -231,7 +239,6 @@
     </dependency>
 
     <!-- other -->
-
     <dependency>
       <groupId>org.glassfish.jersey.inject</groupId>
       <artifactId>jersey-hk2</artifactId>
@@ -263,9 +270,37 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-      <version>${apache.pdfbox.version}</version>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>${jsoup.version}</version>
+    </dependency>
+
+    <dependency>
+      <!-- ALWAYS required, usually included transitively. -->
+      <groupId>com.openhtmltopdf</groupId>
+      <artifactId>openhtmltopdf-core</artifactId>
+      <version>${openhtml.version}</version>
+    </dependency>
+
+    <dependency>
+      <!-- Required for PDF output. -->
+      <groupId>com.openhtmltopdf</groupId>
+      <artifactId>openhtmltopdf-pdfbox</artifactId>
+      <version>${openhtml.version}</version>
+    </dependency>
+
+    <dependency>
+      <!-- Required for image output only. -->
+      <groupId>com.openhtmltopdf</groupId>
+      <artifactId>openhtmltopdf-java2d</artifactId>
+      <version>${openhtml.version}</version>
+    </dependency>
+
+    <dependency>
+      <!-- Optional, leave out if you do not need logging via slf4j. -->
+      <groupId>com.openhtmltopdf</groupId>
+      <artifactId>openhtmltopdf-slf4j</artifactId>
+      <version>${openhtml.version}</version>
     </dependency>
 
     <dependency>

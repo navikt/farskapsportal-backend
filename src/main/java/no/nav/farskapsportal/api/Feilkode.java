@@ -32,6 +32,7 @@ public enum Feilkode {
   MOR_SIVILSTAND_UOPPGITT("Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"),
   NAVN_STEMMER_IKKE_MED_REGISTER("Oppgitt navn til far stemmer ikke med fars navn i Folkeregisteret"),
   OPPRETTE_SIGNERINGSJOBB("Feil oppstod ved opprettelse av signeringsjobb mot Posten"),
+  OPPRETTE_PDF_FEILET("Opprettelse av PDF feilet"),
   PADESURL_FEILFORMATERT("PAdES-url mottatt fre Esigneringsløsningen var ikke formatert riktig"),
   PDL_FEIL("Respons fra PDL inneholder feil"),
   PDL_FOEDSELSDATO_TEKNISK_FEIL("Feil inntraff ved henting av fødselsdato fra PDL for person"),

@@ -14,6 +14,7 @@ import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.service.PersonopplysningService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,9 @@ public class Mapper {
 
   @Autowired
   private ModelMapper modelMapper;
+
+  @Autowired
+  private PersonopplysningService personopplysningService;
 
   public Barn toEntity(BarnDto barnDto) {
     return modelMapper.map(barnDto, Barn.class);
@@ -73,7 +77,18 @@ public class Mapper {
   }
 
   public ForelderDto toDto(Forelder forelder) {
-    return modelMapper.map(forelder, ForelderDto.class);
+    var foedselsdato = personopplysningService.henteFoedselsdato(forelder.getFoedselsnummer());
+    var navnDto = personopplysningService.henteNavn(forelder.getFoedselsnummer());
+    var adresse = personopplysningService.henteAdresse(forelder.getFoedselsnummer());
+    var forelderDto = modelMapper.map(forelder, ForelderDto.class);
+
+    forelderDto.setFoedselsdato(foedselsdato);
+    forelderDto.setFornavn(navnDto.getFornavn());
+    forelderDto.setMellomnavn(navnDto.getMellomnavn());
+    forelderDto.setEtternavn(navnDto.getEtternavn());
+    forelderDto.setAdresse(adresse);
+
+    return forelderDto;
   }
 
   public Farskapserklaering toEntity(FarskapserklaeringDto farskapserklaeringDto) {
@@ -86,8 +101,12 @@ public class Mapper {
 
   public FarskapserklaeringDto toDto(Farskapserklaering farskapserklaering) {
     var dokumentDto = toDto(farskapserklaering.getDokument());
+    var forelderDtoMor = toDto(farskapserklaering.getMor());
+    var forelderDtoFar = toDto(farskapserklaering.getFar());
     var farskapserklaeringDto = modelMapper.map(farskapserklaering, FarskapserklaeringDto.class);
     farskapserklaeringDto.setDokument(dokumentDto);
+    farskapserklaeringDto.setFar(forelderDtoFar);
+    farskapserklaeringDto.setMor(forelderDtoMor);
 
     return farskapserklaeringDto;
   }

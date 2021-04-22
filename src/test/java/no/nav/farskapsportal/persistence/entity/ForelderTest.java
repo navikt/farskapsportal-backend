@@ -22,14 +22,10 @@ public class ForelderTest {
     var etForeldreobjekt =
         Forelder.builder()
             .foedselsnummer("01019232145")
-            .fornavn("Bob")
-            .etternavn("Builder")
             .build();
     var etAnnetForeldreobjektForSammePerson =
         Forelder.builder()
             .foedselsnummer(etForeldreobjekt.getFoedselsnummer())
-            .fornavn(etForeldreobjekt.getFornavn())
-            .etternavn(etForeldreobjekt.getEtternavn())
             .build();
 
     // when, then
@@ -44,15 +40,11 @@ public class ForelderTest {
     var etForeldreobjekt =
         Forelder.builder()
             .foedselsnummer("01019232145")
-            .fornavn("Bob")
-            .etternavn("Builder")
             .build();
 
     var etAnnetForeldreobjektForEnAnnenPerson =
         Forelder.builder()
             .foedselsnummer("01018945612")
-            .fornavn("Onkel")
-            .etternavn("Skrue")
             .build();
 
     // when, then
@@ -66,15 +58,11 @@ public class ForelderTest {
     var enForelder =
         Forelder.builder()
             .foedselsnummer("01015787654")
-            .fornavn("Frank")
-            .etternavn("Monsen")
             .build();
 
     var enAnnenForelder =
         Forelder.builder()
             .foedselsnummer("02025812345")
-            .fornavn("Sverre")
-            .etternavn("Rudberg")
             .build();
 
     // when, then
@@ -92,15 +80,11 @@ public class ForelderTest {
     var enForelder =
         Forelder.builder()
             .foedselsnummer("01015787654")
-            .fornavn("Frank")
-            .etternavn("Monsen")
             .build();
 
     var enAnnenForelder =
         Forelder.builder()
             .foedselsnummer(enForelder.getFoedselsnummer())
-            .fornavn("Sverre")
-            .etternavn("Rudberg")
             .build();
 
     // when, then
@@ -108,24 +92,5 @@ public class ForelderTest {
         enForelder,
         enAnnenForelder,
         "Dersom to foreldreinstanser har samme fødselsnummer, representerer de samme person");
-  }
-
-  @Test
-  @DisplayName("Strengrepresentasjonen av foreldreobjektet skal inneholder fornavn og etternavn")
-  void strengrepresentasjonenAvForeldreobjektetSkalInneholdeFornavnOgEtternavn() {
-
-    // given
-    var enForelder =
-        Forelder.builder()
-            .foedselsnummer("01015787654")
-            .fornavn("Frank")
-            .etternavn("Monsen")
-            .build();
-
-    var toString = enForelder.toString();
-
-    // when, then
-    assertEquals(
-        toString, enForelder.getFornavn() + " " + enForelder.getEtternavn());
   }
 }

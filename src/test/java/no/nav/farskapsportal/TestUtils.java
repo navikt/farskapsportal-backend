@@ -2,7 +2,6 @@ package no.nav.farskapsportal;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.api.Forelderrolle;
@@ -34,7 +33,7 @@ public class TestUtils {
     }
   }
 
-  public static FarskapserklaeringDto henteFarskapserklaering(ForelderDto mor, ForelderDto far, BarnDto barn) {
+  public static FarskapserklaeringDto henteFarskapserklaeringDto(ForelderDto mor, ForelderDto far, BarnDto barn) {
 
     var dokument = DokumentDto.builder().dokumentnavn("farskapserklaering.pdf").redirectUrlMor(lageUrl("redirect-mor"))
         .redirectUrlFar(lageUrl("/redirect-far"))
@@ -52,7 +51,7 @@ public class TestUtils {
     var personnummer = "12340";
     var foedselsdato = LocalDate.now().minusMonths(2).minusDays(13);
     var fnrBarn = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-    return BarnDto.builder().foedselsnummer(fnrBarn).build();
+    return BarnDto.builder().foedselsnummer(fnrBarn).foedselsdato(foedselsdato).foedested("Stange").build();
   }
 
   public static BarnDto henteBarnMedFnr(LocalDate foedselsdato) {
@@ -68,13 +67,22 @@ public class TestUtils {
   public static ForelderDto henteForelder(Forelderrolle forelderrolle) {
     if (Forelderrolle.MOR.equals(forelderrolle)) {
       var personnummerMor = "12340";
-      return ForelderDto.builder().foedselsnummer(FOEDSELSDATO_MOR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
-          .fornavn("Ronaldina").etternavn("McDonald").build();
+      return ForelderDto.builder()
+          .foedselsnummer(FOEDSELSDATO_MOR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
+          .foedselsdato(FOEDSELSDATO_MOR)
+          .fornavn("Ronaldina")
+          .etternavn("McDonald")
+          .adresse("Storgata 10, 0202 Oslo")
+          .build();
     } else {
       var personnummerFar = "12345";
-
-      return ForelderDto.builder().foedselsnummer(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar).fornavn("Ronald")
-          .etternavn("McDonald").build();
+      return ForelderDto.builder()
+          .foedselsnummer(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar)
+          .foedselsdato(FOEDSELSDATO_FAR)
+          .fornavn("Ronald")
+          .etternavn("McDonald")
+          .adresse("Storgata 10, 0202 Oslo")
+          .build();
     }
   }
 }

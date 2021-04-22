@@ -43,7 +43,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -101,6 +100,15 @@ public class FarskapsportalApplicationLocal {
     }
   }
 
+  @Bean
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST,
+      PROFILE_INTEGRATION_TEST})
+  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
+      throws URISyntaxException {
+    return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))
+        .globalSender(new Sender(NAV_ORGNR)).build();
+  }
+
   @Configuration
   @Profile(PROFILE_INTEGRATION_TEST)
   static class EsigneringIntegrationTestConfig {
@@ -116,19 +124,11 @@ public class FarskapsportalApplicationLocal {
         if (inputStream == null) {
           throw new IllegalArgumentException("Fant ikke test_VS_decrypt_2018-2021.jceks");
         } else {
-          return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", keystorePassword, keystorePassword);
+          return KeyStoreConfig
+              .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", keystorePassword, keystorePassword);
         }
       }
     }
-  }
-
-
-  @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
-  public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
-      throws URISyntaxException {
-    return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))
-        .globalSender(new Sender(NAV_ORGNR)).build();
   }
 
   @Lazy
@@ -186,7 +186,8 @@ public class FarskapsportalApplicationLocal {
 
     @Bean
     @Qualifier(PROFILE_INTEGRATION_TEST)
-    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate,
+        @Value("${url.skatt.base-url}") String baseUrl,
         @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
       log.info("Oppretter SkattConsumer med url {}", baseUrl);
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
