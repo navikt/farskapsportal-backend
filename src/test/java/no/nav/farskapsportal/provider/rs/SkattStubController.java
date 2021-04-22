@@ -30,7 +30,7 @@ import wiremock.org.apache.commons.io.IOUtils;
 @ActiveProfiles({PROFILE_TEST, PROFILE_SKATT_SSL_TEST})
 public class SkattStubController {
 
-  @PostMapping(value = "/registrering_av_farskap_v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_XML_VALUE})
+  @PostMapping(value = "/registrering_av_farskap_v1.vedlegg", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_XML_VALUE})
   public ResponseEntity<Void> registrereFarskap(@RequestParam("vedlegg") MultipartFile vedlegg, @RequestParam("xml") String xml)
       throws IOException, JAXBException {
     log.info("Vedlegg og XML");

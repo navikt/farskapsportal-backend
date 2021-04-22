@@ -8,20 +8,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.service.PersonopplysningService;
 import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("StatusKontrollereFar")
-@SpringBootTest(classes = {StatusKontrollereFar.class, Mapper.class, ModelMapper.class})
+@SpringBootTest(classes = {StatusKontrollereFar.class, Mapper.class, ModelMapper.class, PersonopplysningService.class})
 @ActiveProfiles(PROFILE_TEST)
 public class StatusKontrollereFarTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
+
+  @MockBean
+  private PersonopplysningService personopplysningService;
 
   @Autowired
   private Mapper mapper;

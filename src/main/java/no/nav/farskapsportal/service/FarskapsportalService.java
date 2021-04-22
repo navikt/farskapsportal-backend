@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,6 +46,7 @@ import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.util.Mapper;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
@@ -85,7 +85,7 @@ public class FarskapsportalService {
     Set<FarskapserklaeringDto> avventerSigneringMotpart = new HashSet<>();
     Set<FarskapserklaeringDto> avventerRegistreringSkatt = new HashSet<>();
     Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
-    var kanOppretteFarskapserklaering = false;
+     var kanOppretteFarskapserklaering = false;
 
     // Avbryte videre flyt dersom bruker ikke er myndig eller har en rolle som ikke støttes av løsningen
     validereTilgangBasertPaaAlderOgForeldrerolle(fnrPaaloggetBruker, brukersForelderrolle);
@@ -182,30 +182,57 @@ public class FarskapsportalService {
     kontrollereNavnOgNummerFar(fnrMor, request.getOpplysningerOmFar());
     validereFar(request.getOpplysningerOmFar().getFoedselsnummer());
 
-    var barn = BarnDto.builder().termindato(request.getBarn().getTermindato()).build();
-    if (request.getBarn().getFoedselsnummer() != null && !request.getBarn().getFoedselsnummer().isBlank()) {
-      barn.setFoedselsnummer(request.getBarn().getFoedselsnummer());
-    }
+    var barnDto = oppretteBarnDto(request);
+    var forelderDtoMor = oppretteForelderDto(fnrMor);
+    var forelderDtoFar = oppretteForelderDto(request.getOpplysningerOmFar().getFoedselsnummer());
 
-    var mor = getForelderDto(fnrMor, null);
-    var far = getForelderDto(request.getOpplysningerOmFar().getFoedselsnummer(), Forelderrolle.FAR);
+    var innhold = pdfGeneratorConsumer.genererePdf(barnDto, forelderDtoMor, forelderDtoFar);
 
-    var farskapserklaering = Farskapserklaering.builder()
-        .barn(mapper.toEntity(barn))
-        .mor(mapper.toEntity(mor))
-        .far(mapper.toEntity(far))
-        .morBorSammenMedFar(request.isMorBorSammenMedFar())
+    var dokument = Dokument.builder()
+        .dokumentnavn("Farskapserklaering.pdf")
+        .dokumentinnhold(Dokumentinnhold.builder().innhold(innhold).build())
         .build();
-    var dokument = pdfGeneratorConsumer.genererePdf(farskapserklaering);
 
-    // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-url-ers
-    difiESignaturConsumer.oppretteSigneringsjobb(dokument, mapper.toEntity(mor), mapper.toEntity(far));
-    farskapserklaering.setDokument(dokument);
+    // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
+    difiESignaturConsumer.oppretteSigneringsjobb(dokument, mapper.toEntity(forelderDtoMor), mapper.toEntity(forelderDtoFar));
 
     log.info("Lagre farskapserklæring");
+    var farskapserklaering = Farskapserklaering.builder()
+        .barn(mapper.toEntity(barnDto))
+        .mor(mapper.toEntity(forelderDtoMor))
+        .far(mapper.toEntity(forelderDtoFar))
+        .dokument(dokument)
+        .morBorSammenMedFar(request.isMorBorSammenMedFar())
+        .build();
+
     persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
     return OppretteFarskapserklaeringResponse.builder().redirectUrlForSigneringMor(dokument.getSigneringsinformasjonMor().getRedirectUrl()).build();
+  }
+
+  private ForelderDto oppretteForelderDto(String foedseslnummer) {
+    var navnDto = personopplysningService.henteNavn(foedseslnummer);
+    var foedselsdato = personopplysningService.henteFoedselsdato(foedseslnummer);
+    var adresse = personopplysningService.henteAdresse(foedseslnummer);
+    return ForelderDto.builder()
+        .foedselsnummer(foedseslnummer)
+        .foedselsdato(foedselsdato)
+        .fornavn(navnDto.getFornavn())
+        .mellomnavn(navnDto.getMellomnavn())
+        .etternavn(navnDto.getEtternavn())
+        .adresse(adresse)
+        .build();
+  }
+
+  private BarnDto oppretteBarnDto(OppretteFarskapserklaeringRequest request) {
+    var foedselsnummer = request.getBarn().getFoedselsnummer();
+    if (foedselsnummer != null && !foedselsnummer.isBlank()) {
+      var foedselsdato = personopplysningService.henteFoedselsdato(foedselsnummer);
+      var foedested = personopplysningService.henteFoedested(request.getBarn().getFoedselsnummer());
+      return BarnDto.builder().foedested(foedested).foedselsdato(foedselsdato).foedselsnummer(foedselsnummer).build();
+    } else {
+      return BarnDto.builder().termindato(request.getBarn().getTermindato()).build();
+    }
   }
 
   private ForelderDto getForelderDto(String fnr, Forelderrolle rolle) {

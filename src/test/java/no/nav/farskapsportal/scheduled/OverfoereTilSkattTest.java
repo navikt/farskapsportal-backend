@@ -4,7 +4,7 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.FAR;
 import static no.nav.farskapsportal.TestUtils.MOR;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
-import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
+import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -63,7 +63,7 @@ public class OverfoereTilSkattTest {
     meldingsloggDao.deleteAll();
 
     // given
-    var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+    var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.setMeldingsidSkatt("1234");
@@ -95,14 +95,14 @@ public class OverfoereTilSkattTest {
     meldingsloggDao.deleteAll();
 
     // given
-    var farskapserklaering1 = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+    var farskapserklaering1 = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
     farskapserklaering1.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering1.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering1.setMeldingsidSkatt("1234");
     var lagretSignertFarskapserklaering1 = persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
     assert (lagretSignertFarskapserklaering1.getSendtTilSkatt() == null);
 
-    var farskapserklaering2 = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222")));
+    var farskapserklaering2 = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222")));
     farskapserklaering2.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering2.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering2.setMeldingsidSkatt("2345");
@@ -138,13 +138,13 @@ public class OverfoereTilSkattTest {
 
     // given
     var farskapserklaeringIkkeSignertAvFar = mapper
-        .toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+        .toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
     farskapserklaeringIkkeSignertAvFar.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     var lagretFarskapserklaeringIkkeSignertAvFar = persistenceService.lagreNyFarskapserklaering(farskapserklaeringIkkeSignertAvFar);
     assert (lagretFarskapserklaeringIkkeSignertAvFar.getSendtTilSkatt() == null);
 
     var farskapserklaeringSignertAvBeggeParter = mapper
-        .toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222")));
+        .toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222")));
     farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaeringSignertAvBeggeParter.setMeldingsidSkatt("2345");
@@ -182,7 +182,7 @@ public class OverfoereTilSkattTest {
     meldingsloggDao.deleteAll();
 
     // given
-    var farskapserklaering = mapper.toEntity(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+    var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.setMeldingsidSkatt("1234");

@@ -58,6 +58,14 @@ public class PersonopplysningService {
     return spedbarnUtenFar;
   }
 
+  public String henteFoedested(String foedselsnummer) {
+    return null;
+  }
+
+  public String henteAdresse(String foedselsnummer) {
+    return null;
+  }
+
   public LocalDate henteFoedselsdato(String foedselsnummer) {
     return pdlApiConsumer.henteFoedselsdato(foedselsnummer);
   }

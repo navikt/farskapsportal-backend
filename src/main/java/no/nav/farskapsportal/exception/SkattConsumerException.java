@@ -1,30 +1,14 @@
 package no.nav.farskapsportal.exception;
 
-import lombok.Getter;
 import no.nav.farskapsportal.api.Feilkode;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Getter
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class SkattConsumerException extends UnrecoverableException {
-  private final Feilkode feilkode;
-  private final Exception originalException;
+public class SkattConsumerException extends InternFeilException {
 
   public SkattConsumerException(Feilkode feilkode) {
-    super(feilkode.getBeskrivelse());
-    this.feilkode = feilkode;
-    this.originalException = this;
+    super(feilkode);
   }
 
-  public SkattConsumerException(Feilkode feilkode, Exception originalException) {
-    super(feilkode.getBeskrivelse());
-    this.feilkode = feilkode;
-    this.originalException = originalException;
+  public SkattConsumerException(Feilkode feilkode, Exception exception) {
+    super(feilkode, exception);
   }
-
-  public Feilkode getFeilkode() {
-    return this.feilkode;
-  }
-
 }
