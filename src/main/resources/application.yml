@@ -30,6 +30,9 @@ management:
   endpoint.health.show-details: always
 
 url:
+  familieintegrasjoner:
+    base-url: ${FAMILIEINTEGRASJONER_URL}
+    poststed: "api/kodeverk/poststed/%s"
   pdl-api:
     base-url: ${APIGW_URL}
     graphql: "/pdl-api/graphql"

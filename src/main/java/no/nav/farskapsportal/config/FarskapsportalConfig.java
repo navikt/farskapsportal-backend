@@ -2,6 +2,7 @@ package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.consumer.familieintegrasjoner.FamilieIntegrasjonerEndpointName.POSTSTED;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
@@ -13,6 +14,7 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.consumer.familieintegrasjoner.FamilieintegrasjonerConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
@@ -93,6 +95,12 @@ public class FarskapsportalConfig {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter PdlApiHelsesjekkConsumer med url {}", baseUrl);
     return PdlApiHelsesjekkConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
+  }
+
+  @Bean
+  public FamilieintegrasjonerConsumer familieintegrasjonerConsumer(@Qualifier("base") RestTemplate restTemplate, @Value("${}") String baseUrl, @Value("${}") String familieintegrasjonerPoststedEndpoint, ConsumerEndpoint consumerEndpoint) {
+    consumerEndpoint.addEndpoint(POSTSTED, familieintegrasjonerPoststedEndpoint);
+    return new FamilieintegrasjonerConsumer(restTemplate, consumerEndpoint);
   }
 
   @Bean

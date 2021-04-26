@@ -79,7 +79,7 @@ public class SkattConsumer {
     };
 
     padesDokument = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
-    multipartRequest.set("vedlegg", padesDokument);
+    multipartRequest.set("melding", padesDokument);
 
     HttpHeaders requestHeadersJSON = new HttpHeaders();
     requestHeadersJSON.setContentType(MediaType.APPLICATION_XML);
