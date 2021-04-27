@@ -116,17 +116,11 @@ public class FarskapserklaeringTest {
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
-    mor.setErklaeringerMor(Set.of(farskapserklaering));
-    far.setErklaeringerFar(Set.of(farskapserklaering));
-
     var sammeMor = Forelder.builder().foedselsnummer(mor.getFoedselsnummer()).build();
 
     var sammeFar = Forelder.builder().foedselsnummer(far.getFoedselsnummer()).build();
 
     var enAnnenFarskapserklaeringMedSammeParter = Farskapserklaering.builder().barn(barn).mor(sammeMor).far(sammeFar).dokument(dokument).build();
-
-    sammeMor.setErklaeringerMor(Set.of(enAnnenFarskapserklaeringMedSammeParter));
-    sammeFar.setErklaeringerFar(Set.of(enAnnenFarskapserklaeringMedSammeParter));
 
     // when, then
     assertEquals(farskapserklaering, enAnnenFarskapserklaeringMedSammeParter);
@@ -148,9 +142,6 @@ public class FarskapserklaeringTest {
         .dokumentnavn("farskapserklaering.pdf").build();
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
-
-    mor.setErklaeringerMor(Set.of(farskapserklaering));
-    far.setErklaeringerFar(Set.of(farskapserklaering));
 
     // when
     var toString = farskapserklaering.toString();

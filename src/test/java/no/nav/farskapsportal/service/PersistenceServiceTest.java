@@ -508,9 +508,8 @@ public class PersistenceServiceTest {
   private void standardPersonopplysningerMocks(ForelderDto far, ForelderDto mor) {
     when(personopplysningServiceMock.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
     when(personopplysningServiceMock.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
-    when(personopplysningServiceMock.henteAdresse(far.getFoedselsnummer())).thenReturn(FAR.getAdresse());
     when(personopplysningServiceMock.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
     when(personopplysningServiceMock.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
-    when(personopplysningServiceMock.henteAdresse(mor.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+    when(personopplysningServiceMock.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
   }
 }

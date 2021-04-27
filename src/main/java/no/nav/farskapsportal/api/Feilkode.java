@@ -27,6 +27,7 @@ public enum Feilkode {
   FORSKJELLIGE_FEDRE("Mor kan ikke opprette farskapserklæringer med forskjellige fedre for samme kull nyfødte"),
   KONTROLLERE_FAR_NAVN_MANGLER("Navn på far mangler!"),
   MAKS_ANTALL_FORSOEK("Mor har brukt opp antall mulige forsøk på å komme frem til riktig kombinasjon av fars fødselsnummer og navn"),
+  MOR_IKKE_NORSK_BOSTEDSADRESSE("Mor er ikke registrert med norsk bostedsadresse."),
   MOR_SIVILSTAND_GIFT("Mor kan ikke opprette farskapserklæring dersom hun er gift"),
   MOR_SIVILSTAND_REGISTRERT_PARTNER("Mor kan ikke opprette farskapserklæring dersom hun er registrert partner"),
   MOR_SIVILSTAND_UOPPGITT("Mor kan ikke opprette farskapserklæring dersom hun har sivilstand uoppgitt"),

@@ -37,6 +37,4 @@ public class ForelderDto {
   @ApiModelProperty(value = "Forelderens etternavn", example = "Hammer")
   private @NonNull String etternavn;
 
-  @ApiModelProperty(value = "Bostedsadresse", example = "Markveien  5, 0220 Oslo")
-  private String adresse;
 }

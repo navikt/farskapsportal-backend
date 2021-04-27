@@ -22,6 +22,7 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
@@ -61,58 +62,39 @@ public class PersonopplysningServiceTest {
   }
 
   @Nested
-  @DisplayName("Tester henteBostedsadress")
-  class HenteBostedsadresse {
+  @DisplayName("Tester harNorskBostedsadress")
+  class HarNorskBostedsadresse {
 
     @Test
-    void skalHenteBostedsadresseForPersonBosattINorge() {
+    void skalReturnereSannForPersonBosattINorge() {
 
       // given
       var bostedsadresseDto = BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Hovedveien").husnummer("80").postnummer("3030").build()).build();
 
-      when(pdlApiConsumerMock.henteBostedsadresse(FAR.getFoedselsnummer())).thenReturn(bostedsadresseDto);
+      when(pdlApiConsumerMock.henteBostedsadresse(MOR.getFoedselsnummer())).thenReturn(bostedsadresseDto);
 
       // when
-      var adressestreng = personopplysningService.henteAdresse(FAR.getFoedselsnummer());
+      var adressestreng = personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer());
 
       // then
-      assertThat(adressestreng).isEqualTo("");
-
-
+      assertThat(adressestreng).isTrue();
     }
 
     @Test
-    void skalHenteBostedsadresseMedHusnummerbokstavForPersonBosattINorge() {
+    void skalReturnereUsannForPersonUtenNorskBostedsadresse() {
 
       // given
-      var bostedsadresseDto = BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Hovedveien").husnummer("80").husbokstav("B").postnummer("3030").build()).build();
+      var bostedsadresseDto = BostedsadresseDto.builder().utenlandskAdresse(
+          UtenlandskAdresseDto.builder().adressenavnNummer("123 Parkway Avenue.").build()).build();
 
       when(pdlApiConsumerMock.henteBostedsadresse(FAR.getFoedselsnummer())).thenReturn(bostedsadresseDto);
 
       // when
-      var adressestreng = personopplysningService.henteAdresse(FAR.getFoedselsnummer());
+      var adressestreng = personopplysningService.harNorskBostedsadresse(FAR.getFoedselsnummer());
 
       // then
-      assertThat(adressestreng).isEqualTo("");
-
-
+      assertThat(adressestreng).isFalse();
     }
-
-    @Test
-    void skalHentePostnummerForPersonMedMatrikkeladresse() {
-
-    }
-
-    @Test
-    void skalHenteUtenlandskAdresseForPersonBosattIUtlandet() {
-
-    }
-
-    @Test
-    void skalReturnereUkjentBostedsadresseForPersonUtenKjentBostedsadresse() {
-
-    }
-
   }
 
   @Nested

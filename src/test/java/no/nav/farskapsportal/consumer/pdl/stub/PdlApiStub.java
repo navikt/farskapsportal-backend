@@ -49,6 +49,9 @@ public class PdlApiStub {
   }
 
   public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries, String ident) {
+
+    var q = stubHentPerson(subQueries);
+
     stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).willReturn(
         aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(stubHentPerson(subQueries))));
   }

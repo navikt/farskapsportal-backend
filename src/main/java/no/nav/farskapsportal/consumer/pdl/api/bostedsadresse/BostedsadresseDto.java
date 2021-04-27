@@ -1,7 +1,5 @@
 package no.nav.farskapsportal.consumer.pdl.api.bostedsadresse;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Value;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregistermetadataDto;
@@ -12,9 +10,6 @@ import no.nav.farskapsportal.consumer.pdl.api.PdlDto;
 @Builder
 public class BostedsadresseDto implements PdlDto {
 
-  LocalDate angittFlyttedato;
-  LocalDateTime gyldigTilOgMed;
-  String coAdressenavn;
   VegadresseDto vegadresse;
   MatrikkeladresseDto matrikkeladresse;
   UtenlandskAdresseDto utenlandskAdresse;

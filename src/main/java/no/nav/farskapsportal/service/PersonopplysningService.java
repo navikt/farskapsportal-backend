@@ -61,39 +61,24 @@ public class PersonopplysningService {
     return null;
   }
 
-  public String henteAdresse(String foedselsnummer) {
+  public boolean harNorskBostedsadresse(String foedselsnummer) {
     var bostedsadresseDto = pdlApiConsumer.henteBostedsadresse(foedselsnummer);
-
-    if (bostedsadresseDto.getVegadresse() != null) {
-      log.info("Personen er registrert med norsk vegadresse");
-      var vegadresseDto = bostedsadresseDto.getVegadresse();
-      var husnummerEvntMedBokstav =
-          vegadresseDto.getHusbokstav() != null ? vegadresseDto.getHusnummer() + " " + vegadresseDto.getHusbokstav() : vegadresseDto.getHusnummer();
-      return vegadresseDto.getAdressenavn() + " " + husnummerEvntMedBokstav + ", " + vegadresseDto.getPostnummer();
-    } else if (bostedsadresseDto.getMatrikkeladresse() != null) {
-      var matrikkeladresseDto = bostedsadresseDto.getMatrikkeladresse();
-      log.warn("Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}",
-          matrikkeladresseDto.getPostnummer());
-      return matrikkeladresseDto.getPostnummer();
+    if (bostedsadresseDto.getVegadresse() != null && bostedsadresseDto.getVegadresse().getAdressenavn() != null) {
+      log.info("Personen er registrert med norsk vegadresse på postnummer: {}", bostedsadresseDto.getVegadresse().getPostnummer());
+      return true;
+    } else if (bostedsadresseDto.getMatrikkeladresse() != null && bostedsadresseDto.getMatrikkeladresse().getPostnummer() != null) {
+      log.warn("Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}", bostedsadresseDto.getMatrikkeladresse().getPostnummer());
+      return true;
     } else if (bostedsadresseDto.getUtenlandskAdresse() != null) {
       var utenlandskAdresseDto = bostedsadresseDto.getUtenlandskAdresse();
       log.warn("Personen står oppført med utenlands adresse i PDL, landkode: {}", utenlandskAdresseDto.getLandkode());
-      var bygningEtasjeLeilighet =
-          bostedsadresseDto.getUtenlandskAdresse().getBygningEtasjeLeilighet() != null ? " " + bostedsadresseDto.getUtenlandskAdresse()
-              .getBygningEtasjeLeilighet() : "";
-      var postkodeOgSted =
-          bostedsadresseDto.getUtenlandskAdresse().getPostbkode() != null && bostedsadresseDto.getUtenlandskAdresse().getBySted() != null ? ", "
-              + bostedsadresseDto.getUtenlandskAdresse().getPostbkode() + " " + bostedsadresseDto.getUtenlandskAdresse().getBySted() : "";
-
-      return utenlandskAdresseDto.getAdressenavnNummer() + bygningEtasjeLeilighet + postkodeOgSted + ", " + bostedsadresseDto.getUtenlandskAdresse()
-          .getLandkode();
     } else if (bostedsadresseDto.getUkjentBosted() != null) {
       var ukjentBostedDto = bostedsadresseDto.getUkjentBosted();
       log.warn("Personen står oppført med ukjent bosted i PDL, kommunenummer fra siste kjente bostedsadresse: {}",
           ukjentBostedDto.getBostedskommune());
     }
 
-    return "Ukjent bostedsadresse";
+   return false;
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {

@@ -23,5 +23,5 @@ public class OppretteFarskapserklaeringRequest {
   KontrollerePersonopplysningerRequest opplysningerOmFar;
 
   @ApiModelProperty(value = "Mor opplyser om hun bor sammen med far eller ikke", example = "true")
-  @NonNull boolean morBorSammenMedFar;
+  boolean morBorSammenMedFar;
 }

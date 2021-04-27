@@ -36,7 +36,7 @@ public class DifiEsigneringConfig {
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
     var projectId = "719909854975";
-    var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2018-2021";
+    var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2021-2024";
     var secretVersion = "1";
     var secretPayload = accessSecretVersion.accessSecretVersion(projectId, secretName, secretVersion);
 
@@ -44,7 +44,7 @@ public class DifiEsigneringConfig {
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
     return KeyStoreConfig
-        .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", sertifikatP12Passord, sertifikatP12Passord);
+        .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test", sertifikatP12Passord, sertifikatP12Passord);
   }
 
   @Bean

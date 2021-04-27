@@ -79,13 +79,13 @@ public class SkattConsumer {
     };
 
     padesDokument = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
-    multipartRequest.set("melding", padesDokument);
+    multipartRequest.set("vedlegg", padesDokument);
 
     HttpHeaders requestHeadersJSON = new HttpHeaders();
     requestHeadersJSON.setContentType(MediaType.APPLICATION_XML);
 
     HttpEntity<String> requestEntityXml = new HttpEntity<>(xml, requestHeadersJSON);
-    multipartRequest.set("xml", requestEntityXml);
+    multipartRequest.set("melding", requestEntityXml);
     HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);//final request
 
     try {

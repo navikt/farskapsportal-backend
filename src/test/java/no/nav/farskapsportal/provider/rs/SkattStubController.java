@@ -31,9 +31,9 @@ import wiremock.org.apache.commons.io.IOUtils;
 public class SkattStubController {
 
   @PostMapping(value = "/registrering_av_farskap_v1.vedlegg", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_XML_VALUE})
-  public ResponseEntity<Void> registrereFarskap(@RequestParam("vedlegg") MultipartFile vedlegg, @RequestParam("xml") String xml)
+  public ResponseEntity<Void> registrereFarskap(@RequestParam("vedlegg") MultipartFile vedlegg, @RequestParam("melding") String xml)
       throws IOException, JAXBException {
-    log.info("Vedlegg og XML");
+    log.info("Vedlegg og Melding");
     var dokument = vedlegg.getBytes();
 
     JAXBContext context = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class);
