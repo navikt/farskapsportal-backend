@@ -37,7 +37,7 @@ public class DifiEsigneringConfig {
 
     var projectId = "719909854975";
     var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2018-2021";
-    var secretVersion = "2";
+    var secretVersion = "3";
     var secretPayload = accessSecretVersion.accessSecretVersion(projectId, secretName, secretVersion);
 
     log.info("lengde sertifikat: {}", secretPayload.getData().size());
