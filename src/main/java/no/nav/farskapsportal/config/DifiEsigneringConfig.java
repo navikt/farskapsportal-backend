@@ -43,7 +43,7 @@ public class DifiEsigneringConfig {
     log.info("lengde sertifikat: {}", secretPayload.getData().size());
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
-    sertifikatP12Passord = null;
+    sertifikatP12Passord = "";
 
     return KeyStoreConfig
         .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", sertifikatP12Passord, sertifikatP12Passord);
