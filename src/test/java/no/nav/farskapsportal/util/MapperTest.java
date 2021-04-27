@@ -295,11 +295,7 @@ public class MapperTest {
 
       when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getFoedselsdato());
-<<<<<<< HEAD
       when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
-=======
-      when(personopplysningService.henteAdresse(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getAdresse());
->>>>>>> main
 
       // when
       var dto = mapper.toDto(entitet);

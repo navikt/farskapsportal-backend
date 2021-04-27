@@ -22,7 +22,7 @@ public class ForelderDto {
   @ApiModelProperty(value = "Forelderens rolle", example = "MOR")
   private Forelderrolle forelderrolle;
 
-  @ApiModelProperty(value = "Fødselsdato", example="01.01.1990")
+  @ApiModelProperty(value = "Fødselsdato", example = "01.01.1990")
   private LocalDate foedselsdato;
 
   @ApiModelProperty(value = "Forelderens fødselsnummer", example = "12345678910")
@@ -36,10 +36,4 @@ public class ForelderDto {
 
   @ApiModelProperty(value = "Forelderens etternavn", example = "Hammer")
   private @NonNull String etternavn;
-
-<<<<<<< HEAD
-=======
-  @ApiModelProperty(value = "Bostedsadresse", example = "Markveien  5, 0220 Oslo")
-  private String adresse;
->>>>>>> main
 }

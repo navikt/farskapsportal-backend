@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.time.LocalDate;
-import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -118,11 +117,6 @@ public class FarskapserklaeringTest {
 
     var sammeMor = Forelder.builder().foedselsnummer(mor.getFoedselsnummer()).build();
 
-<<<<<<< HEAD
-=======
-    var sammeMor = Forelder.builder().foedselsnummer(mor.getFoedselsnummer()).build();
-
->>>>>>> main
     var sammeFar = Forelder.builder().foedselsnummer(far.getFoedselsnummer()).build();
 
     var enAnnenFarskapserklaeringMedSammeParter = Farskapserklaering.builder().barn(barn).mor(sammeMor).far(sammeFar).dokument(dokument).build();

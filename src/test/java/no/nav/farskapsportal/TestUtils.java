@@ -72,10 +72,6 @@ public class TestUtils {
           .foedselsdato(FOEDSELSDATO_MOR)
           .fornavn("Ronaldina")
           .etternavn("McDonald")
-<<<<<<< HEAD
-=======
-          .adresse("Storgata 10, 0202 Oslo")
->>>>>>> main
           .build();
     } else {
       var personnummerFar = "12345";
@@ -84,10 +80,6 @@ public class TestUtils {
           .foedselsdato(FOEDSELSDATO_FAR)
           .fornavn("Ronald")
           .etternavn("McDonald")
-<<<<<<< HEAD
-=======
-          .adresse("Storgata 10, 0202 Oslo")
->>>>>>> main
           .build();
     }
   }
