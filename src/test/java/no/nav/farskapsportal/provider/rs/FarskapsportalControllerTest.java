@@ -213,7 +213,10 @@ public class FarskapsportalControllerTest {
             new HentPersonKjoenn(KJOENNSHISTORIKK_MOR),
             new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
             new HentPersonSivilstand(sivilstandMor),
+<<<<<<< HEAD
             new HentPersonBostedsadresse(BOSTEDSADRESSE),
+=======
+>>>>>>> main
             new HentPersonNavn(NAVN_MOR)),
         MOR.getFoedselsnummer());
 
@@ -270,8 +273,12 @@ public class FarskapsportalControllerTest {
           List.of(new HentPersonFamilierelasjoner(morsRelasjonTilBarn, "123"),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+<<<<<<< HEAD
               new HentPersonKjoenn(kjoennshistorikk),
               new HentPersonNavn(NAVN_MOR)),
+=======
+              new HentPersonKjoenn(kjoennshistorikk)),
+>>>>>>> main
           fnrMor);
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -786,10 +793,14 @@ public class FarskapsportalControllerTest {
               new HentPersonKjoenn(KJOENNSHISTORIKK_MOR),
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
               new HentPersonSivilstand(sivilstandMor),
+<<<<<<< HEAD
               new HentPersonNavn(NAVN_MOR),
               new HentPersonBostedsadresse(BostedsadresseDto.builder()
                   .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0100").build())
                   .build())),
+=======
+              new HentPersonNavn(NAVN_MOR)),
+>>>>>>> main
           MOR.getFoedselsnummer());
 
       var sivilstandFar = Sivilstandtype.GIFT;
@@ -798,8 +809,12 @@ public class FarskapsportalControllerTest {
               new HentPersonKjoenn(KJOENNSHISTORIKK_FAR),
               new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
               new HentPersonNavn(NAVN_FAR),
+<<<<<<< HEAD
               new HentPersonSivilstand(sivilstandFar)
           ),
+=======
+              new HentPersonSivilstand(sivilstandFar)),
+>>>>>>> main
           KONTROLLEREOPPLYSNINGER_OM_FAR.getFoedselsnummer());
 
       // legger på redirecturl til dokument i void-metode

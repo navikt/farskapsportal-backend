@@ -156,6 +156,7 @@ public class MapperTest {
 
       when(personopplysningService.henteNavn(fnrForelder)).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(fnrForelder)).thenReturn(MOR_DTO.getFoedselsdato());
+
       when(personopplysningService.harNorskBostedsadresse(fnrForelder)).thenReturn(true);
 
       // when
@@ -294,7 +295,11 @@ public class MapperTest {
 
       when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getFoedselsdato());
+<<<<<<< HEAD
       when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
+=======
+      when(personopplysningService.henteAdresse(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getAdresse());
+>>>>>>> main
 
       // when
       var dto = mapper.toDto(entitet);
@@ -328,6 +333,7 @@ public class MapperTest {
   private void standardPersonopplysningerMocks(Forelder far, Forelder mor) {
     when(personopplysningService.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
     when(personopplysningService.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR_DTO.getFoedselsdato());
+
     when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
     when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getFoedselsdato());
     when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);

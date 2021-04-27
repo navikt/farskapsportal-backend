@@ -77,7 +77,6 @@ public class PersonopplysningService {
       log.warn("Personen står oppført med ukjent bosted i PDL, kommunenummer fra siste kjente bostedsadresse: {}",
           ukjentBostedDto.getBostedskommune());
     }
-
    return false;
   }
 

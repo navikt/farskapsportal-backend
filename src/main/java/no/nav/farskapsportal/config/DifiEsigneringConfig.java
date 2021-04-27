@@ -36,8 +36,8 @@ public class DifiEsigneringConfig {
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
     var projectId = "719909854975";
-    var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2021-2024";
-    var secretVersion = "1";
+    var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2018-2021";
+    var secretVersion = "3";
     var secretPayload = accessSecretVersion.accessSecretVersion(projectId, secretName, secretVersion);
 
     log.info("lengde sertifikat: {}", secretPayload.getData().size());

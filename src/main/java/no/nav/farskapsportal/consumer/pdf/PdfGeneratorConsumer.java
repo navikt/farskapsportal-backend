@@ -72,7 +72,7 @@ public class PdfGeneratorConsumer {
 
   private String byggeHtmlstrengFraMal(String stiHtmlMal, BarnDto barn, ForelderDto mor, ForelderDto far) {
     try {
-      var input = new ClassPathResource(stiHtmlMal).getFile();
+      var input = new ClassPathResource(stiHtmlMal).getInputStream();
       var document = Jsoup.parse(input, "UTF-8", "");
 
       // Legge til informasjon om barn

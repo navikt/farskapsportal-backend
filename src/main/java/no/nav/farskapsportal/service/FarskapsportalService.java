@@ -46,6 +46,7 @@ import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.util.Mapper;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
@@ -84,7 +85,7 @@ public class FarskapsportalService {
     Set<FarskapserklaeringDto> avventerSigneringMotpart = new HashSet<>();
     Set<FarskapserklaeringDto> avventerRegistreringSkatt = new HashSet<>();
     Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
-    var kanOppretteFarskapserklaering = false;
+     var kanOppretteFarskapserklaering = false;
 
     // Avbryte videre flyt dersom bruker ikke er myndig eller har en rolle som ikke støttes av løsningen
     validereTilgangBasertPaaAlderOgForeldrerolle(fnrPaaloggetBruker, brukersForelderrolle);
@@ -214,12 +215,20 @@ public class FarskapsportalService {
   private ForelderDto oppretteForelderDto(String foedseslnummer) {
     var navnDto = personopplysningService.henteNavn(foedseslnummer);
     var foedselsdato = personopplysningService.henteFoedselsdato(foedseslnummer);
+<<<<<<< HEAD
+=======
+    var adresse = personopplysningService.henteAdresse(foedseslnummer);
+>>>>>>> main
     return ForelderDto.builder()
         .foedselsnummer(foedseslnummer)
         .foedselsdato(foedselsdato)
         .fornavn(navnDto.getFornavn())
         .mellomnavn(navnDto.getMellomnavn())
         .etternavn(navnDto.getEtternavn())
+<<<<<<< HEAD
+=======
+        .adresse(adresse)
+>>>>>>> main
         .build();
   }
 
