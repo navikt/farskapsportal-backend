@@ -46,7 +46,6 @@ import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
-import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.util.Mapper;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.annotation.Validated;
@@ -85,7 +84,7 @@ public class FarskapsportalService {
     Set<FarskapserklaeringDto> avventerSigneringMotpart = new HashSet<>();
     Set<FarskapserklaeringDto> avventerRegistreringSkatt = new HashSet<>();
     Set<String> nyligFoedteBarnSomManglerFar = new HashSet<>();
-     var kanOppretteFarskapserklaering = false;
+    var kanOppretteFarskapserklaering = false;
 
     // Avbryte videre flyt dersom bruker ikke er myndig eller har en rolle som ikke støttes av løsningen
     validereTilgangBasertPaaAlderOgForeldrerolle(fnrPaaloggetBruker, brukersForelderrolle);
@@ -134,7 +133,10 @@ public class FarskapsportalService {
       avventerRegistreringSkatt.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.FAR));
     }
 
-    return BrukerinformasjonResponse.builder().forelderrolle(brukersForelderrolle).avventerSigneringMotpart(avventerSigneringMotpart)
+    var brukersNavnDto = personopplysningService.henteNavn(fnrPaaloggetBruker);
+
+    return BrukerinformasjonResponse.builder().brukersFornavn(brukersNavnDto.getFornavn()).forelderrolle(brukersForelderrolle)
+        .avventerSigneringMotpart(avventerSigneringMotpart)
         .fnrNyligFoedteBarnUtenRegistrertFar(nyligFoedteBarnSomManglerFar).gyldigForelderrolle(true)
         .kanOppretteFarskapserklaering(kanOppretteFarskapserklaering).avventerSigneringBruker(avventerSignereringPaaloggetBruker)
         .avventerRegistrering(avventerRegistreringSkatt).build();
@@ -213,14 +215,12 @@ public class FarskapsportalService {
   private ForelderDto oppretteForelderDto(String foedseslnummer) {
     var navnDto = personopplysningService.henteNavn(foedseslnummer);
     var foedselsdato = personopplysningService.henteFoedselsdato(foedseslnummer);
-    var adresse = personopplysningService.henteAdresse(foedseslnummer);
     return ForelderDto.builder()
         .foedselsnummer(foedseslnummer)
         .foedselsdato(foedselsdato)
         .fornavn(navnDto.getFornavn())
         .mellomnavn(navnDto.getMellomnavn())
         .etternavn(navnDto.getEtternavn())
-        .adresse(adresse)
         .build();
   }
 
@@ -302,8 +302,19 @@ public class FarskapsportalService {
     // Mor må være myndig
     personopplysningService.erMyndig(fnrMor);
 
+    // Mor må ha norsk bostedsadresse
+    validereMorErBosattINorge(fnrMor);
+
     // Bare mor kan oppretteFarskapserklæring
     riktigRolleForOpprettingAvErklaering(fnrMor);
+  }
+
+  private void validereMorErBosattINorge(String foedselsnummer) {
+    try {
+      Validate.isTrue(personopplysningService.harNorskBostedsadresse(foedselsnummer));
+    } catch (IllegalArgumentException iae) {
+      throw new ValideringException(Feilkode.MOR_IKKE_NORSK_BOSTEDSADRESSE);
+    }
   }
 
   private void validereTilgangMor(String fnrMor, OppretteFarskapserklaeringRequest request) {

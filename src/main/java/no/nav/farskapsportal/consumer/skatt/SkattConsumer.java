@@ -85,7 +85,7 @@ public class SkattConsumer {
     requestHeadersJSON.setContentType(MediaType.APPLICATION_XML);
 
     HttpEntity<String> requestEntityXml = new HttpEntity<>(xml, requestHeadersJSON);
-    multipartRequest.set("xml", requestEntityXml);
+    multipartRequest.set("melding", requestEntityXml);
     HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);//final request
 
     try {

@@ -79,14 +79,12 @@ public class Mapper {
   public ForelderDto toDto(Forelder forelder) {
     var foedselsdato = personopplysningService.henteFoedselsdato(forelder.getFoedselsnummer());
     var navnDto = personopplysningService.henteNavn(forelder.getFoedselsnummer());
-    var adresse = personopplysningService.henteAdresse(forelder.getFoedselsnummer());
     var forelderDto = modelMapper.map(forelder, ForelderDto.class);
 
     forelderDto.setFoedselsdato(foedselsdato);
     forelderDto.setFornavn(navnDto.getFornavn());
     forelderDto.setMellomnavn(navnDto.getMellomnavn());
     forelderDto.setEtternavn(navnDto.getEtternavn());
-    forelderDto.setAdresse(adresse);
 
     return forelderDto;
   }

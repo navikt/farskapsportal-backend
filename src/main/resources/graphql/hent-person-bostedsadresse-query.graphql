@@ -1,0 +1,46 @@
+query($ident: ID!) {
+    hentPerson(ident: $ident) {
+        bostedsadresse {
+            angittFlyttedato,
+            gyldigFraOgMed,
+            gyldigTilOgMed,
+            coAdressenavn,
+            vegadresse {
+                adressenavn,
+                husnummer,
+                husbokstav,
+                postnummer
+            },
+            matrikkeladresse {
+                bruksenhetsnummer,
+                tilleggsnavn,
+                postnummer
+            },
+            utenlandskAdresse {
+                adressenavnNummer,
+                bygningEtasjeLeilighet,
+                postboksNummerNavn,
+                postkode,
+                bySted,
+                regionDistriktOmraade,
+                landkode
+            },
+            folkeregistermetadata {
+                ajourholdstidspunkt,
+                gyldighetstidspunkt,
+                opphoerstidspunkt,
+                kilde,
+                aarsak,
+                sekvens
+            },
+            metadata {
+                opplysningsId,
+                master,
+                endringer {
+                    type,
+                    registrert,
+                }
+            }
+        }
+    }
+}

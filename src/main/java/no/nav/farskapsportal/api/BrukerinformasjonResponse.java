@@ -13,6 +13,8 @@ import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 @Builder
 public class BrukerinformasjonResponse {
 
+  @ApiModelProperty(value = "Brukers fornavn som registrert i Folkeregisteret", example = "Kari Nordmann")
+  String brukersFornavn;
   @ApiModelProperty(value = "Personen kan initiere prosessen for å erklære farskap", example = "true")
   boolean kanOppretteFarskapserklaering;
   @ApiModelProperty(value = "Personen har en foreldrerolle som er støttet av løsningen", example = "true")

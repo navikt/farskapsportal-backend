@@ -42,6 +42,8 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
+    - name: FAMILIEINTEGRASJONER_URL
+      value: {{ familieintegrasjoner_url }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
       value: virksomhetssertifikat-dev
     - name: ESIGNERING_SUKSESS_URL

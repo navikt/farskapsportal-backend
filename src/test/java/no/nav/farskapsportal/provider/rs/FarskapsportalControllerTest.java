@@ -55,6 +55,10 @@ import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
@@ -107,6 +111,7 @@ public class FarskapsportalControllerTest {
       .foedselsnummer(FAR.getFoedselsnummer()).navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_MOR = getKjoennshistorikk(KjoennType.KVINNE);
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_FAR = getKjoennshistorikk(KjoennType.MANN);
+  private static final BostedsadresseDto BOSTEDSADRESSE = getBostedsadresse(true);
   private static final String REDIRECT_URL = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
 
   @LocalServerPort
@@ -155,6 +160,14 @@ public class FarskapsportalControllerTest {
         .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
   }
 
+  private static BostedsadresseDto getBostedsadresse(boolean erNorsk) {
+    if (erNorsk) {
+      return BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").build()).build();
+    } else {
+      return BostedsadresseDto.builder().utenlandskAdresse(UtenlandskAdresseDto.builder().adressenavnNummer("Stortingsgatan 14").build()).build();
+    }
+  }
+
   private String initHenteBrukerinformasjon() {
     return getBaseUrlForStubs() + "/api/v1/farskapsportal/brukerinformasjon";
   }
@@ -200,6 +213,7 @@ public class FarskapsportalControllerTest {
             new HentPersonKjoenn(KJOENNSHISTORIKK_MOR),
             new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
             new HentPersonSivilstand(sivilstandMor),
+            new HentPersonBostedsadresse(BOSTEDSADRESSE),
             new HentPersonNavn(NAVN_MOR)),
         MOR.getFoedselsnummer());
 
@@ -256,7 +270,8 @@ public class FarskapsportalControllerTest {
           List.of(new HentPersonFamilierelasjoner(morsRelasjonTilBarn, "123"),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-              new HentPersonKjoenn(kjoennshistorikk)),
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonNavn(NAVN_MOR)),
           fnrMor);
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -457,8 +472,12 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonFamilierelasjoner(null, null), new HentPersonKjoenn(kjoennshistorikk), new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-              new HentPersonSivilstand(Sivilstandtype.UGIFT)), FAR.getFoedselsnummer());
+          List.of(
+              new HentPersonFamilierelasjoner(null, null),
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonNavn(NAVN_FAR)), FAR.getFoedselsnummer());
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
@@ -565,11 +584,21 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavn), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkFar),
+              new HentPersonNavn(registrertNavn),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
           fnrFar);
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-          new HentPersonSivilstand(Sivilstandtype.UGIFT)), MOR.getFoedselsnummer());
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkMor),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                  .build())),
+          MOR.getFoedselsnummer());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
@@ -757,7 +786,10 @@ public class FarskapsportalControllerTest {
               new HentPersonKjoenn(KJOENNSHISTORIKK_MOR),
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
               new HentPersonSivilstand(sivilstandMor),
-              new HentPersonNavn(NAVN_MOR)),
+              new HentPersonNavn(NAVN_MOR),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0100").build())
+                  .build())),
           MOR.getFoedselsnummer());
 
       var sivilstandFar = Sivilstandtype.GIFT;

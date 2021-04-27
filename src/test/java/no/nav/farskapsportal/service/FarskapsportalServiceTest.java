@@ -134,10 +134,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
 
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
@@ -168,12 +167,11 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
 
       // when
@@ -202,12 +200,11 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
 
 
@@ -307,11 +304,10 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
       when(personopplysningService.henteSivilstand(FAR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
 
       // when
@@ -338,6 +334,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
       when(personopplysningService.henteSivilstand(FAR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
@@ -374,6 +371,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -430,6 +428,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -486,6 +485,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
           .thenReturn(Set.of(barnFoedtInnenforGyldigIntervall.getFoedselsnummer()));
@@ -618,6 +618,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
@@ -686,6 +687,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer())).thenReturn(Set.of(fnrSpedbarnUtenFar));
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
@@ -716,6 +718,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer())).thenReturn(new HashSet<>());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -750,6 +753,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer())).thenReturn(Set.of(nyfoedt.getFoedselsnummer()));
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -788,14 +792,13 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteGjeldendeKjoenn(MOR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.KVINNE).build());
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -850,12 +853,11 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
       when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.MANN).build());
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -1137,16 +1139,29 @@ public class FarskapsportalServiceTest {
   class ValidereMor {
 
     @Test
+    void skalKasteValideringExceptionDersomMorIkkeErRegistrertMedNorskBostedsadresse() {
+
+      // given
+      doNothing().when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(false);
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+
+      // when, then
+      assertThrows(ValideringException.class, () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
+    }
+
+    @Test
     void myndigPersonMedFoedekjoennKvinneKanOpptreSomMor() {
 
       // given
       doNothing().when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
 
       // when, then
       assertDoesNotThrow(() -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
-
     }
 
     @Test
@@ -1155,11 +1170,11 @@ public class FarskapsportalServiceTest {
       // given
       doNothing().when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.GIFT).build());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
 
       // when, then
       assertThrows(ValideringException.class, () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
-
     }
 
     @Test
@@ -1168,6 +1183,7 @@ public class FarskapsportalServiceTest {
       // given
       doThrow(ValideringException.class).when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.GIFT).build());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
 
       // when, then
@@ -1180,6 +1196,7 @@ public class FarskapsportalServiceTest {
       // given
       doNothing().when(personopplysningService).erMyndig(MOR.getFoedselsnummer());
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR_ELLER_FAR);
 
       // when, then
@@ -1218,11 +1235,10 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       // when
       var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
@@ -1247,11 +1263,10 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
-      when(personopplysningService.henteAdresse(FAR.getFoedselsnummer())).thenReturn(FAR.getAdresse());
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
-      when(personopplysningService.henteAdresse(MOR.getFoedselsnummer())).thenReturn(MOR.getAdresse());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       // when
       var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
