@@ -42,8 +42,6 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
-    - name: FAMILIEINTEGRASJONER_URL
-      value: {{ familieintegrasjoner_url }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
       value: "719909854975"
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
