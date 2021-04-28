@@ -8,6 +8,11 @@ consumer.skatt:
   maks-ventetid-lesing: 10000
   maks-ventetid-forbindelse: 10000
 
+virksomhetssertifikat:
+  prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
+  hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN}
+  hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON}
+
 farskapsportal.egenskaper:
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21

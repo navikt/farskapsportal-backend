@@ -27,14 +27,15 @@ public class DifiEsigneringConfig {
   @Profile(PROFILE_LIVE)
   public KeyStoreConfig keyStoreConfig(
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
+      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
+      @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
+      @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
       @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
 
     log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
 
-    var projectId = "719909854975";
-    var secretName = "test-virksomhetssertifikat-felles-keystore-jceks_2018-2021";
-    var secretVersion = "3";
-    var secretPayload = accessSecretVersion.accessSecretVersion(projectId, secretName, secretVersion);
+    var secretPayload = accessSecretVersion
+        .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
 
     log.info("lengde sertifikat: {}", secretPayload.getData().size());
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());

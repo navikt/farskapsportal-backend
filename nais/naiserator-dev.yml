@@ -42,10 +42,12 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
-    - name: FAMILIEINTEGRASJONER_URL
-      value: {{ familieintegrasjoner_url }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
-      value: virksomhetssertifikat-dev
+      value: "719909854975"
+    - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
+      value: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
+    - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
+      value: "3"
     - name: ESIGNERING_SUKSESS_URL
       value: {{ posten_esignering_suksess_url }}
     - name: ESIGNERING_AVBRUTT_URL
