@@ -30,6 +30,9 @@ management:
   endpoint.health.show-details: always
 
 url:
+  familieintegrasjoner:
+    base-url: ${FAMILIEINTEGRASJONER_URL}
+    poststed: "api/kodeverk/poststed/%s"
   pdl-api:
     base-url: ${APIGW_URL}
     graphql: "/pdl-api/graphql"
@@ -38,7 +41,7 @@ url:
     security-token-service: "/security-token-service/rest/v1/sts/token"
   skatt:
     base-url: ${SKATT_URL}
-    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1"
+    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
 
 farskapsportal-api:
   servicebruker.brukernavn: srvfarskapsportal

@@ -22,6 +22,7 @@ import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
@@ -44,6 +45,18 @@ public class PdlApiConsumer {
   @NonNull
   private final ConsumerEndpoint consumerEndpoint;
 
+  public BostedsadresseDto henteBostedsadresse(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_BOSTEDSADRESSE, false);
+    var bostedsadresseDtos  = respons.getData().getHentPerson().getBostedsadresse();
+    var bostedsadresseFraPdlEllerFreg = bostedsadresseDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (bostedsadresseFraPdlEllerFreg.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_BOSTEDSADRESSE_MANGLER);
+    }
+    return bostedsadresseFraPdlEllerFreg.stream().findFirst()
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+  }
+
   public LocalDate henteFoedselsdato(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
     var foedselDtos = respons.getData().getHentPerson().getFoedsel();
@@ -54,7 +67,7 @@ public class PdlApiConsumer {
       throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
     }
 
-    return foedselDtos.stream().filter(Objects::nonNull).map(FoedselDto::getFoedselsdato).findFirst()
+    return foedselDtosFraPdlEllerFreg.stream().map(FoedselDto::getFoedselsdato).findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
@@ -62,7 +75,6 @@ public class PdlApiConsumer {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
     var familierelasjonerDtos = respons.getData().getHentPerson().getFamilierelasjoner();
     return familierelasjonerDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
-
   }
 
   public KjoennDto henteKjoennUtenHistorikk(String foedselsnummer) {

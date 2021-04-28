@@ -2,7 +2,7 @@ package no.nav.farskapsportal.consumer.skatt;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
-import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
+import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -29,7 +29,7 @@ public class SkattConsumerIntegrationTest {
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
   private static final BarnDto UFOEDT_BARN = henteBarnUtenFnr(17);
-  private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaering(MOR, FAR, UFOEDT_BARN);
+  private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaeringDto(MOR, FAR, UFOEDT_BARN);
 
   @Autowired
   @Qualifier(PROFILE_INTEGRATION_TEST)

@@ -5,6 +5,7 @@ import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
@@ -21,26 +23,33 @@ import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.service.PersonopplysningService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-@DisplayName("MappingUtilTest")
+@DisplayName("MapperTest")
 @SpringBootTest(classes = {Mapper.class, ModelMapper.class})
 @ActiveProfiles(PROFILE_TEST)
 public class MapperTest {
 
   private static final ForelderDto MOR_DTO = henteForelder(Forelderrolle.MOR);
+  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR_DTO.getFornavn()).etternavn(MOR_DTO.getEtternavn()).build();
   private static final ForelderDto FAR_DTO = henteForelder(Forelderrolle.FAR);
+  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR_DTO.getFornavn()).etternavn(FAR_DTO.getEtternavn()).build();
   private static final DokumentDto DOKUMENT_DTO = getDokumentDto();
   private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(2).minusDays(13);
 
   @Autowired
   private Mapper mapper;
+
+  @MockBean
+  private PersonopplysningService personopplysningService;
 
   private static DokumentDto getDokumentDto() {
     try {
@@ -133,26 +142,28 @@ public class MapperTest {
       var forelder = mapper.toEntity(FAR_DTO);
 
       // then
-      assertAll(() -> assertEquals(FAR_DTO.getFoedselsnummer(), forelder.getFoedselsnummer()),
-          () -> assertEquals(FAR_DTO.getFornavn(), forelder.getFornavn()), () -> assertEquals(FAR_DTO.getEtternavn(), forelder.getEtternavn()));
-
+      assertEquals(FAR_DTO.getFoedselsnummer(), forelder.getFoedselsnummer());
     }
 
     @Test
     @DisplayName("Skal mappe forelder, entitet til DTO")
     void skalMappeForelderEntitetTilDto() {
 
+      String fnrForelder = "12345678910";
+
       // given
-      var forelder = Forelder.builder().fornavn("Sponge").etternavn("Bob").foedselsnummer("12345678910").build();
+      var forelder = Forelder.builder().foedselsnummer(fnrForelder).build();
+
+      when(personopplysningService.henteNavn(fnrForelder)).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteFoedselsdato(fnrForelder)).thenReturn(MOR_DTO.getFoedselsdato());
+
+      when(personopplysningService.harNorskBostedsadresse(fnrForelder)).thenReturn(true);
 
       // when
       var forelderDto = mapper.toDto(forelder);
 
       // then
-      assertAll(() -> assertEquals(forelder.getFoedselsnummer(), forelderDto.getFoedselsnummer()),
-          () -> assertEquals(forelder.getFornavn(), forelderDto.getFornavn()),
-          () -> assertEquals(forelder.getEtternavn(), forelderDto.getEtternavn()));
-
+      assertEquals(forelder.getFoedselsnummer(), forelderDto.getFoedselsnummer());
     }
   }
 
@@ -229,6 +240,8 @@ public class MapperTest {
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
           .build();
 
+      standardPersonopplysningerMocks(far, mor);
+
       // when
       var farskapserklaeringDto = mapper.toDto(farskapserklaering);
 
@@ -251,6 +264,8 @@ public class MapperTest {
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
           .meldingsidSkatt("123444").sendtTilSkatt(LocalDateTime.now().minusDays(3))
           .build();
+
+      standardPersonopplysningerMocks(far, mor);
 
       // when
       var farskapserklaeringDto = mapper.toDto(farskapserklaering);
@@ -277,6 +292,10 @@ public class MapperTest {
       var mor = mapper.toEntity(MOR_DTO);
       var entitet = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(tidspunktSisteFeiledeForsoek)
           .antallFeiledeForsoek(antallFeiledeForsoek).build();
+
+      when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getFoedselsdato());
+      when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
 
       // when
       var dto = mapper.toDto(entitet);
@@ -305,5 +324,14 @@ public class MapperTest {
           () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(entitet.getTidspunktSisteFeiledeForsoek()),
           () -> assertThat(antallFeiledeForsoek).isEqualTo(entitet.getAntallFeiledeForsoek()));
     }
+  }
+
+  private void standardPersonopplysningerMocks(Forelder far, Forelder mor) {
+    when(personopplysningService.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
+    when(personopplysningService.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR_DTO.getFoedselsdato());
+
+    when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getFoedselsdato());
+    when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
   }
 }

@@ -3,7 +3,7 @@ package no.nav.farskapsportal.service;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
-import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
+import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -57,9 +57,11 @@ public class PersistenceServiceTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
+  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
   private static final BarnDto UFOEDT_BARN = henteBarnUtenFnr(17);
   private static final BarnDto NYFOEDT_BARN = henteBarnMedFnr(LocalDate.now().minusWeeks(2));
-  private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaering(MOR, FAR, UFOEDT_BARN);
+  private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaeringDto(MOR, FAR, UFOEDT_BARN);
 
   @MockBean
   private PersonopplysningService personopplysningServiceMock;
@@ -242,6 +244,8 @@ public class PersistenceServiceTest {
       // given
       lagreFarskapserklaeringSignertAvMor();
 
+      standardPersonopplysningerMocks(FAR, MOR);
+
       // when
       var hentedeFarskapserklaeringer = persistenceService.henteFarsErklaeringer(FAR.getFoedselsnummer());
 
@@ -359,7 +363,7 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 1;
       var tidspunktFoerLogging = LocalDateTime.now();
-      forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build());
+      forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
       var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
@@ -369,9 +373,7 @@ public class PersistenceServiceTest {
       assertAll(() -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktFoerLogging),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-          () -> assertThat(statusKontrollereFar.getMor().getFornavn()).isEqualTo(MOR.getFornavn()),
-          () -> assertThat(statusKontrollereFar.getMor().getEtternavn()).isEqualTo(MOR.getEtternavn()));
+          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
@@ -395,9 +397,7 @@ public class PersistenceServiceTest {
       assertAll(() -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktFoerLogging),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-          () -> assertThat(statusKontrollereFar.getMor().getFornavn()).isEqualTo(MOR.getFornavn()),
-          () -> assertThat(statusKontrollereFar.getMor().getEtternavn()).isEqualTo(MOR.getEtternavn()));
+          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
@@ -422,9 +422,7 @@ public class PersistenceServiceTest {
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(eksisterendeStatusKontrollereFar.getAntallFeiledeForsoek() + 1),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktForForrigeFeil),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-          () -> assertThat(statusKontrollereFar.getMor().getFornavn()).isEqualTo(MOR.getFornavn()),
-          () -> assertThat(statusKontrollereFar.getMor().getEtternavn()).isEqualTo(MOR.getEtternavn()));
+          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
@@ -448,9 +446,7 @@ public class PersistenceServiceTest {
       assertAll(() -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktForForrigeFeil),
           () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-          () -> assertThat(statusKontrollereFar.getMor().getFornavn()).isEqualTo(MOR.getFornavn()),
-          () -> assertThat(statusKontrollereFar.getMor().getEtternavn()).isEqualTo(MOR.getEtternavn()));
+          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
     private StatusKontrollereFar lagreStatusKontrollereFarMedMor(int antallFeil, LocalDateTime tidspunktSisteFeil) {
@@ -507,5 +503,14 @@ public class PersistenceServiceTest {
       assertDoesNotThrow(
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), UFOEDT_BARN));
     }
+  }
+
+  private void standardPersonopplysningerMocks(ForelderDto far, ForelderDto mor) {
+    when(personopplysningServiceMock.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
+    when(personopplysningServiceMock.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
+
+    when(personopplysningServiceMock.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
+    when(personopplysningServiceMock.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
   }
 }

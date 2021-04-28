@@ -1,6 +1,8 @@
 package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,6 +21,10 @@ import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
+import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
@@ -40,6 +46,9 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class PersonopplysningServiceTest {
 
+  private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
+  private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
+
   @MockBean
   private PdlApiConsumer pdlApiConsumerMock;
 
@@ -50,6 +59,42 @@ public class PersonopplysningServiceTest {
     return KjoennDto.builder().kjoenn(typeKjoenn).folkeregistermetadata(FolkeregistermetadataDto.builder()
         .gyldighetstidspunkt(LocalDateTime.ofEpochSecond(datoForGyldighet.toEpochSecond(LocalTime.MIN, ZoneOffset.MIN), 0, ZoneOffset.MIN)).build())
         .build();
+  }
+
+  @Nested
+  @DisplayName("Tester harNorskBostedsadress")
+  class HarNorskBostedsadresse {
+
+    @Test
+    void skalReturnereSannForPersonBosattINorge() {
+
+      // given
+      var bostedsadresseDto = BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Hovedveien").husnummer("80").postnummer("3030").build()).build();
+
+      when(pdlApiConsumerMock.henteBostedsadresse(MOR.getFoedselsnummer())).thenReturn(bostedsadresseDto);
+
+      // when
+      var adressestreng = personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer());
+
+      // then
+      assertThat(adressestreng).isTrue();
+    }
+
+    @Test
+    void skalReturnereUsannForPersonUtenNorskBostedsadresse() {
+
+      // given
+      var bostedsadresseDto = BostedsadresseDto.builder().utenlandskAdresse(
+          UtenlandskAdresseDto.builder().adressenavnNummer("123 Parkway Avenue.").build()).build();
+
+      when(pdlApiConsumerMock.henteBostedsadresse(FAR.getFoedselsnummer())).thenReturn(bostedsadresseDto);
+
+      // when
+      var adressestreng = personopplysningService.harNorskBostedsadresse(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(adressestreng).isFalse();
+    }
   }
 
   @Nested

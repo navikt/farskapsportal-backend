@@ -1,6 +1,8 @@
 package no.nav.farskapsportal.consumer.pdl;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,11 +15,15 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
@@ -26,6 +32,7 @@ import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSubQuery;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
+import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +48,8 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {FarskapsportalApplicationLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 8096)
 public class PdlApiConsumerTest {
+
+  private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
 
   @Autowired
   private PdlApiConsumer pdlApiConsumer;
@@ -319,5 +328,29 @@ public class PdlApiConsumerTest {
       assertEquals(Sivilstandtype.UOPPGITT, personensSivilstand.getType());
     }
 
+  }
+
+  @Nested
+  @DisplayName("Hente bostedsadresse")
+  class Bostedsadresse {
+
+    @Test
+    void skalHenteBostedsadresseForMorBosattINorge() {
+
+      // given
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubQuery> subQueries = List.of(new HentPersonBostedsadresse(BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("5").husbokstav("B").postnummer("0202").build()).build()));
+      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+
+      // when
+      var bostedsadresseDto = pdlApiConsumer.henteBostedsadresse(MOR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertThat(bostedsadresseDto.getVegadresse().getAdressenavn()).isEqualTo("Stortingsgaten"),
+          () -> assertThat(bostedsadresseDto.getVegadresse().getHusnummer()).isEqualTo("5"),
+          () -> assertThat(bostedsadresseDto.getVegadresse().getPostnummer()).isEqualTo("0202")
+      );
+    }
   }
 }

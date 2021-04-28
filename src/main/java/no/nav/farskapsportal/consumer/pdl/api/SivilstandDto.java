@@ -11,10 +11,6 @@ public class SivilstandDto implements PdlDto {
 
   Sivilstandtype type;
   LocalDate gyldigFraOgMed;
-  String myndighet;
-  String kommune;
-  String sted;
-  String utland;
   String relatertVedSivilstand;
   String bekreftelsesdato;
   FolkeregistermetadataDto folkeregistermetadata;

@@ -112,13 +112,11 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler(SkattConsumerException.class)
-  protected  ResponseEntity<?> handleSkattConsumerException(SkattConsumerException e){
+  @ExceptionHandler({SkattConsumerException.class, PDFConsumerException.class})
+  protected  ResponseEntity<?> handleSkattConsumerException(InternFeilException e){
     exceptionLogger.logException(e.getOriginalException(), "RestResponseExceptionResolver");
 
-    var feilmelding = "Feil oppstod i konsument mot Skatt";
-
-    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
+    return generereFeilrespons(e.getMessage(), e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   private ResponseEntity<FarskapserklaeringFeilResponse> generereFeilrespons(String feilmelding, Feilkode feilkode,

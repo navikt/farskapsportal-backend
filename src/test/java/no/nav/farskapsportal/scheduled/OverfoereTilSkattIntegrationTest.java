@@ -2,7 +2,7 @@ package no.nav.farskapsportal.scheduled;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
-import static no.nav.farskapsportal.TestUtils.henteFarskapserklaering;
+import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -60,7 +60,7 @@ public class OverfoereTilSkattIntegrationTest {
     assertFalse(alleFarskapserklaeringer.iterator().hasNext());
 
     var sendingsklarFarskapserklaering1 = persistenceService
-        .lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "11111")));
+        .lagreNyFarskapserklaering(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "11111")));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     sendingsklarFarskapserklaering1.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(10));
     sendingsklarFarskapserklaering1.setMeldingsidSkatt("4564");
@@ -68,7 +68,7 @@ public class OverfoereTilSkattIntegrationTest {
     farskapserklaeringDao.save(sendingsklarFarskapserklaering1);
 
     var sendingsklarFarskapserklaering2 = persistenceService
-        .lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "22222")));
+        .lagreNyFarskapserklaering(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "22222")));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     sendingsklarFarskapserklaering2.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(10));
     sendingsklarFarskapserklaering2.setMeldingsidSkatt("4564");
@@ -76,7 +76,7 @@ public class OverfoereTilSkattIntegrationTest {
     farskapserklaeringDao.save(sendingsklarFarskapserklaering2);
 
     var ikkeSendingsklarFarskapserklaering = persistenceService
-        .lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "33333")));
+        .lagreNyFarskapserklaering(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "33333")));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     ikkeSendingsklarFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(15));
     farskapserklaeringDao.save(ikkeSendingsklarFarskapserklaering);
