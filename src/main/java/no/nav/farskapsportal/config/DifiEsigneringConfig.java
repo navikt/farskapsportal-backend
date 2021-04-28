@@ -27,7 +27,7 @@ public class DifiEsigneringConfig {
   @Profile(PROFILE_LIVE)
   public KeyStoreConfig keyStoreConfig(
       @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
-      @Value("${virksomhetssertifikat.prosjektId}") String virksomhetssertifikatProsjektid,
+      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
       @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
       @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
       @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
