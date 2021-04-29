@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.consumer.skatt;
 
-import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
@@ -17,7 +17,6 @@ import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -32,8 +31,7 @@ public class SkattConsumerIntegrationTest {
   private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaeringDto(MOR, FAR, UFOEDT_BARN);
 
   @Autowired
-  @Qualifier(PROFILE_INTEGRATION_TEST)
-  private SkattConsumer skattConsumerIntegrationTest;
+  private SkattConsumer skattConsumer;
 
   @Autowired
   private Mapper mapper;
@@ -51,7 +49,7 @@ public class SkattConsumerIntegrationTest {
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
 
     // when, then
-    assertDoesNotThrow(() -> skattConsumerIntegrationTest.registrereFarskap(farskapserklaering));
+    assertDoesNotThrow(() -> skattConsumer.registrereFarskap(farskapserklaering));
   }
 
 }

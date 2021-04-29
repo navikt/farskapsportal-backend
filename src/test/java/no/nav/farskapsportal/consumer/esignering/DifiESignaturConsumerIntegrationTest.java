@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.consumer.esignering;
 
-import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalLocalConfig.PADES;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
