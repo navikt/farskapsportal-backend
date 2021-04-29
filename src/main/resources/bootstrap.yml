@@ -1,3 +1,3 @@
 spring:
   cloud.gcp.secretmanager.enabled: false
-  config.activate.on-profile: test, local, local-postgres, remote-postgres, integration-test, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: test, local, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test

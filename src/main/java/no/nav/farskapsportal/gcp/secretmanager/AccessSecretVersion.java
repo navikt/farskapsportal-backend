@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.gcp.secretmanager;
 
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 
 import com.google.cloud.secretmanager.v1.AccessSecretVersionResponse;
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile(PROFILE_LIVE)
+@Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
 public class AccessSecretVersion {
 
   // Access the payload for the given secret version if one exists. The version

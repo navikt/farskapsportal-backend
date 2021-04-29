@@ -1,5 +1,6 @@
 package no.nav.farskapsportal;
 
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
@@ -54,7 +55,6 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class FarskapsportalApplicationLocal {
 
-  public static final String PROFILE_INTEGRATION_TEST = "integration-test";
   public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
   public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
@@ -109,31 +109,9 @@ public class FarskapsportalApplicationLocal {
         .globalSender(new Sender(NAV_ORGNR)).build();
   }
 
-  @Configuration
-  @Profile(PROFILE_INTEGRATION_TEST)
-  static class EsigneringIntegrationTestConfig {
-
-    @Value("${KEYSTORE_PASSWORD}")
-    String keystorePassword;
-
-    @Bean
-    @Profile(PROFILE_INTEGRATION_TEST)
-    public KeyStoreConfig keyStoreConfig() throws IOException {
-      var classLoader = getClass().getClassLoader();
-      try (InputStream inputStream = classLoader.getResourceAsStream("test_VS_decrypt_2018-2021.jceks")) {
-        if (inputStream == null) {
-          throw new IllegalArgumentException("Fant ikke test_VS_decrypt_2018-2021.jceks");
-        } else {
-          return KeyStoreConfig
-              .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", keystorePassword, keystorePassword);
-        }
-      }
-    }
-  }
-
   @Lazy
   @Configuration
-  @Profile({PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
+  @Profile({PROFILE_SKATT_SSL_TEST})
   static class SkattStubSslConfiguration {
 
     @LocalServerPort
