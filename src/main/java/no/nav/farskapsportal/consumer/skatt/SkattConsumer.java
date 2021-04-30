@@ -1,11 +1,15 @@
 package no.nav.farskapsportal.consumer.skatt;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import lombok.AllArgsConstructor;
@@ -59,6 +63,7 @@ public class SkattConsumer {
   public void registrereFarskap(Farskapserklaering farskapserklaering) {
 
     var xml = byggeMeldingTilSkatt(farskapserklaering);
+
     MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
     if (farskapserklaering.getDokument().getDokumentinnhold().getInnhold().length < 1) {
@@ -71,7 +76,8 @@ public class SkattConsumer {
     HttpHeaders requestHeadersAttachment = new HttpHeaders();
     requestHeadersAttachment.setContentType(MediaType.APPLICATION_PDF);// extract mediatype from file extension
     HttpEntity<ByteArrayResource> padesDokument;
-    ByteArrayResource fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getDokumentinnhold().getInnhold()) {
+
+    var fileAsResource = new ByteArrayResource(readFile()) {
       @Override
       public String getFilename() {
         return farskapserklaering.getDokument().getDokumentnavn();
@@ -100,6 +106,20 @@ public class SkattConsumer {
     }
   }
 
+  private byte[] readFile() {
+    try {
+    var filnavn = "fp-20210428.pdf";
+    var classLoader = getClass().getClassLoader();
+    File file = new File(classLoader.getResource(filnavn).getFile());
+
+      return Files.readAllBytes(file.toPath());
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
+
+    return null;
+  }
+
   private String byggeMeldingTilSkatt(Farskapserklaering farskapserklaering) {
 
     try {
@@ -108,7 +128,7 @@ public class SkattConsumer {
       var xmlString = new StringWriter();
       Marshaller marshaller = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class).createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
+           marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
 
       return xmlString.toString();
     } catch (JAXBException jaxbe) {
@@ -126,18 +146,17 @@ public class SkattConsumer {
             .kildesystem(new Tekst(AVSENDER_KILDESYSTEM))
             .avsendersMeldingsidentifikator(new Tekst(farskapserklaering.getMeldingsidSkatt()))
             .build())
-        .forespoerselOmRegistreringAvFarskap(ForespoerselOmRegistreringAvFarskap.builder()
+        .forespoersel(ForespoerselOmRegistreringAvFarskap.builder()
             .far(Far.builder()
                 .datoForErklaeringen(henteDatoForErklaeringen(farskapserklaering))
                 .foedselsEllerDNummer(tilFoedsedslsnummer(farskapserklaering.getFar().getFoedselsnummer()))
                 .harSignert(tilBoolsk(farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null))
                 .build())
             .mor(Mor.builder()
-                .datoForErklaeringen(henteDatoForErklaeringen(farskapserklaering))
                 .foedselsEllerDNummer(tilFoedsedslsnummer(farskapserklaering.getMor().getFoedselsnummer()))
                 .harSignert(tilBoolsk(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null))
                 .build())
-            .barn(Barn.builder()
+            .barnet(Barn.builder()
                 .erFoedt(tilBoolsk(farskapserklaering.getBarn().getFoedselsnummer() != null))
                 .termindato(tilDato(farskapserklaering.getBarn().getTermindato()))
                 .foedselsEllerDNummer(
@@ -151,7 +170,7 @@ public class SkattConsumer {
                 .build())
             .saksbehandlersVurdering(SaksbehandlersVurdering.builder().skjemaErAttestert(tilBoolsk(true))
                 .vedlagtFarskapsskjemaErOriginalt(tilBoolsk(true)).build())
-            .vedlegg(new Vedlegg(new Tekst(farskapserklaering.getDokument().getDokumentnavn())))
+            .vedlegg(new Vedlegg(new Tekst("PDF"), new Tekst(farskapserklaering.getDokument().getDokumentnavn())))
             .foreldreBorSammen(new Boolsk(true))
             .build())
         .build();
@@ -199,6 +218,10 @@ public class SkattConsumer {
 
   private Foedselsnummer tilFoedsedslsnummer(String foedselsnummer) {
     return new Foedselsnummer(new Tekst(foedselsnummer));
+  }
+
+  private Tekst tilTekst(String streng){
+    return new Tekst(streng);
   }
 
   private Boolsk tilBoolsk(boolean sjekk) {
