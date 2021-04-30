@@ -40,7 +40,7 @@ public class SkattStubController {
         .unmarshal(IOUtils.toInputStream(xml));
 
     return
-        LocalDate.now().equals(tilLocalDate(meldingOmRegistreringAvFarskap.getForespoerselOmRegistreringAvFarskap().getRegistreringsdato().getDate()))
+        LocalDate.now().equals(tilLocalDate(meldingOmRegistreringAvFarskap.getForespoersel().getRegistreringsdato().getDate()))
             && dokument != null && dokument.length > 0
             ? new ResponseEntity<>(HttpStatus.OK)
             : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
