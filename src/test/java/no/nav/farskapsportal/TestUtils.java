@@ -61,7 +61,7 @@ public class TestUtils {
 
   public static BarnDto henteBarnMedFnr(LocalDate foedselsdato, String personnummer) {
     var fnrBarn = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-    return BarnDto.builder().foedselsnummer(fnrBarn).build();
+    return BarnDto.builder().foedselsnummer(fnrBarn).foedselsdato(foedselsdato).foedested("HAMAR").build();
   }
 
   public static ForelderDto henteForelder(Forelderrolle forelderrolle) {

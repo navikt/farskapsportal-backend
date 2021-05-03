@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
@@ -47,7 +48,7 @@ public class PdlApiConsumer {
 
   public BostedsadresseDto henteBostedsadresse(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_BOSTEDSADRESSE, false);
-    var bostedsadresseDtos  = respons.getData().getHentPerson().getBostedsadresse();
+    var bostedsadresseDtos = respons.getData().getHentPerson().getBostedsadresse();
     var bostedsadresseFraPdlEllerFreg = bostedsadresseDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (bostedsadresseFraPdlEllerFreg.isEmpty()) {
@@ -55,6 +56,17 @@ public class PdlApiConsumer {
     }
     return bostedsadresseFraPdlEllerFreg.stream().findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+  }
+
+  public DoedsfallDto henteDoedsfall(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_DOEDSFALL, false);
+    var doedsfallDto = respons.getData().getHentPerson().getDoedsfall();
+
+    if (doedsfallDto.isEmpty() || !isMasterPdlOrFreg(doedsfallDto.get(0))) {
+      return null;
+    } else {
+      return doedsfallDto.get(0);
+    }
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
@@ -151,7 +163,7 @@ public class PdlApiConsumer {
       if (response == null) {
         throw new ValideringException(Feilkode.PDL_PERSON_IKKE_FUNNET);
       }
-    }  catch (Exception e) {
+    } catch (Exception e) {
       // Håndterer evnt feil i checkForPdlApiErrors
       e.printStackTrace();
       if (response == null) {
