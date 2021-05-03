@@ -2,6 +2,7 @@ package no.nav.farskapsportal.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +58,18 @@ public class PersonopplysningService {
     return spedbarnUtenFar;
   }
 
+  public boolean erDoed(String foedselsnummer) {
+    var doedsfallDto = pdlApiConsumer.henteDoedsfall(foedselsnummer);
+    if (doedsfallDto == null) {
+      return false;
+    } else {
+      log.warn("Person er registrert død den {}", doedsfallDto.getDoedsdato());
+      return true;
+    }
+  }
+
   public String henteFoedested(String foedselsnummer) {
+    // TODO: implementere
     return null;
   }
 
@@ -138,11 +150,13 @@ public class PersonopplysningService {
     return pdlApiConsumer.henteSivilstand(foedselsnummer);
   }
 
-  public void erMyndig(String foedselsnummer) {
+  public boolean erMyndig(String foedselsnummer) {
     var foedselsdato = henteFoedselsdato(foedselsnummer);
     if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
-      throw new ValideringException(Feilkode.IKKE_MYNDIG);
+      log.warn("Forelder med fødselsdato {}, er ikke myndig", foedselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+      return false;
     }
+    return true;
   }
 
   public void navnekontroll(String navn, NavnDto navnFraRegister) {
@@ -153,7 +167,7 @@ public class PersonopplysningService {
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
-      throw new FeilNavnOppgittException();
+      throw new ValideringException(Feilkode.NAVNEKONTROLL_FEILET);
     }
 
     log.info("Navnekontroll gjennomført uten feil");

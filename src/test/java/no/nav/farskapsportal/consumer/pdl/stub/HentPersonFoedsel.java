@@ -6,14 +6,14 @@ import lombok.Value;
 
 @Value
 @Getter
-public class HentPersonFoedsel implements HentPersonSubQuery {
-  String query;
+public class HentPersonFoedsel implements HentPersonSubResponse {
+  String response;
 
   public HentPersonFoedsel(LocalDate foedselsdato, boolean historisk) {
-    this.query = buildQuery(foedselsdato, "123", historisk);
+    this.response = buildResponse(foedselsdato, "123", historisk);
   }
 
-  private String buildQuery(LocalDate foedselsdato, String opplysningsId, boolean historisk) {
+  private String buildResponse(LocalDate foedselsdato, String opplysningsId, boolean historisk) {
     if (foedselsdato == null) {
       return String.join("\n", " \"foedsel\": [", "]");
     } else {

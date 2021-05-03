@@ -6,16 +6,16 @@ import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 
 @Value
 @Getter
-public class HentPersonFamilierelasjoner implements HentPersonSubQuery {
+public class HentPersonFamilierelasjoner implements HentPersonSubResponse {
 
-  String query;
+  String response;
 
   public HentPersonFamilierelasjoner(
       FamilierelasjonerDto familierelasjonerDto, String opplysningsId) {
-    this.query = buildQuery(familierelasjonerDto, opplysningsId);
+    this.response = buildResponse(familierelasjonerDto, opplysningsId);
   }
 
-  private String buildQuery(FamilierelasjonerDto familierelasjonerDto, String opplysningsId) {
+  private String buildResponse(FamilierelasjonerDto familierelasjonerDto, String opplysningsId) {
     if (familierelasjonerDto == null) {
       return String.join("\n", " \"familierelasjoner\": [", "]");
     } else {

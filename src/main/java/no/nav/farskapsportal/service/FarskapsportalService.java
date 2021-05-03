@@ -286,8 +286,11 @@ public class FarskapsportalService {
 
   private void validereFar(String foedselsnummer) {
 
+    // Far kan ikke være død
+    validereAtForelderIkkeErDoed(foedselsnummer);
+
     // Far må være myndig
-    personopplysningService.erMyndig(foedselsnummer);
+    validereAtForelderErMyndig(foedselsnummer);
 
     var farsForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
 
@@ -297,10 +300,25 @@ public class FarskapsportalService {
     }
   }
 
+  private void validereAtForelderErMyndig(String foedselsnummer) {
+    if (!personopplysningService.erMyndig(foedselsnummer)) {
+      throw new ValideringException(Feilkode.IKKE_MYNDIG);
+    }
+  }
+
+  private void validereAtForelderIkkeErDoed(String foedselsnummer) {
+    if (personopplysningService.erDoed(foedselsnummer)) {
+      throw new ValideringException(Feilkode.PERSON_ER_DOED);
+    }
+  }
+
   public void validereMor(String fnrMor) {
 
+    // Mor kan ikke være død
+    validereAtForelderIkkeErDoed(fnrMor);
+
     // Mor må være myndig
-    personopplysningService.erMyndig(fnrMor);
+    validereAtForelderErMyndig(fnrMor);
 
     // Mor må ha norsk bostedsadresse
     validereMorErBosattINorge(fnrMor);

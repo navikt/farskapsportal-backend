@@ -4,17 +4,17 @@ import lombok.Getter;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 
 @Getter
-public class HentPersonNavn implements HentPersonSubQuery {
+public class HentPersonNavn implements HentPersonSubResponse {
 
-  private String query;
+  private String response;
 
   public HentPersonNavn(NavnDto navn) {
-    buildQuery(navn, "sagga-dagga");
+    buildResponse(navn, "sagga-dagga");
   }
 
-  private void buildQuery(NavnDto navnDto, String opplysningsId) {
+  private void buildResponse(NavnDto navnDto, String opplysningsId) {
     if (navnDto == null) {
-      this.query = String.join("\n", " \"navn\": [", "]");
+      this.response = String.join("\n", " \"navn\": [", "]");
     } else {
 
       var fornavn = navnDto.getFornavn() == null ? null : "\"" + navnDto.getFornavn() + "\"";
@@ -22,7 +22,7 @@ public class HentPersonNavn implements HentPersonSubQuery {
           navnDto.getMellomnavn() == null ? null : "\"" + navnDto.getMellomnavn() + "\"";
       var etternavn = navnDto.getEtternavn() == null ? null : "\"" + navnDto.getEtternavn() + "\"";
 
-      this.query =
+      this.response =
           String.join(
               "\n",
               " \"navn\": [",

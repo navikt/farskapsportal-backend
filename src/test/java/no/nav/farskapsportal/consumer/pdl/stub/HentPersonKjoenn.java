@@ -11,19 +11,19 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 
 @Value
 @Getter
-public class HentPersonKjoenn implements HentPersonSubQuery {
+public class HentPersonKjoenn implements HentPersonSubResponse {
 
-  String query;
+  String response;
 
   public HentPersonKjoenn(KjoennType kjoenn) {
-    this.query = buildQueryKjoenn(kjoenn, "sagga-dagga", false);
+    this.response = buildResponseKjoenn(kjoenn, "sagga-dagga", false);
   }
 
   public HentPersonKjoenn(Map<KjoennType, LocalDateTime> kjoennshistorikk) {
-    this.query = buildQueryKjoennMedHistorikk(kjoennshistorikk);
+    this.response = buildResponseKjoennMedHistorikk(kjoennshistorikk);
   }
 
-  private String buildQueryKjoennMedHistorikk(Map<KjoennType, LocalDateTime> input) {
+  private String buildResponseKjoennMedHistorikk(Map<KjoennType, LocalDateTime> input) {
     if (input == null || input.isEmpty()) {
       return String.join("\n", " \"kjoenn\": [", "]");
     } else {
@@ -49,7 +49,7 @@ public class HentPersonKjoenn implements HentPersonSubQuery {
     }
   }
 
-  private String buildQueryKjoenn(KjoennType kjoenn, String opplysningsId, boolean historisk) {
+  private String buildResponseKjoenn(KjoennType kjoenn, String opplysningsId, boolean historisk) {
     if (kjoenn == null) {
       return String.join("\n", " \"kjoenn\": [", "]");
     } else {

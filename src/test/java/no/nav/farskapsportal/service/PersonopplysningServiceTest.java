@@ -1,9 +1,11 @@
 package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,11 +23,7 @@ import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
-import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
-import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
-import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
+import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregistermetadataDto;
@@ -33,6 +31,13 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
+import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
+import no.nav.farskapsportal.exception.ValideringException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,6 +53,7 @@ public class PersonopplysningServiceTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
+  private static final BarnDto NYDFOEDT_BARN = henteBarnMedFnr(LocalDate.now().minusMonths(1), "00000");
 
   @MockBean
   private PdlApiConsumer pdlApiConsumerMock;
@@ -69,7 +75,8 @@ public class PersonopplysningServiceTest {
     void skalReturnereSannForPersonBosattINorge() {
 
       // given
-      var bostedsadresseDto = BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Hovedveien").husnummer("80").postnummer("3030").build()).build();
+      var bostedsadresseDto = BostedsadresseDto.builder()
+          .vegadresse(VegadresseDto.builder().adressenavn("Hovedveien").husnummer("80").postnummer("3030").build()).build();
 
       when(pdlApiConsumerMock.henteBostedsadresse(MOR.getFoedselsnummer())).thenReturn(bostedsadresseDto);
 
@@ -167,6 +174,100 @@ public class PersonopplysningServiceTest {
       assertAll(() -> assertEquals(navnDto.getFornavn(), returnertNavnDto.getFornavn(), "Skal returnere riktig fornavn"),
           () -> assertEquals(navnDto.getEtternavn(), returnertNavnDto.getEtternavn(), "Skal returnere riktig etternavn"));
     }
+  }
+
+  @Nested
+  @DisplayName(" Tester navnekontroll")
+  class Navnekontroll {
+
+    @Test
+    void skalIkkeKasteExceptionDersomOppgittNavnStemmerMedRegister() {
+
+      // given
+      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getFornavn()).mellomnavn("Danger").etternavn(FAR.getEtternavn()).build();
+      var farsNavn = FAR.getFornavn() + " Danger " + FAR.getEtternavn();
+
+      // when, then
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+    }
+
+    @Test
+    void skalKasteValideringExceptionDersomOppgittNavnIkkeStemmerMedRegister() {
+
+      // given
+      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getFornavn()).mellomnavn("Danger").etternavn(FAR.getEtternavn()).build();
+      var farsNavn = FAR.getFornavn() + " Dangerous " + FAR.getEtternavn();
+
+      // when, then
+      assertThrows(ValideringException.class, () -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+    }
+
+  }
+
+  @Nested
+  @DisplayName(" Tester erMyndig")
+  class ErMyndig {
+
+    @Test
+    void skalReturnereSannForMyndigPerson() {
+
+      // given
+      when(pdlApiConsumerMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
+
+      // when
+      var farErMyndig = personopplysningService.erMyndig(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farErMyndig).isTrue();
+    }
+
+    @Test
+    void skalReturnereUsannForUmyndigPerson() {
+
+      // given
+      when(pdlApiConsumerMock.henteFoedselsdato(NYDFOEDT_BARN.getFoedselsnummer())).thenReturn(NYDFOEDT_BARN.getFoedselsdato());
+
+      // when
+      var erMyndig = personopplysningService.erMyndig(NYDFOEDT_BARN.getFoedselsnummer());
+
+      // then
+      assertThat(erMyndig).isFalse();
+
+    }
+
+  }
+
+  @Nested
+  @DisplayName(" Tester erDoed")
+  class ErDoed {
+
+    @Test
+    void skalReturnereSannForPersonMedRegistrertDoedsdato() {
+
+      // given
+      when(pdlApiConsumerMock.henteDoedsfall(FAR.getFoedselsnummer()))
+          .thenReturn(DoedsfallDto.builder().doedsdato(LocalDate.now().minusMonths(1)).build());
+
+      // when
+      var farErDoed = personopplysningService.erDoed(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farErDoed).isTrue();
+    }
+
+    @Test
+    void skalReturnereUsannForPersonSomIkkeHarRegistrertDoedsdato() {
+
+      // given
+      when(pdlApiConsumerMock.henteDoedsfall(FAR.getFoedselsnummer())).thenReturn(null);
+
+      // when
+      var farErDoed = personopplysningService.erDoed(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farErDoed).isFalse();
+    }
+
   }
 
   @Nested
