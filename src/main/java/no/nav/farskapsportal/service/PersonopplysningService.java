@@ -69,8 +69,7 @@ public class PersonopplysningService {
   }
 
   public String henteFoedested(String foedselsnummer) {
-    // TODO: implementere
-    return null;
+   return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedested();
   }
 
   public boolean harNorskBostedsadresse(String foedselsnummer) {
@@ -93,7 +92,7 @@ public class PersonopplysningService {
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
-    return pdlApiConsumer.henteFoedselsdato(foedselsnummer);
+    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedselsdato();
   }
 
   public Forelderrolle bestemmeForelderrolle(String foedselsnummer) {

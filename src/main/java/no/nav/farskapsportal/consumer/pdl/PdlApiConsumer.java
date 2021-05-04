@@ -69,7 +69,7 @@ public class PdlApiConsumer {
     }
   }
 
-  public LocalDate henteFoedselsdato(String foedselsnummer) {
+  public FoedselDto henteFoedsel(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
     var foedselDtos = respons.getData().getHentPerson().getFoedsel();
 
@@ -79,8 +79,7 @@ public class PdlApiConsumer {
       throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
     }
 
-    return foedselDtosFraPdlEllerFreg.stream().map(FoedselDto::getFoedselsdato).findFirst()
-        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+    return foedselDtosFraPdlEllerFreg.stream().findFirst().orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
   public List<FamilierelasjonerDto> henteFamilierelasjoner(String foedselsnummer) {

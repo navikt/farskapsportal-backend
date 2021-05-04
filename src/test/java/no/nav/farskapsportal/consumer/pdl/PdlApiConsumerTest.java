@@ -222,10 +222,27 @@ public class PdlApiConsumerTest {
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var returnertFoedselsdato = pdlApiConsumer.henteFoedselsdato(fnrMor);
+      var foedselDto = pdlApiConsumer.henteFoedsel(fnrMor);
 
       // then
-      assertEquals(morsFoedselsdato, returnertFoedselsdato, "Mors fødselsdato skal være den samme som den returnerte datoen");
+      assertEquals(morsFoedselsdato, foedselDto.getFoedselsdato(), "Mors fødselsdato skal være den samme som den returnerte datoen");
+    }
+
+    @Test
+    void skalHenteFoedestedForPerson() {
+      var morsFoedselsdato = LocalDate.of(1993, 4, 3);
+
+      // given
+      var fnrMor = "030493240280";
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFoedsel(morsFoedselsdato, "Tana", false));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var foedselDto = pdlApiConsumer.henteFoedsel(fnrMor);
+
+      // then
+      assertEquals("Tana", foedselDto.getFoedested(), "Mors fødselsdato skal være den samme som den returnerte datoen");
     }
   }
 
