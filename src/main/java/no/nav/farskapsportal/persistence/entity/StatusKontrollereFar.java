@@ -34,13 +34,14 @@ public class StatusKontrollereFar {
 
   private int antallFeiledeForsoek;
 
-  private LocalDateTime tidspunktSisteFeiledeForsoek;
+  private LocalDateTime tidspunktForNullstilling;
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (mor == null ? 0 : mor.hashCode()) + antallFeiledeForsoek * prime + (tidspunktSisteFeiledeForsoek == null ? 0 : tidspunktSisteFeiledeForsoek.hashCode());
+    result = prime * result + (mor == null ? 0 : mor.hashCode()) + antallFeiledeForsoek * prime + (tidspunktForNullstilling == null ? 0 : tidspunktForNullstilling
+        .hashCode());
 
     return result;
   }
@@ -66,13 +67,13 @@ public class StatusKontrollereFar {
       return false;
     }
 
-    return tidspunktSisteFeiledeForsoek.equals(other.tidspunktSisteFeiledeForsoek);
+    return tidspunktForNullstilling.equals(other.tidspunktForNullstilling);
   }
 
   @Override
   public String toString() {
     return "StatusKontrollereFar gjelder " + mor.toString()  + " Antall feilede forsøk for å kontrollere navn mot fødselsnummer til far: " + antallFeiledeForsoek + "."
-        + "\n Tidspunkt siste feilede forsøk: " + tidspunktSisteFeiledeForsoek;
+        + "\n Tidspunkt siste feilede forsøk: " + tidspunktForNullstilling;
   }
 
 }

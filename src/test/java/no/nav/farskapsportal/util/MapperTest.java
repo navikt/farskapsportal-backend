@@ -287,10 +287,10 @@ public class MapperTest {
     void skalMappeStatusKontrollereFarEntitetTilDto() {
 
       // given
-      var tidspunktSisteFeiledeForsoek = LocalDateTime.now();
+      var tidspunktForNullstilling = LocalDateTime.now();
       var antallFeiledeForsoek = 3;
       var mor = mapper.toEntity(MOR_DTO);
-      var entitet = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(tidspunktSisteFeiledeForsoek)
+      var entitet = StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(tidspunktForNullstilling)
           .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
       when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
@@ -302,7 +302,7 @@ public class MapperTest {
 
       // then
       assertAll(() -> assertThat(MOR_DTO.getFoedselsnummer()).isEqualTo(dto.getMor().getFoedselsnummer()),
-          () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(dto.getTidspunktSisteFeiledeForsoek()),
+          () -> assertThat(tidspunktForNullstilling).isEqualTo(dto.getTidspunktForNullstilling()),
           () -> assertThat(antallFeiledeForsoek).isEqualTo(dto.getAntallFeiledeForsoek()));
     }
 
@@ -313,7 +313,7 @@ public class MapperTest {
       // given
       var tidspunktSisteFeiledeForsoek = LocalDateTime.now();
       var antallFeiledeForsoek = 3;
-      var dto = StatusKontrollereFarDto.builder().mor(MOR_DTO).tidspunktSisteFeiledeForsoek(tidspunktSisteFeiledeForsoek)
+      var dto = StatusKontrollereFarDto.builder().mor(MOR_DTO).tidspunktForNullstilling(tidspunktSisteFeiledeForsoek)
           .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
       // when
@@ -321,7 +321,7 @@ public class MapperTest {
 
       // then
       assertAll(() -> assertThat(MOR_DTO.getFoedselsnummer()).isEqualTo(entitet.getMor().getFoedselsnummer()),
-          () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(entitet.getTidspunktSisteFeiledeForsoek()),
+          () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(entitet.getTidspunktForNullstilling()),
           () -> assertThat(antallFeiledeForsoek).isEqualTo(entitet.getAntallFeiledeForsoek()));
     }
   }

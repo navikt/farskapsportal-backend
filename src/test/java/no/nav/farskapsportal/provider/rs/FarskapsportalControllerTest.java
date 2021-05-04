@@ -688,6 +688,11 @@ public class FarskapsportalControllerTest {
       // then
       assertSame(respons.getStatusCode(), HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void skalViseAntallResterendeForsoekDersomFeilNavnOppgis() {
+
+    }
   }
 
   @Nested
