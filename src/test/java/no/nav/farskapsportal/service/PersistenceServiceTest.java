@@ -437,7 +437,6 @@ public class PersistenceServiceTest {
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(eksisterendeStatusKontrollereFar.getAntallFeiledeForsoek() + 1),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling().toString()).isEqualTo(tidspunktForNullstilling.toString()),
           () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
           () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
