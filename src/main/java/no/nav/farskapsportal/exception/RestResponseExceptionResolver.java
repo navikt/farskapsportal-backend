@@ -128,6 +128,7 @@ public class RestResponseExceptionResolver {
         statusKontrollereFarDto.isEmpty() ? FarskapserklaeringFeilResponse.builder().feilkode(feilkode).feilkodebeskrivelse(feilkode.getBeskrivelse())
             .build() : FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
             .antallResterendeForsoek(Optional.of(statusKontrollereFarDto.get().getAntallResterendeForsoek()))
+            .tidspunktForNullstillingAvForsoek(statusKontrollereFarDto.get().getTidspunktForNullstilling())
             .feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
 
     return new ResponseEntity<>(respons, headers, httpStatus);

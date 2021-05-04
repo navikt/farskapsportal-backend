@@ -167,7 +167,7 @@ public class PersonopplysningService {
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
-      throw new ValideringException(Feilkode.NAVNEKONTROLL_FEILET);
+      throw new FeilNavnOppgittException();
     }
 
     log.info("Navnekontroll gjennomført uten feil");

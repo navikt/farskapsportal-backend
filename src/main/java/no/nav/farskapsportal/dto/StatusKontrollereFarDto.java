@@ -18,8 +18,8 @@ public class StatusKontrollereFarDto {
   @ApiModelProperty(value = "Mors antall forsøk på å finne frem til riktig kombinasjon av fars navn og fødselsnummer")
   private final int antallFeiledeForsoek;
 
-  @ApiModelProperty(value = "Tidspunkt for siste feilede forsøk")
-  private final LocalDateTime tidspunktSisteFeiledeForsoek;
+  @ApiModelProperty(value = "Tidspunkt for nullstilling av antall feilede forsøk")
+  private final LocalDateTime tidspunktForNullstilling;
 
   @ApiModelProperty(value = "Mors resterende antall forsoek på å finne frem til riktig kombinasjon av fars navn og fødselsnummer")
   private int antallResterendeForsoek;

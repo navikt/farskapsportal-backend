@@ -235,13 +235,8 @@ public class FarskapsportalService {
     }
   }
 
-  private ForelderDto getForelderDto(String fnr, Forelderrolle rolle) {
-    var navn = personopplysningService.henteNavn(fnr);
-    return ForelderDto.builder().forelderrolle(rolle).foedselsnummer(fnr).fornavn(navn.getFornavn()).mellomnavn(navn.getMellomnavn())
-        .etternavn(navn.getEtternavn()).build();
-  }
-
   public void kontrollereFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
+    validereAtMorOgFarErForskjelligePersoner(fnrMor, request.getFoedselsnummer());
     antallsbegrensetKontrollAvNavnOgNummerPaaFar(fnrMor, request);
     validereFar(request.getFoedselsnummer());
   }
@@ -251,7 +246,7 @@ public class FarskapsportalService {
     if (statusKontrollereFar.isEmpty() || farskapsportalEgenskaper.getMaksAntallForsoek() > statusKontrollereFar.get().getAntallFeiledeForsoek()) {
       kontrollereNavnOgNummerFar(fnrMor, request);
     } else {
-      throw new ValideringException(Feilkode.MAKS_ANTALL_FORSOEK);
+      berikeOgKasteFeilNavnOppgittException(fnrMor, new FeilNavnOppgittException(Feilkode.MAKS_ANTALL_FORSOEK));
     }
   }
 
@@ -259,13 +254,18 @@ public class FarskapsportalService {
     try {
       validereOppgittNavnFar(request.getFoedselsnummer(), request.getNavn());
     } catch (FeilNavnOppgittException e) {
-      var statusKontrollereFarDto = mapper
-          .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getForsoekFornyesEtterAntallDager()));
-      e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
-      var resterendeAntallForsoek = farskapsportalEgenskaper.getMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
-      statusKontrollereFarDto.setAntallResterendeForsoek(resterendeAntallForsoek);
-      throw e;
+      berikeOgKasteFeilNavnOppgittException(fnrMor, e);
     }
+  }
+
+  private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
+    var statusKontrollereFarDto = mapper
+        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getForsoekFornyesEtterAntallDager()));
+    e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
+    var resterendeAntallForsoek = farskapsportalEgenskaper.getMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
+    resterendeAntallForsoek = resterendeAntallForsoek < 0 ? 0 : resterendeAntallForsoek;
+    statusKontrollereFarDto.setAntallResterendeForsoek(resterendeAntallForsoek);
+    throw e;
   }
 
   private void validereOppgittNavnFar(String foedselsnummerFar, String fulltNavnFar) {
@@ -343,8 +343,7 @@ public class FarskapsportalService {
     // Validere alder på nyfødt
     validereAlderNyfoedt(request.getBarn().getFoedselsnummer());
     // Kontrollere at mor og far ikke er samme person
-    Validate
-        .isTrue(morOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer()), "Mor og far kan ikke være samme person!");
+    validereAtMorOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer());
     // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
     termindatoErGyldig(request.getBarn());
     // Sjekke at ny farskapserklæring ikke kommmer i konflikt med eksisterende
@@ -474,9 +473,14 @@ public class FarskapsportalService {
     }
   }
 
-  private boolean morOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
+  private void validereAtMorOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
     log.info("Sjekker at mor og far ikke er én og samme person");
-    return !fnrMor.equals(fnrFar);
+    try {
+      Validate.isTrue(!fnrMor.equals(fnrFar), "Mor og far kan ikke være samme person!");
+    } catch (IllegalArgumentException iae) {
+      log.warn("Mor og far er samme person!");
+      throw new ValideringException(Feilkode.MOR_OG_FAR_SAMME_PERSON);
+    }
   }
 
   private void termindatoErGyldig(BarnDto barnDto) {

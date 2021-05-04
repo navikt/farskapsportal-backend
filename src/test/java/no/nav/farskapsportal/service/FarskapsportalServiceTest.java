@@ -609,7 +609,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    @DisplayName("Skal kaste IllegalArgumentException dersom mor og far er samme person")
+    @DisplayName("Skal kaste ValideringFeiletException dersom mor og far er samme person")
     void skalKasteIllegalArgumentExceptionDersomMorOgFarErSammePerson() {
 
       // given
@@ -632,7 +632,7 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when, then
-      assertThrows(IllegalArgumentException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+      assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskapserklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
@@ -1143,6 +1143,28 @@ public class FarskapsportalServiceTest {
 
       // then
       // Sjette forsøk gir ValideringsException ettersom antall mulige forsøk er brukt opp
+      assertThrows(ValideringException.class, () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
+
+      // rydde testdata
+      statusKontrollereFarDao.deleteAll();
+    }
+
+    @Test
+    void skalKasteValideringExceptionDersomMorOppgirSegSelvSomFar() {
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder()
+          .foedselsnummer(MOR.getFoedselsnummer())
+          .navn(MOR.getFornavn() + " " + MOR.getEtternavn()).build();
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR_ELLER_FAR);
+      doNothing().when(personopplysningService).navnekontroll(opplysningerOmFar.getNavn(), registrertNavnMor);
+
+      // when, then
       assertThrows(ValideringException.class, () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // rydde testdata

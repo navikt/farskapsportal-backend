@@ -83,6 +83,15 @@ public class PersistenceServiceTest {
 
   }
 
+  private void standardPersonopplysningerMocks(ForelderDto far, ForelderDto mor) {
+    when(personopplysningServiceMock.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
+    when(personopplysningServiceMock.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
+
+    when(personopplysningServiceMock.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
+    when(personopplysningServiceMock.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
+  }
+
   @Nested
   @DisplayName("Lagre")
   @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -167,10 +176,11 @@ public class PersistenceServiceTest {
       var hentetStatusKontrollereFar = statusKontrollereFarDao.findById(lagretStatusKontrollereFar.getId());
 
       // then
-      assertAll(() -> assertThat(lagretStatusKontrollereFar.getAntallFeiledeForsoek())
+      assertAll(
+          () -> assertThat(lagretStatusKontrollereFar.getAntallFeiledeForsoek())
               .isEqualTo(hentetStatusKontrollereFar.get().getAntallFeiledeForsoek()),
-          () -> assertThat(lagretStatusKontrollereFar.getTidspunktSisteFeiledeForsoek())
-              .isEqualToIgnoringSeconds(hentetStatusKontrollereFar.get().getTidspunktSisteFeiledeForsoek()),
+          () -> assertThat(lagretStatusKontrollereFar.getTidspunktForNullstilling())
+              .isEqualToIgnoringSeconds(hentetStatusKontrollereFar.get().getTidspunktForNullstilling()),
           () -> assertThat(lagretStatusKontrollereFar.getMor().getFoedselsnummer())
               .isEqualTo(hentetStatusKontrollereFar.get().getMor().getFoedselsnummer()));
     }
@@ -211,7 +221,8 @@ public class PersistenceServiceTest {
           .henteFarskapserklaeringerEtterRedirect(MOR.getFoedselsnummer(), Forelderrolle.MOR, KjoennType.KVINNE).stream().findFirst().get();
 
       // then
-      assertAll(() -> assertNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
+      assertAll(
+          () -> assertNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
           "PAdES-URL skal ikke være satt i farskapserklæring i det mor redirektes tilbake til farskapsportalen etter utført signering"),
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
@@ -230,7 +241,8 @@ public class PersistenceServiceTest {
           .henteFarskapserklaeringerEtterRedirect(FAR.getFoedselsnummer(), Forelderrolle.FAR, KjoennType.MANN).stream().findFirst().get();
 
       // then
-      assertAll(() -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument(),
+      assertAll(
+          () -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument(),
           "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
@@ -304,18 +316,20 @@ public class PersistenceServiceTest {
     void skalHenteLagretStatusKontrollereFar() {
 
       // given
-      var foerTidspunktForSisteFeiledeForsoek = LocalDateTime.now();
       var antallDagerTilNullsettingAvForsoek = 1;
+      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
       persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullsettingAvForsoek);
 
       // when
       var hentetStatusLagreKontrollereFar = persistenceService.henteStatusKontrollereFar(MOR.getFoedselsnummer());
 
       // then
-      var etterTidspunktForSisteFeiledeForsoek = LocalDateTime.now();
-      assertAll(() -> assertThat(hentetStatusLagreKontrollereFar).isPresent(),
-          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktSisteFeiledeForsoek()).isBefore(etterTidspunktForSisteFeiledeForsoek),
-          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktSisteFeiledeForsoek()).isAfter(foerTidspunktForSisteFeiledeForsoek));
+      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
+
+      assertAll(
+          () -> assertThat(hentetStatusLagreKontrollereFar).isPresent(),
+          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
+          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling));
     }
 
     @Test
@@ -333,7 +347,6 @@ public class PersistenceServiceTest {
           .isEqualTo(farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl());
     }
 
-
     @Test
     @DisplayName("Skal kaste RessursIkkeFunnetException ved henting av undertegnerUrl dersom farskapserklaering ikke finnes")
     void skalKasteRessursIkkeFunnetExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
@@ -345,7 +358,6 @@ public class PersistenceServiceTest {
       // when, then
       assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId() + 1));
     }
-
   }
 
   @Nested
@@ -362,17 +374,19 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var tidspunktFoerLogging = LocalDateTime.now();
+      var tidspunktForNullstillingFoerLogging = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
       var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
 
       // then
-      var tidspunktEtterLogging = LocalDateTime.now();
-      assertAll(() -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktFoerLogging),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
+      var tidspunktForNullstillingEtterLogging = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+
+      assertAll(
+          () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(tidspunktForNullstillingFoerLogging),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(tidspunktForNullstillingEtterLogging),
           () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
@@ -385,7 +399,7 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var tidspunktFoerLogging = LocalDateTime.now();
+      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
       var navnDtoMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(navnDtoMor);
 
@@ -393,10 +407,12 @@ public class PersistenceServiceTest {
       var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
 
       // then
-      var tidspunktEtterLogging = LocalDateTime.now();
-      assertAll(() -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktFoerLogging),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
+      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+
+      assertAll(
+          () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
           () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
@@ -410,18 +426,19 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var tidspunktForForrigeFeil = LocalDateTime.now();
-      var eksisterendeStatusKontrollereFar = lagreStatusKontrollereFarMedMor(2, tidspunktForForrigeFeil);
+      var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var eksisterendeStatusKontrollereFar = lagreStatusKontrollereFarMedMor(2, tidspunktForNullstilling);
 
       // when
       var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
 
       // then
-      var tidspunktEtterLogging = LocalDateTime.now();
+      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(eksisterendeStatusKontrollereFar.getAntallFeiledeForsoek() + 1),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktForForrigeFeil),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isEqualTo(tidspunktForNullstilling),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
           () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
@@ -435,23 +452,25 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 0;
-      var tidspunktForForrigeFeil = LocalDateTime.now();
-      lagreStatusKontrollereFarMedMor(4, tidspunktForForrigeFeil);
+      var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      lagreStatusKontrollereFarMedMor(4, tidspunktForNullstilling);
 
       // when
       var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
 
       // then
       var tidspunktEtterLogging = LocalDateTime.now();
-      assertAll(() -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isAfter(tidspunktForForrigeFeil),
-          () -> assertThat(statusKontrollereFar.getTidspunktSisteFeiledeForsoek()).isBefore(tidspunktEtterLogging),
+
+      assertAll(
+          () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(tidspunktForNullstilling),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(tidspunktEtterLogging),
           () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
-    private StatusKontrollereFar lagreStatusKontrollereFarMedMor(int antallFeil, LocalDateTime tidspunktSisteFeil) {
+    private StatusKontrollereFar lagreStatusKontrollereFarMedMor(int antallFeil, LocalDateTime tidspunktForNullstilling) {
       return statusKontrollereFarDao.save(StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).antallFeiledeForsoek(antallFeil)
-          .tidspunktSisteFeiledeForsoek(tidspunktSisteFeil).build());
+          .tidspunktForNullstilling(tidspunktForNullstilling).build());
     }
   }
 
@@ -503,14 +522,5 @@ public class PersistenceServiceTest {
       assertDoesNotThrow(
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), UFOEDT_BARN));
     }
-  }
-
-  private void standardPersonopplysningerMocks(ForelderDto far, ForelderDto mor) {
-    when(personopplysningServiceMock.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
-    when(personopplysningServiceMock.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
-
-    when(personopplysningServiceMock.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
-    when(personopplysningServiceMock.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
   }
 }
