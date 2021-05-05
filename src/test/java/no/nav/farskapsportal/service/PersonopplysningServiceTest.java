@@ -26,6 +26,7 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregistermetadataDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
@@ -141,7 +142,7 @@ public class PersonopplysningServiceTest {
       var foedselsdatoMor = LocalDate.now().minusYears(25).minusMonths(2).minusDays(13);
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor;
 
-      when(pdlApiConsumerMock.henteFoedselsdato(fnrMor)).thenReturn(foedselsdatoMor);
+      when(pdlApiConsumerMock.henteFoedsel(fnrMor)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoMor).build());
 
       // when
       var returnertFoedselsdato = personopplysningService.henteFoedselsdato(fnrMor);
@@ -212,7 +213,7 @@ public class PersonopplysningServiceTest {
     void skalReturnereSannForMyndigPerson() {
 
       // given
-      when(pdlApiConsumerMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
+      when(pdlApiConsumerMock.henteFoedsel(FAR.getFoedselsnummer())).thenReturn(FoedselDto.builder().foedselsdato(FAR.getFoedselsdato()).build());
 
       // when
       var farErMyndig = personopplysningService.erMyndig(FAR.getFoedselsnummer());
@@ -225,7 +226,7 @@ public class PersonopplysningServiceTest {
     void skalReturnereUsannForUmyndigPerson() {
 
       // given
-      when(pdlApiConsumerMock.henteFoedselsdato(NYDFOEDT_BARN.getFoedselsnummer())).thenReturn(NYDFOEDT_BARN.getFoedselsdato());
+      when(pdlApiConsumerMock.henteFoedsel(NYDFOEDT_BARN.getFoedselsnummer())).thenReturn(FoedselDto.builder().foedselsdato(NYDFOEDT_BARN.getFoedselsdato()).build());
 
       // when
       var erMyndig = personopplysningService.erMyndig(NYDFOEDT_BARN.getFoedselsnummer());
@@ -357,7 +358,7 @@ public class PersonopplysningServiceTest {
           .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(tvilling1, tvilling2));
-      when(pdlApiConsumerMock.henteFoedselsdato(anyString())).thenReturn(foedselsdatoTvillinger);
+      when(pdlApiConsumerMock.henteFoedsel(anyString())).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
@@ -384,10 +385,8 @@ public class PersonopplysningServiceTest {
           .relatertPersonsRolle(FamilierelasjonRolle.FAR).build();
 
       when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
-
       when(pdlApiConsumerMock.henteFamilierelasjoner(fnrSpedbarn)).thenReturn(List.of(spedbarnsRelasjonTilFar));
-
-      when(pdlApiConsumerMock.henteFoedselsdato(fnrSpedbarn)).thenReturn(foedselsdatoSpedbarn);
+      when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);

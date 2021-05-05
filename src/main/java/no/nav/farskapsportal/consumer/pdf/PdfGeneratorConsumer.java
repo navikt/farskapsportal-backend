@@ -48,8 +48,12 @@ public class PdfGeneratorConsumer {
       foedselsdato.first().text("Fødselsdato: " + barnDto.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
       var foedselsnummer = barnElement.getElementById("foedselsnummer");
       foedselsnummer.text("Fødselsnummer: " + barnDto.getFoedselsnummer());
-      var foedested = barnElement.getElementById("foedested");
-      foedested.text("Fødested: " + barnDto.getFoedested());
+      if (barnDto.getFoedested() != null) {
+        var foedested = barnElement.getElementById("foedested");
+        foedested.text("Fødested: " + barnDto.getFoedested());
+      } else {
+        barnElement.getElementById("foedested").remove();
+      }
     } else {
       barnElement.getElementsByClass("nyfoedt").remove();
       var termindato = barnElement.getElementById("termindato");
