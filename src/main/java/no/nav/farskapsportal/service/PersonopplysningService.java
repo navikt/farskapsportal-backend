@@ -57,13 +57,11 @@ public class PersonopplysningService {
     }
 
     // Barn må være født i Norge
-    filrereBortBarnFoedtUtenforNorge(spedbarnUtenFar);
-
-    return spedbarnUtenFar;
+    return filrereBortBarnFoedtUtenforNorge(spedbarnUtenFar);
   }
 
-  private void filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
-    nyfoedteBarn.stream().filter(barn -> pdlApiConsumer.henteFoedsel(barn).getFoedeland().equalsIgnoreCase(KODE_LAND_NORGE))
+  private Set<String> filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
+    return nyfoedteBarn.stream().filter(barn -> pdlApiConsumer.henteFoedsel(barn).getFoedeland().equalsIgnoreCase(KODE_LAND_NORGE))
         .collect(Collectors.toSet());
   }
 

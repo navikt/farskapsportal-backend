@@ -462,6 +462,55 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    void skalKasteValideringExceptionDersomBarnErFoedtIUtlandet() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
+      var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(foedselsdatoBarn);
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
+          .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
+
+      var pdf = "Jeg erklærer med dette farskap til barnet..".getBytes();
+
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
+      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
+          .thenReturn(Set.of(barnFoedtInnenforGyldigIntervall.getFoedselsnummer()));
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
+
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+      when(personopplysningService.erMyndig(FAR.getFoedselsnummer())).thenReturn(true);
+
+      when(personopplysningService.henteFoedeland(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn("Mexico");
+      when(personopplysningService.henteFoedselsdato(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn(foedselsdatoBarn);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+
+      // legger på redirecturl til dokument i void-metode
+      doAnswer(new Answer() {
+        public Object answer(InvocationOnMock invocation) {
+          Object[] args = invocation.getArguments();
+          var dokument = (Dokument) args[0];
+          dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/mors-redirect").toString()).build());
+          return null;
+        }
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+
+      // when, then
+      assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+          OppretteFarskapserklaeringRequest.builder().barn(barnFoedtInnenforGyldigIntervall).opplysningerOmFar(opplysningerOmFar).build()));
+    }
+
+    @Test
     @DisplayName("Mor skal kunne opprette farskapserklæring for nyfødt barn selv om hun har en pågående farskapserklæring for ufødt")
     void morSkalKunneOppretteFarskapserklaeringForNyfoedtSelvOmHunHarEnAapenErklaeringForUfoedt() {
 
@@ -563,8 +612,8 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    @DisplayName("Skal kaste ForskjelligeFedreException dersom mor har åpen erklæring med annen far for nyfødte barn")
-    void skalKasteForskjelligeFedreExceptionDersomMorHarAapenErklaeringMedAnnenFarForNyfoedteBarn() {
+    @DisplayName("Skal kaste ValideringException dersom mor har åpen erklæring med annen far for nyfødte barn")
+    void skalKasteValideringExceptionDersomMorHarAapenErklaeringMedAnnenFarForNyfoedteBarn() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
