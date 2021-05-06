@@ -3,6 +3,7 @@ package no.nav.farskapsportal.service;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static no.nav.farskapsportal.service.FarskapsportalService.KODE_LAND_NORGE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -130,6 +131,28 @@ public class PersonopplysningServiceTest {
   }
 
   @Nested
+  @DisplayName("Tester henteFoedeland")
+  class HenteFoedeland {
+
+    @Test
+    void skalHenteFoedelandForNyfoedt() {
+
+      var personnummerNyfoedt = "12345";
+      var foedselsdatoNyfoedt = LocalDate.now().minusMonths(2).minusDays(13);
+      var foedselsnummerNyfoedt = foedselsdatoNyfoedt.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerNyfoedt;
+
+      when(pdlApiConsumerMock.henteFoedsel(foedselsnummerNyfoedt))
+          .thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoNyfoedt).foedeland(KODE_LAND_NORGE).build());
+
+      // when
+      var foedeland = personopplysningService.henteFoedeland(foedselsnummerNyfoedt);
+
+      // then
+      assertThat(foedeland).isEqualTo(KODE_LAND_NORGE);
+    }
+  }
+
+  @Nested
   @DisplayName("Tester henteFoedselsdato")
   class HenteFoedselsdato {
 
@@ -226,7 +249,8 @@ public class PersonopplysningServiceTest {
     void skalReturnereUsannForUmyndigPerson() {
 
       // given
-      when(pdlApiConsumerMock.henteFoedsel(NYDFOEDT_BARN.getFoedselsnummer())).thenReturn(FoedselDto.builder().foedselsdato(NYDFOEDT_BARN.getFoedselsdato()).build());
+      when(pdlApiConsumerMock.henteFoedsel(NYDFOEDT_BARN.getFoedselsnummer()))
+          .thenReturn(FoedselDto.builder().foedselsdato(NYDFOEDT_BARN.getFoedselsdato()).build());
 
       // when
       var erMyndig = personopplysningService.erMyndig(NYDFOEDT_BARN.getFoedselsnummer());
@@ -358,7 +382,8 @@ public class PersonopplysningServiceTest {
           .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(tvilling1, tvilling2));
-      when(pdlApiConsumerMock.henteFoedsel(anyString())).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).build());
+      when(pdlApiConsumerMock.henteFoedsel(anyString()))
+          .thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).foedeland(KODE_LAND_NORGE).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
@@ -393,6 +418,28 @@ public class PersonopplysningServiceTest {
 
       // then
       assertEquals(0, nyligFoedteBarnUtenRegistrertFar.size(), "Spedbarn med registrert far skal ikke returneres");
+    }
+
+    @Test
+    void skalIkkeInkludereBarnFoedtUtenforNorge() {
+
+      // given
+      var foedselsdatoSpedbarn = LocalDate.now().minusMonths(2).minusDays(13);
+      var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
+      var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
+
+      var morsRelasjonTilSpedbarn = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(FamilierelasjonRolle.MOR)
+          .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
+
+      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
+      when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland("UGANDA").build());
+
+      // when
+      var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
+
+      // then
+      assertEquals(0, nyligFoedteBarnUtenRegistrertFar.size(), "Spedbarn med registrert far skal ikke returneres");
+
     }
 
     @Test
