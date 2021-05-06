@@ -359,7 +359,11 @@ public class PersonopplysningServiceTest {
           .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(tvilling1, tvilling2));
+<<<<<<< HEAD
       when(pdlApiConsumerMock.henteFoedsel(anyString())).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).foedeland(KODE_LAND_NORGE).build());
+=======
+      when(pdlApiConsumerMock.henteFoedsel(anyString())).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).build());
+>>>>>>> main
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);

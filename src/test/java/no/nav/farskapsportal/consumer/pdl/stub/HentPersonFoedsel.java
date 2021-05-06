@@ -13,6 +13,7 @@ public class HentPersonFoedsel implements HentPersonSubResponse {
   String response;
 
   public HentPersonFoedsel(LocalDate foedselsdato, boolean historisk) {
+<<<<<<< HEAD
     this.response = buildResponse(foedselsdato,  KODE_LAND_NORGE, "ASKIM", "123", historisk);
   }
 
@@ -25,6 +26,16 @@ public class HentPersonFoedsel implements HentPersonSubResponse {
   }
 
   private String buildResponse(LocalDate foedselsdato, String foedeland,  String foedested, String opplysningsId, boolean historisk) {
+=======
+    this.response = buildResponse(foedselsdato, "ASKIM", "123", historisk);
+  }
+
+  public HentPersonFoedsel(LocalDate foedselsdato, String foedested, boolean historisk) {
+    this.response = buildResponse(foedselsdato, foedested, "123", historisk);
+  }
+
+  private String buildResponse(LocalDate foedselsdato, String foedested, String opplysningsId, boolean historisk) {
+>>>>>>> main
     if (foedselsdato == null) {
       return String.join("\n", " \"foedsel\": [", "]");
     } else {
@@ -35,7 +46,10 @@ public class HentPersonFoedsel implements HentPersonSubResponse {
           " \"foedsel\": [",
           " {",
           " \"foedselsdato\": \"" + fd + "\",",
+<<<<<<< HEAD
           " \"foedeland\": \"" + foedeland + "\",",
+=======
+>>>>>>> main
           " \"foedested\": \"" + foedested + "\",",
           " \"metadata\": {",
           " \"opplysningsId\": \"" + opplysningsId + "\",",
