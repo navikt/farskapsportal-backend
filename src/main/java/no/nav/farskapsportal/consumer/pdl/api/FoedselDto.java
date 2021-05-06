@@ -7,7 +7,9 @@ import lombok.Value;
 @Builder
 @Value
 public class FoedselDto implements PdlDto {
+
   LocalDate foedselsdato;
+  String foedeland;
   String foedested;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;

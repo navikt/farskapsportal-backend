@@ -92,16 +92,6 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({MorHarIngenNyfoedteUtenFarException.class, ManglerRelasjonException.class, OppretteFarskapserklaeringException.class})
-  protected ResponseEntity<?> handleOppretteFarskapExceptions(OppretteFarskapserklaeringException e) {
-    exceptionLogger.logException(e, "RestResponseExceptionResolver");
-
-    var feilmelding = "Opprettelse av farskapserklæring feilet!";
-
-    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.BAD_REQUEST);
-  }
-
-  @ResponseBody
   @ExceptionHandler({OppretteSigneringsjobbException.class})
   protected ResponseEntity<?> handleOppretteSigneringsjobbException(OppretteSigneringsjobbException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
