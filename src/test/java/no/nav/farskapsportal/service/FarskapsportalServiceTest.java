@@ -9,6 +9,7 @@ import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.henteNyligFoedtBarn;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
+import static no.nav.farskapsportal.service.FarskapsportalService.KODE_LAND_NORGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -52,9 +53,6 @@ import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
-import no.nav.farskapsportal.exception.ManglerRelasjonException;
-import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
-import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -206,7 +204,6 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
@@ -392,7 +389,7 @@ public class FarskapsportalServiceTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-     farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+      farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskapserklaeringRequest.builder()
               .barn(barn)
               .opplysningerOmFar(opplysningerOmFar)
@@ -409,7 +406,7 @@ public class FarskapsportalServiceTest {
 
     @Test
     @DisplayName("Skal opprette farskapserklæring for nyfødt")
-    void skalOppretteFarskapserklaeringForNyfoedt() {
+    void skalOppretteFarskapserklaeringForNyligFoedtBarnFoedtINorge() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -438,6 +435,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
       when(personopplysningService.erMyndig(FAR.getFoedselsnummer())).thenReturn(true);
 
+      when(personopplysningService.henteFoedeland(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn(KODE_LAND_NORGE);
       when(personopplysningService.henteFoedselsdato(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn(foedselsdatoBarn);
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
 
@@ -452,7 +450,7 @@ public class FarskapsportalServiceTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-     farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+      farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskapserklaeringRequest.builder().barn(barnFoedtInnenforGyldigIntervall).opplysningerOmFar(opplysningerOmFar).build());
 
       // then
@@ -501,7 +499,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.erDoed(FAR.getFoedselsnummer())).thenReturn(false);
       when(personopplysningService.erMyndig(FAR.getFoedselsnummer())).thenReturn(true);
 
+      when(personopplysningService.henteFoedeland(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn(KODE_LAND_NORGE);
       when(personopplysningService.henteFoedselsdato(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn(foedselsdatoBarn);
+
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
 
       // legger på redirecturl til dokument i void-metode
@@ -676,8 +676,11 @@ public class FarskapsportalServiceTest {
 
       // given
       var fnrSpedbarnUtenFar = LocalDate.now().minusMonths(2).minusDays(-5).format(DateTimeFormatter.ofPattern("ddMMyy")) + "13333";
+      var foedselsdatoBarnUtenRelasjonTilMor = LocalDate.now().minusMonths(2).minusDays(21);
       var barnUtenRelasjonTilMor = BarnDto.builder()
-          .foedselsnummer(LocalDate.now().minusMonths(2).minusDays(21).format(DateTimeFormatter.ofPattern("ddMMyy")) + "10100").build();
+          .foedselsnummer(LocalDate.now().minusMonths(2).minusDays(21).format(DateTimeFormatter.ofPattern("ddMMyy")) + "10100")
+          .foedselsdato(foedselsdatoBarnUtenRelasjonTilMor)
+          .build();
       var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
@@ -698,18 +701,21 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
 
+      when(personopplysningService.henteFoedeland(fnrSpedbarnUtenFar)).thenReturn(KODE_LAND_NORGE);
+      when(personopplysningService.henteFoedeland(barnUtenRelasjonTilMor.getFoedselsnummer())).thenReturn(KODE_LAND_NORGE);
+      when(personopplysningService.henteFoedselsdato(barnUtenRelasjonTilMor.getFoedselsnummer()))
+          .thenReturn(barnUtenRelasjonTilMor.getFoedselsdato());
 
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when, then
-      assertThrows(ManglerRelasjonException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+      assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskapserklaeringRequest.builder().barn(barnUtenRelasjonTilMor).opplysningerOmFar(opplysningerOmFar).build()));
-
     }
 
     @Test
-    @DisplayName("Skal kaste MorHarIngenNyfoedteUtenFar exception dersom mor ikke er registrert med nyfødte ban uten far")
-    void skalKasteMorHarIngenNyfoedteUtenFarException() {
+    @DisplayName("Skal kaste ValideringException dersom mor oppgir barn med fødselsnummer men ikke er registrert med nyfødte ban uten far")
+    void skalKasteValideringExceptionDersomMorOppgirBarnMedFoedselsnummerMenHarIngenNyfoedteBarnUtenFarKnyttetTilSeg() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -733,12 +739,16 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+
+      when(personopplysningService.henteFoedeland(nyfoedt.getFoedselsnummer())).thenReturn(KODE_LAND_NORGE);
+      when(personopplysningService.henteFoedselsdato(nyfoedt.getFoedselsnummer())).thenReturn(nyfoedt.getFoedselsdato());
+
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
 
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when, then
-      assertThrows(MorHarIngenNyfoedteUtenFarException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+      assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
     }
 
@@ -776,7 +786,7 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when, then
-      assertThrows(NyfoedtErForGammelException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+      assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
           OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
     }
   }

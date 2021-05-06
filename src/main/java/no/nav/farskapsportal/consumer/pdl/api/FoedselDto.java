@@ -8,6 +8,7 @@ import lombok.Value;
 @Value
 public class FoedselDto implements PdlDto {
   LocalDate foedselsdato;
+  String foedeland;
   String foedested;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;

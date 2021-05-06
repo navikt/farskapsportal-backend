@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.service;
 
+import static no.nav.farskapsportal.service.FarskapsportalService.KODE_LAND_NORGE;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +24,6 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
-import no.nav.farskapsportal.exception.ValideringException;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -55,7 +56,15 @@ public class PersonopplysningService {
       }
     }
 
+    // Barn må være født i Norge
+    filrereBortBarnFoedtUtenforNorge(spedbarnUtenFar);
+
     return spedbarnUtenFar;
+  }
+
+  private void filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
+    nyfoedteBarn.stream().filter(barn -> pdlApiConsumer.henteFoedsel(barn).getFoedeland().equalsIgnoreCase(KODE_LAND_NORGE))
+        .collect(Collectors.toSet());
   }
 
   public boolean erDoed(String foedselsnummer) {
@@ -68,17 +77,14 @@ public class PersonopplysningService {
     }
   }
 
-  public String henteFoedested(String foedselsnummer) {
-   return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedested();
-  }
-
   public boolean harNorskBostedsadresse(String foedselsnummer) {
     var bostedsadresseDto = pdlApiConsumer.henteBostedsadresse(foedselsnummer);
     if (bostedsadresseDto.getVegadresse() != null && bostedsadresseDto.getVegadresse().getAdressenavn() != null) {
       log.info("Personen er registrert med norsk vegadresse på postnummer: {}", bostedsadresseDto.getVegadresse().getPostnummer());
       return true;
     } else if (bostedsadresseDto.getMatrikkeladresse() != null && bostedsadresseDto.getMatrikkeladresse().getPostnummer() != null) {
-      log.warn("Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}", bostedsadresseDto.getMatrikkeladresse().getPostnummer());
+      log.warn("Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}",
+          bostedsadresseDto.getMatrikkeladresse().getPostnummer());
       return true;
     } else if (bostedsadresseDto.getUtenlandskAdresse() != null) {
       var utenlandskAdresseDto = bostedsadresseDto.getUtenlandskAdresse();
@@ -88,11 +94,19 @@ public class PersonopplysningService {
       log.warn("Personen står oppført med ukjent bosted i PDL, kommunenummer fra siste kjente bostedsadresse: {}",
           ukjentBostedDto.getBostedskommune());
     }
-   return false;
+    return false;
+  }
+
+  public String henteFoedested(String foedselsnummer) {
+    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedested();
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
     return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedselsdato();
+  }
+
+  public String henteFoedeland(String foedselsnummer) {
+    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedeland();
   }
 
   public Forelderrolle bestemmeForelderrolle(String foedselsnummer) {

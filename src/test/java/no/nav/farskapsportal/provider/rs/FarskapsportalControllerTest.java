@@ -291,7 +291,8 @@ public class FarskapsportalControllerTest {
       var brukerinformasjonResponse = respons.getBody();
 
       // then
-      assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
+      assertAll(
+          () -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
           () -> assertEquals(Forelderrolle.MOR, brukerinformasjonResponse.getForelderrolle(), "Mor skal ha forelderrolle MOR"),
           () -> assertEquals(1, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(),
               "Lista over nyfødte barn uten registrert far skal inneholde ett element"),

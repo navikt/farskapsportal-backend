@@ -37,10 +37,7 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.InternFeilException;
-import no.nav.farskapsportal.exception.ManglerRelasjonException;
 import no.nav.farskapsportal.exception.MappingException;
-import no.nav.farskapsportal.exception.MorHarIngenNyfoedteUtenFarException;
-import no.nav.farskapsportal.exception.NyfoedtErForGammelException;
 import no.nav.farskapsportal.exception.SkattConsumerException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
@@ -55,6 +52,7 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 public class FarskapsportalService {
 
+  public static String KODE_LAND_NORGE = "NOR";
   public static final String FEIL_NAVN = "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret";
 
   private final FarskapsportalEgenskaper farskapsportalEgenskaper;
@@ -336,12 +334,11 @@ public class FarskapsportalService {
   }
 
   private void validereTilgangMor(String fnrMor, OppretteFarskapserklaeringRequest request) {
+
     // Validere alder og rolle
     validereMor(fnrMor);
-    // Kontrollere at evnt nyfødt barn uten far er registrert med relasjon til mor
-    validereRelasjonerNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
-    // Validere alder på nyfødt
-    validereAlderNyfoedt(request.getBarn().getFoedselsnummer());
+    // Validere alder, fødested, og relasjon til mor for eventuell nyfødt
+    validereNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
     // Kontrollere at mor og far ikke er samme person
     validereAtMorOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer());
     // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
@@ -351,13 +348,29 @@ public class FarskapsportalService {
         BarnDto.builder().termindato(request.getBarn().getTermindato()).foedselsnummer(request.getBarn().getFoedselsnummer()).build());
   }
 
-  private void validereAlderNyfoedt(String fnrOppgittBarn) {
-    if (fnrOppgittBarn == null || fnrOppgittBarn.length() < 1) {
+  private void validereNyfoedt(String fnrMor, String fnrNyfoedt) {
+    if (fnrNyfoedt == null || fnrNyfoedt.length() < 1) {
       return;
     }
+    validereFoedelandNorge(fnrNyfoedt);
+    validereAlderNyfoedt(fnrNyfoedt);
+    validereRelasjonerNyfoedt(fnrMor, fnrNyfoedt);
+  }
+
+  private void validereFoedelandNorge(String fnrNyfoedt) {
+    try {
+      var foedeland  =  personopplysningService.henteFoedeland(fnrNyfoedt);
+      Validate.isTrue(foedeland != null && personopplysningService.henteFoedeland(fnrNyfoedt).equalsIgnoreCase(KODE_LAND_NORGE));
+    } catch(IllegalArgumentException iae) {
+      log.warn("Barn er født utenfor Norge!");
+      throw new ValideringException(Feilkode.BARN_FOEDT_UTENFOR_NORGE);
+    }
+  }
+
+  private void validereAlderNyfoedt(String fnrOppgittBarn) {
     var foedselsdato = personopplysningService.henteFoedselsdato(fnrOppgittBarn);
     if (!LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).isBefore(foedselsdato)) {
-      throw new NyfoedtErForGammelException(Feilkode.NYFODT_ER_FOR_GAMMEL);
+      throw new ValideringException(Feilkode.NYFODT_ER_FOR_GAMMEL);
     }
   }
 
@@ -371,10 +384,10 @@ public class FarskapsportalService {
     log.info("Validerer at nyfødt barn er relatert til mor, samt har ingen registrert far.");
     var registrerteNyfoedteUtenFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
 
-    registrerteNyfoedteUtenFar.stream().findFirst().orElseThrow(() -> new MorHarIngenNyfoedteUtenFarException(Feilkode.INGEN_NYFOEDTE_UTEN_FAR));
+    registrerteNyfoedteUtenFar.stream().findFirst().orElseThrow(() -> new ValideringException(Feilkode.INGEN_NYFOEDTE_UTEN_FAR));
 
     registrerteNyfoedteUtenFar.stream().filter(Objects::nonNull).filter(fnrBarn -> fnrBarn.equals(fnrOppgittBarn)).collect(Collectors.toSet())
-        .stream().findAny().orElseThrow(() -> new ManglerRelasjonException(Feilkode.BARN_MANGLER_RELASJON_TIL_MOR));
+        .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.BARN_MANGLER_RELASJON_TIL_MOR));
   }
 
   /**

@@ -2,6 +2,7 @@ package no.nav.farskapsportal.api;
 
 public enum Feilkode {
 
+  BARN_FOEDT_UTENFOR_NORGE("Oppgitt nyfødt barn er ikke født i Norge"),
   BARN_MANGLER_RELASJON_TIL_MOR("Oppgitt barn mangler relasjon til mor"),
   BARN_HAR_FLERE_ERLAERINGER("Feil i datagrunnlag. Barnet er involvert i mer enn én farskapserklæering"),
   DOKUMENT_MANGLER_INNOHLD("Farskapserklæringsdokumentet er uten innhold"),

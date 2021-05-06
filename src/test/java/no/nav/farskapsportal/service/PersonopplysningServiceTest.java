@@ -3,6 +3,7 @@ package no.nav.farskapsportal.service;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static no.nav.farskapsportal.service.FarskapsportalService.KODE_LAND_NORGE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -358,7 +359,7 @@ public class PersonopplysningServiceTest {
           .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(tvilling1, tvilling2));
-      when(pdlApiConsumerMock.henteFoedsel(anyString())).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).build());
+      when(pdlApiConsumerMock.henteFoedsel(anyString())).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).foedeland(KODE_LAND_NORGE).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
