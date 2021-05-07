@@ -3,6 +3,8 @@ package no.nav.farskapsportal.consumer.pdl;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.FAR;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
+import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,6 +23,7 @@ import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
@@ -29,6 +32,7 @@ import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
@@ -207,6 +211,31 @@ public class PdlApiConsumerTest {
   }
 
   @Nested
+  @DisplayName("Hente folkeregisteridentifikator")
+  class Folkeregisteridentifikator {
+
+    @Test
+    void skalHenteFolkeregisteridentifikatorForMor() {
+
+      // given
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFolkeregisteridentifikator(
+          FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(MOR.getFoedselsnummer()).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build()));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var folkeregisteridentifikatorDto = pdlApiConsumer.henteFolkeregisteridentifikator(MOR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertThat(folkeregisteridentifikatorDto.getStatus()).isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK),
+          () -> assertThat(folkeregisteridentifikatorDto.getType()).isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+      );
+    }
+  }
+
+  @Nested
   @DisplayName("Hente fødselsdato")
   class Foedsel {
 
@@ -359,7 +388,8 @@ public class PdlApiConsumerTest {
 
       // given
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonBostedsadresse(BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("5").husbokstav("B").postnummer("0202").build()).build()));
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonBostedsadresse(BostedsadresseDto.builder()
+          .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("5").husbokstav("B").postnummer("0202").build()).build()));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when

@@ -50,10 +50,10 @@ public class PdlApiStub {
 
   public void runPdlApiHentPersonStub(List<HentPersonSubResponse> subResponses, String ident) {
 
-    var q = stubHentPerson(subResponses);
+    var query = stubHentPerson(subResponses);
 
     stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).willReturn(
-        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(stubHentPerson(subResponses))));
+        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(query)));
   }
 
   public void runPdlApiHentPersonFantIkkePersonenStub() {

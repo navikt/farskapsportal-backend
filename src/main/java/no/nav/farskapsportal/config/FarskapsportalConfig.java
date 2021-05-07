@@ -122,16 +122,16 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapsportalEgenskaper farskapsportalEgenskaper,
-      FarskapserklaeringDao farskapserklaeringDao, Mapper mapper, BarnDao barnDao, ForelderDao forelderDao,
+  public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapserklaeringDao farskapserklaeringDao,
+      Mapper mapper, BarnDao barnDao, ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao, MeldingsloggDao meldingsloggDao) {
     return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
         meldingsloggDao, mapper);
   }
 
   @Bean
-  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer) {
-    return PersonopplysningService.builder().pdlApiConsumer(pdlApiConsumer).build();
+  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer, FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    return PersonopplysningService.builder().pdlApiConsumer(pdlApiConsumer).farskapsportalEgenskaper(farskapsportalEgenskaper).build();
   }
 
   @Bean
