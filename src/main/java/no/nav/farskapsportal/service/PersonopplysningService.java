@@ -33,8 +33,6 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 public class PersonopplysningService {
 
-  public final static String FORENKLET_STATUS_DNUMMER = "dNummer";
-
   private final PdlApiConsumer pdlApiConsumer;
 
   private final FarskapsportalEgenskaper farskapsportalEgenskaper;
