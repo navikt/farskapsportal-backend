@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import lombok.AllArgsConstructor;
@@ -77,7 +76,7 @@ public class SkattConsumer {
     requestHeadersAttachment.setContentType(MediaType.APPLICATION_PDF);// extract mediatype from file extension
     HttpEntity<ByteArrayResource> padesDokument;
 
-    var fileAsResource = new ByteArrayResource(readFile()) {
+    var fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getDokumentinnhold().getInnhold()) {
       @Override
       public String getFilename() {
         return farskapserklaering.getDokument().getDokumentnavn();
@@ -106,20 +105,6 @@ public class SkattConsumer {
     }
   }
 
-  private byte[] readFile() {
-    try {
-    var filnavn = "fp-20210428.pdf";
-    var classLoader = getClass().getClassLoader();
-    File file = new File(classLoader.getResource(filnavn).getFile());
-
-      return Files.readAllBytes(file.toPath());
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-    }
-
-    return null;
-  }
-
   private String byggeMeldingTilSkatt(Farskapserklaering farskapserklaering) {
 
     try {
@@ -128,7 +113,7 @@ public class SkattConsumer {
       var xmlString = new StringWriter();
       Marshaller marshaller = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class).createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-           marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
+      marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
 
       return xmlString.toString();
     } catch (JAXBException jaxbe) {
@@ -220,7 +205,7 @@ public class SkattConsumer {
     return new Foedselsnummer(new Tekst(foedselsnummer));
   }
 
-  private Tekst tilTekst(String streng){
+  private Tekst tilTekst(String streng) {
     return new Tekst(streng);
   }
 

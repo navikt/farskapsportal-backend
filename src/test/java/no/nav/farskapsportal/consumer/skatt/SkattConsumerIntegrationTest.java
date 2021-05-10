@@ -6,6 +6,9 @@ import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
@@ -45,11 +48,26 @@ public class SkattConsumerIntegrationTest {
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.setMeldingsidSkatt("12345");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+
     farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+        .setDokumentinnhold(Dokumentinnhold.builder().innhold(readFile()).build());
 
     // when, then
     assertDoesNotThrow(() -> skattConsumer.registrereFarskap(farskapserklaering));
+  }
+
+  private byte[] readFile() {
+    try {
+      var filnavn = "fp-20210428.pdf";
+      var classLoader = getClass().getClassLoader();
+      File file = new File(classLoader.getResource(filnavn).getFile());
+
+      return Files.readAllBytes(file.toPath());
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
+
+    return null;
   }
 
 }
