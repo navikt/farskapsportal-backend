@@ -77,7 +77,9 @@ public class SkattConsumer {
     requestHeadersAttachment.setContentType(MediaType.APPLICATION_PDF);// extract mediatype from file extension
     HttpEntity<ByteArrayResource> padesDokument;
 
-    var fileAsResource = new ByteArrayResource(readFile()) {
+
+    var fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getDokumentinnhold().getInnhold()) {
+      
       @Override
       public String getFilename() {
         return farskapserklaering.getDokument().getDokumentnavn();
@@ -219,8 +221,8 @@ public class SkattConsumer {
   private Foedselsnummer tilFoedsedslsnummer(String foedselsnummer) {
     return new Foedselsnummer(new Tekst(foedselsnummer));
   }
-
-  private Tekst tilTekst(String streng){
+  
+  private Tekst tilTekst(String streng) {
     return new Tekst(streng);
   }
 
