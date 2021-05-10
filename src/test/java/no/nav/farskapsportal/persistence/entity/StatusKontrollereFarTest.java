@@ -36,11 +36,11 @@ public class StatusKontrollereFarTest {
   void toObjekterMedSammeMorAntallFeiledeForsoekOgTidspunktForSisteForsoekSkalGiSammeHashkode() {
 
     // given
-    var tidspunktForSisteFeiledeForsoek = LocalDateTime.now();
+    var tidspunktForNullstilling = LocalDateTime.now().plusHours(8);
     var antallFeiledeForsoek = 2;
-    var objekt1 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek)
+    var objekt1 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktForNullstilling(tidspunktForNullstilling)
         .antallFeiledeForsoek(antallFeiledeForsoek).build();
-    var objekt2 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek)
+    var objekt2 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktForNullstilling(tidspunktForNullstilling)
         .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
     // then
@@ -52,11 +52,11 @@ public class StatusKontrollereFarTest {
   void skalIkkeGiSammeHashkodeForToObjekterMedSammeMorAntallFeiledeForsoekMenForskjelligeTidspunktForSisteForsoek() {
 
     // given
-    var tidspunktForSisteFeiledeForsoek = LocalDateTime.now();
+    var tidspunktForNullstilling = LocalDateTime.now().plusHours(5);
     var antallFeiledeForsoek = 2;
-    var objekt1 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek)
+    var objekt1 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktForNullstilling(tidspunktForNullstilling)
         .antallFeiledeForsoek(antallFeiledeForsoek).build();
-    var objekt2 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktSisteFeiledeForsoek(tidspunktForSisteFeiledeForsoek.plusHours(1))
+    var objekt2 = StatusKontrollereFar.builder().mor(mapper.toEntity(MOR)).tidspunktForNullstilling(tidspunktForNullstilling.plusHours(1))
         .antallFeiledeForsoek(antallFeiledeForsoek).build();
 
     // then

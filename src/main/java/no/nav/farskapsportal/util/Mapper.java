@@ -111,13 +111,13 @@ public class Mapper {
 
   public StatusKontrollereFar toEntity(StatusKontrollereFarDto statusKontrollereFarDto) {
     var mor = toEntity(statusKontrollereFarDto.getMor());
-    return StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(statusKontrollereFarDto.getTidspunktSisteFeiledeForsoek())
+    return StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(statusKontrollereFarDto.getTidspunktForNullstilling())
         .antallFeiledeForsoek(statusKontrollereFarDto.getAntallFeiledeForsoek()).build();
   }
 
   public StatusKontrollereFarDto toDto(StatusKontrollereFar statusKontrollereFar) {
     var morDto = toDto(statusKontrollereFar.getMor());
-    return StatusKontrollereFarDto.builder().mor(morDto).tidspunktSisteFeiledeForsoek(statusKontrollereFar.getTidspunktSisteFeiledeForsoek())
+    return StatusKontrollereFarDto.builder().mor(morDto).tidspunktForNullstilling(statusKontrollereFar.getTidspunktForNullstilling())
         .antallFeiledeForsoek(statusKontrollereFar.getAntallFeiledeForsoek()).build();
   }
 }

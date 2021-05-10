@@ -1,7 +1,10 @@
 package no.nav.farskapsportal.service;
 
+import static no.nav.farskapsportal.service.FarskapsportalService.KODE_LAND_NORGE;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -12,16 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Kjoenn;
+import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
-import no.nav.farskapsportal.exception.ValideringException;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -29,9 +33,9 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 public class PersonopplysningService {
 
-  private static int MAKS_ALDER_I_MND_FOR_BARN_UTEN_FAR = 4;
-
   private final PdlApiConsumer pdlApiConsumer;
+
+  private final FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   public Set<String> henteNyligFoedteBarnUtenRegistrertFar(String fnrMor) {
     Set<String> spedbarnUtenFar = new HashSet<>();
@@ -44,7 +48,7 @@ public class PersonopplysningService {
 
     for (String fnrBarn : registrerteBarn) {
       var fd = henteFoedselsdato(fnrBarn);
-      if (fd.isAfter(LocalDate.now().minusMonths(MAKS_ALDER_I_MND_FOR_BARN_UTEN_FAR))) {
+      if (fd.isAfter(LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()))) {
         List<FamilierelasjonerDto> spedbarnetsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrBarn);
         var spedbarnetsFarsrelasjon = spedbarnetsFamilierelasjoner.stream()
             .filter(f -> f.getRelatertPersonsRolle().name().equals(Forelderrolle.FAR.toString())).findFirst();
@@ -54,11 +58,18 @@ public class PersonopplysningService {
       }
     }
 
-    return spedbarnUtenFar;
+    // Barn må være født i Norge
+    return filrereBortBarnFoedtUtenforNorge(spedbarnUtenFar);
   }
 
-  public String henteFoedested(String foedselsnummer) {
-    return null;
+  public boolean erDoed(String foedselsnummer) {
+    var doedsfallDto = pdlApiConsumer.henteDoedsfall(foedselsnummer);
+    if (doedsfallDto == null) {
+      return false;
+    } else {
+      log.warn("Person er registrert død den {}", doedsfallDto.getDoedsdato());
+      return true;
+    }
   }
 
   public boolean harNorskBostedsadresse(String foedselsnummer) {
@@ -67,7 +78,8 @@ public class PersonopplysningService {
       log.info("Personen er registrert med norsk vegadresse på postnummer: {}", bostedsadresseDto.getVegadresse().getPostnummer());
       return true;
     } else if (bostedsadresseDto.getMatrikkeladresse() != null && bostedsadresseDto.getMatrikkeladresse().getPostnummer() != null) {
-      log.warn("Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}", bostedsadresseDto.getMatrikkeladresse().getPostnummer());
+      log.warn("Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}",
+          bostedsadresseDto.getMatrikkeladresse().getPostnummer());
       return true;
     } else if (bostedsadresseDto.getUtenlandskAdresse() != null) {
       var utenlandskAdresseDto = bostedsadresseDto.getUtenlandskAdresse();
@@ -77,11 +89,23 @@ public class PersonopplysningService {
       log.warn("Personen står oppført med ukjent bosted i PDL, kommunenummer fra siste kjente bostedsadresse: {}",
           ukjentBostedDto.getBostedskommune());
     }
-   return false;
+    return false;
+  }
+
+  public String henteFoedested(String foedselsnummer) {
+    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedested();
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
-    return pdlApiConsumer.henteFoedselsdato(foedselsnummer);
+    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedselsdato();
+  }
+
+  public String henteFoedeland(String foedselsnummer) {
+    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedeland();
+  }
+
+  public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
+    return pdlApiConsumer.henteFolkeregisteridentifikator(foedselsnummer);
   }
 
   public Forelderrolle bestemmeForelderrolle(String foedselsnummer) {
@@ -113,19 +137,6 @@ public class PersonopplysningService {
     return Kjoenn.KVINNE.equals(gjeldendeKjoenn) ? Forelderrolle.MOR : Forelderrolle.FAR;
   }
 
-  private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
-
-    if (kjoennshistorikk.size() == 1) {
-      return kjoennshistorikk.get(0);
-    }
-
-    var minsteGyldighetstidspunkt = kjoennshistorikk.stream().map(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt())
-        .min(LocalDateTime::compareTo).orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_LAVESTE_GYLDIGHETSTIDSPUNKT));
-    return kjoennshistorikk.stream()
-        .filter(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt().equals(minsteGyldighetstidspunkt)).findFirst()
-        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ORIGINALT));
-  }
-
   public KjoennDto henteGjeldendeKjoenn(String foedselsnummer) {
     return pdlApiConsumer.henteKjoennUtenHistorikk(foedselsnummer);
   }
@@ -138,11 +149,13 @@ public class PersonopplysningService {
     return pdlApiConsumer.henteSivilstand(foedselsnummer);
   }
 
-  public void erMyndig(String foedselsnummer) {
+  public boolean erMyndig(String foedselsnummer) {
     var foedselsdato = henteFoedselsdato(foedselsnummer);
     if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
-      throw new ValideringException(Feilkode.IKKE_MYNDIG);
+      log.warn("Forelder med fødselsdato {}, er ikke myndig", foedselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+      return false;
     }
+    return true;
   }
 
   public void navnekontroll(String navn, NavnDto navnFraRegister) {
@@ -159,7 +172,25 @@ public class PersonopplysningService {
     log.info("Navnekontroll gjennomført uten feil");
   }
 
+  private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
+
+    if (kjoennshistorikk.size() == 1) {
+      return kjoennshistorikk.get(0);
+    }
+
+    var minsteGyldighetstidspunkt = kjoennshistorikk.stream().map(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt())
+        .min(LocalDateTime::compareTo).orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_LAVESTE_GYLDIGHETSTIDSPUNKT));
+    return kjoennshistorikk.stream()
+        .filter(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt().equals(minsteGyldighetstidspunkt)).findFirst()
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ORIGINALT));
+  }
+
   private String hentMellomnavnHvisFinnes(NavnDto navnFraRegister) {
     return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? "" : navnFraRegister.getMellomnavn();
+  }
+
+  private Set<String> filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
+    return nyfoedteBarn.stream().filter(barn -> pdlApiConsumer.henteFoedsel(barn).getFoedeland().equalsIgnoreCase(KODE_LAND_NORGE))
+        .collect(Collectors.toSet());
   }
 }

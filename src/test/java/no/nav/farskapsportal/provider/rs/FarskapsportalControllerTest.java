@@ -9,6 +9,8 @@ import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.henteNyligFoedtBarn;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static no.nav.farskapsportal.TestUtils.tilUri;
+import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
+import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -53,14 +55,17 @@ import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
@@ -214,13 +219,19 @@ public class FarskapsportalControllerTest {
             new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
             new HentPersonSivilstand(sivilstandMor),
             new HentPersonBostedsadresse(BOSTEDSADRESSE),
-            new HentPersonNavn(NAVN_MOR)),
+            new HentPersonNavn(NAVN_MOR),
+            new HentPersonDoedsfall(null),
+            new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build())),
         MOR.getFoedselsnummer());
 
     pdlApiStub.runPdlApiHentPersonStub(
         List.of(new HentPersonKjoenn(KJOENNSHISTORIKK_FAR),
             new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-            new HentPersonNavn(NAVN_FAR)),
+            new HentPersonNavn(NAVN_FAR),
+            new HentPersonDoedsfall(null),
+            new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build())),
         KONTROLLEREOPPLYSNINGER_OM_FAR.getFoedselsnummer());
   }
 
@@ -288,7 +299,8 @@ public class FarskapsportalControllerTest {
       var brukerinformasjonResponse = respons.getBody();
 
       // then
-      assertAll(() -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
+      assertAll(
+          () -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
           () -> assertEquals(Forelderrolle.MOR, brukerinformasjonResponse.getForelderrolle(), "Mor skal ha forelderrolle MOR"),
           () -> assertEquals(1, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size(),
               "Lista over nyfødte barn uten registrert far skal inneholde ett element"),
@@ -587,7 +599,10 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
               new HentPersonNavn(registrertNavn),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           fnrFar);
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -597,7 +612,10 @@ public class FarskapsportalControllerTest {
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonBostedsadresse(BostedsadresseDto.builder()
                   .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
-                  .build())),
+                  .build()),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           MOR.getFoedselsnummer());
 
       // when
@@ -622,7 +640,11 @@ public class FarskapsportalControllerTest {
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonNavn(oppgittNavn), new HentPersonFoedsel(FOEDSELSDATO_MOR, false)));
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonNavn(oppgittNavn),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonDoedsfall(null)));
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
@@ -647,7 +669,11 @@ public class FarskapsportalControllerTest {
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonKjoenn(kjoennshistorikk), new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonNavn(registrertNavn)));
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonNavn(registrertNavn),
+              new HentPersonDoedsfall(null)));
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
@@ -674,6 +700,11 @@ public class FarskapsportalControllerTest {
 
       // then
       assertSame(respons.getStatusCode(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void skalViseAntallResterendeForsoekDersomFeilNavnOppgis() {
+
     }
   }
 
@@ -789,7 +820,10 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(NAVN_MOR),
               new HentPersonBostedsadresse(BostedsadresseDto.builder()
                   .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0100").build())
-                  .build())),
+                  .build()),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                  .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build())),
           MOR.getFoedselsnummer());
 
       var sivilstandFar = Sivilstandtype.GIFT;
@@ -798,7 +832,11 @@ public class FarskapsportalControllerTest {
               new HentPersonKjoenn(KJOENNSHISTORIKK_FAR),
               new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
               new HentPersonNavn(NAVN_FAR),
-              new HentPersonSivilstand(sivilstandFar)),
+              new HentPersonSivilstand(sivilstandFar),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                  .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build())
+          ),
           KONTROLLEREOPPLYSNINGER_OM_FAR.getFoedselsnummer());
 
       // legger på redirecturl til dokument i void-metode

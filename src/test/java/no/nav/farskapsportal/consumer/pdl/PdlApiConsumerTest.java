@@ -1,7 +1,10 @@
 package no.nav.farskapsportal.consumer.pdl;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static no.nav.farskapsportal.TestUtils.FAR;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
+import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,19 +20,23 @@ import java.util.stream.Stream;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
+import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
-import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSubQuery;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSubResponse;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -71,8 +78,8 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(KjoennType.KVINNE));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(KjoennType.KVINNE));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var kjoenn = pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor);
@@ -120,8 +127,8 @@ public class PdlApiConsumerTest {
           .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
 
       var sortedMap = new TreeMap<KjoennType, LocalDateTime>(map);
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonKjoenn(sortedMap));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(sortedMap));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var historikk = pdlApiConsumer.henteKjoennMedHistorikk(fnrMor);
@@ -160,8 +167,8 @@ public class PdlApiConsumerTest {
       var fnrOppgittFar = "01018512345";
       stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
       var registrertNavn = NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonNavn(registrertNavn));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var navnDto = pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar);
@@ -180,8 +187,8 @@ public class PdlApiConsumerTest {
       var fnrOppgittFar = "01018512345";
       stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
       var registrertNavn = NavnDto.builder().mellomnavn("Parafin").etternavn("Olsen").build();
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonNavn(registrertNavn));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when, then
       assertThrows(NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
@@ -195,11 +202,36 @@ public class PdlApiConsumerTest {
       var fnrOppgittFar = "01018512345";
       stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
       var registrertNavn = NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").build();
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonNavn(registrertNavn));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when, then
       assertThrows(NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
+    }
+  }
+
+  @Nested
+  @DisplayName("Hente folkeregisteridentifikator")
+  class Folkeregisteridentifikator {
+
+    @Test
+    void skalHenteFolkeregisteridentifikatorForMor() {
+
+      // given
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFolkeregisteridentifikator(
+          FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(MOR.getFoedselsnummer()).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build()));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var folkeregisteridentifikatorDto = pdlApiConsumer.henteFolkeregisteridentifikator(MOR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertThat(folkeregisteridentifikatorDto.getStatus()).isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK),
+          () -> assertThat(folkeregisteridentifikatorDto.getType()).isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+      );
     }
   }
 
@@ -215,14 +247,31 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "030493240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonFoedsel(morsFoedselsdato, false));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFoedsel(morsFoedselsdato, false));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var returnertFoedselsdato = pdlApiConsumer.henteFoedselsdato(fnrMor);
+      var foedselDto = pdlApiConsumer.henteFoedsel(fnrMor);
 
       // then
-      assertEquals(morsFoedselsdato, returnertFoedselsdato, "Mors fødselsdato skal være den samme som den returnerte datoen");
+      assertEquals(morsFoedselsdato, foedselDto.getFoedselsdato(), "Mors fødselsdato skal være den samme som den returnerte datoen");
+    }
+
+    @Test
+    void skalHenteFoedestedForPerson() {
+      var morsFoedselsdato = LocalDate.of(1993, 4, 3);
+
+      // given
+      var fnrMor = "030493240280";
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFoedsel(morsFoedselsdato, "Tana", false));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var foedselDto = pdlApiConsumer.henteFoedsel(fnrMor);
+
+      // then
+      assertEquals("Tana", foedselDto.getFoedested(), "Mors fødselsdato skal være den samme som den returnerte datoen");
     }
   }
 
@@ -237,8 +286,8 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "13108411110";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonFamilierelasjoner(null, "1234"));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFamilierelasjoner(null, "1234"));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var farsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrMor);
@@ -257,8 +306,8 @@ public class PdlApiConsumerTest {
       var familierelasjonerDto = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrBarn).relatertPersonsRolle(FamilierelasjonRolle.BARN)
           .minRolleForPerson(FamilierelasjonRolle.FAR).build();
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonFamilierelasjoner(familierelasjonerDto, "1234"));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFamilierelasjoner(familierelasjonerDto, "1234"));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var farsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrFar);
@@ -284,8 +333,8 @@ public class PdlApiConsumerTest {
       var fnrFar = "13108411111";
 
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.UGIFT));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.UGIFT));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var farsSivilstand = pdlApiConsumer.henteSivilstand(fnrFar);
@@ -301,8 +350,8 @@ public class PdlApiConsumerTest {
       var fnr = "13108411111";
 
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var sivilstand = pdlApiConsumer.henteSivilstand(fnr);
@@ -318,8 +367,8 @@ public class PdlApiConsumerTest {
       var fnr = "13108411111";
 
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var personensSivilstand = pdlApiConsumer.henteSivilstand(fnr);
@@ -339,8 +388,9 @@ public class PdlApiConsumerTest {
 
       // given
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubQuery> subQueries = List.of(new HentPersonBostedsadresse(BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("5").husbokstav("B").postnummer("0202").build()).build()));
-      pdlApiStub.runPdlApiHentPersonStub(subQueries);
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonBostedsadresse(BostedsadresseDto.builder()
+          .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("5").husbokstav("B").postnummer("0202").build()).build()));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var bostedsadresseDto = pdlApiConsumer.henteBostedsadresse(MOR.getFoedselsnummer());
@@ -352,5 +402,47 @@ public class PdlApiConsumerTest {
           () -> assertThat(bostedsadresseDto.getVegadresse().getPostnummer()).isEqualTo("0202")
       );
     }
+  }
+
+  @Nested
+  @DisplayName("Hente doedsfall")
+  class Doedsfall {
+
+    @Test
+    void skalHenteInformasjonOmDoedsfallForLevendePerson() {
+
+      // given
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(null).build()));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var doedsfallDto = pdlApiConsumer.henteDoedsfall(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(doedsfallDto).isNull();
+
+    }
+
+    @Test
+    void skalHenteInformasjonOmDoedsfallForDoedPerson() {
+
+      // given
+      var doedsdato = LocalDate.now().minusWeeks(5);
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(doedsdato).build()));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var doedsfallDto = pdlApiConsumer.henteDoedsfall(FAR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertThat(doedsfallDto).isNotNull(),
+          () -> assertThat(doedsfallDto.getDoedsdato()).isEqualTo(doedsdato)
+      );
+
+    }
+
   }
 }

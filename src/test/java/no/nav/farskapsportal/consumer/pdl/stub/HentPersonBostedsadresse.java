@@ -6,15 +6,15 @@ import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 
 @Value
 @Getter
-public class HentPersonBostedsadresse implements HentPersonSubQuery {
+public class HentPersonBostedsadresse implements HentPersonSubResponse {
 
-  String query;
+  String response;
 
   public HentPersonBostedsadresse(BostedsadresseDto bostedsadresseDto) {
-    this.query = buildQuery(bostedsadresseDto);
+    this.response = buildResponse(bostedsadresseDto);
   }
 
-  private String buildQuery(BostedsadresseDto bostedsadresseDto) {
+  private String buildResponse(BostedsadresseDto bostedsadresseDto) {
 
     if (bostedsadresseDto.getVegadresse() != null) {
 

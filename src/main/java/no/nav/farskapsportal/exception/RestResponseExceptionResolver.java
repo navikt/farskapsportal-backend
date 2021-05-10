@@ -92,16 +92,6 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({MorHarIngenNyfoedteUtenFarException.class, ManglerRelasjonException.class, OppretteFarskapserklaeringException.class})
-  protected ResponseEntity<?> handleOppretteFarskapExceptions(OppretteFarskapserklaeringException e) {
-    exceptionLogger.logException(e, "RestResponseExceptionResolver");
-
-    var feilmelding = "Opprettelse av farskapserklæring feilet!";
-
-    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.BAD_REQUEST);
-  }
-
-  @ResponseBody
   @ExceptionHandler({OppretteSigneringsjobbException.class})
   protected ResponseEntity<?> handleOppretteSigneringsjobbException(OppretteSigneringsjobbException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
@@ -128,6 +118,7 @@ public class RestResponseExceptionResolver {
         statusKontrollereFarDto.isEmpty() ? FarskapserklaeringFeilResponse.builder().feilkode(feilkode).feilkodebeskrivelse(feilkode.getBeskrivelse())
             .build() : FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
             .antallResterendeForsoek(Optional.of(statusKontrollereFarDto.get().getAntallResterendeForsoek()))
+            .tidspunktForNullstillingAvForsoek(statusKontrollereFarDto.get().getTidspunktForNullstilling())
             .feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
 
     return new ResponseEntity<>(respons, headers, httpStatus);
