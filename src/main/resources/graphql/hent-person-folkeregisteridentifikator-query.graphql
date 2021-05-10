@@ -1,0 +1,10 @@
+query($ident: ID!, $historikk: Boolean!) {
+    hentPerson(ident: $ident) {
+        folkeregisteridentifikator(historikk: $historikk){
+            identifikasjonsnummer,
+            status,
+            type,
+            metadata {opplysningsId, master}
+        }
+    }
+}

@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.service;
 
+import static no.nav.farskapsportal.api.Rolle.MOR;
+
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -102,18 +104,18 @@ public class FarskapsportalService {
       // Erklæringer som mangler mors signatur
       avventerSignereringPaaloggetBruker = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
           .filter(fe -> fe.getDokument().getSignertAvMor() == null).collect(Collectors.toSet());
-      avventerSignereringPaaloggetBruker.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
+      avventerSignereringPaaloggetBruker.forEach(fe -> fe.setPaaloggetBrukersRolle(MOR));
 
       // Hente mors erklæringer som bare mangler fars signatur
       avventerSigneringMotpart = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull).filter(fe -> fe.getDokument().getSignertAvMor() != null)
           .filter(fe -> fe.getDokument().getSignertAvFar() == null).collect(Collectors.toSet());
-      avventerSigneringMotpart.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
+      avventerSigneringMotpart.forEach(fe -> fe.setPaaloggetBrukersRolle(MOR));
 
       // Mors erklaeringer som er signert av begge foreldrene
       avventerRegistreringSkatt = alleMorsAktiveErklaeringer.stream().filter(Objects::nonNull)
           .filter(fe -> fe.getDokument().getSignertAvMor() != null).filter(fe -> fe.getDokument().getSignertAvFar() != null)
           .collect(Collectors.toSet());
-      avventerRegistreringSkatt.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
+      avventerRegistreringSkatt.forEach(fe -> fe.setPaaloggetBrukersRolle(MOR));
     }
 
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
@@ -296,6 +298,27 @@ public class FarskapsportalService {
     if (!(Forelderrolle.FAR.equals(farsForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(farsForelderrolle))) {
       throw new ValideringException(Feilkode.FEIL_ROLLE_FAR);
     }
+
+    // Far skal ikke være registrert med dnummer.
+    validereAtPersonHarAktivtFoedselsnummer(foedselsnummer, Rolle.FAR);
+  }
+
+  private void validereAtPersonHarAktivtFoedselsnummer(String foedselsnummer, Rolle rolle) {
+    var folkeregisteridentifikatorDto = personopplysningService.henteFolkeregisteridentifikator(foedselsnummer);
+    try {
+      Validate.isTrue(folkeregisteridentifikatorDto.getType().equalsIgnoreCase("FNR"));
+      Validate.isTrue(folkeregisteridentifikatorDto.getStatus().equalsIgnoreCase("I_BRUK"));
+    } catch (IllegalArgumentException iae){
+      throw new ValideringException(henteFeilkodeForManglerFnummer(rolle));
+    }
+  }
+
+  private Feilkode henteFeilkodeForManglerFnummer(Rolle rolle) {
+    switch(rolle) {
+      case MOR: return Feilkode.MOR_HAR_IKKE_FNUMMER;
+      case BARN: return Feilkode.BARN_HAR_IKKE_FNUMMER;
+      default: return Feilkode.FAR_HAR_IKKE_FNUMMER;
+    }
   }
 
   private void validereAtForelderErMyndig(String foedselsnummer) {
@@ -320,6 +343,9 @@ public class FarskapsportalService {
 
     // Mor må ha norsk bostedsadresse
     validereMorErBosattINorge(fnrMor);
+
+    // Mor kan ikke være registrert med dnummer
+    validereAtPersonHarAktivtFoedselsnummer(fnrMor, Rolle.MOR);
 
     // Bare mor kan oppretteFarskapserklæring
     riktigRolleForOpprettingAvErklaering(fnrMor);
@@ -353,6 +379,7 @@ public class FarskapsportalService {
       return;
     }
     validereFoedelandNorge(fnrNyfoedt);
+    validereAtPersonHarAktivtFoedselsnummer(fnrNyfoedt, Rolle.BARN);
     validereAlderNyfoedt(fnrNyfoedt);
     validereRelasjonerNyfoedt(fnrMor, fnrNyfoedt);
   }

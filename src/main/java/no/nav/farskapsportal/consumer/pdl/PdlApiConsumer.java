@@ -5,7 +5,6 @@ import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName.PDL_
 import static no.nav.farskapsportal.consumer.pdl.PdlDtoUtils.isMasterPdlOrFreg;
 import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,6 +19,7 @@ import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
+import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
@@ -40,6 +40,8 @@ public class PdlApiConsumer {
 
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
+  public static final String PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK = "I_BRUK";
+  public static final String PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR = "FNR";
 
   @NonNull
   private final RestTemplate restTemplate;
@@ -82,6 +84,19 @@ public class PdlApiConsumer {
     return foedselDtosFraPdlEllerFreg.stream().findFirst().orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
+  public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOLKEREGISTERIDENTIFIKATOR, false);
+    var folkeregisteridentifikatorDtos = respons.getData().getHentPerson().getFolkeregisteridentifikator();
+
+    var folkeregisteridentifikatorDtosFraFregEllerPdl = folkeregisteridentifikatorDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (folkeregisteridentifikatorDtosFraFregEllerPdl.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_FOLKEREGISTERIDENTIFIKATOR_IKKE_FUNNET);
+    }
+
+    return folkeregisteridentifikatorDtosFraFregEllerPdl.stream().filter(Objects::nonNull)
+        .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av folkeregisteridentifikator, forventet bare et innslag av folkeregisteridentifikator på person")));
+  }
   public List<FamilierelasjonerDto> henteFamilierelasjoner(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
     var familierelasjonerDtos = respons.getData().getHentPerson().getFamilierelasjoner();
@@ -100,18 +115,6 @@ public class PdlApiConsumer {
     var kjoennshistorikk = henteKjoenn(foedselsnummer, true);
 
     return kjoennshistorikk.stream().filter(Objects::nonNull).collect(toList());
-  }
-
-  private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
-    var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
-    var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
-
-    if (kjoennFraPdlEllerFreg.isEmpty()) {
-      throw new RessursIkkeFunnetException(Feilkode.PDL_KJOENN_INGEN_INFO);
-    }
-
-    return kjoennFraPdlEllerFreg;
   }
 
   @NotNull
@@ -147,6 +150,18 @@ public class PdlApiConsumer {
 
     return sivilstandFraPdlEllerFreg.stream().filter(Objects::nonNull)
         .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av sivilstand, forventet bare et innslag av sivilstand på person")));
+  }
+
+  private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
+    var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
+    var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (kjoennFraPdlEllerFreg.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_KJOENN_INGEN_INFO);
+    }
+
+    return kjoennFraPdlEllerFreg;
   }
 
   @Retryable(maxAttempts = 10)

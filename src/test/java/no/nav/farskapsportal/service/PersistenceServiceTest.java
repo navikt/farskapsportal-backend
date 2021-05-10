@@ -5,6 +5,8 @@ import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static no.nav.farskapsportal.api.Feilkode.ERKLAERING_EKSISTERER_BARN;
+import static no.nav.farskapsportal.api.Feilkode.ERKLAERING_EKSISTERER_MOR;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
@@ -488,8 +491,11 @@ public class PersistenceServiceTest {
       persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
 
       // when, then
-      assertThrows(ValideringException.class,
+      var valideringException = assertThrows(ValideringException.class,
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), UFOEDT_BARN));
+
+      // then
+      assertThat(valideringException.getFeilkode()).isEqualTo(ERKLAERING_EKSISTERER_MOR);
     }
 
     @Test
@@ -505,9 +511,12 @@ public class PersistenceServiceTest {
           .build();
       persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
-      // when, then
-      assertThrows(ValideringException.class, () -> persistenceService
+      // when
+      var valideringException = assertThrows(ValideringException.class, () -> persistenceService
           .ingenKonfliktMedEksisterendeFarskapserklaeringer(fnrMorUtenEksisterendeFarskapserklaering, FAR.getFoedselsnummer(), NYFOEDT_BARN));
+
+      // then
+      assertThat(valideringException.getFeilkode()).isEqualTo(ERKLAERING_EKSISTERER_BARN);
     }
 
     @Test
