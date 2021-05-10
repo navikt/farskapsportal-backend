@@ -1,5 +1,5 @@
 package no.nav.farskapsportal.api;
 
 public enum Rolle {
-  MOR, FAR
+  MOR, FAR, BARN
 }

@@ -34,10 +34,18 @@ Endepunktene er dokumentert med Swagger, og kan testes lokalt og på GCP dev:
 
 Ved lokal kjøring brukes Spring-boot-instansen FarskapsportalApplicationLocal. Denne er satt opp med token-supports test-token, og kjøres som standard
 med Spring-profilen local (se application.yml). Local-profilen benytter Wiremock for eksterne avhengigheter (security-token-service, pdl-api, Skatt,
-og Joark). Data til Wiremock-stubbene leses inn fra test/resources/stubs-mappa.``
+og Joark). Data til Wiremock-stubbene leses inn fra test/resources/stubs-mappa.
 
 Testtoken for lokalprofilen hentes fra http://localhost:8080/jwt.
 
+##### Lese secret fra GCP ved lokal kjøring
+
+For å sette GOOGLE_APPLICATION_CREDENTIALS for lokal kjøring, kjør følgende kommando i terminal med GCP SDK:
+
+>gcloud auth login --update-adc
+
+
+##### Lokal kjøring uten å lese secret fra GCP
 Ved lokal kjøring må Secret Manager være skrudd av. Dette gjøres i bootstrap.yml ved at spring.cloud.gcp.secretmanager.enabled settes til false, og
 gjelder alle profiler som ikke kjører på GCP (inkludert enhetstesting). For at dette skal fungere i Intellij, må active profiles settes i
 Run/Debug-konfigen som vist i bildet under:

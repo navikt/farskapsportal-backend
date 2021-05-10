@@ -10,15 +10,15 @@ import no.nav.farskapsportal.api.Sivilstandtype;
 
 @Value
 @Getter
-public class HentPersonSivilstand implements HentPersonSubQuery {
+public class HentPersonSivilstand implements HentPersonSubResponse {
 
-  String query;
+  String response;
 
   public HentPersonSivilstand(Sivilstandtype sivilstandtype) {
-    this.query = buildQuerySivilstand(sivilstandtype);
+    this.response = buildResponseSivilstand(sivilstandtype);
   }
 
-  private String buildQuerySivilstand(Sivilstandtype sivilstandtype) {
+  private String buildResponseSivilstand(Sivilstandtype sivilstandtype) {
     if (sivilstandtype == null) {
       return String.join("\n", " \"sivilstand\": [", "]");
     } else {

@@ -1,13 +1,17 @@
 package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Optional;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
@@ -19,6 +23,7 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
+import no.nav.farskapsportal.gcp.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
@@ -47,6 +52,27 @@ import org.springframework.web.client.RestTemplate;
 public class FarskapsportalConfig {
 
   public static final String X_API_KEY = "x-nav-apiKey";
+
+  @Bean
+  @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
+  public KeyStoreConfig keyStoreConfig(
+      @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
+      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
+      @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
+      @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
+      @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
+
+    log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
+
+    var secretPayload = accessSecretVersion
+        .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
+
+    log.info("lengde sertifikat: {}", secretPayload.getData().size());
+    var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
+
+    return KeyStoreConfig
+        .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test", sertifikatP12Passord, sertifikatP12Passord);
+  }
 
   @Bean
   public ConsumerEndpoint consumerEndpoint() {
@@ -96,16 +122,16 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapsportalEgenskaper farskapsportalEgenskaper,
-      FarskapserklaeringDao farskapserklaeringDao, Mapper mapper, BarnDao barnDao, ForelderDao forelderDao,
+  public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapserklaeringDao farskapserklaeringDao,
+      Mapper mapper, BarnDao barnDao, ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao, MeldingsloggDao meldingsloggDao) {
     return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
         meldingsloggDao, mapper);
   }
 
   @Bean
-  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer) {
-    return PersonopplysningService.builder().pdlApiConsumer(pdlApiConsumer).build();
+  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer, FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    return PersonopplysningService.builder().pdlApiConsumer(pdlApiConsumer).farskapsportalEgenskaper(farskapsportalEgenskaper).build();
   }
 
   @Bean

@@ -15,4 +15,8 @@ public class FeilNavnOppgittException extends ValideringException {
   public FeilNavnOppgittException() {
     super(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
   }
+
+  public FeilNavnOppgittException(Feilkode feilkode){
+    super(feilkode);
+  }
 }

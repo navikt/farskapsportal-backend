@@ -21,7 +21,7 @@ public class PdlApiStub {
   @Value("${url.pdl-api.graphql}")
   private String pdlApiGraphqlEndpoint;
 
-  private static String stubHentPerson(List<HentPersonSubQuery> subQueries) {
+  private static String stubHentPerson(List<HentPersonSubResponse> subResponses) {
 
     var startingElements = String.join("\n", " {", " \"data\": {", " \"hentPerson\": {");
 
@@ -31,9 +31,9 @@ public class PdlApiStub {
     stubResponse.append(startingElements);
 
     var count = 0;
-    for (HentPersonSubQuery subQuery : subQueries) {
-      stubResponse.append(subQuery.getQuery());
-      if (subQueries.size() > 1 && (count == 0 || count < (subQueries.size() - 1))) {
+    for (HentPersonSubResponse subResponse : subResponses) {
+      stubResponse.append(subResponse.getResponse());
+      if (subResponses.size() > 1 && (count == 0 || count < (subResponses.size() - 1))) {
         stubResponse.append(",");
       }
       count++;
@@ -44,13 +44,16 @@ public class PdlApiStub {
     return stubResponse.toString();
   }
 
-  public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries) {
-    runPdlApiHentPersonStub(subQueries, "");
+  public void runPdlApiHentPersonStub(List<HentPersonSubResponse> subResponses) {
+    runPdlApiHentPersonStub(subResponses, "");
   }
 
-  public void runPdlApiHentPersonStub(List<HentPersonSubQuery> subQueries, String ident) {
+  public void runPdlApiHentPersonStub(List<HentPersonSubResponse> subResponses, String ident) {
+
+    var query = stubHentPerson(subResponses);
+
     stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).willReturn(
-        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(stubHentPerson(subQueries))));
+        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(query)));
   }
 
   public void runPdlApiHentPersonFantIkkePersonenStub() {

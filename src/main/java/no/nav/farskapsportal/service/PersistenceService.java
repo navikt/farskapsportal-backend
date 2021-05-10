@@ -111,14 +111,14 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder);
   }
 
-  public Optional<FarskapserklaeringDto> henteBarnsEksisterendeErklaering(String fnrBarn) {
+  public Optional<Farskapserklaering> henteBarnsEksisterendeErklaering(String fnrBarn) {
     var farskapserklaeringer = farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn);
 
     if (farskapserklaeringer.isEmpty()) {
       return Optional.empty();
     }
 
-    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto)
+    return Optional.of(farskapserklaeringer.stream().filter(Objects::nonNull)
         .collect(toSingletonOrThrow(new FeilIDatagrunnlagException(Feilkode.BARN_HAR_FLERE_ERLAERINGER))));
   }
 
@@ -143,24 +143,29 @@ public class PersistenceService {
   @Transactional
   public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, int antallDagerTilForsoekNullstilles) {
     var muligStatusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
+    var naa = LocalDateTime.now();
+
     if (muligStatusKontrollereFar.isEmpty()) {
-      return lagreNyStatusKontrollereFar(fnrMor);
+      return lagreNyStatusKontrollereFar(fnrMor, LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
     } else {
+
       var statusKontrollereFar = muligStatusKontrollereFar.get();
-      var tidspunktNaarAntallForsoekNullstilles = statusKontrollereFar.getTidspunktSisteFeiledeForsoek().plusDays(antallDagerTilForsoekNullstilles);
-      var antallFeiledeForsoek =
-          statusKontrollereFar.getTidspunktSisteFeiledeForsoek().isBefore(tidspunktNaarAntallForsoekNullstilles) ? statusKontrollereFar
-              .getAntallFeiledeForsoek() : 0;
-      statusKontrollereFar.setAntallFeiledeForsoek(++antallFeiledeForsoek);
-      statusKontrollereFar.setTidspunktSisteFeiledeForsoek(LocalDateTime.now());
+      if (statusKontrollereFar.getTidspunktForNullstilling().isBefore(naa)) {
+        statusKontrollereFar.setAntallFeiledeForsoek(1);
+        statusKontrollereFar.setTidspunktForNullstilling(LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
+      } else {
+        var antallFeiledeForsoek = statusKontrollereFar.getAntallFeiledeForsoek();
+        statusKontrollereFar.setAntallFeiledeForsoek(++antallFeiledeForsoek);
+      }
+
       return statusKontrollereFar;
     }
   }
 
-  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor) {
+  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, LocalDateTime tidspunktForNullstilling) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
     var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
-    var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktSisteFeiledeForsoek(LocalDateTime.now()).antallFeiledeForsoek(1)
+    var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(tidspunktForNullstilling).antallFeiledeForsoek(1)
         .build();
     return statusKontrollereFarDao.save(statusKontrollereFar);
   }
@@ -186,7 +191,7 @@ public class PersistenceService {
     var barnErOppgittMedFoedselsnummer = barnDto.getFoedselsnummer() != null && barnDto.getFoedselsnummer().length() > 10;
 
     // Hente eventuelle eksisterende farskapserklaeringer for mor
-    var morsEksisterendeErklaeringer = henteMorsEksisterendeErklaeringer(fnrMor);
+    var morsEksisterendeErklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
 
     // Hente eventuell eksisterende farskapserklaering for barn, hvis barn oppgitt med fnr
     var barnsEksisterendeErklaering =
@@ -215,8 +220,8 @@ public class PersistenceService {
   }
 
   private void farForskjelligFraFarIEksisterendeFarskapserklaeringForNyfoedt(String fnrFar,
-      Set<FarskapserklaeringDto> morsEksisterendeFarskapserklaeringer) {
-    for (FarskapserklaeringDto farskapserklaering : morsEksisterendeFarskapserklaeringer) {
+      Set<Farskapserklaering> morsEksisterendeFarskapserklaeringer) {
+    for (Farskapserklaering farskapserklaering : morsEksisterendeFarskapserklaeringer) {
       if (!fnrFar.equals(farskapserklaering.getFar().getFoedselsnummer())) {
         throw new ValideringException(Feilkode.FORSKJELLIGE_FEDRE);
       }

@@ -1,5 +1,6 @@
 package no.nav.farskapsportal;
 
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
@@ -43,7 +44,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -55,9 +55,9 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class FarskapsportalApplicationLocal {
 
-  public static final String PROFILE_INTEGRATION_TEST = "integration-test";
   public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
+  public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
   public static final String PROFILE_LOCAL = "local";
   public static final String PROFILE_TEST = "test";
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
@@ -88,7 +88,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
   public KeyStoreConfig keyStoreConfig() throws IOException {
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
@@ -100,30 +100,9 @@ public class FarskapsportalApplicationLocal {
     }
   }
 
-  @Configuration
-  @Profile(PROFILE_INTEGRATION_TEST)
-  static class EsigneringIntegrationTestConfig {
-
-    @Value("${KEYSTORE_PASSWORD}")
-    String keystorePassword;
-
-    @Bean
-    @Profile(PROFILE_INTEGRATION_TEST)
-    public KeyStoreConfig keyStoreConfig() throws IOException {
-      var classLoader = getClass().getClassLoader();
-      try (InputStream inputStream = classLoader.getResourceAsStream("test_VS_decrypt_2018-2021.jceks")) {
-        if (inputStream == null) {
-          throw new IllegalArgumentException("Fant ikke test_VS_decrypt_2018-2021.jceks");
-        } else {
-          return KeyStoreConfig.fromJavaKeyStore(inputStream, "nav integrasjonstjenester test (buypass class 3 test4 ca 3)", keystorePassword, keystorePassword);
-        }
-      }
-    }
-  }
-
-
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST,
+      PROFILE_INTEGRATION_TEST})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))
@@ -132,7 +111,7 @@ public class FarskapsportalApplicationLocal {
 
   @Lazy
   @Configuration
-  @Profile({PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
+  @Profile({PROFILE_SKATT_SSL_TEST})
   static class SkattStubSslConfiguration {
 
     @LocalServerPort
@@ -185,7 +164,8 @@ public class FarskapsportalApplicationLocal {
 
     @Bean
     @Qualifier(PROFILE_INTEGRATION_TEST)
-    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate,
+        @Value("${url.skatt.base-url}") String baseUrl,
         @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
       log.info("Oppretter SkattConsumer med url {}", baseUrl);
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
@@ -219,7 +199,7 @@ public class FarskapsportalApplicationLocal {
   }
 
   @Configuration
-  @Profile(PROFILE_LOCAL_POSTGRES)
+  @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   public static class FlywayConfiguration {
 
     @Autowired

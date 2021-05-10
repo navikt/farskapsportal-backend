@@ -13,16 +13,15 @@ import org.springframework.core.io.ClassPathResource;
 
 @UtilityClass
 public class PdlApiQuery {
-  public static final String HENT_PERSON_FOEDSEL =
-      readGraphQLQueryFromFile("graphql/hent-person-foedsel-query.graphql");
-  public static final String HENT_PERSON_FAMILIERELASJONER =
-      readGraphQLQueryFromFile("graphql/hent-person-familierelasjoner-query.graphql");
-  public static final String HENT_PERSON_KJOENN =
-      readGraphQLQueryFromFile("graphql/hent-person-kjoenn-query.graphql");
-  public static final String HENT_PERSON_NAVN =
-      readGraphQLQueryFromFile("graphql/hent-person-navn-query.graphql");
-  public static final String HENT_PERSON_SIVILSTAND =
-      readGraphQLQueryFromFile("graphql/hent-person-sivilstand-query.graphql");
+
+  public static final String HENT_PERSON_BOSTEDSADRESSE = readGraphQLQueryFromFile("graphql/hent-person-bostedsadresse-query.graphql");
+  public static final String HENT_PERSON_DOEDSFALL = readGraphQLQueryFromFile("graphql/hent-person-doedsfall-query.graphql");
+  public static final String HENT_PERSON_FOEDSEL = readGraphQLQueryFromFile("graphql/hent-person-foedsel-query.graphql");
+  public static final String HENT_PERSON_FOLKEREGISTERIDENTIFIKATOR = readGraphQLQueryFromFile("graphql/hent-person-folkeregisteridentifikator-query.graphql");
+  public static final String HENT_PERSON_FAMILIERELASJONER = readGraphQLQueryFromFile("graphql/hent-person-familierelasjoner-query.graphql");
+  public static final String HENT_PERSON_KJOENN = readGraphQLQueryFromFile("graphql/hent-person-kjoenn-query.graphql");
+  public static final String HENT_PERSON_NAVN = readGraphQLQueryFromFile("graphql/hent-person-navn-query.graphql");
+  public static final String HENT_PERSON_SIVILSTAND = readGraphQLQueryFromFile("graphql/hent-person-sivilstand-query.graphql");
 
   private static String readGraphQLQueryFromFile(String file) {
     val resource = new ClassPathResource(file);

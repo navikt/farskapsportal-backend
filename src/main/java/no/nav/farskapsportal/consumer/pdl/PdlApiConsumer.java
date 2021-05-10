@@ -5,7 +5,6 @@ import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName.PDL_
 import static no.nav.farskapsportal.consumer.pdl.PdlDtoUtils.isMasterPdlOrFreg;
 import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,11 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
+import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
@@ -38,13 +40,38 @@ public class PdlApiConsumer {
 
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
+  public static final String PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK = "I_BRUK";
+  public static final String PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR = "FNR";
 
   @NonNull
   private final RestTemplate restTemplate;
   @NonNull
   private final ConsumerEndpoint consumerEndpoint;
 
-  public LocalDate henteFoedselsdato(String foedselsnummer) {
+  public BostedsadresseDto henteBostedsadresse(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_BOSTEDSADRESSE, false);
+    var bostedsadresseDtos = respons.getData().getHentPerson().getBostedsadresse();
+    var bostedsadresseFraPdlEllerFreg = bostedsadresseDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (bostedsadresseFraPdlEllerFreg.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_BOSTEDSADRESSE_MANGLER);
+    }
+    return bostedsadresseFraPdlEllerFreg.stream().findFirst()
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+  }
+
+  public DoedsfallDto henteDoedsfall(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_DOEDSFALL, false);
+    var doedsfallDto = respons.getData().getHentPerson().getDoedsfall();
+
+    if (doedsfallDto.isEmpty() || !isMasterPdlOrFreg(doedsfallDto.get(0))) {
+      return null;
+    } else {
+      return doedsfallDto.get(0);
+    }
+  }
+
+  public FoedselDto henteFoedsel(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
     var foedselDtos = respons.getData().getHentPerson().getFoedsel();
 
@@ -54,15 +81,26 @@ public class PdlApiConsumer {
       throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
     }
 
-    return foedselDtos.stream().filter(Objects::nonNull).map(FoedselDto::getFoedselsdato).findFirst()
-        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+    return foedselDtosFraPdlEllerFreg.stream().findFirst().orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
+  public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOLKEREGISTERIDENTIFIKATOR, false);
+    var folkeregisteridentifikatorDtos = respons.getData().getHentPerson().getFolkeregisteridentifikator();
+
+    var folkeregisteridentifikatorDtosFraFregEllerPdl = folkeregisteridentifikatorDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (folkeregisteridentifikatorDtosFraFregEllerPdl.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_FOLKEREGISTERIDENTIFIKATOR_IKKE_FUNNET);
+    }
+
+    return folkeregisteridentifikatorDtosFraFregEllerPdl.stream().filter(Objects::nonNull)
+        .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av folkeregisteridentifikator, forventet bare et innslag av folkeregisteridentifikator på person")));
+  }
   public List<FamilierelasjonerDto> henteFamilierelasjoner(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
     var familierelasjonerDtos = respons.getData().getHentPerson().getFamilierelasjoner();
     return familierelasjonerDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
-
   }
 
   public KjoennDto henteKjoennUtenHistorikk(String foedselsnummer) {
@@ -77,18 +115,6 @@ public class PdlApiConsumer {
     var kjoennshistorikk = henteKjoenn(foedselsnummer, true);
 
     return kjoennshistorikk.stream().filter(Objects::nonNull).collect(toList());
-  }
-
-  private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
-    var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
-    var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
-
-    if (kjoennFraPdlEllerFreg.isEmpty()) {
-      throw new RessursIkkeFunnetException(Feilkode.PDL_KJOENN_INGEN_INFO);
-    }
-
-    return kjoennFraPdlEllerFreg;
   }
 
   @NotNull
@@ -126,6 +152,18 @@ public class PdlApiConsumer {
         .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av sivilstand, forventet bare et innslag av sivilstand på person")));
   }
 
+  private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
+    var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
+    var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (kjoennFraPdlEllerFreg.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_KJOENN_INGEN_INFO);
+    }
+
+    return kjoennFraPdlEllerFreg;
+  }
+
   @Retryable(maxAttempts = 10)
   private GraphQLResponse hentePersondokument(String ident, String query, boolean inkludereHistorikk) {
     val graphQlRequest = GraphQLRequest.builder().query(query).variables(Map.of("historikk", inkludereHistorikk, "ident", ident)).build();
@@ -139,7 +177,7 @@ public class PdlApiConsumer {
       if (response == null) {
         throw new ValideringException(Feilkode.PDL_PERSON_IKKE_FUNNET);
       }
-    }  catch (Exception e) {
+    } catch (Exception e) {
       // Håndterer evnt feil i checkForPdlApiErrors
       e.printStackTrace();
       if (response == null) {

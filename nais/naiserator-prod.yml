@@ -50,6 +50,8 @@ spec:
       value: {{ posten_esignering_avbrutt_url }}
     - name: ESIGNERING_FEILET_URL
       value: {{ posten_esignering_feilet_url }}
+    - name: SKATT_URL
+      value: { { skatt_url } }
   gcp:
     sqlInstances:
       - name: fp

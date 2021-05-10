@@ -84,7 +84,7 @@ public class DifiESignaturConsumer {
     log.info("Antall signerere i respons: {}", directJob.getSigners().size());
 
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
-      Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra PDL!");
+      Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra Esigneringstjenesten!");
       if (signer.getPersonalIdentificationNumber().equals(mor.getFoedselsnummer())) {
         dokument.setSigneringsinformasjonMor(
             Signeringsinformasjon.builder().undertegnerUrl(signer.getSignerUrl().toString()).redirectUrl(signer.getRedirectUrl().toString()).build());
@@ -152,7 +152,7 @@ public class DifiESignaturConsumer {
       throw new InternFeilException(Feilkode.PADESURL_FEILFORMATERT);
     }
   }
-  
+
   public byte[] henteXadesXml(URI xadesUrl) {
     try {
       return client.getXAdES(XAdESReference.of(xadesUrl)).readAllBytes();

@@ -9,7 +9,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.consumer.skatt.api.ForespoerselOmRegistreringAvFarskap;
 import no.nav.farskapsportal.consumer.skatt.api.MeldingOmRegistreringAvFarskap;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
@@ -30,19 +29,21 @@ import wiremock.org.apache.commons.io.IOUtils;
 @ActiveProfiles({PROFILE_TEST, PROFILE_SKATT_SSL_TEST})
 public class SkattStubController {
 
-  @PostMapping(value = "/registrering_av_farskap_v1", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_XML_VALUE})
-  public ResponseEntity<Void> registrereFarskap(@RequestParam("vedlegg") MultipartFile vedlegg, @RequestParam("xml") String xml)
+  @PostMapping(value = "/registrering_av_farskap_v1.vedlegg", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_XML_VALUE})
+  public ResponseEntity<Void> registrereFarskap(@RequestParam("vedlegg") MultipartFile vedlegg, @RequestParam("melding") String xml)
       throws IOException, JAXBException {
-    log.info("Vedlegg og XML");
+    log.info("Vedlegg og Melding");
     var dokument = vedlegg.getBytes();
 
     JAXBContext context = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class);
     var meldingOmRegistreringAvFarskap = (MeldingOmRegistreringAvFarskap) context.createUnmarshaller()
         .unmarshal(IOUtils.toInputStream(xml));
 
-    return LocalDate.now().equals(tilLocalDate(meldingOmRegistreringAvFarskap.getForespoerselOmRegistreringAvFarskap().getRegistreringsdato().getDate())) && dokument != null && dokument.length > 0
-        ? new ResponseEntity<>(HttpStatus.OK)
-        : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    return
+        LocalDate.now().equals(tilLocalDate(meldingOmRegistreringAvFarskap.getForespoersel().getRegistreringsdato().getDate()))
+            && dokument != null && dokument.length > 0
+            ? new ResponseEntity<>(HttpStatus.OK)
+            : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   }
 
   private LocalDate tilLocalDate(XMLGregorianCalendar xmlGregorianCalendar) {

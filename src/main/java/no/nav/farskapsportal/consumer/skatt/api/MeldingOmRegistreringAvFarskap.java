@@ -14,15 +14,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@XmlRootElement
+@XmlRootElement(namespace = "folkeregisteret:melding:farskap:v1")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"innsending", "forespoerselOmRegistreringAvFarskap"})
+@XmlType(propOrder = {"innsending", "forespoersel"})
 public class MeldingOmRegistreringAvFarskap {
 
   @XmlElement
   private Innsending innsending;
 
   @XmlElement
-  private ForespoerselOmRegistreringAvFarskap forespoerselOmRegistreringAvFarskap;
+  private ForespoerselOmRegistreringAvFarskap forespoersel;
 
 }

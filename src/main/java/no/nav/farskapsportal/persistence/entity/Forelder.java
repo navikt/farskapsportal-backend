@@ -34,20 +34,11 @@ public class Forelder implements Serializable {
   @Column(updatable = false)
   private String foedselsnummer;
 
-  @Column(updatable = false)
-  private String fornavn;
-
-  @Column(updatable = false)
-  private String mellomnavn;
-
-  @Column(updatable = false)
-  private String etternavn;
-
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mor", cascade = CascadeType.MERGE)
-  private Set<Farskapserklaering> erklaeringerMor = new HashSet<>();
+  private final Set<Farskapserklaering> erklaeringerMor = new HashSet<>();
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "far", cascade = CascadeType.MERGE)
-  private Set<Farskapserklaering> erklaeringerFar = new HashSet<>();
+  private final Set<Farskapserklaering> erklaeringerFar = new HashSet<>();
 
   @Override
   public int hashCode() {
@@ -70,10 +61,5 @@ public class Forelder implements Serializable {
     }
     final Forelder other = (Forelder) obj;
     return foedselsnummer.equals(other.foedselsnummer);
-  }
-
-  @Override
-  public String toString() {
-    return fornavn + " " + (mellomnavn != null ? mellomnavn + " " : "") + etternavn;
   }
 }

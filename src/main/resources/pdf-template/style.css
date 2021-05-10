@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+body {
+    background-color: white;
+    margin-left: 100px;
+    margin-right: 100px;
+    font-size: 15px;
+}
+
+p {
+    left-margin: 100px;
+}
+
+td.beskrivelse {
+    font-weight: bold;
+}
+
+table {
+    margin-bottom: 10px;
+}

@@ -14,11 +14,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BarnDto {
+
   @ApiModelProperty(value = "Barnets termindato", example = "2021-05-02")
   private LocalDate termindato;
 
+  @ApiModelProperty(value = "Barnets fødselsdato", example = "2021-08-01")
+  LocalDate foedselsdato;
+
   @ApiModelProperty(value = "Barnets fødselsnummer hvis tilgjengelig", example = "01010112345")
   private String foedselsnummer;
+
+  @ApiModelProperty(value = "Barnets fødested")
+  private String foedested;
 
   @Override
   public String toString() {

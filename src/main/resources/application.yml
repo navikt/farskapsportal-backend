@@ -8,6 +8,11 @@ consumer.skatt:
   maks-ventetid-lesing: 10000
   maks-ventetid-forbindelse: 10000
 
+virksomhetssertifikat:
+  prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
+  hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN}
+  hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON}
+
 farskapsportal.egenskaper:
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21
@@ -30,6 +35,9 @@ management:
   endpoint.health.show-details: always
 
 url:
+  familieintegrasjoner:
+    base-url: ${FAMILIEINTEGRASJONER_URL}
+    poststed: "api/kodeverk/poststed/%s"
   pdl-api:
     base-url: ${APIGW_URL}
     graphql: "/pdl-api/graphql"
@@ -38,7 +46,7 @@ url:
     security-token-service: "/security-token-service/rest/v1/sts/token"
   skatt:
     base-url: ${SKATT_URL}
-    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1"
+    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
 
 farskapsportal-api:
   servicebruker.brukernavn: srvfarskapsportal
@@ -95,7 +103,7 @@ farskapsportal-api.servicebruker.passord: se-vault
 
 ---
 spring:
-  config.activate.on-profile: local, test, local-postgres, integration-test, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test, scheduled-test, skatt-ssl-test
   flyway.enabled: false
 
 local.server.port: 8080
@@ -131,7 +139,7 @@ wiremock.server:
 
 ---
 spring:
-  config.activate.on-profile: local-postgres
+  config.activate.on-profile: local-postgres, remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -169,6 +177,17 @@ farskapsportal-api:
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
+
+---
+spring:
+  config.activate.on-profile: remote-postgres
+  datasource:
+    username: ${REMOTE_POSTGRES_USER}
+    url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
+    password: ${REMOTE_POSTGRES_PWD}
+    databaseName: farskapsportaldb-feature
+
+
 
 ---
 spring.config.activate.on-profile: scheduled-test
@@ -210,10 +229,10 @@ url:
   skatt.base-url: https://folkeregisteret-api-ekstern.sits.no
   esignering: https://api.difitest.signering.posten.no/api
 
-sertifikat:
-  passord: ${KEYSTORE_PASSWORD}
-  keystore-type: jceks
-  keystore-name: test_VS_decrypt_2018-2021.jceks
+virksomhetssertifikat:
+  prosjektid: 719909854975
+  hemmelighetnavn: test-virksomhetssertifikat-lokal-test-jceks_2021-2024
+  hemmelighetversjon: 1
 
 ---
 

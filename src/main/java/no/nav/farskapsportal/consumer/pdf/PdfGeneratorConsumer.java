@@ -1,83 +1,103 @@
 package no.nav.farskapsportal.consumer.pdf;
 
+import static no.nav.farskapsportal.api.Feilkode.OPPRETTE_PDF_FEILET;
+
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.persistence.entity.Dokument;
-import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
-import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
-import no.nav.farskapsportal.persistence.entity.Forelder;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.PDFConsumerException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 public class PdfGeneratorConsumer {
 
-  public Dokument genererePdf(Farskapserklaering farskapserklaering) {
+  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer) {
     log.info("Oppretter dokument for farskapserklæring");
 
-    var dokumentnavn = "Farskapsportal.pdf";
+    var html = byggeHtmlstrengFraMal("/pdf-template/template.html", barnMedDetaljer, morMedDetaljer, farMedDetaljer);
 
-    try (var pdf = new PDDocument()) {
-      var side = new PDPage();
-      pdf.addPage(side);
-      var innhold = new PDPageContentStream(pdf, side);
-      innhold.setFont(PDType1Font.COURIER, 12);
-      innhold.beginText();
-      innhold.showText("Farskapserklæring");
-      innhold.showText("Barn");
-      if (farskapserklaering.getBarn().getFoedselsnummer() != null && farskapserklaering.getBarn().getFoedselsnummer().length() > 0) {
-        innhold.showText("Fødselsnummer: " + farskapserklaering.getBarn().getFoedselsnummer());
-      } else {
-        innhold.showText("Termindato: " + farskapserklaering.getBarn().getTermindato().toString());
-      }
+    try (final ByteArrayOutputStream pdfStream = new ByteArrayOutputStream()) {
+      new PdfRendererBuilder()
+          .useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
+          .useFastMode()
+          .withHtmlContent(html, "classpath:/pdf-template/")
+          .toStream(pdfStream)
+          .run();
 
-      for (int i = 0; i < 25; i++) {
-        innhold.showText("-");
-      }
+      return pdfStream.toByteArray();
 
-      innhold.showText("Mor");
-      innhold.showText("Fødselsnummer: " + farskapserklaering.getMor().getFoedselsnummer());
-      innhold.showText("Navn: " + slaaSammenNavn(farskapserklaering.getMor()));
-      innhold.showText("");
-
-      for (int i = 0; i < 25; i++) {
-        innhold.showText("-");
-      }
-
-      innhold.showText("Mor:");
-      innhold.showText("Fødselsnummer: " + farskapserklaering.getMor().getFoedselsnummer());
-      innhold.showText("Navn: " + slaaSammenNavn(farskapserklaering.getMor()));
-      innhold.showText("");
-
-      for (int i = 0; i < 25; i++) {
-        innhold.showText("-");
-      }
-
-      innhold.showText("Far");
-      innhold.showText("Fødselsnummer: " + farskapserklaering.getFar().getFoedselsnummer());
-      innhold.showText("Navn: " + slaaSammenNavn(farskapserklaering.getFar()));
-      innhold.showText("");
-      innhold.endText();
-      innhold.close();
-      pdf.save(dokumentnavn);
-      var baos = new ByteArrayOutputStream();
-      pdf.save(baos);
-      pdf.close();
-
-      return Dokument.builder().dokumentnavn(dokumentnavn).dokumentinnhold(Dokumentinnhold.builder().innhold(baos.toByteArray()).build()).build();
-
-    } catch (IOException ioe) {
-      throw new PdfgenereringFeiletException("Opprettelse av PDF-dokument for farskapserklæring feilet!");
+    } catch (Exception e) {
+      throw new PDFConsumerException(OPPRETTE_PDF_FEILET, e);
     }
   }
 
-  private String slaaSammenNavn(Forelder forelder) {
-    return forelder.getFornavn() + " " + forelder.getMellomnavn() + (forelder.getMellomnavn() != null && forelder.getMellomnavn().length() > 0 ? " "
-        : "") + forelder.getEtternavn();
+  private void  leggeTilDataBarn(Element barnElement, BarnDto barnDto) {
+    if (barnDto.getFoedselsnummer() != null) {
+      barnElement.getElementsByClass("ufoedt").remove();
+      var beskrivelse = barnElement.getElementsByClass("beskrivelse");
+      beskrivelse.first().text("Opplysninger om barnet");
+      var foedselsdato = barnElement.getElementsByClass("foedselsdato");
+      foedselsdato.first().text("Fødselsdato: " + barnDto.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+      var foedselsnummer = barnElement.getElementById("foedselsnummer");
+      foedselsnummer.text("Fødselsnummer: " + barnDto.getFoedselsnummer());
+      if (barnDto.getFoedested() != null) {
+        var foedested = barnElement.getElementById("foedested");
+        foedested.text("Fødested: " + barnDto.getFoedested());
+      } else {
+        barnElement.getElementById("foedested").remove();
+      }
+    } else {
+      barnElement.getElementsByClass("nyfoedt").remove();
+      var termindato = barnElement.getElementById("termindato");
+      termindato.text("Termindato: " + barnDto.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+    }
+  }
+
+  private void leggeTilDataForelder(Element forelderelement, ForelderDto forelderDto) {
+    var navn = forelderelement.getElementsByClass("navn");
+    navn.first().text("Navn: " + forelderDto.getFornavn()
+        + henteMellomnavnHvisRegistrert(forelderDto)
+        + forelderDto.getEtternavn());
+
+    var foedselsdato = forelderelement.getElementsByClass("foedselsdato");
+    foedselsdato.first().text("Fødselsdato: " + forelderDto.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+
+    var foedselsnummer = forelderelement.getElementsByClass("foedselsnummer");
+    foedselsnummer.first().text("Fødselsnummer: " + forelderDto.getFoedselsnummer());
+  }
+
+  private String byggeHtmlstrengFraMal(String stiHtmlMal, BarnDto barn, ForelderDto mor, ForelderDto far) {
+    try {
+      var input = new ClassPathResource(stiHtmlMal).getInputStream();
+      var document = Jsoup.parse(input, "UTF-8", "");
+
+      // Legge til informasjon om barn
+      leggeTilDataBarn(document.getElementById("barn"), barn);
+      // Legge til informasjon om mor
+      leggeTilDataForelder(document.getElementById("mor"), mor);
+      // Legge til informasjon om far
+      leggeTilDataForelder(document.getElementById("far"), far);
+
+      // jsoup fjerner tagslutt for <link> og <meta> - legger på manuelt ettersom dette er påkrevd av PDFBOX
+      var html = document.html().replaceFirst("charset=utf-8\">", "charset=utf-8\"/>");
+      html = html.replaceFirst("href=\"style.css\">", "href=\"style.css\"/>");
+
+      return html;
+
+    } catch (IOException ioe) {
+      throw new PDFConsumerException(OPPRETTE_PDF_FEILET, ioe);
+    }
+  }
+
+  private String henteMellomnavnHvisRegistrert(ForelderDto forelderDto) {
+    return forelderDto.getMellomnavn() != null ? " " + forelderDto.getMellomnavn() : " ";
   }
 }
