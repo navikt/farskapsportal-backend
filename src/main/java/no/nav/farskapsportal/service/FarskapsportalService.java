@@ -8,10 +8,6 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-<<<<<<< HEAD
-import java.time.ZoneOffset;
-=======
->>>>>>> main
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,9 +54,8 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 public class FarskapsportalService {
 
-  public static String KODE_LAND_NORGE = "NOR";
   public static final String FEIL_NAVN = "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret";
-
+  public static String KODE_LAND_NORGE = "NOR";
   private final FarskapsportalEgenskaper farskapsportalEgenskaper;
   private final PdfGeneratorConsumer pdfGeneratorConsumer;
   private final DifiESignaturConsumer difiESignaturConsumer;
@@ -78,11 +73,7 @@ public class FarskapsportalService {
     var zonedDateTime = tidspunktForSignering.atZone(ZoneId.systemDefault());
     var epoch = tidspunktForSignering.toEpochSecond(zonedDateTime.getOffset());
 
-<<<<<<< HEAD
-    return crc32.toString() + epoch;
-=======
     return String.valueOf(crc32.getValue()) + epoch;
->>>>>>> main
   }
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
@@ -316,16 +307,19 @@ public class FarskapsportalService {
     try {
       Validate.isTrue(folkeregisteridentifikatorDto.getType().equalsIgnoreCase("FNR"));
       Validate.isTrue(folkeregisteridentifikatorDto.getStatus().equalsIgnoreCase("I_BRUK"));
-    } catch (IllegalArgumentException iae){
+    } catch (IllegalArgumentException iae) {
       throw new ValideringException(henteFeilkodeForManglerFnummer(rolle));
     }
   }
 
   private Feilkode henteFeilkodeForManglerFnummer(Rolle rolle) {
-    switch(rolle) {
-      case MOR: return Feilkode.MOR_HAR_IKKE_FNUMMER;
-      case BARN: return Feilkode.BARN_HAR_IKKE_FNUMMER;
-      default: return Feilkode.FAR_HAR_IKKE_FNUMMER;
+    switch (rolle) {
+      case MOR:
+        return Feilkode.MOR_HAR_IKKE_FNUMMER;
+      case BARN:
+        return Feilkode.BARN_HAR_IKKE_FNUMMER;
+      default:
+        return Feilkode.FAR_HAR_IKKE_FNUMMER;
     }
   }
 
@@ -394,9 +388,9 @@ public class FarskapsportalService {
 
   private void validereFoedelandNorge(String fnrNyfoedt) {
     try {
-      var foedeland  =  personopplysningService.henteFoedeland(fnrNyfoedt);
+      var foedeland = personopplysningService.henteFoedeland(fnrNyfoedt);
       Validate.isTrue(foedeland != null && personopplysningService.henteFoedeland(fnrNyfoedt).equalsIgnoreCase(KODE_LAND_NORGE));
-    } catch(IllegalArgumentException iae) {
+    } catch (IllegalArgumentException iae) {
       log.warn("Barn er født utenfor Norge!");
       throw new ValideringException(Feilkode.BARN_FOEDT_UTENFOR_NORGE);
     }
@@ -521,11 +515,7 @@ public class FarskapsportalService {
     }
   }
 
-<<<<<<< HEAD
-  private boolean morOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
-=======
   private void validereAtMorOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
->>>>>>> main
     log.info("Sjekker at mor og far ikke er én og samme person");
     try {
       Validate.isTrue(!fnrMor.equals(fnrFar), "Mor og far kan ikke være samme person!");
