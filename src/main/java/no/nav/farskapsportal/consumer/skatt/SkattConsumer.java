@@ -66,6 +66,14 @@ public class SkattConsumer {
       throw new SkattConsumerException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
     }
 
+    if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml().length < 1) {
+      throw new SkattConsumerException((Feilkode.XADES_MOR_UTEN_INNHOLD));
+    }
+
+    if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml().length < 1) {
+      throw new SkattConsumerException((Feilkode.XADES_FAR_UTEN_INNHOLD));
+    }
+
     HttpHeaders requestHeaders = new HttpHeaders();
     requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);//Main request's headers
 
