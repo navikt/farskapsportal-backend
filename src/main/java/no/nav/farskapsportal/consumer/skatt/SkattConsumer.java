@@ -1,15 +1,11 @@
 package no.nav.farskapsportal.consumer.skatt;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import lombok.AllArgsConstructor;
@@ -70,31 +66,39 @@ public class SkattConsumer {
       throw new SkattConsumerException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
     }
 
+    if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml().length < 1) {
+      throw new SkattConsumerException((Feilkode.XADES_MOR_UTEN_INNHOLD));
+    }
+
+    if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml().length < 1) {
+      throw new SkattConsumerException((Feilkode.XADES_FAR_UTEN_INNHOLD));
+    }
+
     HttpHeaders requestHeaders = new HttpHeaders();
     requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);//Main request's headers
 
-    HttpHeaders requestHeadersAttachment = new HttpHeaders();
-    requestHeadersAttachment.setContentType(MediaType.APPLICATION_PDF);// extract mediatype from file extension
-    HttpEntity<ByteArrayResource> padesDokument;
-
-
-    var fileAsResource = new ByteArrayResource(farskapserklaering.getDokument().getDokumentinnhold().getInnhold()) {
-      
-      @Override
-      public String getFilename() {
-        return farskapserklaering.getDokument().getDokumentnavn();
-      }
-    };
-
-    padesDokument = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
-    multipartRequest.set("vedlegg", padesDokument);
-
+    // Melding - Metadata som beskriver forsendelsen
     HttpHeaders requestHeadersJSON = new HttpHeaders();
     requestHeadersJSON.setContentType(MediaType.APPLICATION_XML);
 
     HttpEntity<String> requestEntityXml = new HttpEntity<>(xml, requestHeadersJSON);
     multipartRequest.set("melding", requestEntityXml);
     HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);//final request
+
+    // Vedlegg - Ferdig signert farskapserklæring PAdES
+    var padesDokument = oppretteVedlegg(MediaType.APPLICATION_PDF, farskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
+        farskapserklaering.getDokument().getDokumentnavn());
+    multipartRequest.set("vedlegg", padesDokument);
+
+    // vedlegg2 - XADES mor
+    var xadesXmlMor = oppretteVedlegg(MediaType.APPLICATION_XML, farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml(),
+        "xadesMor.xml");
+    multipartRequest.set("vedlegg2", xadesXmlMor);
+
+    // vedlegg3 - XADES far
+    var xadesXmlFar = oppretteVedlegg(MediaType.APPLICATION_XML, farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml(),
+        "xadesFar.xml");
+    multipartRequest.set("vedlegg3", xadesXmlFar);
 
     try {
       restTemplate.exchange(
@@ -108,18 +112,18 @@ public class SkattConsumer {
     }
   }
 
-  private byte[] readFile() {
-    try {
-    var filnavn = "fp-20210428.pdf";
-    var classLoader = getClass().getClassLoader();
-    File file = new File(classLoader.getResource(filnavn).getFile());
+  private HttpEntity<ByteArrayResource> oppretteVedlegg(MediaType mediaType, byte[] data, String dokumentnavn) {
+    HttpHeaders requestHeadersVedlegg = new HttpHeaders();
+    requestHeadersVedlegg.setContentType(mediaType);// extract mediatype from file extension
 
-      return Files.readAllBytes(file.toPath());
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-    }
+    var fileAsResource = new ByteArrayResource(data) {
+      @Override
+      public String getFilename() {
+        return dokumentnavn;
+      }
+    };
 
-    return null;
+    return new HttpEntity<>(fileAsResource, requestHeadersVedlegg);
   }
 
   private String byggeMeldingTilSkatt(Farskapserklaering farskapserklaering) {
@@ -130,7 +134,7 @@ public class SkattConsumer {
       var xmlString = new StringWriter();
       Marshaller marshaller = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class).createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-           marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
+      marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
 
       return xmlString.toString();
     } catch (JAXBException jaxbe) {
@@ -173,6 +177,8 @@ public class SkattConsumer {
             .saksbehandlersVurdering(SaksbehandlersVurdering.builder().skjemaErAttestert(tilBoolsk(true))
                 .vedlagtFarskapsskjemaErOriginalt(tilBoolsk(true)).build())
             .vedlegg(new Vedlegg(new Tekst("PDF"), new Tekst(farskapserklaering.getDokument().getDokumentnavn())))
+            .vedlegg2(new Vedlegg(new Tekst("XML"), new Tekst("xadesMor.xml")))
+            .vedlegg3(new Vedlegg(new Tekst("XML"), new Tekst("xadesFar.xml")))
             .foreldreBorSammen(new Boolsk(true))
             .build())
         .build();
@@ -220,10 +226,6 @@ public class SkattConsumer {
 
   private Foedselsnummer tilFoedsedslsnummer(String foedselsnummer) {
     return new Foedselsnummer(new Tekst(foedselsnummer));
-  }
-  
-  private Tekst tilTekst(String streng) {
-    return new Tekst(streng);
   }
 
   private Boolsk tilBoolsk(boolean sjekk) {

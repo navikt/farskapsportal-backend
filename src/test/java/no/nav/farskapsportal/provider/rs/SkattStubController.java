@@ -29,8 +29,8 @@ import wiremock.org.apache.commons.io.IOUtils;
 @ActiveProfiles({PROFILE_TEST, PROFILE_SKATT_SSL_TEST})
 public class SkattStubController {
 
-  @PostMapping(value = "/registrering_av_farskap_v1.vedlegg", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_XML_VALUE})
-  public ResponseEntity<Void> registrereFarskap(@RequestParam("vedlegg") MultipartFile vedlegg, @RequestParam("melding") String xml)
+  @PostMapping(value = "/registrering_av_farskap_v1.vedlegg", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,  MediaType.APPLICATION_PDF_VALUE, MediaType.APPLICATION_XML_VALUE})
+  public ResponseEntity<Void> registrereFarskap(@RequestParam("melding") String xml, @RequestParam("vedlegg") MultipartFile vedlegg, @RequestParam("vedlegg2") MultipartFile vedlegg2, @RequestParam("vedlegg3") MultipartFile vedlegg3)
       throws IOException, JAXBException {
     log.info("Vedlegg og Melding");
     var dokument = vedlegg.getBytes();
@@ -42,6 +42,9 @@ public class SkattStubController {
     return
         LocalDate.now().equals(tilLocalDate(meldingOmRegistreringAvFarskap.getForespoersel().getRegistreringsdato().getDate()))
             && dokument != null && dokument.length > 0
+            && vedlegg != null && vedlegg.getSize() > 0
+            && vedlegg2 != null && !vedlegg2.isEmpty()
+            && vedlegg3 != null && !vedlegg3.isEmpty()
             ? new ResponseEntity<>(HttpStatus.OK)
             : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   }

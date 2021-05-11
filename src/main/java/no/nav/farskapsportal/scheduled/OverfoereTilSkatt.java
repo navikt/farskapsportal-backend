@@ -26,7 +26,9 @@ public class OverfoereTilSkatt {
   void vurdereOverfoeringTilSkatt() {
     log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til skatt");
     var farskapserklaeringer = persistenceService.henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt();
+    log.info("Fant {} farskapserklæringer som er klar til overføring.", farskapserklaeringer.size());
     for (Farskapserklaering fe : farskapserklaeringer) {
+      log.debug("Oppdaterer tidspunkt for oversendelse til skatt for farskapserklæring med id {}", fe.getId());
       fe.setSendtTilSkatt(LocalDateTime.now());
       try {
         skattConsumer.registrereFarskap(fe);
@@ -42,6 +44,8 @@ public class OverfoereTilSkatt {
       fe.setSendtTilSkatt(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(fe);
       persistenceService.oppdatereMeldingslogg(fe.getSendtTilSkatt(), fe.getMeldingsidSkatt());
+      log.debug("Meldingslogg oppdatert");
     }
+    log.info("Farskapserklæringene ble overført til Skatt uten problemer");
   }
 }
