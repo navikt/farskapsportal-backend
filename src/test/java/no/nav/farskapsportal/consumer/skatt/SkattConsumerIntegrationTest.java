@@ -43,22 +43,27 @@ public class SkattConsumerIntegrationTest {
   void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
 
     // given
+    var filnavnFarskapserklaering = "fp-20210428.pdf";
+
     var farskapserklaering = mapper.toEntity(FARSKAPSERKLAERING);
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(readFile("xadesMor.xml"));
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(readFile("xadesMor.xml"));
+
     farskapserklaering.setMeldingsidSkatt("NAV_test_1");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold(readFile()).build());
+        .setDokumentinnhold(Dokumentinnhold.builder().innhold(readFile(filnavnFarskapserklaering)).build());
 
     // when, then
     assertDoesNotThrow(() -> skattConsumer.registrereFarskap(farskapserklaering));
   }
 
-  private byte[] readFile() {
+  private byte[] readFile(String filnavn) {
     try {
-      var filnavn = "fp-20210428.pdf";
       var classLoader = getClass().getClassLoader();
       File file = new File(classLoader.getResource(filnavn).getFile());
 
@@ -69,5 +74,4 @@ public class SkattConsumerIntegrationTest {
 
     return null;
   }
-
 }
