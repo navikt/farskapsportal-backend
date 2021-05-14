@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,6 @@ import no.digipost.signature.client.direct.StatusReference;
 import no.digipost.signature.client.direct.WithSignerUrl;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.StatusSignering;
-import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.exception.EsigneringConsumerException;
@@ -45,25 +45,25 @@ import org.apache.commons.lang3.Validate;
 @RequiredArgsConstructor
 public class DifiESignaturConsumer {
 
+  private static final String TITTEL_FARSKAPSERKLAERING = "Farskapserklaering";
+  private static final String NAVN_FARSKAPSERKLAERINGSDOKUMENT = "farskapserklaering.pdf";
+
+  private final ExitUrls exitUrls;
   private final DirectClient client;
-  private final FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   /**
    * Oppretter signeringsjobb hos signeringsløsingen. Oppdaterer dokument med status-url og redirect-urler for signeringspartene.
    *
    * @param dokument dokument med metadata
-   * @param mor første signerer
-   * @param far andre signerer
+   * @param mor første signatør
+   * @param far andre signatør
    */
   public void oppretteSigneringsjobb(Dokument dokument, Forelder mor, Forelder far) {
 
     log.info("Oppretter signeringsjobb");
 
-    var document = DirectDocument.builder("Subject", "document.pdf", dokument.getDokumentinnhold().getInnhold()).build();
-
-    var exitUrls = ExitUrls
-        .of(URI.create(farskapsportalEgenskaper.getEsigneringSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
-            URI.create(farskapsportalEgenskaper.getEsigneringFeiletUrl()));
+    var document = DirectDocument.builder(TITTEL_FARSKAPSERKLAERING, NAVN_FARSKAPSERKLAERINGSDOKUMENT, dokument.getDokumentinnhold().getInnhold())
+        .build();
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
@@ -81,7 +81,7 @@ public class DifiESignaturConsumer {
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
     dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl().toString());
 
-    log.info("Antall signerere i respons: {}", directJob.getSigners().size());
+    log.info("Antall signatører i respons: {}", directJob.getSigners().size());
 
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
       Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra Esigneringstjenesten!");
@@ -123,26 +123,6 @@ public class DifiESignaturConsumer {
         .bekreftelseslenke(bekreftelseslenke)
         .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY))
         .signaturer(signaturer).build();
-
-
-  }
-
-  private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {
-    for (URI statusUrl : statusUrler) {
-      var directJobResponse = new DirectJobResponse(1, null, statusUrl, null);
-
-      var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
-      if (directJobStatusResponse.isPAdESAvailable()) {
-        return Collections.singletonMap(statusUrl, directJobStatusResponse);
-      }
-    }
-    throw new PadesUrlIkkeTilgjengeligException("Pades-url mangler i respons fra signeringsløsningen");
-  }
-
-  private void signatureierErIkkeNull(Signature signature) {
-    if (signature.getSigner() == null) {
-      throw new ESigneringFeilException(Feilkode.ESIGNERING_SIGNATUREIER_NULL);
-    }
   }
 
   public byte[] henteSignertDokument(URI padesUrl) {
@@ -165,6 +145,55 @@ public class DifiESignaturConsumer {
     var directSignerResponse = client.requestNewRedirectUrl(WithSignerUrl.of(signerUrl));
     return directSignerResponse.getRedirectUrl();
   }
+
+  public Optional<DokumentStatusDto> henteOppdatertStatusPaaSigneringsjobbHvisEndringer(int idFarskapserklaring, byte[] farskapserklaering,
+      String fnrMor, String fnrFar) {
+
+    var directSigners = List.of(DirectSigner.withPersonalIdentificationNumber(fnrMor).build(), DirectSigner.withPersonalIdentificationNumber(fnrFar).build());
+    var directDocument = DirectDocument.builder(TITTEL_FARSKAPSERKLAERING, NAVN_FARSKAPSERKLAERINGSDOKUMENT, farskapserklaering).build();
+    var directJob = DirectJob.builder(directDocument, exitUrls, directSigners).build();
+    client.create(directJob);
+    var directJobStatusResponse = client.getStatusChange();
+    if (directJobStatusResponse.is(DirectJobStatus.NO_CHANGES)) {
+      log.info("Ingen statusendring på signeringsjobb knyttet til farskapserklæring med id {}", idFarskapserklaring);
+      client.confirm(directJobStatusResponse);
+      return Optional.empty();
+    } else if (directJobStatusResponse.isPAdESAvailable()) {
+
+      var pAdESReference = directJobStatusResponse.getpAdESUrl();
+      var statusJobb = directJobStatusResponse.getStatus();
+      var bekreftelseslenke = directJobStatusResponse.getConfirmationReference().getConfirmationUrl();
+
+      client.confirm(directJobStatusResponse);
+
+      return Optional.of(DokumentStatusDto.builder()
+          .padeslenke(pAdESReference.getpAdESUrl())
+          .bekreftelseslenke(bekreftelseslenke)
+          .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY))
+          .build());
+    }
+    client.confirm(directJobStatusResponse);
+    return Optional.empty();
+  }
+
+  private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {
+    for (URI statusUrl : statusUrler) {
+      var directJobResponse = new DirectJobResponse(1, null, statusUrl, null);
+
+      var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
+      if (directJobStatusResponse.isPAdESAvailable()) {
+        return Collections.singletonMap(statusUrl, directJobStatusResponse);
+      }
+    }
+    throw new PadesUrlIkkeTilgjengeligException("Pades-url mangler i respons fra signeringsløsningen");
+  }
+
+  private void signatureierErIkkeNull(Signature signature) {
+    if (signature.getSigner() == null) {
+      throw new ESigneringFeilException(Feilkode.ESIGNERING_SIGNATUREIER_NULL);
+    }
+  }
+
 
   private SignaturDto mapTilDto(Signature signature) {
     signatureierErIkkeNull(signature);
