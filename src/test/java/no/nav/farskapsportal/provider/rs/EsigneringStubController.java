@@ -43,16 +43,16 @@ public class EsigneringStubController {
   private boolean morHarSignert = false;
   private boolean farHarSignert = false;
 
-  @PostMapping(value = "/api/{fnrSignerer}/direct/signature-jobs/1/redirect")
-  public ResponseEntity<Void> signereDokument(@PathVariable("fnrSignerer") String fnrSignerer) {
-    log.info("Signere dokument for {}", fnrSignerer);
+  @PostMapping(value = "/api/{fnrSignatoer}/direct/signature-jobs/1/redirect")
+  public ResponseEntity<Void> signereDokument(@PathVariable("fnrSignatoer") String fnrSignatoer) {
+    log.info("Signere dokument for {}", fnrSignatoer);
 
     var signeringsstatusOppdatert = false;
 
-    if (FNR_MOR.equals(fnrSignerer)) {
+    if (FNR_MOR.equals(fnrSignatoer)) {
       signeringsstatusOppdatert = morHarSignert == false;
       this.morHarSignert = true;
-    } else if (FNR_FAR.equals(fnrSignerer)) {
+    } else if (FNR_FAR.equals(fnrSignatoer)) {
       signeringsstatusOppdatert = farHarSignert == false;
       this.farHarSignert = true;
     }
@@ -60,8 +60,8 @@ public class EsigneringStubController {
     return signeringsstatusOppdatert ? new ResponseEntity<>(HttpStatus.CREATED) : new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @GetMapping(value = "/api/{fnrSignerer}/direct/signature-jobs/1/status")
-  public ResponseEntity<String> henteStatus(@PathVariable("fnrSignerer") String fnrSignerer) throws JAXBException {
+  @GetMapping(value = "/api/{fnrSignatoer}/direct/signature-jobs/1/status")
+  public ResponseEntity<String> henteStatus(@PathVariable("fnrSignatoer") String fnrSignerer) throws JAXBException {
     log.info("Hente status for signeringsjobb for signerer {}", fnrSignerer);
 
     XMLSignerStatus signerStatusMor = new XMLSignerStatus();

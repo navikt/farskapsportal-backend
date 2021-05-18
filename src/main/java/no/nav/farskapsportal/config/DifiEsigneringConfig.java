@@ -1,11 +1,14 @@
 package no.nav.farskapsportal.config;
 
+import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.ServiceUri;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.direct.DirectClient;
+import no.digipost.signature.client.direct.ExitUrls;
+import no.digipost.signature.client.direct.WithExitUrls;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +31,11 @@ public class DifiEsigneringConfig {
 
   @Bean
   public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient, FarskapsportalEgenskaper farskapsportalEgenskaper) {
-    return new DifiESignaturConsumer(directClient, farskapsportalEgenskaper);
+
+    var exitUrls = ExitUrls
+        .of(URI.create(farskapsportalEgenskaper.getEsigneringSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
+            URI.create(farskapsportalEgenskaper.getEsigneringFeiletUrl()));
+
+    return new DifiESignaturConsumer(exitUrls,directClient);
   }
 }

@@ -20,6 +20,8 @@ import lombok.SneakyThrows;
 import no.digipost.signature.client.core.exceptions.SenderNotSpecifiedException;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectJob;
+
+import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
@@ -28,6 +30,8 @@ import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Forelder;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,7 +59,7 @@ public class DifiESignaturConsumerTest {
   DirectClient directClientMock;
 
   @Autowired
-  FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   @Autowired
   private DifiESignaturConsumer difiESignaturConsumer;
@@ -114,7 +118,11 @@ public class DifiESignaturConsumerTest {
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
-      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(directClientMock, farskapsportalEgenskaper);
+      var exitUrls = ExitUrls
+          .of(URI.create(farskapsportalEgenskaper.getEsigneringSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
+              URI.create(farskapsportalEgenskaper.getEsigneringFeiletUrl()));
+
+      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(exitUrls, directClientMock);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);
 
       // when

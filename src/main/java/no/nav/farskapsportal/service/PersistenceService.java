@@ -97,14 +97,12 @@ public class PersistenceService {
     return farskapserklaeringDao.save(farskapserklaering);
   }
 
-  public Set<FarskapserklaeringDto> henteMorsEksisterendeErklaeringer(String fnrMor) {
-    var farskapserklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
+  public Set<Farskapserklaering> henteMorsEksisterendeErklaeringer(String fnrMor) {
+    return farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
   }
 
-  public Set<FarskapserklaeringDto> henteFarsErklaeringer(String fnrFar) {
-    var farskapserklaeringer = farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
+  public Set<Farskapserklaering> henteFarsErklaeringer(String fnrFar) {
+    return farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder) {
@@ -162,14 +160,6 @@ public class PersistenceService {
     }
   }
 
-  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, LocalDateTime tidspunktForNullstilling) {
-    var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
-    var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
-    var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(tidspunktForNullstilling).antallFeiledeForsoek(1)
-        .build();
-    return statusKontrollereFarDao.save(statusKontrollereFar);
-  }
-
   public Optional<StatusKontrollereFar> henteStatusKontrollereFar(String fnrMor) {
     return statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
   }
@@ -180,10 +170,6 @@ public class PersistenceService {
       return farskapserklaering.get();
     }
     throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
-  }
-
-  private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
   }
 
   public void ingenKonfliktMedEksisterendeFarskapserklaeringer(String fnrMor, String fnrFar, BarnDto barnDto) {
@@ -228,28 +214,21 @@ public class PersistenceService {
     }
   }
 
-  @Deprecated
-  @Transactional(readOnly = true)
-  protected Set<FarskapserklaeringDto> henteAktiveFarskapserklaeringer(String fnrForelder, Forelderrolle forelderrolle, KjoennType gjeldendeKjoenn) {
-    switch (forelderrolle) {
-      case MOR:
-        return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
-      case FAR:
-        return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
-      case MOR_ELLER_FAR:
-        if (KjoennType.KVINNE.equals(gjeldendeKjoenn)) {
-          return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
-        } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
-          return mapTilDto(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
-        }
-      default:
-        throw new ValideringException(Feilkode.FEIL_ROLLE);
-    }
+  private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
+    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
   }
 
   private ForelderDto henteForelder(String fnr) {
     var navn = personopplysningService.henteNavn(fnr);
     return ForelderDto.builder().foedselsnummer(fnr).fornavn(navn.getFornavn()).mellomnavn(navn.getMellomnavn()).etternavn(navn.getEtternavn())
         .build();
+  }
+
+  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, LocalDateTime tidspunktForNullstilling) {
+    var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
+    var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
+    var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(tidspunktForNullstilling).antallFeiledeForsoek(1)
+        .build();
+    return statusKontrollereFarDao.save(statusKontrollereFar);
   }
 }

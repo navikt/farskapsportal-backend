@@ -320,6 +320,9 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
+      lagretFarskapserklaering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      persistenceService.oppdatereFarskapserklaering(lagretFarskapserklaering);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
@@ -373,6 +376,9 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSomVenterPaaMor.getDokument();
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaMor);
+      lagretFarskapserklaering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      persistenceService.oppdatereFarskapserklaering(lagretFarskapserklaering);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
@@ -423,7 +429,10 @@ public class FarskapsportalControllerTest {
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
 
-      persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
+      var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
+      farskapserklaering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
@@ -554,7 +563,9 @@ public class FarskapsportalControllerTest {
       signertFarskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now());
       signertFarskapserklaering.getDokument().setSignertAvFar(LocalDateTime.now());
 
-      persistenceService.lagreNyFarskapserklaering(signertFarskapserklaering);
+      var fe = persistenceService.lagreNyFarskapserklaering(signertFarskapserklaering);
+      fe.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet".getBytes(StandardCharsets.UTF_8)).build());
+      persistenceService.oppdatereFarskapserklaering(fe);
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
