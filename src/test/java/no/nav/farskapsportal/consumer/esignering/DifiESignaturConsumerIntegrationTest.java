@@ -39,6 +39,7 @@ public class DifiESignaturConsumerIntegrationTest {
 
   @Autowired
   private DifiESignaturConsumer difiESignaturConsumer;
+
   @Autowired
   private DifiESignaturStub difiESignaturStub;
 

@@ -99,8 +99,11 @@ public class FarskapsportalService {
       nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrPaaloggetBruker);
 
       var morsAktiveErklaeringer = persistenceService.henteMorsEksisterendeErklaeringer(fnrPaaloggetBruker);
+
       // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
-      morsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(morsAktiveErklaeringer);
+      if (farskapsportalEgenskaper.isInnhenteStatusVedPolling()) {
+        morsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(morsAktiveErklaeringer);
+      }
 
       var morsAktiveErklaeringerDto = morsAktiveErklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
 

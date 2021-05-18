@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class FarskapsportalEgenskaper {
 
+  @Value("${farskapsportal.egenskaper.posten.esignering.innhente-status-ved-polling}")
+  private boolean innhenteStatusVedPolling;
   @Value("${farskapsportal.egenskaper.min-antall-uker-til-termindato}")
   private int minAntallUkerTilTermindato;
   @Value("${farskapsportal.egenskaper.maks-antall-uker-til-termindato}")

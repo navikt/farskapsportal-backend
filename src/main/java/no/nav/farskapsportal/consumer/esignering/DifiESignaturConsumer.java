@@ -27,6 +27,7 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.direct.Signature;
 import no.digipost.signature.client.direct.SignerStatus;
 import no.digipost.signature.client.direct.StatusReference;
+import no.digipost.signature.client.direct.StatusRetrievalMethod;
 import no.digipost.signature.client.direct.WithSignerUrl;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.StatusSignering;
@@ -151,7 +152,9 @@ public class DifiESignaturConsumer {
 
     var directSigners = List.of(DirectSigner.withPersonalIdentificationNumber(fnrMor).build(), DirectSigner.withPersonalIdentificationNumber(fnrFar).build());
     var directDocument = DirectDocument.builder(TITTEL_FARSKAPSERKLAERING, NAVN_FARSKAPSERKLAERINGSDOKUMENT, farskapserklaering).build();
-    var directJob = DirectJob.builder(directDocument, exitUrls, directSigners).build();
+    var directJob = DirectJob.builder(directDocument, exitUrls, directSigners)
+        .retrieveStatusBy(StatusRetrievalMethod.POLLING)
+        .build();
     client.create(directJob);
     var directJobStatusResponse = client.getStatusChange();
     if (directJobStatusResponse.is(DirectJobStatus.NO_CHANGES)) {
@@ -217,4 +220,5 @@ public class DifiESignaturConsumer {
       return StatusSignering.FEILET;
     }
   }
+
 }

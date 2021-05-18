@@ -22,6 +22,7 @@ farskapsportal.egenskaper:
     forsoek-fornyes-etter-antall-dager: 1
     maks-antall-forsoek: 5
   posten.esignering:
+    innhente-status-ved-polling: false
     suksess-url: ${ESIGNERING_SUKSESS_URL}
     avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
     feilet-url: ${ESIGNERING_FEILET_URL}
@@ -80,7 +81,7 @@ no.nav:
 
 ---
 spring:
-  config.activate.on-profile: test, local, integration-test, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -103,7 +104,7 @@ farskapsportal-api.servicebruker.passord: se-vault
 
 ---
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
   flyway.enabled: false
 
 local.server.port: 8080
@@ -122,10 +123,6 @@ no.nav.security.jwt:
 # Lar wiremock håndtere esignering
 farskapsportal-api.disable-esignering: false
 
-posten_esignering_suksess_url: https://localhost:8080/api/v1/farskapsportal/farskapserklaering/redirect,
-posten_esignering_avbrutt_url: https://localhost:8080/api/v1/farskapsportal/farskapserklaering/signering/avbrutt,
-posten_esignering_feilet_url: https://localhost:8080/api/v1/farskapsportal/farskapserklaering/signering/feilet
-
 url.esignering: ${WIREMOCK_URL}
 
 ---
@@ -139,7 +136,7 @@ wiremock.server:
 
 ---
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -219,7 +216,10 @@ sertifikat:
 
 
 ---
-spring.config.activate.on-profile: integration-test
+# Integrasjonstesting mot Posten og Skatt
+spring:
+  config.activate.on-profile: integration-test
+  flyway.enabled: false
 
 farskapsportal.egenskaper:
   skatt:
@@ -233,6 +233,23 @@ virksomhetssertifikat:
   prosjektid: 719909854975
   hemmelighetnavn: test-virksomhetssertifikat-lokal-test-jceks_2021-2024
   hemmelighetversjon: 1
+
+ESIGNERING_SUKSESS_URL: "http://localhost:8080/api/v1/farskapsportal/farskapserklaering/redirect"
+ESIGNERING_AVBRUTT_URL: "https://farskapsportal-feature.dev.nav.no/avbrutt"
+ESIGNERING_FEILET_URL: "https://farskapsportal-feature.dev.nav.no/feilet"
+
+no.nav.security.jwt:
+  issuer.selvbetjening:
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+# Lar wiremock håndtere esignering
+farskapsportal-api.disable-esignering: false
+
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
 
 ---
 
