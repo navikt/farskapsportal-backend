@@ -200,6 +200,10 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
   }
 
+  public Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur() {
+    return farskapserklaeringDao.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
+  }
+
   public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {
     var nyttInnslag = Meldingslogg.builder().tidspunktForOversendelse(tidspunktForOverfoering).meldingsidSkatt(meldingsidSkatt).build();
     meldingsloggDao.save(nyttInnslag);
@@ -212,10 +216,6 @@ public class PersistenceService {
         throw new ValideringException(Feilkode.FORSKJELLIGE_FEDRE);
       }
     }
-  }
-
-  private Set<FarskapserklaeringDto> mapTilDto(Set<Farskapserklaering> farskapserklaeringer) {
-    return farskapserklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
   }
 
   private ForelderDto henteForelder(String fnr) {

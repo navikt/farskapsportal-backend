@@ -44,7 +44,6 @@ For å sette GOOGLE_APPLICATION_CREDENTIALS for lokal kjøring, kjør følgende 
 
 >gcloud auth login --update-adc
 
-
 ##### Lokal kjøring uten å lese secret fra GCP
 Ved lokal kjøring må Secret Manager være skrudd av. Dette gjøres i bootstrap.yml ved at spring.cloud.gcp.secretmanager.enabled settes til false, og
 gjelder alle profiler som ikke kjører på GCP (inkludert enhetstesting). For at dette skal fungere i Intellij, må active profiles settes i

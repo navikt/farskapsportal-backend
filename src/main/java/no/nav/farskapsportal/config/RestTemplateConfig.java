@@ -69,8 +69,8 @@ public class RestTemplateConfig {
   @Qualifier("pdl-api")
   @Scope("prototype")
   public HttpHeaderRestTemplate pdlApiRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-      @Value("${farskapsportal-api.servicebruker.brukernavn}") String farskapsportalApiBrukernavn,
-      @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord, @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
+      @Value("${farskapsportal-api.systembruker.brukernavn}") String farskapsportalApiBrukernavn,
+      @Value("${farskapsportal-api.systembruker.passord}") String farskapsportalApiPassord, @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
 
     httpHeaderRestTemplate.addHeaderGenerator(AUTHORIZATION,

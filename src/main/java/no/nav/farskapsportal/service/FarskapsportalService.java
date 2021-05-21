@@ -28,6 +28,7 @@ import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Rolle;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
@@ -62,6 +63,7 @@ public class FarskapsportalService {
   private final SkattConsumer skattConsumer;
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
+  private final BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private final Mapper mapper;
 
   private static String getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
@@ -338,6 +340,8 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xadesXml);
+          brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(Integer.toString(aktuellFarskapserklaering.getId()),
+              aktuellFarskapserklaering.getFar().getFoedselsnummer());
         }
 
         // Oppdatere for far - sette meldingsidSkatt
@@ -355,6 +359,12 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(xadesXml);
           aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
               aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
+          // Slette fars oppgave for signering på DittNav
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(Integer.toString(aktuellFarskapserklaering.getId()),
+              aktuellFarskapserklaering.getFar().getFoedselsnummer());
+          // Informere foreldrene om gjennomført signering og tilgjengelig farskapserklæring
+          brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getFar().getFoedselsnummer(),
+              aktuellFarskapserklaering.getMor().getFoedselsnummer());
         }
       }
     }
@@ -398,7 +408,7 @@ public class FarskapsportalService {
       var statusSignering = dokumentStatusDto.getStatus();
 
       if (StatusSignering.SUKSESS.equals(statusSignering)) {
-          return persistenceService.oppdatereFarskapserklaering(oppdatereSigneringsinfo(Optional.empty(), dokumentStatusDto, farskapserklaering));
+        return persistenceService.oppdatereFarskapserklaering(oppdatereSigneringsinfo(Optional.empty(), dokumentStatusDto, farskapserklaering));
       }
     }
     return farskapserklaering;

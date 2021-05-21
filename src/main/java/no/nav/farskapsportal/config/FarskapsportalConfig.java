@@ -98,11 +98,6 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public OverfoereTilSkatt overfoereTilSkatt(PersistenceService persistenceService, SkattConsumer skattConsumer) {
-    return OverfoereTilSkatt.builder().persistenceService(persistenceService).skattConsumer(skattConsumer).build();
-  }
-
-  @Bean
   public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,
       @Value("${url.pdl-api.graphql}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);

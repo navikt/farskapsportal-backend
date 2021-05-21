@@ -19,12 +19,6 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder);
 
   @Query(
-      "select fe from Farskapserklaering fe where fe.mor.foedselsnummer = :fnrMor and fe.far.foedselsnummer = :fnrFar "
-          + "and  fe.barn.termindato > :nedreGrenseTermindato and fe.barn.termindato <= :oevreGrenseTermindato")
-  Set<Farskapserklaering> henteFarskapserklaeringerForForelder(
-      String fnrMor, String fnrFar, LocalDate nedreGrenseTermindato, LocalDate oevreGrenseTermindato);
-
-  @Query(
       "select fe from Farskapserklaering fe where fe.mor.foedselsnummer =:fnrMor")
   Set<Farskapserklaering> henteMorsErklaeringer(String fnrMor);
 
@@ -44,4 +38,8 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonFar.signeringstidspunkt is not null "
       + "and fe.meldingsidSkatt is not null and fe.sendtTilSkatt is null")
   Set<Farskapserklaering> henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
+
+  @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
+      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
+  Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 }

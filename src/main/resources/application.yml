@@ -2,11 +2,22 @@ spring:
   devtools.add-properties: false
   main.allow-bean-definition-overriding: true
 
-consumer.skatt:
-  maks-antall-forbindelser: 5
-  maks-antall-forbindelser-per-rute: 5
-  maks-ventetid-lesing: 10000
-  maks-ventetid-forbindelse: 10000
+consumer:
+  brukernotifikasjon:
+    kafka-bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS_CONFIG}
+    kafka-schema-registry-url: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+    antall-dager-forsinkelse-etter-mor-har-signert: 3
+    synlighet:
+      beskjed-antall-maaneder: 1
+      oppgave-antall-dager: 30
+    sikkerhetsnivaa:
+      beskjed: 3
+      oppgave: 3
+  skatt:
+    maks-antall-forbindelser: 5
+    maks-antall-forbindelser-per-rute: 5
+    maks-ventetid-lesing: 10000
+    maks-ventetid-forbindelse: 10000
 
 virksomhetssertifikat:
   prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
@@ -39,6 +50,8 @@ url:
   familieintegrasjoner:
     base-url: ${FAMILIEINTEGRASJONER_URL}
     poststed: "api/kodeverk/poststed/%s"
+  farskapsportal:
+    url: ${FARSKAPSPORTAL_URL}
   pdl-api:
     base-url: ${APIGW_URL}
     graphql: "/pdl-api/graphql"
@@ -50,8 +63,8 @@ url:
     registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
 
 farskapsportal-api:
-  servicebruker.brukernavn: srvfarskapsportal
-  servicebruker.passord: ${SRVFARSKAPSPORTAL_PWD}
+  systembruker.brukernavn: srvfarskapsportal
+  systembruker.passord: ${SRVFARSKAPSPORTAL_PWD}
   disable-esignering: false
 
 ---
@@ -99,8 +112,8 @@ url:
   sts.base-url: ${WIREMOCK_URL}
   skatt.base-url: ${SKATT_STUB_HOST}
 
-farskapsportal-api.servicebruker.brukernavn: se-vault
-farskapsportal-api.servicebruker.passord: se-vault
+farskapsportal-api.systembruker.brukernavn: se-vault
+farskapsportal-api.systembruker.passord: se-vault
 
 ---
 spring:
@@ -168,8 +181,8 @@ url:
   skatt.base-url: ${WIREMOCK_URL}
 
 farskapsportal-api:
-  servicebruker.brukernavn: se-vault
-  servicebruker.passord: se-vault
+  systembruker.brukernavn: se-vault
+  systembruker.passord: se-vault
 
 wiremock.server:
   files: classpath:/__files
