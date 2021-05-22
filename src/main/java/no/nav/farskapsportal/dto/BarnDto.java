@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,16 +15,16 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BarnDto {
 
-  @ApiModelProperty(value = "Barnets termindato", example = "2021-05-02")
+  @Parameter(description = "Barnets termindato", example = "2021-05-02")
   private LocalDate termindato;
 
-  @ApiModelProperty(value = "Barnets fødselsdato", example = "2021-08-01")
+  @Parameter(description = "Barnets fødselsdato", example = "2021-08-01")
   LocalDate foedselsdato;
 
-  @ApiModelProperty(value = "Barnets fødselsnummer hvis tilgjengelig", example = "01010112345")
+  @Parameter(description = "Barnets fødselsnummer hvis tilgjengelig", example = "01010112345")
   private String foedselsnummer;
 
-  @ApiModelProperty(value = "Barnets fødested")
+  @Parameter(description = "Barnets fødested")
   private String foedested;
 
   @Override

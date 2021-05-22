@@ -6,6 +6,13 @@ import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Optional;
@@ -49,9 +56,21 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
+@OpenAPIDefinition(
+    info = @Info(title = "farskapsportal-api", version = "v1"),
+    security = @SecurityRequirement(name = "bearer-key")
+)
 public class FarskapsportalConfig {
 
   public static final String X_API_KEY = "x-nav-apiKey";
+
+  @Bean
+  public OpenAPI openAPI() {
+    return new OpenAPI()
+        .components(new Components()
+            .addSecuritySchemes("bearer-key", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
+        ).info(new io.swagger.v3.oas.models.info.Info().title("farskapsportal-api").version("v1"));
+  }
 
   @Bean
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
