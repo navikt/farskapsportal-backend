@@ -1,21 +1,21 @@
 package no.nav.farskapsportal.api;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Value;
 import org.springframework.validation.annotation.Validated;
 
-@ApiModel
+@Schema
 @Value
 @Builder
 @Validated
 public class OppdatereFarskapserklaeringRequest {
 
-  @ApiModelProperty(value = "ID til farskapserklæring som skal oppdateres", example = "1000000")
+  @Parameter(description = "ID til farskapserklæring som skal oppdateres", example = "1000000")
   int idFarskapserklaering;
 
-  @ApiModelProperty(value = "Angir om foreldrene bor sammen", example = "true")
+  @Parameter(description = "Angir om foreldrene bor sammen", example = "true")
   boolean borSammen;
 
 }

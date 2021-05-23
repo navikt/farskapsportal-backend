@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.consumer.esignering.api;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.net.URI;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -15,18 +15,18 @@ import no.nav.farskapsportal.api.StatusSignering;
 @AllArgsConstructor
 public class SignaturDto {
 
-  @ApiModelProperty("Signaturens eier")
+  @Parameter(description = "Signaturens eier")
   private String signatureier;
 
-  @ApiModelProperty("Signering er gjennomført")
+  @Parameter(description = "Signering er gjennomført")
   private boolean harSignert;
 
-  @ApiModelProperty("Lenke til XAdES XML for signerer")
+  @Parameter(description = "Lenke til XAdES XML for signerer")
   private URI xadeslenke;
 
-  @ApiModelProperty("Tidspunkt for siste statusendring")
+  @Parameter(description = "Tidspunkt for siste statusendring")
   private LocalDateTime tidspunktForStatus;
 
-  @ApiModelProperty("Status signering")
+  @Parameter(description = "Status signering")
   private StatusSignering statusSignering;
 }

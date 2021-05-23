@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,21 +19,21 @@ import org.springframework.validation.annotation.Validated;
 @AllArgsConstructor
 public class ForelderDto {
 
-  @ApiModelProperty(value = "Forelderens rolle", example = "MOR")
+  @Parameter(description = "Forelderens rolle", example = "MOR")
   private Forelderrolle forelderrolle;
 
-  @ApiModelProperty(value = "Fødselsdato", example = "01.01.1990")
+  @Parameter(description = "Fødselsdato", example = "01.01.1990")
   private LocalDate foedselsdato;
 
-  @ApiModelProperty(value = "Forelderens fødselsnummer", example = "12345678910")
+  @Parameter(description = "Forelderens fødselsnummer", example = "12345678910")
   private @NonNull String foedselsnummer;
 
-  @ApiModelProperty(value = "Forelderens fornavn", example = "Kjøttdeig")
+  @Parameter(description = "Forelderens fornavn", example = "Kjøttdeig")
   private @NonNull String fornavn;
 
-  @ApiModelProperty(value = "Forelderens mellomnavn", example = "")
+  @Parameter(description = "Forelderens mellomnavn", example = "")
   private String mellomnavn;
 
-  @ApiModelProperty(value = "Forelderens etternavn", example = "Hammer")
+  @Parameter(description = "Forelderens etternavn", example = "Hammer")
   private @NonNull String etternavn;
 }

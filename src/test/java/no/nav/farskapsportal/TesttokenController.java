@@ -1,6 +1,6 @@
 package no.nav.farskapsportal;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TesttokenController {
 
   @GetMapping("/generate-jwt/{foedselsnummer}")
-  @ApiOperation("Henter testtoken for person")
+  @Operation(description = "Henter testtoken for person")
   public String generereTesttoken(@PathVariable String foedselsnummer) {
     var tokengenerator = new TestTokenGeneratorResource();
 

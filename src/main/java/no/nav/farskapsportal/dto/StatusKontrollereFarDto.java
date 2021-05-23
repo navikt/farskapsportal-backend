@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,16 +12,16 @@ import lombok.Setter;
 @Setter
 public class StatusKontrollereFarDto {
 
-  @ApiModelProperty(value = "Barnets mor")
+  @Parameter(description = "Barnets mor")
   private final ForelderDto mor;
 
-  @ApiModelProperty(value = "Mors antall forsøk på å finne frem til riktig kombinasjon av fars navn og fødselsnummer")
+  @Parameter(description = "Mors antall forsøk på å finne frem til riktig kombinasjon av fars navn og fødselsnummer")
   private final int antallFeiledeForsoek;
 
-  @ApiModelProperty(value = "Tidspunkt for nullstilling av antall feilede forsøk")
+  @Parameter(description = "Tidspunkt for nullstilling av antall feilede forsøk")
   private final LocalDateTime tidspunktForNullstilling;
 
-  @ApiModelProperty(value = "Mors resterende antall forsoek på å finne frem til riktig kombinasjon av fars navn og fødselsnummer")
+  @Parameter(description = "Mors resterende antall forsoek på å finne frem til riktig kombinasjon av fars navn og fødselsnummer")
   private int antallResterendeForsoek;
 
 }
