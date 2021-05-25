@@ -199,7 +199,7 @@ public class FarskapsportalApplicationLocal {
 
   @Configuration
   @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
-  public static class FlywayConfiguration {
+  static class FlywayConfiguration {
 
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
