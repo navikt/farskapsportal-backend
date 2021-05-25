@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.net.URI;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -15,14 +15,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DokumentDto {
-  @ApiModelProperty(value = "Navn på farskapserklæringsdokument", example = "farskapserklaering.pdf")
+  @Parameter(description = "Navn på farskapserklæringsdokument", example = "farskapserklaering.pdf")
   private String dokumentnavn;
-  @ApiModelProperty("Mors Url for å utføre dokumentsignering hos Posten")
+  @Parameter(description = "Mors Url for å utføre dokumentsignering hos Posten")
   private URI redirectUrlMor;
-  @ApiModelProperty("Fars Url for å utføre dokumentsignering hos Posten")
+  @Parameter(description = "Fars Url for å utføre dokumentsignering hos Posten")
   private URI redirectUrlFar;
-  @ApiModelProperty("Signeringstidspunkt mor")
+  @Parameter(description = "Signeringstidspunkt mor")
   private LocalDateTime signertAvMor;
-  @ApiModelProperty("Signeringstidspunkt far")
+  @Parameter(description = "Signeringstidspunkt far")
   private LocalDateTime signertAvFar;
 }

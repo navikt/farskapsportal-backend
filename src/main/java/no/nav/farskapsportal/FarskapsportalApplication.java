@@ -7,12 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @Slf4j
 @SpringBootApplication
-@EnableJwtTokenValidation(
-    ignore = {
-      "springfox.documentation.swagger.web.ApiResourceController",
-      "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController"
-    })
+@EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
 public class FarskapsportalApplication {
+
   public static final String ISSUER = "selvbetjening";
   public static final String PROFILE_LIVE = "live";
   public static final String PROFILE_INTEGRATION_TEST = "integration-test";

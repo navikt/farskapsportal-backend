@@ -50,7 +50,7 @@ import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @ComponentScan(excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = FarskapsportalApplication.class)})
-@EnableJwtTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController", "org.springframework"})
+@EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
 @Import(TokenGeneratorConfiguration.class)
 @Slf4j
 public class FarskapsportalApplicationLocal {
@@ -199,7 +199,7 @@ public class FarskapsportalApplicationLocal {
 
   @Configuration
   @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
-  public static class FlywayConfiguration {
+  static class FlywayConfiguration {
 
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {

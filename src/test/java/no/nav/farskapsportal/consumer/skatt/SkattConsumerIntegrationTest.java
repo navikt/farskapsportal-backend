@@ -21,11 +21,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @DisplayName("SkattConsumer")
 @ActiveProfiles(PROFILE_INTEGRATION_TEST)
 @SpringBootTest(classes = FarskapsportalApplicationLocal.class)
+@AutoConfigureWireMock(port = 8096)
 public class SkattConsumerIntegrationTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);

@@ -83,7 +83,7 @@ public class SkattConsumer {
 
     HttpEntity<String> requestEntityXml = new HttpEntity<>(xml, requestHeadersJSON);
     multipartRequest.set("melding", requestEntityXml);
-    HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);//final request
+    HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);
 
     // Vedlegg - Ferdig signert farskapserklæring PAdES
     var padesDokument = oppretteVedlegg(MediaType.APPLICATION_PDF, farskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
@@ -93,12 +93,12 @@ public class SkattConsumer {
     // vedlegg2 - XADES mor
     var xadesXmlMor = oppretteVedlegg(MediaType.APPLICATION_XML, farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml(),
         "xadesMor.xml");
-    multipartRequest.set("vedlegg2", xadesXmlMor);
+    multipartRequest.set("melding2", xadesXmlMor);
 
     // vedlegg3 - XADES far
     var xadesXmlFar = oppretteVedlegg(MediaType.APPLICATION_XML, farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml(),
         "xadesFar.xml");
-    multipartRequest.set("vedlegg3", xadesXmlFar);
+    multipartRequest.set("melding3", xadesXmlFar);
 
     try {
       restTemplate.exchange(

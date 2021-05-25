@@ -23,11 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("SkattConsumer")
 @ActiveProfiles(PROFILE_SKATT_SSL_TEST)
 @SpringBootTest(classes = FarskapsportalApplicationLocal.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@AutoConfigureWireMock(port = 8096)
 public class SkattConsumerSslTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);

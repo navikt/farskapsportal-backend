@@ -38,6 +38,8 @@ og Joark). Data til Wiremock-stubbene leses inn fra test/resources/stubs-mappa.
 
 Testtoken for lokalprofilen hentes fra http://localhost:8080/jwt.
 
+Swagger URL: http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
+
 ##### Lese secret fra GCP ved lokal kjøring
 
 For å sette GOOGLE_APPLICATION_CREDENTIALS for lokal kjøring, kjør følgende kommando i terminal med GCP SDK:
