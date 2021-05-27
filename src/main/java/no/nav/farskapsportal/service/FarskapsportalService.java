@@ -130,8 +130,11 @@ public class FarskapsportalService {
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
       var farsAktiveErklaeringer = persistenceService.henteFarsErklaeringer(fnrPaaloggetBruker);
+      
       // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
-      farsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(farsAktiveErklaeringer);
+      if (farskapsportalEgenskaper.isInnhenteStatusVedPolling()) {
+        farsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(farsAktiveErklaeringer);
+      }
 
       var farsAktiveErklaeringerDto = farsAktiveErklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
 
