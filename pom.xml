@@ -5,8 +5,8 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.4.5</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <version>2.5.0</version>
+    <relativePath />
   </parent>
 
   <groupId>no.nav.farskap</groupId>
@@ -20,7 +20,6 @@
     <java.version>15</java.version>
 
     <!-- build -->
-    <spring-boot.version>2.4.4</spring-boot.version>
     <flyway-maven-plugin.version>7.8.0</flyway-maven-plugin.version>
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <maven-compiler-plugin.version.version>3.8.1</maven-compiler-plugin.version.version>
@@ -116,7 +115,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot.version}</version>
       </plugin>
       <plugin>
         <groupId>org.flywaydb</groupId>
