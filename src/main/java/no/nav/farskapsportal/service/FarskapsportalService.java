@@ -27,7 +27,7 @@ import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Rolle;
 import no.nav.farskapsportal.api.StatusSignering;
-import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
@@ -343,7 +343,7 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xadesXml);
-          brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(Integer.toString(aktuellFarskapserklaering.getId()),
+          brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(aktuellFarskapserklaering.getId(),
               aktuellFarskapserklaering.getFar().getFoedselsnummer());
         }
 
@@ -363,7 +363,7 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
               aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
           // Slette fars oppgave for signering på DittNav
-          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(Integer.toString(aktuellFarskapserklaering.getId()),
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(aktuellFarskapserklaering.getId(),
               aktuellFarskapserklaering.getFar().getFoedselsnummer());
           // Informere foreldrene om gjennomført signering og tilgjengelig farskapserklæring
           brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getFar().getFoedselsnummer(),
@@ -475,7 +475,8 @@ public class FarskapsportalService {
 
   private void antallsbegrensetKontrollAvNavnOgNummerPaaFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
     var statusKontrollereFar = persistenceService.henteStatusKontrollereFar(fnrMor);
-    if (statusKontrollereFar.isEmpty() || farskapsportalEgenskaper.getMaksAntallForsoek() > statusKontrollereFar.get().getAntallFeiledeForsoek()) {
+    if (statusKontrollereFar.isEmpty() || farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() > statusKontrollereFar.get()
+        .getAntallFeiledeForsoek()) {
       kontrollereNavnOgNummerFar(fnrMor, request);
     } else {
       berikeOgKasteFeilNavnOppgittException(fnrMor, new FeilNavnOppgittException(Feilkode.MAKS_ANTALL_FORSOEK));
@@ -492,9 +493,9 @@ public class FarskapsportalService {
 
   private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
     var statusKontrollereFarDto = mapper
-        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getForsoekFornyesEtterAntallDager()));
+        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()));
     e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
-    var resterendeAntallForsoek = farskapsportalEgenskaper.getMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
+    var resterendeAntallForsoek = farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
     resterendeAntallForsoek = resterendeAntallForsoek < 0 ? 0 : resterendeAntallForsoek;
     statusKontrollereFarDto.setAntallResterendeForsoek(resterendeAntallForsoek);
     throw e;

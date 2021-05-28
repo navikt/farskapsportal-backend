@@ -7,7 +7,6 @@ import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSK
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
@@ -22,7 +21,9 @@ import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
@@ -36,7 +37,6 @@ import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
-import no.nav.farskapsportal.scheduled.OverfoereTilSkatt;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.service.PersonopplysningService;
@@ -149,13 +149,18 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public FarskapsportalService farskapsportalService(FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
+  public FarskapsportalService farskapsportalService(BrukernotifikasjonConsumer brukernotifikasjonConsumer, FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer, PersistenceService persistenceService, PersonopplysningService personopplysningService,
       SkattConsumer skattConsumer,
       Mapper mapper) {
 
-    return FarskapsportalService.builder().farskapsportalEgenskaper(farskapsportalEgenskaper).difiESignaturConsumer(difiESignaturConsumer)
-        .pdfGeneratorConsumer(pdfGeneratorConsumer).persistenceService(persistenceService).personopplysningService(personopplysningService)
+    return FarskapsportalService.builder()
+        .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .farskapsportalEgenskaper(farskapsportalEgenskaper)
+        .difiESignaturConsumer(difiESignaturConsumer)
+        .pdfGeneratorConsumer(pdfGeneratorConsumer)
+        .persistenceService(persistenceService)
+        .personopplysningService(personopplysningService)
         .skattConsumer(skattConsumer)
         .mapper(mapper).build();
   }
@@ -201,7 +206,7 @@ public class FarskapsportalConfig {
 
   @Configuration
   @Profile({PROFILE_LIVE})
-  public class FlywayConfiguration {
+  public static class FlywayConfiguration {
 
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) throws InterruptedException {

@@ -2,13 +2,14 @@ package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.scheduled.OverfoereTilSkatt;
 import no.nav.farskapsportal.scheduled.SletteOppgave;
 import no.nav.farskapsportal.scheduled.VarsleFarOmSigneringsoppgave;
 import no.nav.farskapsportal.service.PersistenceService;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan
 public class ScheduledConfig {
 
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
+
+  public ScheduledConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    this.farskapsportalEgenskaper = farskapsportalEgenskaper;
+  }
+
   @Bean
   public OverfoereTilSkatt overfoereTilSkatt(PersistenceService persistenceService, SkattConsumer skattConsumer) {
     return OverfoereTilSkatt.builder()
@@ -31,11 +38,10 @@ public class ScheduledConfig {
 
   @Bean
   public VarsleFarOmSigneringsoppgave varsleFarOmSigneringsoppgave(
-      @Value("consumer.brukernotifikasjon.antall-dager-forsinkelse-etter-mor-har-signert") int antallDagerForsinkelseEtterMorHarSignert,
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
     return VarsleFarOmSigneringsoppgave.builder()
-        .antallDagerSidenMorSignerte(antallDagerForsinkelseEtterMorHarSignert)
+        .antallDagerSidenMorSignerte(farskapsportalEgenskaper.getBrukernotifikasjon().getAntallDagerForsinkelseEtterMorHarSignert())
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .persistenceService(persistenceService)
         .build();
@@ -43,11 +49,10 @@ public class ScheduledConfig {
 
   @Bean
   public SletteOppgave sletteOppgave(
-      @Value("consumer.brukernotifikasjon.synlighet.oppgave-antall-dager") int synlighetOppgaveIDager,
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
     return SletteOppgave.builder()
-        .antallDagerSidenMorSignerte(synlighetOppgaveIDager)
+        .synlighetOppgaveIDager(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetOppgaveAntallDager())
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .persistenceService(persistenceService)
         .build();

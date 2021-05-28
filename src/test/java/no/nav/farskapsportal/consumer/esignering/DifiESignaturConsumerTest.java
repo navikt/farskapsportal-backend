@@ -23,15 +23,13 @@ import no.digipost.signature.client.direct.DirectJob;
 
 import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
-import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Forelder;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -119,8 +117,8 @@ public class DifiESignaturConsumerTest {
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       var exitUrls = ExitUrls
-          .of(URI.create(farskapsportalEgenskaper.getEsigneringSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsigneringAvbruttUrl()),
-              URI.create(farskapsportalEgenskaper.getEsigneringFeiletUrl()));
+          .of(URI.create(farskapsportalEgenskaper.getEsignering().getSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsignering().getAvbruttUrl()),
+              URI.create(farskapsportalEgenskaper.getEsignering().getFeiletUrl()));
 
       var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(exitUrls, directClientMock);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);

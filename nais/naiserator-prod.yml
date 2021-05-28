@@ -10,6 +10,8 @@ spec:
   azure:
     application:
       enabled: true
+  kafka:
+    pool: nav-prod
   liveness:
     path: /internal/actuator/health
     initialDelay: 70

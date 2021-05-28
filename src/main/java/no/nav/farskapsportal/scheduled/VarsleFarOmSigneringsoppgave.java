@@ -24,6 +24,7 @@ public class VarsleFarOmSigneringsoppgave {
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
       if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
           .isBefore(LocalDate.now().minusDays(antallDagerSidenMorSignerte))) {
+
         // Sende eksternt varsel til far om ventende signeringsoppgave
         brukernotifikasjonConsumer.varsleFarOmSigneringsoppgave(farskapserklaering.getFar().getFoedselsnummer());
       }

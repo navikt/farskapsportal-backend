@@ -10,6 +10,8 @@ spec:
   azure:
     application:
       enabled: true
+  kafka:
+    pool: {{ kafka.pool }}
   liveness:
     path: /internal/actuator/health
     initialDelay: 70

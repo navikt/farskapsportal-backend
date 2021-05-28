@@ -1,84 +1,86 @@
 package no.nav.farskapsportal.config;
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
-import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.brukernotifikasjon.schemas.Oppgave;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.Beskjedprodusent;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.Ferdigprodusent;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.Oppgaveprodusent;
-import org.apache.avro.specific.SpecificRecord;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 
 @Configuration
 public class BrukernotifikasjonConfig {
 
-  public static final String GRUPPERINGSID_FARSKAP = "1";
-  private static final String TOPIC_BESKJED = "aapen-brukernotifikasjon-nyBeskjed-v1-testing";
-  private static final String TOPIC_FERDIG = "aapen-brukernotifikasjon-nyDone-v1-testing";
-  private static final String TOPIC_OPPGAVE = "aapen-brukernotifikasjon-nyOppgave-v1-testing";
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
-  @Value("${farskapsportal-api.systembruker}")
-  private String systembruker;
+  @Value("${kafka.bootstrap-servers}")
+  private String bootstrapAddress;
 
-  @Bean
-  Koestyrer koestyrer(@Autowired  KafkaProducer<Nokkel, SpecificRecord> kafkaProducer) {
-    return new Koestyrer(new KafkaProducer<Nokkel, SpecificRecord>());
+  public BrukernotifikasjonConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    this.farskapsportalEgenskaper = farskapsportalEgenskaper;
   }
 
-  @Bean
-  Properties brukernotifikasjonKoeEgenskaper(@Value("consumer.brukernotifikasjon.kafka-bootstrap-servers") String kafkaBootstrapServers,
-      @Value("${consumer.brukernotifikasjon.kafka-schema-registry-url}") String kafkaSchemaRegistryUrl) {
-    var brukernotifikasjonKoeEgenskaper = new Properties();
-    brukernotifikasjonKoeEgenskaper.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
-    brukernotifikasjonKoeEgenskaper.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-    brukernotifikasjonKoeEgenskaper.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-    brukernotifikasjonKoeEgenskaper.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrl);
-    return brukernotifikasjonKoeEgenskaper;
+  private Map<String, Object> getConfigProps() {
+    Map<String, Object> configProps = new HashMap<>();
+    configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+    configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    return configProps;
+  }
+
+  @Bean("beskjed")
+  public KafkaTemplate<Nokkel, Beskjed> kafkaTemplateBeskjed() {
+    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getConfigProps()));
+  }
+
+  @Bean("ferdig")
+  public KafkaTemplate<Nokkel, Done> kafkaTemplateFerdig() {
+    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getConfigProps()));
+  }
+
+  @Bean("oppgave")
+  public KafkaTemplate<Nokkel, Oppgave> kafkaTemplateOppgave() {
+    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getConfigProps()));
   }
 
   @Bean
   BrukernotifikasjonConsumer brukernotifikasjonConsumer(Beskjedprodusent beskjedprodusent, Ferdigprodusent ferdigprodusent,
-      Oppgaveprodusent oppgaveprodusent) {
-    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent);
+      Oppgaveprodusent oppgaveprodusent) throws MalformedURLException {
+    return new BrukernotifikasjonConsumer(toUrl(farskapsportalEgenskaper.getUrl()), beskjedprodusent, ferdigprodusent, oppgaveprodusent);
   }
 
   @Bean
-  Beskjedprodusent beskjedprodusent(@Value("consumer.brukernotifikasjon.synlighet.beskjed-antall-maaneder") int beskjedSynligIAntallMaaneder,
-      @Value("${consumer.brukernotifikasjon.sikkerhetsnivaa.beskjed}") int sikkerhetsNivaaBeskjed, Properties brukernotifikasjonKoeEgenskaper) {
-    var brukernotifikasjonKafkaProducer = new KafkaProducer<Nokkel, Beskjed>(brukernotifikasjonKoeEgenskaper);
-    return new Beskjedprodusent(TOPIC_BESKJED, sikkerhetsNivaaBeskjed, beskjedSynligIAntallMaaneder, brukernotifikasjonKafkaProducer);
+  Beskjedprodusent beskjedprodusent(@Qualifier("beskjed") KafkaTemplate<Nokkel, Beskjed> kafkaTemplate) {
+    return new Beskjedprodusent(farskapsportalEgenskaper, kafkaTemplate);
   }
 
   @Bean
   Oppgaveprodusent oppgaveprodusent(
-      @Value("consumer.brukernotifikasjon.synlighet.oppgave-antall-dager") int oppgaveSynligIAntallDager,
-      @Value("${consumer.brukernotifikasjon.sikkerhetsnivaa.oppgave}") int sikkerhetsNivaaOppgave,
-      @Value("url.farskapsportal") String urlFarskapsportal,
-      Properties brukernotifikasjonKoeEgenskaper) throws MalformedURLException {
-    var brukernotifikasjonKafkaProducer = new KafkaProducer<Nokkel, Oppgave>(brukernotifikasjonKoeEgenskaper);
-
-    return new Oppgaveprodusent(TOPIC_OPPGAVE, oppgaveSynligIAntallDager, sikkerhetsNivaaOppgave, systembruker, oppretteUrl(urlFarskapsportal), brukernotifikasjonKafkaProducer);
+      @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate) throws MalformedURLException {
+    return new Oppgaveprodusent(farskapsportalEgenskaper, toUrl(farskapsportalEgenskaper.getUrl()),  kafkaTemplate);
   }
 
   @Bean
-  Ferdigprodusent ferdigprodusent(Properties brukernotifikasjonKoeEgenskaper) {
-    var brukernotifikasjonKafkaProducer = new KafkaProducer<Nokkel, Done>(brukernotifikasjonKoeEgenskaper);
-    return new Ferdigprodusent(TOPIC_FERDIG, systembruker, brukernotifikasjonKafkaProducer);
+  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<Nokkel, Done> kafkaTemplate) {
+    return new Ferdigprodusent(farskapsportalEgenskaper, kafkaTemplate);
   }
 
-  private URL oppretteUrl(String url) throws MalformedURLException {
+  public URL toUrl(String url) throws MalformedURLException {
     return new URL(url);
   }
 }

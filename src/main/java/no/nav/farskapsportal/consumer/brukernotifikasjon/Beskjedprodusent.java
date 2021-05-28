@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.consumer.brukernotifikasjon;
 
-import static no.nav.farskapsportal.config.BrukernotifikasjonConfig.GRUPPERINGSID_FARSKAP;
-
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import lombok.Value;
@@ -9,42 +8,42 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.brukernotifikasjon.schemas.builders.BeskjedBuilder;
-import org.apache.avro.specific.SpecificRecord;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @Slf4j
 @Value
 public class Beskjedprodusent {
 
-  String topic;
-  int beskjedSynligIAntallMaaneder;
-  int sikkerhetsnivaa;
-  KafkaTemplate kafkaTemplate;
+  FarskapsportalEgenskaper farskapsportalEgenskaper;
+  KafkaTemplate<Nokkel, Beskjed> kafkaTemplate;
 
-  public void oppretteBeskjedTilBruker(String brukersFoedselsnummer, String meldingTilBruker, boolean medEksternVarsling) {
+  public void oppretteBeskjedTilBruker(String brukersFoedselsnummer, String meldingTilBruker, boolean medEksternVarsling, URL lenke) {
 
     var nokkel = oppretteNokkel();
-    var beskjed = oppretteBeskjed(brukersFoedselsnummer, meldingTilBruker, medEksternVarsling);
-    var melding = new ProducerRecord<>(topic, nokkel, beskjed);
+    var beskjed = oppretteBeskjed(brukersFoedselsnummer, meldingTilBruker, medEksternVarsling, lenke);
 
-    kafkaTemplate.send(topic, nokkel, melding);
+    kafkaTemplate.send(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicBeskjed(), nokkel, beskjed);
+
   }
 
   private Nokkel oppretteNokkel() {
     var unikEventid = (Long) Instant.now().toEpochMilli();
-    return new Nokkel("srvfarskapsportal", unikEventid.toString());
+    return new NokkelBuilder().withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).withEventId(Long.toString(unikEventid)).build();
   }
 
-  private Beskjed oppretteBeskjed(String foedselsnummer, String meldingTilBruker, boolean medEksternVarsling) {
+  private Beskjed oppretteBeskjed(String foedselsnummer, String meldingTilBruker, boolean medEksternVarsling, URL lenke) {
 
     return new BeskjedBuilder()
         .withTidspunkt(LocalDateTime.now())
         .withFodselsnummer(foedselsnummer)
-        .withGrupperingsId(GRUPPERINGSID_FARSKAP)
+        .withGrupperingsId(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withEksternVarsling(medEksternVarsling)
-        .withSynligFremTil(LocalDateTime.now().withHour(0).plusMonths(beskjedSynligIAntallMaaneder))
-        .withSikkerhetsnivaa(sikkerhetsnivaa)
+        .withSynligFremTil(
+            LocalDateTime.now().withHour(0).plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
+        .withSikkerhetsnivaa(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed())
+        .withLink(lenke)
         .withTekst(meldingTilBruker)
         .build();
   }

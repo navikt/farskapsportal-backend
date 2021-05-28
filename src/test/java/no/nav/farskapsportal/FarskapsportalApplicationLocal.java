@@ -72,7 +72,6 @@ public class FarskapsportalApplicationLocal {
     app.run(args);
   }
 
-
   private static String generateTestToken() {
     TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
     return "Bearer " + testTokenGeneratorResource.issueToken("localhost-idtoken");
