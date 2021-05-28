@@ -3,6 +3,7 @@ package no.nav.farskapsportal.consumer.skatt;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -176,9 +177,10 @@ public class SkattConsumer {
                 .build())
             .saksbehandlersVurdering(SaksbehandlersVurdering.builder().skjemaErAttestert(tilBoolsk(true))
                 .vedlagtFarskapsskjemaErOriginalt(tilBoolsk(true)).build())
-            .vedlegg(new Vedlegg(new Tekst("PDF"), new Tekst(farskapserklaering.getDokument().getDokumentnavn())))
-            .vedlegg2(new Vedlegg(new Tekst("XML"), new Tekst("xadesMor.xml")))
-            .vedlegg3(new Vedlegg(new Tekst("XML"), new Tekst("xadesFar.xml")))
+            .vedlegg(List.of(
+                new Vedlegg(new Tekst("PDF"), new Tekst(farskapserklaering.getDokument().getDokumentnavn())),
+                new Vedlegg(new Tekst("XML"), new Tekst("xadesMor.xml")),
+                new Vedlegg(new Tekst("XML"), new Tekst("xadesFar.xml"))))
             .foreldreBorSammen(new Boolsk(true))
             .build())
         .build();
