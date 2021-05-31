@@ -23,7 +23,7 @@ public class SletteOppgave {
 
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
       if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
-          .isBefore(LocalDate.now().minusDays(synlighetOppgaveIDager))) {
+          .isBefore(LocalDate.now().minusDays(synlighetOppgaveIDager - 1))) {
         brukernotifikasjonConsumer
             .sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
       }

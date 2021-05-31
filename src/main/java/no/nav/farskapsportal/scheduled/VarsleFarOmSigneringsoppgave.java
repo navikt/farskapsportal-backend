@@ -12,18 +12,18 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Slf4j
 public class VarsleFarOmSigneringsoppgave {
 
-  private int antallDagerSidenMorSignerte;
+  private int minimumAntallDagerSidenMorSignerte;
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private PersistenceService persistenceService;
 
-  // Kjøres hver morgen kl 06:00
-  @Scheduled(cron = "0 0 06 00 * ?")
+  // Kjøres hver ettermiddag kl 16:00
+  @Scheduled(cron = "0 0 16 00 * ?")
   public void varsleFedreOmVentendeSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
       if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
-          .isBefore(LocalDate.now().minusDays(antallDagerSidenMorSignerte))) {
+          .isBefore(LocalDate.now().minusDays(minimumAntallDagerSidenMorSignerte - 1))) {
 
         // Sende eksternt varsel til far om ventende signeringsoppgave
         brukernotifikasjonConsumer.varsleFarOmSigneringsoppgave(farskapserklaering.getFar().getFoedselsnummer());

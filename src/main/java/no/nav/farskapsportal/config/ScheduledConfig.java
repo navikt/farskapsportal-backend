@@ -41,7 +41,7 @@ public class ScheduledConfig {
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
     return VarsleFarOmSigneringsoppgave.builder()
-        .antallDagerSidenMorSignerte(farskapsportalEgenskaper.getBrukernotifikasjon().getAntallDagerForsinkelseEtterMorHarSignert())
+        .minimumAntallDagerSidenMorSignerte(farskapsportalEgenskaper.getBrukernotifikasjon().getAntallDagerForsinkelseEtterMorHarSignert())
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .persistenceService(persistenceService)
         .build();
