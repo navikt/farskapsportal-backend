@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.dto.BarnDto;
@@ -17,6 +18,7 @@ import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.util.Mapper;
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,9 @@ public class SkattConsumerIntegrationTest {
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(readFile("xadesMor.xml"));
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(readFile("xadesMor.xml"));
 
-    farskapserklaering.setMeldingsidSkatt("NAV_test_1");
+    var millis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+
+    farskapserklaering.setMeldingsidSkatt(Long.toString(millis));
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     farskapserklaering.getDokument()
