@@ -17,7 +17,7 @@ public class SletteOppgave {
   private PersistenceService persistenceService;
 
   // Kjøres hver morgen kl 06:00
-  @Scheduled(cron = "0 6 * * ?")
+  @Scheduled(cron = "0 00 6 * * ?")
   public void sletteUtloepteSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
