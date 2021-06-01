@@ -5,6 +5,9 @@ også grenesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæri
 
 ### hemmeligheter
 
+!NB: Ved k8 delete app må appens Google service account legges til som Secret Manager Accessor for GCP-hemmeligheter (gjelder f.eks tilgang til 
+virksomhetssertifikat og passord, samt Postgres-bruker (e.g. kjør >kubectl -n farskapsportal delete secret google-sql-farskapsportal-api-feature ))
+
 Hemmeligheter lagres som kubernetes secrets i GCP namespace farskapsportal. Følgende er i bruk:
 
 ##### Secret name: farskapsportal-api-secret
