@@ -227,7 +227,7 @@ spring:
 
 ---
 spring.config.activate.on-profile: scheduled-test
-farskapsportal.egenskaper.skatt.intervall.overfoering: 3000
+farskapsportal.egenskaper.skatt.intervall-overfoering: 3000
 
 ---
 spring.config.activate.on-profile: skatt-ssl-test
@@ -262,7 +262,7 @@ spring:
 
 farskapsportal.egenskaper:
   skatt:
-    intervall.overfoering: 3600000
+    intervall-overfoering: 3600000
 
 url:
   skatt.base-url: https://folkeregisteret-api-ekstern.sits.no
