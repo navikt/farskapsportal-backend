@@ -11,7 +11,7 @@ spec:
     application:
       enabled: true
   kafka:
-    pool: {{ kafka.pool }}
+    pool: nav-dev
   liveness:
     path: /internal/actuator/health
     initialDelay: 70
