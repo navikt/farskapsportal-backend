@@ -37,7 +37,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("SletteOppgave")
 @SpringBootTest(classes = FarskapsportalApplicationLocal.class)
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
 @ActiveProfiles(PROFILE_TEST)
 public class SletteOppgaveTest {
 
