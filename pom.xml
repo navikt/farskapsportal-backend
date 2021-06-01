@@ -6,12 +6,12 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.4.6</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <relativePath />
   </parent>
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.77-SNAPSHOT</version>
+  <version>0.0.80-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -122,7 +122,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot.version}</version>
       </plugin>
       <plugin>
         <groupId>org.flywaydb</groupId>
