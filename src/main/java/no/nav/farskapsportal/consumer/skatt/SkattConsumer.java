@@ -165,7 +165,7 @@ public class SkattConsumer {
                 .build())
             .barnet(Barn.builder()
                 .erFoedt(tilBoolsk(farskapserklaering.getBarn().getFoedselsnummer() != null))
-                .termindato(tilDato(farskapserklaering.getBarn().getTermindato()))
+                .termindato(farskapserklaering.getBarn().getFoedselsnummer() != null ? null : tilDato(farskapserklaering.getBarn().getTermindato()))
                 .foedselsEllerDNummer(
                     farskapserklaering.getBarn().getFoedselsnummer() != null ? tilFoedsedslsnummer(farskapserklaering.getBarn().getFoedselsnummer())
                         : null).build())
