@@ -43,9 +43,9 @@ farskapsportal.egenskaper:
   brukernotifikasjon:
     antall-dager-forsinkelse-etter-mor-har-signert: 3
     grupperingsid-farskap: farskap
-    topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1-testing
-    topic-ferdig: aapen-brukernotifikasjon-nyDone-v1-testing
-    topic-oppgave: aapen-brukernotifikasjon-nyOppgave-v1-testing
+    topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1
+    topic-ferdig: aapen-brukernotifikasjon-nyDone-v1
+    topic-oppgave: aapen-brukernotifikasjon-nyOppgave-v1
     synlighet-beskjed-antall-maaneder: 1
     synlighet-oppgave-antall-dager: 30
     sikkerhetsnivaa-beskjed: 3
