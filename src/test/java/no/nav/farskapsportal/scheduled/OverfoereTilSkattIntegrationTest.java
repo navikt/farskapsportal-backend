@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.config.ScheduledConfig;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -49,8 +50,8 @@ public class OverfoereTilSkattIntegrationTest {
   @Autowired
   private MeldingsloggDao meldingsloggDao;
 
-  @Value("${farskapsportal.egenskaper.skatt.intervall.overfoering}")
-  private long intervall;
+  @Autowired
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   @Test
   public void skalPlukkeOppOgSendeFerdigstilteFarskapserklaeringerTilSkatt() throws InterruptedException {
@@ -83,7 +84,7 @@ public class OverfoereTilSkattIntegrationTest {
     assertNull(ikkeSendingsklarFarskapserklaering.getSendtTilSkatt());
 
     // when
-    Thread.sleep(intervall * 2);
+    Thread.sleep(farskapsportalEgenskaper.getSkatt().getIntervallOverfoering() * 2);
 
     var fe1 = farskapserklaeringDao.findById(sendingsklarFarskapserklaering1.getId());
     var fe2 = farskapserklaeringDao.findById(sendingsklarFarskapserklaering2.getId());

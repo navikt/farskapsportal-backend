@@ -18,9 +18,7 @@ public class OverfoereTilSkatt {
 
   private PersistenceService persistenceService;
   private SkattConsumer skattConsumer;
-
-  @Value("${farskapsportal.egenskaper.skatt.intervall.overfoering}")
-  private long intervallMellomForsoek;
+  private int intervallMellomForsoek;
 
   @Scheduled(initialDelay = 60000, fixedDelayString = "${farskapsportal.egenskaper.skatt.intervall.overfoering}")
   void vurdereOverfoeringTilSkatt() {

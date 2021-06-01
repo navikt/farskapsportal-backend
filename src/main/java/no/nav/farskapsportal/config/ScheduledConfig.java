@@ -31,6 +31,7 @@ public class ScheduledConfig {
   @Bean
   public OverfoereTilSkatt overfoereTilSkatt(PersistenceService persistenceService, SkattConsumer skattConsumer) {
     return OverfoereTilSkatt.builder()
+        .intervallMellomForsoek(farskapsportalEgenskaper.getSkatt().getIntervallOverfoering())
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
         .build();

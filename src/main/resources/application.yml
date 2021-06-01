@@ -56,7 +56,7 @@ farskapsportal.egenskaper:
     avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
     feilet-url: ${ESIGNERING_FEILET_URL}
   skatt:
-    intervalloverfoering: 3600000
+    intervall-overfoering: 3600000
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 10000
