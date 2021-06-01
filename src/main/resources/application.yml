@@ -3,7 +3,7 @@ spring:
   main.allow-bean-definition-overriding: true
 
 springdoc:
-  packages-to-scan: no.nav.bidrag.dokument.journalpost.controller
+  packages-to-scan: {no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs}
   show-login-endpoint: true
   swagger-ui.path: /swagger-ui.html
 
