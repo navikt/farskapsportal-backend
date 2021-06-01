@@ -62,7 +62,7 @@ spec:
       value: "{{ integration_test_controller_paa }}"
     - name: KAFKA_BROKERS
       value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-    - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
+    - name: KAFKA_SCHEMA_REGISTRY_URL
       value: https://kafka-schema-registry.nais-q.adeo.no
     - name: SKATT_URL
       value: {{ skatt_url }}
