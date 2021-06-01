@@ -17,7 +17,7 @@ public class VarsleFarOmSigneringsoppgave {
   private PersistenceService persistenceService;
 
   // Kjøres hver ettermiddag kl 16:00
-  @Scheduled(cron = "0 0 16 00 * ?")
+  @Scheduled(cron = "0 16 * * ?")
   public void varsleFedreOmVentendeSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
