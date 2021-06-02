@@ -1,20 +1,50 @@
 @charset "UTF-8";
 
+h1 {
+    font-size: 1.333em;
+    font-family: Arial;
+    font-weight:bold;
+}
+
+h2 {
+    font-size : 1.167em;
+    font-family: Arial;
+    font-weight: bold;
+}
+
 body {
+    font-size : 1em;
+    font-family: Arial;
     background-color: white;
-    margin-left: 100px;
-    margin-right: 100px;
-    font-size: 15px;
+    margin-left: 75px;
+    margin-right: 75px;
 }
 
 p {
+    font-size : 1em;
+    font-family: Arial;
     left-margin: 100px;
 }
 
 td.beskrivelse {
+    font-size : 1em;
+    font-family: Arial;
     font-weight: bold;
+}
+img.logo {
+    width: 7em;
+    height: 4.4em;
+    display: block;
+    horiz-align: center;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 80%;
+    margin-right: auto;
+    vertical-align: bottom;
 }
 
 table {
+    font-size : 1em;
+    font-family: Arial;
     margin-bottom: 10px;
 }
