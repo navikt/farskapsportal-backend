@@ -59,7 +59,7 @@ spec:
     - name: INTEGRATION_TEST_CONTROLLER_PAA
       value: "{{ integration_test_controller_paa }}"
     - name: KAFKA_BROKERS
-      value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443
+      value: SSL://a01apvl00145.adeo.no:8443,SSL://a01apvl00146.adeo.no:8443,SSL://a01apvl00147.adeo.no:8443
     - name: KAFKA_SCHEMA_REGISTRY_URL
       value: https://kafka-schema-registry.nais-q.adeo.no
     - name: SKATT_URL
