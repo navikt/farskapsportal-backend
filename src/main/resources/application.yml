@@ -10,15 +10,15 @@ springdoc:
 kafka:
   bootstrap-servers: ${KAFKA_BROKERS}
   properties:
-    security.protocol: SSL
+    security.protocol: SASL_SSL
     ssl:
       keystore:
         type: PKCS12
-        location: ${KAFKA_KEYSTORE_PATH}
-        password: ${KAFKA_CREDSTORE_PASSWORD}
+        location: ${NAV_TRUSTSTORE_PATH}
+        password: ${NAV_TRUSTSTORE_PASSWORD}
       truststore:
-        location: ${KAFKA_TRUSTSTORE_PATH}
-        password: ${KAFKA_CREDSTORE_PASSWORD}
+        location: ${NAV_TRUSTSTORE_PATH}
+        password: ${NAV_TRUSTSTORE_PASSWORD}
       endpoint.identification.algorithm:
       producer:
         key-serializer: org.apache.kafka.common.serialization.StringSerializer
