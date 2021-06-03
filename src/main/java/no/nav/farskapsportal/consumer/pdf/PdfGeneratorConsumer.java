@@ -3,43 +3,51 @@ package no.nav.farskapsportal.consumer.pdf;
 import static no.nav.farskapsportal.api.Feilkode.OPPRETTE_PDF_FEILET;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.PDFConsumerException;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Element;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
 
 @Component
 @Slf4j
 public class PdfGeneratorConsumer {
 
-  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer) {
+  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer)  {
     log.info("Oppretter dokument for farskapserklæring");
 
     var html = byggeHtmlstrengFraMal("/pdf-template/template.html", barnMedDetaljer, morMedDetaljer, farMedDetaljer);
-
     try (final ByteArrayOutputStream pdfStream = new ByteArrayOutputStream()) {
+
+      var htmlSomStroem = new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8));
+      org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(htmlSomStroem, "UTF-8", "pdf-template/template.html");
+      Document doc = new W3CDom().fromJsoup(jsoupDoc);
+
       new PdfRendererBuilder()
           .useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
           .useFastMode()
-          .withHtmlContent(html, "classpath:/pdf-template/")
+          .withW3cDocument(doc, "classpath:/pdf-template/")
           .toStream(pdfStream)
           .run();
 
       return pdfStream.toByteArray();
-
-    } catch (Exception e) {
-      throw new PDFConsumerException(OPPRETTE_PDF_FEILET, e);
+    } catch(IOException ioe) {
+      throw new PDFConsumerException(OPPRETTE_PDF_FEILET, ioe);
     }
   }
 
-  private void  leggeTilDataBarn(Element barnElement, BarnDto barnDto) {
+
+  private void leggeTilDataBarn(Element barnElement, BarnDto barnDto) {
     if (barnDto.getFoedselsnummer() != null) {
       barnElement.getElementsByClass("ufoedt").remove();
       var beskrivelse = barnElement.getElementsByClass("beskrivelse");
