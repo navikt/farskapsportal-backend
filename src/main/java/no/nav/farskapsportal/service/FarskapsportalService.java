@@ -128,7 +128,7 @@ public class FarskapsportalService {
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
       var farsAktiveErklaeringer = persistenceService.henteFarsErklaeringer(fnrPaaloggetBruker);
-      
+
       // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
       if (farskapsportalEgenskaper.isInnhenteStatusVedPolling()) {
         farsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(farsAktiveErklaeringer);
@@ -401,7 +401,7 @@ public class FarskapsportalService {
       var statusSignering = dokumentStatusDto.getStatus();
 
       if (StatusSignering.SUKSESS.equals(statusSignering)) {
-          return persistenceService.oppdatereFarskapserklaering(oppdatereSigneringsinfo(Optional.empty(), dokumentStatusDto, farskapserklaering));
+        return persistenceService.oppdatereFarskapserklaering(oppdatereSigneringsinfo(Optional.empty(), dokumentStatusDto, farskapserklaering));
       }
     }
     return farskapserklaering;
