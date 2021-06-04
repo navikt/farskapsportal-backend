@@ -9,6 +9,7 @@ springdoc:
 
 kafka:
   bootstrap-servers: ${KAFKA_BROKERS}
+  schema.registry.url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
   properties:
     security.protocol: SASL_SSL
     ssl:
@@ -19,10 +20,6 @@ kafka:
       truststore:
         location: ${NAV_TRUSTSTORE_PATH}
         password: ${NAV_TRUSTSTORE_PASSWORD}
-      endpoint.identification.algorithm:
-      producer:
-        key-serializer: org.apache.kafka.common.serialization.StringSerializer
-        value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 virksomhetssertifikat:
   prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
@@ -130,7 +127,8 @@ FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no/nb/"
 ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
-KAFKA_BROKERS: localhost
+KAFKA_BROKERS: 127.0.0.1:9092
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8080/
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
@@ -143,8 +141,6 @@ farskapsportal-api.systembruker.passord: se-vault
 spring:
   config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
   flyway.enabled: false
-
-kafka.bootstrap-servers: localhost:9092
 
 local.server.port: 8080
 
@@ -163,6 +159,10 @@ no.nav.security.jwt:
 farskapsportal-api.disable-esignering: false
 
 url.esignering: ${WIREMOCK_URL}
+
+spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.consumer.group-id: farskapsportal
+spring.kafka.consumer.auto-offset-reset: earliest
 
 ---
 
@@ -200,7 +200,8 @@ spring:
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
-KAFKA_BROKERS: localhost
+KAFKA_BROKERS: 127.0.0.1:9092
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://${KAFKA_BROKERS}
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}

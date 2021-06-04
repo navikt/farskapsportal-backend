@@ -43,6 +43,18 @@ Testtoken for lokalprofilen hentes fra http://localhost:8080/jwt.
 
 Swagger URL: http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
 
+##### Kafka 
+farskapsportal-api sender meldinger til brukernotifkasjons kafka-topics. Ved lokal kjøring brukes lokal Kafkainstans. (Kafka kan installeres på Mac 
+med >brew install kafka). Her må aktuelle topics også defineres:
+
+Gå til kafka-installasjonsområdet, f.eks /usr/local/Cellar/kafka/2.8.0/libexec, kjør følgende kommandoer for å opprette topics 
+(ref [apache kafka quick-start](https://kafka.apache.org/quickstart)):
+
+>./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyBeskjed-v1 --bootstrap-server localhost:9092 \
+>./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-done-v1 --bootstrap-server localhost:9092 \
+>./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyOppgave-v1 --bootstrap-server localhost:9092
+
+
 ##### Lese secret fra GCP ved lokal kjøring
 
 For å sette GOOGLE_APPLICATION_CREDENTIALS for lokal kjøring, kjør følgende kommando i terminal med GCP SDK:

@@ -24,7 +24,11 @@ public class Oppgaveprodusent {
     var nokkel = new NokkelBuilder().withEventId(idFarskapserklaering).withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).build();
     var melding = oppretteOppgave(foedselsnummerFar, oppgavetekst, medEksternVarsling);
 
-    kafkaTemplate.send(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicOppgave(), nokkel, melding);
+    try {
+      kafkaTemplate.send(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicOppgave(), nokkel, melding);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   private Oppgave oppretteOppgave(String foedselsnummer, String oppgavetekst, boolean medEksternVarsling) {
