@@ -5,17 +5,16 @@ import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.api.Feilkode.DOKUMENT_MANGLER_INNOHLD;
-import static no.nav.farskapsportal.api.Feilkode.SKATT_OVERFOERING_FEILET;
 import static no.nav.farskapsportal.api.Feilkode.XADES_FAR_UTEN_INNHOLD;
 import static no.nav.farskapsportal.api.Feilkode.XADES_MOR_UTEN_INNHOLD;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.FarskapsportalTestConfig;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
@@ -25,17 +24,15 @@ import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 @DisplayName("SkattConsumer")
 @ActiveProfiles(PROFILE_TEST)
-@SpringBootTest(classes = FarskapsportalApplicationLocal.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = {FarskapsportalApplicationLocal.class, FarskapsportalTestConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SkattConsumerTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);

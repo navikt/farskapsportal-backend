@@ -119,7 +119,6 @@ spring:
   jpa.hibernate.hbmddl-auto: create-drop
 
 ########## Mock props ##########
-SKATT_STUB_HOST: http://localhost:8080
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
@@ -128,12 +127,12 @@ ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
 KAFKA_BROKERS: 127.0.0.1:9092
-KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8080/
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  skatt.base-url: ${SKATT_STUB_HOST}
+  skatt.base-url: http://localhost
 
 farskapsportal-api.systembruker.passord: se-vault
 
@@ -141,8 +140,6 @@ farskapsportal-api.systembruker.passord: se-vault
 spring:
   config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
   flyway.enabled: false
-
-local.server.port: 8080
 
 ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
 ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
@@ -201,7 +198,7 @@ WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 KAFKA_BROKERS: 127.0.0.1:9092
-KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://${KAFKA_BROKERS}
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:${server.port}
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}

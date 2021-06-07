@@ -4,6 +4,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.brukernotifikasjon.schemas.Oppgave;
 import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
 import no.nav.brukernotifikasjon.schemas.builders.OppgaveBuilder;

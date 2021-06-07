@@ -9,6 +9,7 @@ import java.util.Map;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
+import no.nav.brukernotifikasjon.schemas.Oppgave;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.Beskjedprodusent;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
@@ -38,7 +39,7 @@ public class BrukernotifikasjonConfig {
     this.farskapsportalEgenskaper = farskapsportalEgenskaper;
   }
 
-  private Map<String, Object> getConfigProps() {
+  private Map<String, Object> getKafkaConfigProps() {
     Map<String, Object> configProps = new HashMap<>();
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
@@ -49,17 +50,17 @@ public class BrukernotifikasjonConfig {
 
   @Bean("beskjed")
   public KafkaTemplate<Nokkel, Beskjed> kafkaTemplateBeskjed() {
-    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getConfigProps()));
+    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getKafkaConfigProps()));
   }
 
   @Bean("ferdig")
   public KafkaTemplate<Nokkel, Done> kafkaTemplateFerdig() {
-    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getConfigProps()));
+    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getKafkaConfigProps()));
   }
 
   @Bean("oppgave")
-  public KafkaTemplate<String, String> kafkaTemplateOppgave() {
-    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getConfigProps()));
+  public KafkaTemplate<Nokkel, Oppgave> kafkaTemplateOppgave() {
+    return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getKafkaConfigProps()));
   }
 
   @Bean
@@ -75,7 +76,7 @@ public class BrukernotifikasjonConfig {
 
   @Bean
   Oppgaveprodusent oppgaveprodusent(
-      @Qualifier("oppgave") KafkaTemplate<String, String> kafkaTemplate) throws MalformedURLException {
+      @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate) throws MalformedURLException {
     return new Oppgaveprodusent(farskapsportalEgenskaper, toUrl(farskapsportalEgenskaper.getUrl()), kafkaTemplate);
   }
 
