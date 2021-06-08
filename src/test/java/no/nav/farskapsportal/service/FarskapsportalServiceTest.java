@@ -47,7 +47,8 @@ import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.Rolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
-import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
@@ -99,6 +100,8 @@ public class FarskapsportalServiceTest {
   PersonopplysningService personopplysningService;
   @MockBean
   SkattConsumer skattConsumer;
+  @MockBean
+  BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   @Autowired
   private PersistenceService persistenceService;
   @Autowired
@@ -961,6 +964,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUrl("/confirmation"))
@@ -1019,6 +1025,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()

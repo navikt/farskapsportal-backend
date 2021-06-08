@@ -54,8 +54,14 @@ spec:
       value: {{ posten_esignering_avbrutt_url }}
     - name: ESIGNERING_FEILET_URL
       value: {{ posten_esignering_feilet_url }}
+    - name: FARSKAPSPORTAL_URL
+      value: https://farskapsportal.dev.adeo.no
     - name: INTEGRATION_TEST_CONTROLLER_PAA
       value: "{{ integration_test_controller_paa }}"
+    - name: KAFKA_BROKERS
+      value: SSL://a01apvl00145.adeo.no:8443,SSL://a01apvl00146.adeo.no:8443,SSL://a01apvl00147.adeo.no:8443
+    - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
+      value: https://kafka-schema-registry.nais-q.adeo.no
     - name: SKATT_URL
       value: {{ skatt_url }}
   gcp:

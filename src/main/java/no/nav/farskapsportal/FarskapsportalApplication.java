@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @Slf4j
 @SpringBootApplication
 @EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
+@ConfigurationPropertiesScan("no.nav.farskapsportal.config.egenskaper")
 public class FarskapsportalApplication {
 
   public static final String ISSUER = "selvbetjening";

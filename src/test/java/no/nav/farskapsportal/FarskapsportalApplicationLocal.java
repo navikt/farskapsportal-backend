@@ -46,10 +46,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@ComponentScan(excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = FarskapsportalApplication.class)})
+@ComponentScan(excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = {FarskapsportalApplication.class, FarskapsportalTestConfig.class})})
+@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"},
+    topics = {"aapen-brukernotifikasjon-nyBeskjed-v1", "aapen-brukernotifikasjon-done-v1", "aapen-brukernotifikasjon-nyOppgave-v1"})
 @EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
 @Import(TokenGeneratorConfiguration.class)
 @Slf4j
@@ -71,7 +74,6 @@ public class FarskapsportalApplicationLocal {
     app.setAdditionalProfiles(profile);
     app.run(args);
   }
-
 
   private static String generateTestToken() {
     TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
@@ -113,7 +115,7 @@ public class FarskapsportalApplicationLocal {
   @Profile({PROFILE_SKATT_SSL_TEST})
   static class SkattStubSslConfiguration {
 
-    @LocalServerPort
+    @Value("${server.port}")
     private int localServerPort;
 
     @Value("${sertifikat.passord}")

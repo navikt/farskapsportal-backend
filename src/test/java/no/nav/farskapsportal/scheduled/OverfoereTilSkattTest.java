@@ -21,6 +21,8 @@ import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.Mapper;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +42,6 @@ public class OverfoereTilSkattTest {
   private PersistenceService persistenceService;
 
   @Autowired
-  private OverfoereTilSkatt overfoereTilSkatt;
-
-  @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
 
   @Autowired
@@ -53,6 +52,14 @@ public class OverfoereTilSkattTest {
 
   @Autowired
   private Mapper mapper;
+
+  private OverfoereTilSkatt overfoereTilSkatt;
+
+  @BeforeEach
+  void setup() {
+    // Bønnen overfoereTilSkatt er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
+    overfoereTilSkatt = OverfoereTilSkatt.builder().skattConsumer(skattConsumer).persistenceService(persistenceService).build();
+  }
 
   @Test
   void skalOppdatereMeldingsloggVedOverfoeringTilSkatt() {

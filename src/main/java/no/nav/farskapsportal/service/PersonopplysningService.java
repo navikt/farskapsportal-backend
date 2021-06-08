@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Kjoenn;
-import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;

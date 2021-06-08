@@ -48,7 +48,8 @@ import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
-import no.nav.farskapsportal.config.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
@@ -131,6 +132,8 @@ public class FarskapsportalControllerTest {
   private OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
   @MockBean
   private PdfGeneratorConsumer pdfGeneratorConsumer;
+  @MockBean
+  private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   @MockBean
   private DifiESignaturConsumer difiESignaturConsumer;
   @MockBean
@@ -980,6 +983,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor= NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       doNothing().when(skattConsumer).registrereFarskap(lagretFarskapserklaeringSignertAvMor);
@@ -989,6 +993,10 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
           FAR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonNavn(registrertNavnMor), new HentPersonFoedsel(FOEDSELSDATO_MOR, false)),
+          MOR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -1046,13 +1054,20 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor= NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
       Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(registrertNavnFar)),
           FAR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonFoedsel(FOEDSELSDATO_MOR, false), new HentPersonNavn(registrertNavnMor)),
+          MOR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()

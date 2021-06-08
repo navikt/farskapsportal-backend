@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -26,28 +27,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
-@Configuration
 @Slf4j
+@Configuration
 public class RestTemplateConfig {
 
   private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
 
-  @Value("${consumer.skatt.maks-antall-forbindelser}")
-  private int consumerSkattMaksAntallForbindelser;
+  FarskapsportalEgenskaper farskapsportalEgenskaper;
 
-  @Value("${consumer.skatt.maks-antall-forbindelser-per-rute}")
-  private int consumerSkattMaksAntallForbindelserPerRute;
+  public RestTemplateConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
+    this.farskapsportalEgenskaper = farskapsportalEgenskaper;
+  }
 
-  @Value("${consumer.skatt.maks-ventetid-forbindelse}")
-  private int consumerSkattMaksVentetidForbindelse;
-
-  @Value("${consumer.skatt.maks-ventetid-lesing}")
-  private int consumerSkattMaksVentetidLesing;
-
-  @Bean
-  @Qualifier("base")
+  @Bean("base")
   @Scope("prototype")
   public HttpHeaderRestTemplate restTemplate() {
     HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
@@ -55,8 +49,7 @@ public class RestTemplateConfig {
     return httpHeaderRestTemplate;
   }
 
-  @Bean
-  @Qualifier("sts")
+  @Bean("sts")
   @Scope("prototype")
   public HttpHeaderRestTemplate stsRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
       @Value("${APIKEY_STS_FP}") String xApiKeySts) {
@@ -65,19 +58,19 @@ public class RestTemplateConfig {
     return httpHeaderRestTemplate;
   }
 
-  @Bean
-  @Qualifier("pdl-api")
+  @Bean("pdl-api")
   @Scope("prototype")
   public HttpHeaderRestTemplate pdlApiRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-      @Value("${farskapsportal-api.servicebruker.brukernavn}") String farskapsportalApiBrukernavn,
-      @Value("${farskapsportal-api.servicebruker.passord}") String farskapsportalApiPassord, @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
+      @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
 
     httpHeaderRestTemplate.addHeaderGenerator(AUTHORIZATION,
-        () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalApiBrukernavn, farskapsportalApiPassord));
+        () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalEgenskaper.getSystembrukerBrukernavn(),
+            farskapsportalEgenskaper.getSystembrukerPassord()));
 
     httpHeaderRestTemplate.addHeaderGenerator(NAV_CONSUMER_TOKEN,
-        () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalApiBrukernavn, farskapsportalApiPassord));
+        () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalEgenskaper.getSystembrukerBrukernavn(),
+            farskapsportalEgenskaper.getSystembrukerPassord()));
 
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 
@@ -100,13 +93,13 @@ public class RestTemplateConfig {
         NoopHostnameVerifier.INSTANCE);
 
     var httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory)
-        .setMaxConnTotal(consumerSkattMaksAntallForbindelser)
-        .setMaxConnPerRoute(consumerSkattMaksAntallForbindelserPerRute)
+        .setMaxConnTotal(farskapsportalEgenskaper.getSkatt().getMaksAntallForbindelser())
+        .setMaxConnPerRoute(farskapsportalEgenskaper.getSkatt().getMaksAntallForbindelserPerRute())
         .build();
 
     var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-    requestFactory.setReadTimeout(consumerSkattMaksVentetidLesing);
-    requestFactory.setConnectTimeout(consumerSkattMaksVentetidForbindelse);
+    requestFactory.setReadTimeout(farskapsportalEgenskaper.getSkatt().getMaksVentetidLesing());
+    requestFactory.setConnectTimeout(farskapsportalEgenskaper.getSkatt().getMaksVentetidForbindelse());
 
     httpHeaderRestTemplate.setRequestFactory(requestFactory);
 
