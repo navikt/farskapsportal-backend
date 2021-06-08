@@ -26,7 +26,15 @@ public class SletteOppgave {
           .isBefore(LocalDate.now().minusDays(synlighetOppgaveIDager - 1))) {
         brukernotifikasjonConsumer
             .sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
+        sendeMeldingTilMorDersomFarIkkeHarSignert(farskapserklaering);
       }
+    }
+  }
+
+  private void sendeMeldingTilMorDersomFarIkkeHarSignert(Farskapserklaering farskapserklaering) {
+    if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null
+        || farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() == null) {
+      brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(farskapserklaering.getMor().getFoedselsnummer());
     }
   }
 }
