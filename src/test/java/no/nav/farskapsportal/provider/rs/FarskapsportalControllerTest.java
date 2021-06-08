@@ -855,13 +855,11 @@ public class FarskapsportalControllerTest {
           KONTROLLEREOPPLYSNINGER_OM_FAR.getFoedselsnummer());
 
       // legger på redirecturl til dokument i void-metode
-      doAnswer(new Answer() {
-        public Object answer(InvocationOnMock invocation) {
-          Object[] args = invocation.getArguments();
-          var dokument = (Dokument) args[0];
-          dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-mor").toString()).build());
-          return null;
-        }
+      doAnswer(invocation -> {
+        Object[] args = invocation.getArguments();
+        var dokument = (Dokument) args[0];
+        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-mor").toString()).build());
+        return null;
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when

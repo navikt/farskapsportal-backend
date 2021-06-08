@@ -130,7 +130,7 @@ public class FarskapsportalService {
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
       var farsAktiveErklaeringer = persistenceService.henteFarsErklaeringer(fnrPaaloggetBruker);
-      
+
       // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
       if (farskapsportalEgenskaper.isInnhenteStatusVedPolling()) {
         farsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(farsAktiveErklaeringer);
