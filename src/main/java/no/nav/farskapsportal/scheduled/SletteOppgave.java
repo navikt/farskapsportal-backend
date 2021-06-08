@@ -24,17 +24,21 @@ public class SletteOppgave {
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
       if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
           .isBefore(LocalDate.now().minusDays(synlighetOppgaveIDager - 1))) {
+        log.info("Sletter utgått signeringsoppgave for farskapserklæring med id {}", farskapserklaering.getId());
         brukernotifikasjonConsumer
             .sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
-        sendeMeldingTilMorDersomFarIkkeHarSignert(farskapserklaering);
+        sletteFarskapserklaeringOgsendeMeldingTilMorDersomFarIkkeHarSignert(farskapserklaering);
       }
     }
   }
 
-  private void sendeMeldingTilMorDersomFarIkkeHarSignert(Farskapserklaering farskapserklaering) {
+  private void sletteFarskapserklaeringOgsendeMeldingTilMorDersomFarIkkeHarSignert(Farskapserklaering farskapserklaering) {
     if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null
         || farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() == null) {
+      persistenceService.sletteFarskapserklaering(farskapserklaering.getId());
+      log.info("Farskapserklæring med id {} ble slettet fra databasen.", farskapserklaering.getId());
       brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(farskapserklaering.getMor().getFoedselsnummer());
+      log.info("Varsel sendt til mor om at fars oppgave for signering er utgått, og at ny farskapserklæring må opprettes.");
     }
   }
 }

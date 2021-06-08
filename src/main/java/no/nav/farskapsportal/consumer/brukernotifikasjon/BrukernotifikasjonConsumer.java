@@ -19,6 +19,7 @@ public class BrukernotifikasjonConsumer {
 
   public void informereForeldreOmTilgjengeligFarskapserklaering(String foedselsnummerMor, String foedselsnummerFar) {
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, null);
+    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, null);
   }
 
   public void varsleMorOmUtgaattOppgaveForSignering(String foedselsnummerMor) {
