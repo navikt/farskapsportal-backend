@@ -107,6 +107,10 @@
       <id>external-mirror-github-navikt</id>
       <url>https://github-package-registry-mirror-sr4qwz23da-ew.a.run.app/cached/maven-release</url>
     </repository>
+    <repository>
+      <id>confluent</id>
+      <url>https://packages.confluent.io/maven</url>
+    </repository>
   </repositories>
 
   <distributionManagement>
