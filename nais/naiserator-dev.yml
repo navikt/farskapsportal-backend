@@ -61,7 +61,7 @@ spec:
     - name: INTEGRATION_TEST_CONTROLLER_PAA
       value: "{{ integration_test_controller_paa }}"
     - name: KAFKA_BROKERS
-      value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443
+      value: a01apvl00145.preprod.local:8443,a01apvl00146.preprod.local:8443,a01apvl00147.preprod.local:8443
     - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
       value: https://kafka-schema-registry.nais-q.adeo.no
     - name: SKATT_URL
@@ -81,7 +81,7 @@ spec:
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
         - host: kafka-schema-registry.nais-q.adeo.no
-        - host: a01apvl00145.adeo.no
-        - host: a01apvl00146.adeo.no
-        - host: a01apvl00147.adeo.no
+        - host: a01apvl00145.preprod.local
+        - host: a01apvl00146.preprod.local
+        - host: a01apvl00147.preprod.local
 
