@@ -81,4 +81,7 @@ spec:
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
         - host: kafka-schema-registry.nais-q.adeo.no
+        - host: a01apvl00145.adeo.no
+        - host: a01apvl00146.adeo.no
+        - host: a01apvl00147.adeo.no
 
