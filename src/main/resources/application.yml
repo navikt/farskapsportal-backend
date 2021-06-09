@@ -198,7 +198,7 @@ WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 KAFKA_BROKERS: 127.0.0.1:9092
-KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:${server.port}
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8080
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}

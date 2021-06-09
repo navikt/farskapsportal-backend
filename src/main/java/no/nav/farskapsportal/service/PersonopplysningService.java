@@ -190,7 +190,7 @@ public class PersonopplysningService {
   }
 
   private Set<String> filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
-    return nyfoedteBarn.stream().filter(barn -> pdlApiConsumer.henteFoedsel(barn).getFoedeland().equalsIgnoreCase(KODE_LAND_NORGE))
+    return nyfoedteBarn.stream().filter(barn -> henteFoedeland(barn) != null).filter(barn -> henteFoedeland(barn).equalsIgnoreCase(KODE_LAND_NORGE))
         .collect(Collectors.toSet());
   }
 }
