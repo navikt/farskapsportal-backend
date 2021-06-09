@@ -343,8 +343,10 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
           var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xadesXml);
-          brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(aktuellFarskapserklaering.getId(),
-              aktuellFarskapserklaering.getFar().getFoedselsnummer());
+          if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
+            brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(aktuellFarskapserklaering.getId(),
+                aktuellFarskapserklaering.getFar().getFoedselsnummer());
+          }
         }
 
         // Oppdatere for far - sette meldingsidSkatt
@@ -362,12 +364,14 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(xadesXml);
           aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
               aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
-          // Slette fars oppgave for signering på DittNav
-          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(aktuellFarskapserklaering.getId(),
-              aktuellFarskapserklaering.getFar().getFoedselsnummer());
-          // Informere foreldrene om gjennomført signering og tilgjengelig farskapserklæring
-          brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getFar().getFoedselsnummer(),
-              aktuellFarskapserklaering.getMor().getFoedselsnummer());
+          if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
+            // Slette fars oppgave for signering på DittNav
+            brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(aktuellFarskapserklaering.getId(),
+                aktuellFarskapserklaering.getFar().getFoedselsnummer());
+            // Informere foreldrene om gjennomført signering og tilgjengelig farskapserklæring
+            brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getFar().getFoedselsnummer(),
+                aktuellFarskapserklaering.getMor().getFoedselsnummer());
+          }
         }
       }
     }

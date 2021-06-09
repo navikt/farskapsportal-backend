@@ -3,6 +3,7 @@ package no.nav.farskapsportal.scheduled;
 import java.time.LocalDate;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.service.PersistenceService;
@@ -12,9 +13,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Slf4j
 public class SletteOppgave {
 
-  private int synlighetOppgaveIDager;
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private PersistenceService persistenceService;
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   // Kjøres hver morgen kl 06:00
   @Scheduled(cron = "0 00 6 * * ?")
@@ -22,8 +23,9 @@ public class SletteOppgave {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
-      if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
-          .isBefore(LocalDate.now().minusDays(synlighetOppgaveIDager - 1))) {
+      if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa() && farskapserklaering.getDokument().getSigneringsinformasjonMor()
+          .getSigneringstidspunkt().toLocalDate()
+          .isBefore(LocalDate.now().minusDays(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetOppgaveAntallDager() - 1))) {
         log.info("Sletter utgått signeringsoppgave for farskapserklæring med id {}", farskapserklaering.getId());
         brukernotifikasjonConsumer
             .sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
