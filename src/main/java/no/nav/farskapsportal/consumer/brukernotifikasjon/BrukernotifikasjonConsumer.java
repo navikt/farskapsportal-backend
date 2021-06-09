@@ -8,8 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class BrukernotifikasjonConsumer {
 
-  private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING = "En signert farskapserklæring er tilgjengelig i din innboks";
+  private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING = "En signert farskapserklæring er tilgjengelig i din innboks.";
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
+  private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Trykk her for å legge inn farskapserklæring på ny.";
 
   private final URL farskapsportalUrl;
   private final Beskjedprodusent beskjedprodusent;
@@ -21,9 +22,14 @@ public class BrukernotifikasjonConsumer {
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, null);
   }
 
+  public void varsleMorOmUtgaattOppgaveForSignering(String foedselsnummerMor) {
+    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, farskapsportalUrl);
+  }
+
   public void oppretteOppgaveTilFarOmSignering(int idFarskapserklaering, String foedselsnummerFar) {
     oppgaveprodusent
-        .oppretteOppgaveForSigneringAvFarskapserklaering(Integer.toString(idFarskapserklaering), foedselsnummerFar, MELDING_OM_VENTENDE_FARSKAPSERKLAERING, false);
+        .oppretteOppgaveForSigneringAvFarskapserklaering(Integer.toString(idFarskapserklaering), foedselsnummerFar,
+            MELDING_OM_VENTENDE_FARSKAPSERKLAERING, false);
   }
 
   // Forsinket ekstern varsling - kalles av skedulert jobb

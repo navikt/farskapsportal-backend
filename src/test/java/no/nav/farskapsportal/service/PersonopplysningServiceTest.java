@@ -446,6 +446,28 @@ public class PersonopplysningServiceTest {
     }
 
     @Test
+    void skalIkkeInkludereBarnMedUkjentFoedested() {
+
+      // given
+      var foedselsdatoSpedbarn = LocalDate.now().minusMonths(2).minusDays(13);
+      var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
+      var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
+
+      var morsRelasjonTilSpedbarn = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(FamilierelasjonRolle.MOR)
+          .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
+
+      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
+      when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland(null).build());
+
+      // when
+      var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
+
+      // then
+      assertEquals(0, nyligFoedteBarnUtenRegistrertFar.size(), "Spedbarn med registrert far skal ikke returneres");
+
+    }
+
+    @Test
     @DisplayName("Skal ikke gi feilmelding dersom antall barn uten registrert far er 0")
     void skalIkkeGiFeilmeldingDersomAntallBarnUtenRegistrertFarErNull() {
 

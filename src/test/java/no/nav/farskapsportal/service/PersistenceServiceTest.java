@@ -7,6 +7,7 @@ import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.api.Feilkode.ERKLAERING_EKSISTERER_BARN;
 import static no.nav.farskapsportal.api.Feilkode.ERKLAERING_EKSISTERER_MOR;
+import static no.nav.farskapsportal.api.Feilkode.FANT_IKKE_FARSKAPSERKLAERING;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -20,13 +21,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
-import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
@@ -39,6 +40,7 @@ import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.util.Mapper;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
@@ -226,7 +229,7 @@ public class PersistenceServiceTest {
       // then
       assertAll(
           () -> assertNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
-          "PAdES-URL skal ikke være satt i farskapserklæring i det mor redirektes tilbake til farskapsportalen etter utført signering"),
+              "PAdES-URL skal ikke være satt i farskapserklæring i det mor redirektes tilbake til farskapsportalen etter utført signering"),
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
@@ -246,7 +249,7 @@ public class PersistenceServiceTest {
       // then
       assertAll(
           () -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument(),
-          "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
+              "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
@@ -360,6 +363,48 @@ public class PersistenceServiceTest {
 
       // when, then
       assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId() + 1));
+    }
+  }
+
+  @Nested
+  @DisplayName("Slette")
+  class Slette {
+
+    private Farskapserklaering lagreFarskapserklaering() {
+      statusKontrollereFarDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+      return farskapserklaeringDao.save(mapper.toEntity(FARSKAPSERKLAERING));
+    }
+
+    @Test
+    void skalSletteFarskapserklaeringSomManglerFarsSignatur() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
+
+      // when
+      persistenceService.sletteFarskapserklaering(lagretFarskapserklaering.getId());
+
+      // then
+      assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId()));
+    }
+
+    @Test
+    void skalKasteInternFeilExceptionDersomFarskapserklaeringBlirForsoektSlettetIkkeFinnes() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
+
+      // when
+      var internFeilException = assertThrows(InternFeilException.class,
+          () -> persistenceService.sletteFarskapserklaering(lagretFarskapserklaering.getId() + 1));
+
+      // then
+      assertAll(
+          () -> assertThat(internFeilException.getFeilkode()).isEqualTo(FANT_IKKE_FARSKAPSERKLAERING),
+          () -> assertThat(internFeilException.getOriginalException().getClass()).isEqualTo(EmptyResultDataAccessException.class)
+      );
     }
   }
 

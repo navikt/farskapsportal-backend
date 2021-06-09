@@ -49,7 +49,7 @@
     <guava.version>30.1.1-jre</guava.version>
     <jersey-hk2.version>2.34</jersey-hk2.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
-    <spring-cloud-gcp.version>2.0.2</spring-cloud-gcp.version>
+    <spring-cloud-gcp.version>2.0.3</spring-cloud-gcp.version>
     <springframework-retry.version>1.3.1</springframework-retry.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <nimbus-jose-jwt.version>8.21.1</nimbus-jose-jwt.version>
@@ -82,21 +82,6 @@
         <id>jitpack.io</id>
         <url>https://jitpack.io</url>
       </repository>
-    <!-- Mirror foran Maven Central (brukes kun internt) -->
-    <repository>
-      <id>nexus-internal-mirror</id>
-      <url>https://repo.adeo.no/repository/maven-public</url>
-    </repository>
-    <!-- Det generelle interne Nexus-repoet til NAV (brukes kun internt) -->
-    <repository>
-      <id>nexus-internal-releases</id>
-      <url>https://repo.adeo.no/repository/maven-releases</url>
-    </repository>
-    <!-- Skal brukes hvis bygget kjører internt (f.eks. Jenkins, fra utviklerimage, eller via ScaleFT) -->
-    <repository>
-      <id>internal-mirror-github-navikt</id>
-      <url>https://repo.adeo.no/repository/github-package-registry-navikt/</url>
-    </repository>
     <!-- Skal brukes hvis bygget kjøres fra en Github Action -->
     <repository>
       <id>github-package-registry-navikt</id>
@@ -109,17 +94,9 @@
     </repository>
     <repository>
       <id>confluent</id>
-      <url>https://packages.confluent.io/maven</url>
+      <url>https://packages.confluent.io/maven/</url>
     </repository>
   </repositories>
-
-  <distributionManagement>
-    <repository>
-      <id>maven-release</id>
-      <name>GitHub felles Apache Maven Packages for navikt</name>
-      <url>https://maven.pkg.github.com/navikt/maven-release/</url>
-    </repository>
-  </distributionManagement>
 
   <!-- build -->
   <build>

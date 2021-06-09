@@ -4,15 +4,20 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
+import static no.nav.farskapsportal.api.Feilkode.FANT_IKKE_FARSKAPSERKLAERING;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
@@ -21,6 +26,7 @@ import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.service.PersistenceService;
@@ -57,6 +63,9 @@ public class SletteOppgaveTest {
   private FarskapserklaeringDao farskapserklaeringDao;
 
   @MockBean
+  private KafkaTemplate<Nokkel, Beskjed> beskjedkoe;
+
+  @MockBean
   private KafkaTemplate<Nokkel, Done> ferdigkoe;
 
   private SletteOppgave sletteOppgave;
@@ -89,25 +98,48 @@ public class SletteOppgaveTest {
         LocalDateTime.now().minusDays(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetOppgaveAntallDager()));
     persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
-    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
+    var ferdignoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
     var ferdigfanger = ArgumentCaptor.forClass(Done.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
+    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
 
     // when
     sletteOppgave.sletteUtloepteSigneringsoppgaver();
 
     // then
     verify(ferdigkoe, times(1))
-        .send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicFerdig()), noekkelfanger.capture(), ferdigfanger.capture());
+        .send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicFerdig()), ferdignoekkelfanger.capture(), ferdigfanger.capture());
 
-    var nokkel = noekkelfanger.getAllValues().get(0);
+    verify(beskjedkoe, times(1))
+        .send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), beskjednoekkelfanger.capture(), beskjedfanger.capture());
+
+    var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
 
+    var beskjednoekkel = beskjednoekkelfanger.getAllValues().get(0);
+    var beskjed = beskjedfanger.getAllValues().get(0);
+
+    var beskjedMorSynligFremTilDato = Instant.ofEpochMilli(beskjed.getSynligFremTil()).atZone(ZoneId.systemDefault()).toLocalDate();
+
     assertAll(
-        () -> assertThat(nokkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(ferdignokkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(ferdig.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(ferdig.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
-        () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis)
+        () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
+        () -> assertThat(beskjednoekkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl()),
+        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjedMorSynligFremTilDato)
+            .isEqualTo(LocalDate.now().plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
     );
+
+    var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(farskapserklaering.getId()));
+
+    // Den lagrede farskapserklæringen skal slettes i forbindelse med at melding sendes til mor om utgått signeringsoppgave
+    assertThat(ressursIkkeFunnetException.getFeilkode()).isEqualTo(FANT_IKKE_FARSKAPSERKLAERING);
   }
 
   @Test

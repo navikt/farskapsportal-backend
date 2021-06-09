@@ -29,6 +29,7 @@ import no.nav.farskapsportal.persistence.entity.Meldingslogg;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.util.Mapper;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -202,6 +203,14 @@ public class PersistenceService {
 
   public Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur() {
     return farskapserklaeringDao.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
+  }
+
+  public void sletteFarskapserklaering(int idFarskapserklaering) {
+    try {
+      farskapserklaeringDao.deleteById(idFarskapserklaering);
+    } catch (EmptyResultDataAccessException erdae) {
+      throw new InternFeilException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING, erdae);
+    }
   }
 
   public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {
