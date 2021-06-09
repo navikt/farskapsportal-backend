@@ -40,6 +40,7 @@ farskapsportal.egenskaper:
   brukernotifikasjon:
     antall-dager-forsinkelse-etter-mor-har-signert: 3
     grupperingsid-farskap: farskap
+    skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
     topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1
     topic-ferdig: aapen-brukernotifikasjon-nyDone-v1
     topic-oppgave: aapen-brukernotifikasjon-nyOppgave-v1
@@ -145,6 +146,7 @@ ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
 ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
 ESIGNERING_FEILET_URL: "http://localhost:8080/damn"
 INTEGRATION_TEST_CONTROLLER_PAA: true
+BRUKERNOTIFIKASJON_PAA: true
 
 no.nav.security.jwt:
   issuer.selvbetjening:
@@ -199,6 +201,7 @@ APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8080
+BRUKERNOTIFIKASJON_PAA: true
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
@@ -275,6 +278,7 @@ ESIGNERING_SUKSESS_URL: "http://localhost:8080/api/v1/farskapsportal/farskapserk
 ESIGNERING_AVBRUTT_URL: "https://farskapsportal-feature.dev.nav.no/avbrutt"
 ESIGNERING_FEILET_URL: "https://farskapsportal-feature.dev.nav.no/feilet"
 FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no/nb/"
+BRUKERNOTIFIKASJON_PAA: true
 
 no.nav.security.jwt:
   issuer.selvbetjening:

@@ -18,5 +18,6 @@ public class Brukernotifikasjon {
   private int synlighetOppgaveAntallDager;
   private int sikkerhetsnivaaBeskjed;
   private int sikkerhetsnivaaOppgave;
+  private boolean skruddPaa;
 
 }

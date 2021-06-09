@@ -42,7 +42,7 @@ public class ScheduledConfig {
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
     return VarsleFarOmSigneringsoppgave.builder()
-        .minimumAntallDagerSidenMorSignerte(farskapsportalEgenskaper.getBrukernotifikasjon().getAntallDagerForsinkelseEtterMorHarSignert())
+        .farskapsportalEgenskaper(farskapsportalEgenskaper)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .persistenceService(persistenceService)
         .build();
@@ -53,7 +53,7 @@ public class ScheduledConfig {
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
     return SletteOppgave.builder()
-        .synlighetOppgaveIDager(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetOppgaveAntallDager())
+        .farskapsportalEgenskaper(farskapsportalEgenskaper)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .persistenceService(persistenceService)
         .build();

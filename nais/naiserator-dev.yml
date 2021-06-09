@@ -38,6 +38,8 @@ spec:
   env:
     - name: APIGW_URL
       value: {{ api_gateway_url }}
+    - name: BRUKERNOTIFIKASJON_PAA
+      value: "{{ brukernotifikasjon_paa }}"
     - name: DISCOVERY_URL
       value: {{ discovery_url }}
     - name: AUD_FP

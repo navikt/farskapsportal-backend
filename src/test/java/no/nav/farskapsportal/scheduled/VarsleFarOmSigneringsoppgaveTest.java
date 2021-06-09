@@ -35,7 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("VarsleFarOmSigneringsoppgave")
@@ -70,7 +69,7 @@ public class VarsleFarOmSigneringsoppgaveTest {
     varsleFarOmSigneringsoppgave = VarsleFarOmSigneringsoppgave.builder()
         .persistenceService(persistenceService)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .minimumAntallDagerSidenMorSignerte(farskapsportalEgenskaper.getBrukernotifikasjon().getAntallDagerForsinkelseEtterMorHarSignert())
+        .farskapsportalEgenskaper(farskapsportalEgenskaper)
         .build();
   }
 

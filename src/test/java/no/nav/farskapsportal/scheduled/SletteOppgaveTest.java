@@ -76,7 +76,7 @@ public class SletteOppgaveTest {
     sletteOppgave = SletteOppgave.builder()
         .persistenceService(persistenceService)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .synlighetOppgaveIDager(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetOppgaveAntallDager())
+        .farskapsportalEgenskaper(farskapsportalEgenskaper)
         .build();
   }
 

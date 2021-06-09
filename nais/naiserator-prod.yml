@@ -42,6 +42,8 @@ spec:
       value: {{ discovery_url }}
     - name: AUD_FP
       value: {{ aud }}
+    - name: BRUKERNOTIFIKASJONER_PAA
+      value: "true"
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
       value: virksomhetssertifikat-prod
     - name: ESIGNERING_SUKSESS_URL

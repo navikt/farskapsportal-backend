@@ -3,6 +3,7 @@ package no.nav.farskapsportal.scheduled;
 import java.time.LocalDate;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.service.PersistenceService;
@@ -12,7 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Slf4j
 public class VarsleFarOmSigneringsoppgave {
 
-  private int minimumAntallDagerSidenMorSignerte;
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private PersistenceService persistenceService;
 
@@ -22,8 +23,10 @@ public class VarsleFarOmSigneringsoppgave {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
-      if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
-          .isBefore(LocalDate.now().minusDays(minimumAntallDagerSidenMorSignerte - 1))) {
+      if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa() &&
+          farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
+              .isBefore(
+                  LocalDate.now().minusDays(farskapsportalEgenskaper.getBrukernotifikasjon().getAntallDagerForsinkelseEtterMorHarSignert() - 1))) {
 
         // Sende eksternt varsel til far om ventende signeringsoppgave
         brukernotifikasjonConsumer.varsleFarOmSigneringsoppgave(farskapserklaering.getFar().getFoedselsnummer());
