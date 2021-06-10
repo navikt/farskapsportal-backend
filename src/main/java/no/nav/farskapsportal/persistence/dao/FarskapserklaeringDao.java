@@ -5,7 +5,9 @@ import java.util.Set;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering, Integer> {
 
   @Query(
