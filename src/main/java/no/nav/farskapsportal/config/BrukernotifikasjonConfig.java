@@ -29,10 +29,10 @@ public class BrukernotifikasjonConfig {
 
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
-  @Value("${kafka.bootstrap-servers}")
+  @Value("${spring.kafka.bootstrap-servers}")
   private String bootstrapAddress;
 
-  @Value("${kafka.schema.registry.url.config}")
+  @Value("${spring.kafka.schema.registry.url.config}")
   private String kafkaSchemaRegistryUrlConfig;
 
   public BrukernotifikasjonConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
