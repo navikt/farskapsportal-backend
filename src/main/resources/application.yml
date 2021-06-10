@@ -4,7 +4,8 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
-      schema.registry.url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+      schema.registry:
+        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
       security.protocol: SASL_SSL
       sasl:
         mechanism: PLAIN
@@ -127,6 +128,8 @@ ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
 KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost
+NAV_TRUSTSTORE_PATH: classpath:server-selfsigned.jks
+NAV_TRUSTSTORE_PASSWORD: qwer1234
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}

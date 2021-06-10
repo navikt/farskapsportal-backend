@@ -51,7 +51,7 @@ Gå til kafka-installasjonsområdet (på iOS vha brew blir Kafka installert her:
 (ref [apache kafka quick-start](https://kafka.apache.org/quickstart) for info om oppstart av Kafka):
 
 >./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyBeskjed-v1 --bootstrap-server localhost:9092 \
->./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-done-v1 --bootstrap-server localhost:9092 \
+>./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyDone-v1 --bootstrap-server localhost:9092 \
 >./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyOppgave-v1 --bootstrap-server localhost:9092
 
 
