@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.config;
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +33,7 @@ public class BrukernotifikasjonConfig {
   @Value("${spring.kafka.bootstrap-servers}")
   private String bootstrapAddress;
 
-  @Value("${spring.kafka.schema.registry.url.config}")
+  @Value("${spring.kafka.properties.schema.registry.url.config}")
   private String kafkaSchemaRegistryUrlConfig;
 
   public BrukernotifikasjonConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
@@ -44,7 +45,7 @@ public class BrukernotifikasjonConfig {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-    configProps.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    configProps.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
     return configProps;
   }
 
