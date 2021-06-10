@@ -44,6 +44,8 @@ public class OverfoereTilSkatt {
       persistenceService.oppdatereMeldingslogg(fe.getSendtTilSkatt(), fe.getMeldingsidSkatt());
       log.debug("Meldingslogg oppdatert");
     }
-    log.info("Farskapserklæringene ble overført til Skatt uten problemer");
+    if (farskapserklaeringer.size() > 0) {
+      log.info("Farskapserklæringene ble overført til Skatt uten problemer");
+    }
   }
 }

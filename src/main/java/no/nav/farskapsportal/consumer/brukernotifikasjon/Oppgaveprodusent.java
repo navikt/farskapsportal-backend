@@ -4,7 +4,6 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.brukernotifikasjon.schemas.Oppgave;
 import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
 import no.nav.brukernotifikasjon.schemas.builders.OppgaveBuilder;
@@ -25,11 +24,7 @@ public class Oppgaveprodusent {
     var nokkel = new NokkelBuilder().withEventId(idFarskapserklaering).withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).build();
     var melding = oppretteOppgave(foedselsnummerFar, oppgavetekst, medEksternVarsling);
 
-    try {
-      kafkaTemplate.send(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicOppgave(), nokkel, melding);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    kafkaTemplate.send(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicOppgave(), nokkel, melding);
   }
 
   private Oppgave oppretteOppgave(String foedselsnummer, String oppgavetekst, boolean medEksternVarsling) {
