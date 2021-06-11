@@ -12,7 +12,7 @@ spring:
         jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="srvfarskapsportal" password="${SRVFARSKAPSPORTAL_PWD}";
       ssl:
         truststore:
-          location: ${NAV_TRUSTSTORE_PATH}
+          location: file://${NAV_TRUSTSTORE_PATH}
           password: ${NAV_TRUSTSTORE_PASSWORD}
 
 springdoc:
