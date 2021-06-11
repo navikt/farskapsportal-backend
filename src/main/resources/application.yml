@@ -12,7 +12,7 @@ spring:
         jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="srvfarskapsportal" password="${SRVFARSKAPSPORTAL_PWD}";
       ssl:
         truststore:
-          location: file:///${NAV_TRUSTSTORE_PATH}
+          location: ${NAV_TRUSTSTORE_PATH}
           password: ${NAV_TRUSTSTORE_PASSWORD}
 
 springdoc:
@@ -127,8 +127,8 @@ ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
 KAFKA_BROKERS: 127.0.0.1:9092
-KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost
-NAV_TRUSTSTORE_PATH: classpath:server-selfsigned.jks
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
+NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/farskapsportal-api/src/test/resources/server-selfsigned.jks
 NAV_TRUSTSTORE_PASSWORD: qwer1234
 
 url:
