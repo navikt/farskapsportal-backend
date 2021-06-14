@@ -25,7 +25,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 
-@EnableKafka
 @Configuration
 public class BrukernotifikasjonConfig {
 
