@@ -27,6 +27,7 @@ public class BrukernotifikasjonConsumer {
   }
 
   public void oppretteOppgaveTilFarOmSignering(int idFarskapserklaering, String foedselsnummerFar) {
+    log.info("Oppretter oppgave om signering til far i farskapserklæring med id {}", idFarskapserklaering);
     oppgaveprodusent
         .oppretteOppgaveForSigneringAvFarskapserklaering(Integer.toString(idFarskapserklaering), foedselsnummerFar,
             MELDING_OM_VENTENDE_FARSKAPSERKLAERING, false);

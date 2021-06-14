@@ -6,6 +6,7 @@ public enum Feilkode {
   BARN_MANGLER_RELASJON_TIL_MOR("Oppgitt barn mangler relasjon til mor"),
   BARN_HAR_FLERE_ERLAERINGER("Feil i datagrunnlag. Barnet er involvert i mer enn én farskapserklæering"),
   BARN_HAR_IKKE_FNUMMER("Barnet er registrert med dnummer i PDL"),
+  BRUKERNOTIFIKASJON_OPPRETTE_OPPGAVE("Opprettelse av brukernotifikasjonsoppgave feilet!"),
   DOKUMENT_MANGLER_INNOHLD("Farskapserklæringsdokumentet er uten innhold"),
   ERKLAERING_EKSISTERER_BARN("Det eksisterer allrede en farskapserklæring for oppgitt barn"),
   ERKLAERING_EKSISTERER_MOR("Mor har eksisterende farskapserklæring. Kan ikke opprette ny erklæring for ufødt barn."),

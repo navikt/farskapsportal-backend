@@ -4,11 +4,12 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.brukernotifikasjon.schemas.Oppgave;
 import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
 import no.nav.brukernotifikasjon.schemas.builders.OppgaveBuilder;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.exception.InternFeilException;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @Slf4j
@@ -24,11 +25,12 @@ public class Oppgaveprodusent {
 
     var nokkel = new NokkelBuilder().withEventId(idFarskapserklaering).withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).build();
     var melding = oppretteOppgave(foedselsnummerFar, oppgavetekst, medEksternVarsling);
-
     try {
       kafkaTemplate.send(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicOppgave(), nokkel, melding);
     } catch (Exception e) {
+      log.error("Opprettelse av oppgave feilet!");
       e.printStackTrace();
+      throw new InternFeilException(Feilkode.BRUKERNOTIFIKASJON_OPPRETTE_OPPGAVE, e);
     }
   }
 

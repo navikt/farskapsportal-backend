@@ -118,6 +118,8 @@ public class DifiESignaturConsumer {
     var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(this::mapTilDto)
         .collect(Collectors.toList());
 
+    log.info("Antall signaturer i statusrespons: {}", signaturer.size());
+
     return DokumentStatusDto.builder()
         .statuslenke(statuslenke)
         .padeslenke(pAdESReference.getpAdESUrl())
@@ -150,7 +152,8 @@ public class DifiESignaturConsumer {
   public Optional<DokumentStatusDto> henteOppdatertStatusPaaSigneringsjobbHvisEndringer(int idFarskapserklaring, byte[] farskapserklaering,
       String fnrMor, String fnrFar) {
 
-    var directSigners = List.of(DirectSigner.withPersonalIdentificationNumber(fnrMor).build(), DirectSigner.withPersonalIdentificationNumber(fnrFar).build());
+    var directSigners = List
+        .of(DirectSigner.withPersonalIdentificationNumber(fnrMor).build(), DirectSigner.withPersonalIdentificationNumber(fnrFar).build());
     var directDocument = DirectDocument.builder(TITTEL_FARSKAPSERKLAERING, NAVN_FARSKAPSERKLAERINGSDOKUMENT, farskapserklaering).build();
     var directJob = DirectJob.builder(directDocument, exitUrls, directSigners)
         .retrieveStatusBy(StatusRetrievalMethod.POLLING)
@@ -180,11 +183,13 @@ public class DifiESignaturConsumer {
   }
 
   private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {
+    log.info("Henter status på signeringsjobb. Leter etter riktig status-url ut fra {} mulige kandidater", statusUrler.size());
     for (URI statusUrl : statusUrler) {
       var directJobResponse = new DirectJobResponse(1, null, statusUrl, null);
 
       var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
       if (directJobStatusResponse.isPAdESAvailable()) {
+        log.info("Fant riktig status-url");
         return Collections.singletonMap(statusUrl, directJobStatusResponse);
       }
     }

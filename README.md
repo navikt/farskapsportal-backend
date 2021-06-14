@@ -43,7 +43,24 @@ Testtoken for lokalprofilen hentes fra http://localhost:8080/jwt.
 
 Swagger URL: http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
 
-##### Kafka 
+##### Brukernotifikasjon
+
+Brukernotifikasjoner kan skrus av ved å sette miljøvariabelen BRUKERNOTIFIKASJON_PAA til false.
+
+Brukernotifikasjoner bestilles ved å sende meldinger til bestemte Kafka-køer i dev-fss. For å teste brukernotifikasjoner lokalt kreves en lokal 
+Kafka-installasjon med et schema registry endepunkt. Dette kan løses ved å sette opp et lokalt Confluent-miljø for Kafka, eller ved å installere 
+Apache Kafka direkte som forklart under. 
+
+###### Apache Kafka med Confluent
+Gir lokalt Kafka-miljø med schema registry-endepunkt.
+
+Confluent krever Java 11:
+> brew install java11
+[Download Confluent Community Platform](https://www.confluent.io/get-started/?_ga=2.148999541.2109970909.1623416498-1289707982.1622814896&_gac=1.15004740.1623422632.Cj0KCQjwk4yGBhDQARIsACGfAeuAR4RBBG4Kla1Ix-I5DlHZSKFA3NvuJxoCUWyYimTVHsl2R_Ds7hgaAkomEALw_wcB#confluent-platform)
+[Installere Confluent CLI](https://docs.confluent.io/confluent-cli/current/install.html)
+[Quick Start using Community Components (Local)](https://docs.confluent.io/5.1.3/quickstart/cos-quickstart.html)
+
+###### Kafka Apache
 farskapsportal-api sender meldinger til brukernotifkasjons kafka-topics. Ved lokal kjøring brukes lokal Kafkainstans. (Kafka kan installeres på Mac 
 med >brew install kafka). Her må aktuelle topics også defineres:
 
@@ -51,9 +68,8 @@ Gå til kafka-installasjonsområdet (på iOS vha brew blir Kafka installert her:
 (ref [apache kafka quick-start](https://kafka.apache.org/quickstart) for info om oppstart av Kafka):
 
 >./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyBeskjed-v1 --bootstrap-server localhost:9092 \
->./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-done-v1 --bootstrap-server localhost:9092 \
+>./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyDone-v1 --bootstrap-server localhost:9092 \
 >./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyOppgave-v1 --bootstrap-server localhost:9092
-
 
 ##### Lese secret fra GCP ved lokal kjøring
 

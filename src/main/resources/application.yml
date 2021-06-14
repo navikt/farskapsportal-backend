@@ -1,25 +1,24 @@
 spring:
   devtools.add-properties: false
   main.allow-bean-definition-overriding: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      schema.registry:
+        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+      security.protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
+      ssl:
+        truststore:
+          location: ${NAV_TRUSTSTORE_PATH}
+          password: ${NAV_TRUSTSTORE_PASSWORD}
 
 springdoc:
   packages-to-scan: {no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs}
   show-login-endpoint: true
   swagger-ui.path: /swagger-ui.html
-
-kafka:
-  bootstrap-servers: ${KAFKA_BROKERS}
-  schema.registry.url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
-  properties:
-    security.protocol: SASL_SSL
-    ssl:
-      keystore:
-        type: PKCS12
-        location: ${NAV_TRUSTSTORE_PATH}
-        password: ${NAV_TRUSTSTORE_PASSWORD}
-      truststore:
-        location: ${NAV_TRUSTSTORE_PATH}
-        password: ${NAV_TRUSTSTORE_PASSWORD}
 
 virksomhetssertifikat:
   prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
@@ -128,7 +127,9 @@ ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
 KAFKA_BROKERS: 127.0.0.1:9092
-KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
+NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/farskapsportal-api/src/test/resources/server-selfsigned.jks
+NAV_TRUSTSTORE_PASSWORD: qwer1234
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}

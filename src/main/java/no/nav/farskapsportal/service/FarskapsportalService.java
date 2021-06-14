@@ -233,6 +233,8 @@ public class FarskapsportalService {
   @Transactional
   public FarskapserklaeringDto oppdatereStatus(String fnrPaaloggetPerson, String statusQueryToken) {
 
+    log.info("Oppdaterer status på signeringsoppdrag for pålogget person");
+
     // Forelder må være myndig
     personopplysningService.erMyndig(fnrPaaloggetPerson);
 
@@ -250,8 +252,11 @@ public class FarskapsportalService {
         .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
         .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.INGEN_TREFF_PAA_TOKEN));
 
+    log.info("Statuslenke tilhører farskapserklaering med id {}", aktuellFarskapserklaering.getId());
+
     validereAtForeldreIkkeAlleredeHarSignert(fnrPaaloggetPerson, aktuellFarskapserklaering);
 
+    log.info("Oppdaterer signeringsinfo for pålogget person");
     oppdatereSigneringsinfoForPaaloggetPerson(fnrPaaloggetPerson, dokumentStatusDto, aktuellFarskapserklaering);
 
     return mapper.toDto(aktuellFarskapserklaering);
@@ -723,6 +728,8 @@ public class FarskapsportalService {
   }
 
   private DokumentStatusDto henteDokumentstatus(String statusQueryToken, Set<Farskapserklaering> farskapserklaeringer) {
+
+    log.info("Henter dokumentstatus fra Posten.");
 
     Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getDokumentStatusUrl)
         .map(this::tilUri)

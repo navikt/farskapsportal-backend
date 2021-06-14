@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.config;
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 
@@ -29,11 +30,17 @@ public class BrukernotifikasjonConfig {
 
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
-  @Value("${kafka.bootstrap-servers}")
+  @Value("${spring.kafka.bootstrap-servers}")
   private String bootstrapAddress;
 
-  @Value("${kafka.schema.registry.url.config}")
+  @Value("${spring.kafka.properties.schema.registry.url.config}")
   private String kafkaSchemaRegistryUrlConfig;
+
+  @Value("${spring.kafka.properties.ssl.truststore.location}")
+  private String trustStorePath;
+
+  @Value("${spring.kafka.properties.ssl.truststore.password}")
+  private String trustStorePwd;
 
   public BrukernotifikasjonConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
     this.farskapsportalEgenskaper = farskapsportalEgenskaper;
@@ -42,9 +49,18 @@ public class BrukernotifikasjonConfig {
   private Map<String, Object> getKafkaConfigProps() {
     Map<String, Object> configProps = new HashMap<>();
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-    configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-    configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-    configProps.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
+    configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
+    configProps.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    configProps.put("schema.registry.ssl.keystore.location", trustStorePath);
+    configProps.put("schema.registry.ssl.keystore.password",trustStorePwd);
+    configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
+    configProps.put("schema.registry.ssl.truststore.password",trustStorePwd);
+    configProps.put("ssl.truststore.location", trustStorePath);
+    configProps.put("ssl.truststore.password",trustStorePwd);
+    configProps.put("ssl.keystore.location", trustStorePath);
+    configProps.put("ssl.keystore.password",trustStorePwd);
+    configProps.put("reconnect.backoff.ms", 500);
     return configProps;
   }
 
