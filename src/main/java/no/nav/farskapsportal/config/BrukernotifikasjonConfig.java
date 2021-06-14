@@ -51,6 +51,8 @@ public class BrukernotifikasjonConfig {
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    configProps.put("schema.registry.ssl.keystore.location", trustStorePath);
+    configProps.put("schema.registry.ssl.keystore.password",trustStorePwd);
     configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
     configProps.put("schema.registry.ssl.truststore.password",trustStorePwd);
     configProps.put("ssl.truststore.location", trustStorePath);
