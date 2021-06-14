@@ -53,6 +53,10 @@ public class BrukernotifikasjonConfig {
     configProps.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
     configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
     configProps.put("schema.registry.ssl.truststore.password",trustStorePwd);
+    configProps.put("ssl.truststore.location", trustStorePath);
+    configProps.put("ssl.truststore.password",trustStorePwd);
+    configProps.put("ssl.keystore.location", trustStorePath);
+    configProps.put("ssl.keystore.password",trustStorePwd);
     configProps.put("reconnect.backoff.ms", 500);
     return configProps;
   }
