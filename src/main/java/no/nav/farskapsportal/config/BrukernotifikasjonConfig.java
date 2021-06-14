@@ -72,6 +72,7 @@ public class BrukernotifikasjonConfig {
     configProps.put("security.protocol", securityProtocol);
     configProps.put("sasl.jaas.config", saslJaasConfig);
     configProps.put("sasl.mechanism", saslMechanism);
+
     configProps.put("reconnect.backoff.ms", 500);
     return configProps;
   }
