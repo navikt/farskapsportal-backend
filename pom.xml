@@ -6,7 +6,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.4.6</version>
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>no.nav.farskap</groupId>
@@ -54,7 +54,7 @@
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <nimbus-jose-jwt.version>8.21.1</nimbus-jose-jwt.version>
     <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-    <springdoc-openapi-ui.version>1.5.8</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.5.9</springdoc-openapi-ui.version>
 
     <!-- test -->
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
