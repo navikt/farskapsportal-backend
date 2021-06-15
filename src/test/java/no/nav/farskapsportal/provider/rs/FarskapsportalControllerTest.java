@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -76,6 +77,7 @@ import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
@@ -567,6 +569,44 @@ public class FarskapsportalControllerTest {
           () -> assertNull(brukerinformasjonResponse.getForelderrolle()), () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMotpart()),
           () -> assertNull(brukerinformasjonResponse.getAvventerSigneringBruker()),
           () -> assertNull(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar()));
+    }
+
+    @Test
+    void valideringFeilerDersomMorErBosattUtenforNorge() {
+
+      // given
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+          new HentPersonFamilierelasjoner(null, null),
+          new HentPersonSivilstand(Sivilstandtype.UGIFT),
+          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+          new HentPersonNavn(NAVN_MOR),
+          new HentPersonKjoenn(kjoennshistorikk),
+          new HentPersonBostedsadresse(BostedsadresseDto.builder()
+              .utenlandskAdresse(UtenlandskAdresseDto.builder().adressenavnNummer("Parkway Avenue 123").bySted("Newcastle").landkode("US").build())
+              .build()),
+          new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+          MOR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+          new HentPersonNavn(NAVN_FAR)),
+          FAR.getFoedselsnummer());
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+
+      // then
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(respons.getBody().isKanOppretteFarskapserklaering()).isFalse()
+      );
     }
 
     @Test
