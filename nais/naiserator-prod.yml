@@ -53,7 +53,7 @@ spec:
     - name: ESIGNERING_FEILET_URL
       value: {{ posten_esignering_feilet_url }}
     - name: FARSKAPSPORTAL_URL
-      value: https://farskapsportal.adeo.no
+      value: https://farskapsportal.nav.no
     - name: KAFKA_BROKERS
       value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
     - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
