@@ -55,7 +55,7 @@ spec:
     - name: FARSKAPSPORTAL_URL
       value: https://farskapsportal.adeo.no
     - name: KAFKA_BROKERS
-      value: SASL_SSL://a01apvl00145.adeo.no:SASL_SSL://8443,a01apvl00146.adeo.no:SASL_SSL://8443,a01apvl00147.adeo.no:8443
+      value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
     - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
       value: https://kafka-schema-registry.nais.adeo.no
     - name: SKATT_URL
