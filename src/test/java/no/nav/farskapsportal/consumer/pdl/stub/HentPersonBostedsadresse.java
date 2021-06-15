@@ -40,7 +40,7 @@ public class HentPersonBostedsadresse implements HentPersonSubResponse {
           " {",
           " \"utenlandsadresse\": {",
           " \"adressenavnNummer\": \"" + bostedsadresseDto.getUtenlandskAdresse().getAdressenavnNummer()  + "\"",
-          " }",
+          " },",
           " \"metadata\": {",
           " \"master\": \"FREG\"",
           " }",

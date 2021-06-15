@@ -92,8 +92,7 @@ public class FarskapsportalService {
 
     if (Forelderrolle.MOR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
-      // Vurdere om sivilstand kvalifiserer til at mor kan bruke løsningen
-      validereSivilstand(fnrPaaloggetBruker);
+      validereMor(fnrPaaloggetBruker);
 
       kanOppretteFarskapserklaering = true;
 

@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -76,6 +77,7 @@ import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
@@ -86,8 +88,6 @@ import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -224,6 +224,9 @@ public class FarskapsportalControllerTest {
             new HentPersonBostedsadresse(BOSTEDSADRESSE),
             new HentPersonNavn(NAVN_MOR),
             new HentPersonDoedsfall(null),
+            new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                .build()),
             new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
                 .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build())),
         MOR.getFoedselsnummer());
@@ -285,7 +288,12 @@ public class FarskapsportalControllerTest {
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
               new HentPersonKjoenn(kjoennshistorikk),
-              new HentPersonNavn(NAVN_MOR)),
+              new HentPersonNavn(NAVN_MOR),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                  .build()),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           fnrMor);
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -336,7 +344,12 @@ public class FarskapsportalControllerTest {
           new HentPersonSivilstand(Sivilstandtype.UGIFT),
           new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
           new HentPersonNavn(NAVN_MOR),
-          new HentPersonKjoenn(kjoennshistorikk)),
+          new HentPersonKjoenn(kjoennshistorikk),
+          new HentPersonBostedsadresse(BostedsadresseDto.builder()
+              .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+              .build()),
+          new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
@@ -376,7 +389,6 @@ public class FarskapsportalControllerTest {
 
       // given
       var farskapserklaeringSomVenterPaaMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
-      farskapserklaeringSomVenterPaaMor.getDokument();
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaMor);
       lagretFarskapserklaering.getDokument()
@@ -392,7 +404,12 @@ public class FarskapsportalControllerTest {
           new HentPersonSivilstand(Sivilstandtype.UGIFT),
           new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
           new HentPersonNavn(NAVN_MOR),
-          new HentPersonKjoenn(kjoennshistorikk)),
+          new HentPersonKjoenn(kjoennshistorikk),
+          new HentPersonBostedsadresse(BostedsadresseDto.builder()
+              .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+              .build()),
+          new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
@@ -552,6 +569,44 @@ public class FarskapsportalControllerTest {
           () -> assertNull(brukerinformasjonResponse.getForelderrolle()), () -> assertNull(brukerinformasjonResponse.getAvventerSigneringMotpart()),
           () -> assertNull(brukerinformasjonResponse.getAvventerSigneringBruker()),
           () -> assertNull(brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar()));
+    }
+
+    @Test
+    void valideringFeilerDersomMorErBosattUtenforNorge() {
+
+      // given
+      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+          new HentPersonFamilierelasjoner(null, null),
+          new HentPersonSivilstand(Sivilstandtype.UGIFT),
+          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+          new HentPersonNavn(NAVN_MOR),
+          new HentPersonKjoenn(kjoennshistorikk),
+          new HentPersonBostedsadresse(BostedsadresseDto.builder()
+              .utenlandskAdresse(UtenlandskAdresseDto.builder().adressenavnNummer("Parkway Avenue 123").bySted("Newcastle").landkode("US").build())
+              .build()),
+          new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+          MOR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+          new HentPersonNavn(NAVN_FAR)),
+          FAR.getFoedselsnummer());
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+
+      // then
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(respons.getBody().isKanOppretteFarskapserklaering()).isFalse()
+      );
     }
 
     @Test
@@ -736,13 +791,11 @@ public class FarskapsportalControllerTest {
       brukeStandardMocks(MOR.getFoedselsnummer());
 
       // legger på redirecturl til dokument i void-metode
-      doAnswer(new Answer() {
-        public Object answer(InvocationOnMock invocation) {
-          Object[] args = invocation.getArguments();
-          var dokument = (Dokument) args[0];
-          dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
-          return null;
-        }
+      doAnswer(invocation -> {
+        Object[] args = invocation.getArguments();
+        var dokument = (Dokument) args[0];
+        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
+        return null;
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
@@ -983,7 +1036,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var registrertNavnMor= NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       doNothing().when(skattConsumer).registrereFarskap(lagretFarskapserklaeringSignertAvMor);
@@ -1054,10 +1107,11 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var registrertNavnMor= NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer).informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer)
+          .informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
       Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
