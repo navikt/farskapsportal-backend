@@ -41,7 +41,7 @@ farskapsportal.egenskaper:
     grupperingsid-farskap: farskap
     skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
     topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1
-    topic-ferdig: aapen-brukernotifikasjon-nyDone-v1
+    topic-ferdig: aapen-brukernotifikasjon-done-v1
     topic-oppgave: aapen-brukernotifikasjon-nyOppgave-v1
     synlighet-beskjed-antall-maaneder: 1
     synlighet-oppgave-antall-dager: 30
@@ -130,6 +130,7 @@ KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
 NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/farskapsportal-api/src/test/resources/server-selfsigned.jks
 NAV_TRUSTSTORE_PASSWORD: qwer1234
+SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}

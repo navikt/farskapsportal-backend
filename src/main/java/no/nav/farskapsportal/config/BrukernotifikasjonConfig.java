@@ -42,6 +42,15 @@ public class BrukernotifikasjonConfig {
   @Value("${spring.kafka.properties.ssl.truststore.password}")
   private String trustStorePwd;
 
+  @Value("${spring.kafka.properties.sasl.jaas.config}")
+  private String saslJaasConfig;
+
+  @Value("${spring.kafka.properties.sasl.mechanism}")
+  private String saslMechanism;
+
+  @Value("${spring.kafka.properties.security.protocol}")
+  private String  securityProtocol;
+
   public BrukernotifikasjonConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
     this.farskapsportalEgenskaper = farskapsportalEgenskaper;
   }
@@ -60,7 +69,10 @@ public class BrukernotifikasjonConfig {
     configProps.put("ssl.truststore.password",trustStorePwd);
     configProps.put("ssl.keystore.location", trustStorePath);
     configProps.put("ssl.keystore.password",trustStorePwd);
-    configProps.put("reconnect.backoff.ms", 500);
+    configProps.put("security.protocol", securityProtocol);
+    configProps.put("sasl.jaas.config", saslJaasConfig);
+    configProps.put("sasl.mechanism", saslMechanism);
+    configProps.put("reconnect.backoff.ms", 100);
     return configProps;
   }
 

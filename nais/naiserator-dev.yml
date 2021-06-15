@@ -57,7 +57,7 @@ spec:
     - name: ESIGNERING_FEILET_URL
       value: {{ posten_esignering_feilet_url }}
     - name: FARSKAPSPORTAL_URL
-      value: https://farskapsportal.dev.adeo.no
+      value: https://farskapsportal.dev.nav.no
     - name: INTEGRATION_TEST_CONTROLLER_PAA
       value: "{{ integration_test_controller_paa }}"
     - name: KAFKA_BROKERS
@@ -81,7 +81,4 @@ spec:
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
         - host: kafka-schema-registry.nais-q.adeo.no
-        - host: b27apvl00045.preprod.local
-        - host: b27apvl00046.preprod.local
-        - host: b27apvl00047.preprod.local
 
