@@ -30,8 +30,8 @@ env:
     avbrutt-url: https://farskapsportal.nav.no/avbrutt
     feilet-url: https://farskapsportal.nav.no/feilet
   skatt:
-    host: folkeregisteret-api-ekstern.sits.no
-    url: https://folkeregisteret-api-ekstern.sits.no
+    host: folkeregisteret.api.skatteetaten.no
+    url: https://folkeregisteret.api.skatteetaten.no
   tls:
     virksomhetssertifikat:
       prosjekt-id: 719909854975
