@@ -1,0 +1,39 @@
+name: farskapsportal-api
+ingress: https://farskapsportal-api.nav.no
+
+env:
+  apigw.url: https://api-gw.oera.no
+  azure:
+    audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+    discovery-url: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+  brukernotifikasjon:
+    paa: true
+  farskapsportal.url: https://farskapsportal.nav.no
+  gcp:
+    secretmanager.host: secretmanager.googleapis.com
+    sql-instances:
+      name: fp-prod
+      tier: db-custom-1-3840
+      type: POSTGRES_12
+      databases:
+        name: fpdb-prod
+        env-var-prefix: DB
+  integration-test-controller.paa: true
+  kafka:
+    brokers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
+    schema-registry:
+      host: kafka-schema-registry.nais.adeo.no
+      url: https://kafka-schema-registry.nais.adeo.no
+  posten-esignering:
+    host: api.difitest.signering.posten.no
+    suksess-url: https://farskapsportal.nav.no/suksess
+    avbrutt-url: https://farskapsportal.nav.no/avbrutt
+    feilet-url: https://farskapsportal.nav.no/feilet
+  skatt:
+    host: folkeregisteret-api-ekstern.sits.no
+    url: https://folkeregisteret-api-ekstern.sits.no
+  tls:
+    virksomhetssertifikat:
+      prosjekt-id: 719909854975
+      hemmelighet-navn: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
+      hemmelighet-versjon: 3

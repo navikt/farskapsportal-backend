@@ -1,0 +1,27 @@
+name: test build on pull request
+on: [pull_request]
+
+jobs:
+  build-pull-request:
+    name: Test pull-request
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '16'
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: navikt/bidrag-maven/setup@v7.0.0
+        with:
+          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: mvn -B install -e
