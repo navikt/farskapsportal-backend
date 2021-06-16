@@ -79,5 +79,5 @@ spec:
       external:
         - host: {{ env.posten-esignering.host }}
         - host: {{ env.skatt.host }}
-        - host: {{ env.secretmanager.host }}
+        - host: {{ env.gcp.secretmanager.host }}
         - host: {{ env.kafka.schema-registry.host }}
