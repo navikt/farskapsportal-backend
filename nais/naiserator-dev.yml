@@ -57,7 +57,7 @@ spec:
     - name: ESIGNERING_FEILET_URL
       value: {{ posten_esignering_feilet_url }}
     - name: FARSKAPSPORTAL_URL
-      value: https://farskapsportal.dev.nav.no
+      value: {{ farskapsportal_url }}
     - name: INTEGRATION_TEST_CONTROLLER_PAA
       value: "{{ integration_test_controller_paa }}"
     - name: KAFKA_BROKERS
