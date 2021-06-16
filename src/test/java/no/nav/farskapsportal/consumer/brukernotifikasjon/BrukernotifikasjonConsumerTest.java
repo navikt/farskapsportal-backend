@@ -112,8 +112,8 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(beskjedFar.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
         () -> assertThat(beskjedMor.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(beskjedFar.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
-         () -> assertThat(beskjedMor.getLink()).isEqualTo(""),
-         () -> assertThat(beskjedFar.getLink()).isEqualTo(""),
+         () -> assertThat(beskjedMor.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl()),
+         () -> assertThat(beskjedFar.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl()),
         () -> assertThat(beskjedMorSynligFremTilDato).isEqualTo(LocalDate.now().plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder())),
         () -> assertThat(beskjedFarSynligFremTilDato).isEqualTo(LocalDate.now().plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
     );

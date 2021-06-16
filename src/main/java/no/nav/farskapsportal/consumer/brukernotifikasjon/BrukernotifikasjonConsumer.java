@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class BrukernotifikasjonConsumer {
 
-  private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING = "En signert farskapserklæring er tilgjengelig i din innboks.";
+  private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING = "Du har en signert farskapserklæring er tilgjengelig for nedlasting i en begrenset tidsperiode fra farskapsportalen:";
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Trykk her for å legge inn farskapserklæring på ny.";
 
@@ -18,8 +18,8 @@ public class BrukernotifikasjonConsumer {
   private final Oppgaveprodusent oppgaveprodusent;
 
   public void informereForeldreOmTilgjengeligFarskapserklaering(String foedselsnummerMor, String foedselsnummerFar) {
-    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, null);
-    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, null);
+    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, farskapsportalUrl);
+    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, farskapsportalUrl);
   }
 
   public void varsleMorOmUtgaattOppgaveForSignering(String foedselsnummerMor) {
