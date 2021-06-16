@@ -77,7 +77,7 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: {{ env.posten-esignering.host }}
-        - host: {{ env.skatt.host }}
-        - host: {{ env.gcp.secretmanager.host }}
-        - host: {{ env.kafka.schema-registry.host }}
+        - host: api.difitest.signering.posten.no
+        - host: folkeregisteret-api-ekstern.sits.no
+        - host: secretmanager.googleapis.com
+        - host: kafka-schema-registry.nais-q.adeo.no
