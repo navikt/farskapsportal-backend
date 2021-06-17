@@ -2,15 +2,18 @@ name: farskapsportal-api
 ingress: https://farskapsportal-api.dev.nav.no
 
 env:
-  apigw.url: https://api-gw-q1.oera.no
+  apigw:
+    url: https://api-gw-q1.oera.no
   azure:
     audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
     discovery-url: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
   brukernotifikasjon:
     paa: true
-  farskapsportal.url: https://farskapsportal.dev.nav.no
+  farskapsportal:
+    url: https://farskapsportal.dev.nav.no
   gcp:
-    secretmanager.host: secretmanager.googleapis.com
+    secretmanager:
+      host: secretmanager.googleapis.com
     sql-instances:
       name: fp-main
       tier: db-custom-1-3840
@@ -24,11 +27,12 @@ env:
     schema-registry:
       host: kafka-schema-registry.nais-q.adeo.no
       url: https://kafka-schema-registry.nais-q.adeo.no
-  posten.esignering:
-    host: api.difitest.signering.posten.no
-    suksess-url: https://farskapsportal-feature.dev.nav.no/suksess
-    avbrutt-url: https://farskapsportal-feature.dev.nav.no/avbrutt
-    feilet-url: https://farskapsportal-feature.dev.nav.no/feilet
+  posten:
+    esignering:
+      host: api.difitest.signering.posten.no
+      suksess-url: https://farskapsportal-feature.dev.nav.no/suksess
+      avbrutt-url: https://farskapsportal-feature.dev.nav.no/avbrutt
+      feilet-url: https://farskapsportal-feature.dev.nav.no/feilet
   skatt:
     host: folkeregisteret-api-ekstern.sits.no
     url: https://folkeregisteret-api-ekstern.sits.no
