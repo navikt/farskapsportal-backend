@@ -1,11 +1,11 @@
-name: release bidrag-dokument
+name: release farskapsportal-api
 on:
   push:
     branches:
       - release
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-dokument:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
 
 jobs:
   verify:
