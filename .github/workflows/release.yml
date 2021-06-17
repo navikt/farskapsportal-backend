@@ -61,7 +61,7 @@ jobs:
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-
+          CLUSTER: prod-gcp
           RESOURCE: deploy/.nais/naiserator-prod.yml
           VARS: deploy/.nais/prod.yml
 
