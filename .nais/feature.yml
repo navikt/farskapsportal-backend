@@ -1,5 +1,9 @@
 name: farskapsportal-api-feature
 ingress: https://farskapsportal-api-feature.dev.nav.no
+brukernotifikasjon:
+  paa: true
+farskapsportal:
+  url: https://farskapsportal-feature.dev.nav.no
 gcp:
   sql-instances:
     name: farskapsportal-feature
@@ -13,35 +17,10 @@ kafka:
   schema-registry:
     host: kafka-schema-registry.nais-q.adeo.no
     url: https://kafka-schema-registry.nais-q.adeo.no
-env:
-  - name: APIGW_URL
-    value: https://api-gw-q1.oera.no
-  - name: BRUKERNOTIFIKASJON_PAA
-    value: "true"
-  - name: DISCOVERY_URL
-    value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
-  - name: AUD_FP
-    value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
-  - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
-    value: "719909854975"
-  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
-    value: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
-  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
-    value: "3"
-  - name: ESIGNERING_SUKSESS_URL
-    value: https://farskapsportal-feature.dev.nav.no/suksess
-  - name: ESIGNERING_AVBRUTT_URL
-    value: https://farskapsportal-feature.dev.nav.no/avbrutt
-  - name: ESIGNERING_FEILET_URL
-    value: https://farskapsportal-feature.dev.nav.no/feilet
-  - name: FARSKAPSPORTAL_URL
-    value: https://farskapsportal-feature.dev.nav.no
-  - name: INTEGRATION_TEST_CONTROLLER_PAA
-    value: "true"
-  - name: KAFKA_BROKERS
-    value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-  - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
-    value: https://kafka-schema-registry.nais-q.adeo.no
-  - name: SKATT_URL
-    value: https://folkeregisteret-api-ekstern.sits.no
+posten:
+  esignering:
+    url:
+      suksess: https://farskapsportal-feature.dev.nav.no/suksess
+      avbrutt: https://farskapsportal-feature.dev.nav.no/avbrutt
+      feil: https://farskapsportal-feature.dev.nav.no/feil
 
