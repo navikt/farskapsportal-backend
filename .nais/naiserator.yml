@@ -34,50 +34,50 @@ spec:
     - {{ ingress }}
   env:
     - name: APIGW_URL
-      value: {{ env.apigw.url }}
+      value: {{ apigw.url }}
     - name: BRUKERNOTIFIKASJON_PAA
-      value: "{{ env.brukernotifikasjon.paa }}"
+      value: "{{ brukernotifikasjon.paa }}"
     - name: DISCOVERY_URL
-      value: {{ env.azure.discovery-url }}
+      value: {{ azure.discovery-url }}
     - name: AUD_FP
-      value: {{ env.azure.audience }}
+      value: {{ azure.audience }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
-      value: "{{ env.tls.virksomhetssertifikat.prosjekt-id }}"
+      value: "{{ tls.virksomhetssertifikat.prosjekt-id }}"
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
-      value: {{ env.tls.virksomhetssertifikat.hemmelighet-navn }}
+      value: {{ tls.virksomhetssertifikat.hemmelighet-navn }}
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
-      value: "{{ env.tls.virksomhetssertifikat.hemmelighet-versjon }}"
+      value: "{{ tls.virksomhetssertifikat.hemmelighet-versjon }}"
     - name: ESIGNERING_SUKSESS_URL
-      value: {{ env.posten.esignering.suksess-url }}
+      value: {{ posten.esignering.suksess-url }}
     - name: ESIGNERING_AVBRUTT_URL
-      value: {{ env.posten.esignering.avbrutt-url }}
+      value: {{ posten.esignering.avbrutt-url }}
     - name: ESIGNERING_FEILET_URL
-      value: {{ env.posten.esignering.feilet-url }}
+      value: {{ posten.esignering.feilet-url }}
     - name: FARSKAPSPORTAL_URL
-      value: {{ env.farskapsportal.url }}
+      value: {{ farskapsportal.url }}
     - name: INTEGRATION_TEST_CONTROLLER_PAA
-      value: "{{ env.integration-test-controller.paa }}"
+      value: "{{ integration-test-controller.paa }}"
     - name: KAFKA_BROKERS
-      value: {{ env.kafka.brokers }}
+      value: {{ kafka.brokers }}
     - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
-      value: {{ env.kafka.schema-registry.url }}
+      value: {{ kafka.schema-registry.url }}
     - name: SKATT_URL
-      value: {{ env.skatt.url }}
+      value: {{ skatt.url }}
   envFrom:
     - secret: farskapsportal-api-secret
     - configmap: loginservice-idporten
   gcp:
     sqlInstances:
-      - name: {{ env.gcp.sql-instances.name }}
-        tier: {{ env.gcp.sql-instances.tier }}
-        type: {{ env.gcp.sql-instances.type }}
+      - name: {{ gcp.sql-instances.name }}
+        tier: {{ gcp.sql-instances.tier }}
+        type: {{ gcp.sql-instances.type }}
         databases:
-          - name: {{ env.gcp.sql-instances.databases.name }}
-            envVarPrefix: {{ env.gcp.sql-instances.databases.env-var-prefix }}
+          - name: {{ gcp.sql-instances.databases.name }}
+            envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
   accessPolicy:
     outbound:
       external:
         - host: api.difitest.signering.posten.no
-        - host: {{ env.skatt.host }}
-        - host: {{ env.gcp.secretmanager.host }}
-        - host: {{ env.kafka.schema-registry.host }}
+        - host: {{ skatt.host }}
+        - host: {{ gcp.secretmanager.host }}
+        - host: {{ kafka.schema-registry.host }}
