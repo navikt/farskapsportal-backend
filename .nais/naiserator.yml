@@ -34,35 +34,35 @@ spec:
     - {{ ingress }}
   env:
     - name: APIGW_URL
-      value: https://api-gw-q1.oera.no
+      value: {{ env.apigw.url }}
     - name: BRUKERNOTIFIKASJON_PAA
-      value: "true"
+      value: "{{ env.brukernotifikasjon.paa }}"
     - name: DISCOVERY_URL
-      value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+      value: {{ env.azure.discovery-url }}
     - name: AUD_FP
-      value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+      value: {{ env.azure.audience }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
-      value: "719909854975"
+      value: "{{ env.tls.virksomhetssertifikat.prosjekt-id }}"
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
-      value: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
+      value: {{ env.tls.virksomhetssertifikat.hemmelighet-navn }}
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
-      value: "3"
+      value: "{{ env.tls.virksomhetssertifikat.hemmelighet-versjon }}"
     - name: ESIGNERING_SUKSESS_URL
-      value: https://farskapsportal-feature.dev.nav.no/suksess
+      value: {{ env.posten.esignering.suksess-url }}
     - name: ESIGNERING_AVBRUTT_URL
-      value: https://farskapsportal-feature.dev.nav.no/avbrutt
+      value: {{ env.posten.esignering.avbrutt-url }}
     - name: ESIGNERING_FEILET_URL
-      value: https://farskapsportal-feature.dev.nav.no/feilet
+      value: {{ env.posten.esignering.feilet-url }}
     - name: FARSKAPSPORTAL_URL
-      value: https://farskapsportal-feature.dev.nav.no
+      value: {{ env.farskapsportal.url }}
     - name: INTEGRATION_TEST_CONTROLLER_PAA
-      value: "true"
+      value: "{{ env.integration-test-controller.paa }}"
     - name: KAFKA_BROKERS
-      value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
+      value: {{ env.kafka.brokers }}
     - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
-      value: https://kafka-schema-registry.nais-q.adeo.no
+      value: {{ env.kafka.schema-registry.url }}
     - name: SKATT_URL
-      value: https://folkeregisteret-api-ekstern.sits.no
+      value: {{ env.skatt.url }}
   envFrom:
     - secret: farskapsportal-api-secret
     - configmap: loginservice-idporten
@@ -77,7 +77,7 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: api.difitest.signering.posten.no
-        - host: folkeregisteret-api-ekstern.sits.no
-        - host: secretmanager.googleapis.com
+        - host: {{ env.posten.esignering.host }}
+        - host: {{ env.skatt.host }}
+        - host: {{ env.gcp.secretmanager.host }}
         - host: {{ env.kafka.schema-registry.host }}

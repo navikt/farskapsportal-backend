@@ -24,7 +24,7 @@ env:
     schema-registry:
       host: kafka-schema-registry.nais-q.adeo.no
       url: https://kafka-schema-registry.nais-q.adeo.no
-  posten-esignering:
+  posten.esignering:
     host: api.difitest.signering.posten.no
     suksess-url: https://farskapsportal-feature.dev.nav.no/suksess
     avbrutt-url: https://farskapsportal-feature.dev.nav.no/avbrutt
