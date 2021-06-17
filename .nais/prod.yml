@@ -22,7 +22,7 @@ env:
   - name: DISCOVERY_URL
     value: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
   - name: AUD_FP
-    value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+    value: f45035f2-9a27-46f7-917c-0569a03285cd
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
