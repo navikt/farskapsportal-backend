@@ -1,11 +1,8 @@
 name: farskapsportal-api-feature
 ingress: https://farskapsportal-api-feature.dev.nav.no
-brukernotifikasjon:
-  paa: true
-farskapsportal:
-  url: https://farskapsportal-feature.dev.nav.no
-gcp:
-  sql-instances:
+brukernotifikasjon.paa: "true"
+farskapsportal.url: https://farskapsportal-feature.dev.nav.no
+gcp.sql-instances:
     name: farskapsportal-feature
     tier: db-custom-1-3840
     type: POSTGRES_12
@@ -17,9 +14,7 @@ kafka:
   schema-registry:
     host: kafka-schema-registry.nais-q.adeo.no
     url: https://kafka-schema-registry.nais-q.adeo.no
-posten:
-  esignering:
-    url:
+posten.esignering.url:
       suksess: https://farskapsportal-feature.dev.nav.no/suksess
       avbrutt: https://farskapsportal-feature.dev.nav.no/avbrutt
       feil: https://farskapsportal-feature.dev.nav.no/feil
