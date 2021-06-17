@@ -34,8 +34,8 @@ spec:
     - {{ ingress }}
   env:
   {{#each env}}
-      - name: {{this.name}}
-        value: "{{this.value}}"
+    - name: {{this.name}}
+      value: "{{this.value}}"
   {{/each}}
   envFrom:
     - secret: farskapsportal-api-secret
@@ -53,5 +53,5 @@ spec:
       external:
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
-        - host: {{ gcp.secretmanager.host }}
+        - host: secretmanager.googleapis.com
         - host: {{ kafka.schema-registry.host }}

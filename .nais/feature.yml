@@ -1,7 +1,6 @@
 name: farskapsportal-api-feature
 ingress: https://farskapsportal-api-feature.dev.nav.no
 gcp:
-  secretmanager.host: secretmanager.googleapis.com
   sql-instances:
     name: farskapsportal-feature
     tier: db-custom-1-3840
