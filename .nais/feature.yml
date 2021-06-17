@@ -1,6 +1,6 @@
 name: farskapsportal-api-feature
 ingress: https://farskapsportal-api-feature.dev.nav.no
-brukernotifikasjon.paa: "true"
+brukernotifikasjon.paa: true
 farskapsportal.url: https://farskapsportal-feature.dev.nav.no
 gcp:
   sql-instances:
