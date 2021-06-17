@@ -62,7 +62,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-
-          RESOURCE: deploy/.nais/naiserator.yml
+          RESOURCE: deploy/.nais/naiserator-prod.yml
           VARS: deploy/.nais/prod.yml
 
   tag:
