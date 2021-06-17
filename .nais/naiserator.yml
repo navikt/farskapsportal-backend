@@ -34,13 +34,13 @@ spec:
     - {{ ingress }}
   env:
     - name: APIGW_URL
-      value: https://api-gw-q1.oera.no
+      value: {{ env.apigw.url }}
     - name: BRUKERNOTIFIKASJON_PAA
       value: "true"
     - name: DISCOVERY_URL
-      value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+      value: {{ env.azure.discovery-url }}
     - name: AUD_FP
-      value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+      value: {{ env.azure.audience }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
       value: "719909854975"
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
@@ -77,7 +77,7 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: {{ env.posten-esignering.host }}
-        - host: {{ env.skatt.host }}
-        - host: {{ env.gcp.secretmanager.host }}
+        - host: api.difitest.signering.posten.no
+        - host: folkeregisteret-api-ekstern.sits.no
+        - host: secretmanager.googleapis.com
         - host: {{ env.kafka.schema-registry.host }}
