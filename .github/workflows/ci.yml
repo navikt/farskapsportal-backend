@@ -69,6 +69,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/naiserator.yml
+          VAR: image=${{ IMAGE }}
           VARS: deploy/.nais/main.yml
       - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'

@@ -42,11 +42,11 @@ spec:
     - name: AUD_FP
       value: {{ env.azure.audience }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
-      value: "{{env.tls.virksomhetssertifikat.prosjekt-id}}"
+      value: "{{ env.tls.virksomhetssertifikat.prosjekt-id }}"
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
       value: {{ env.tls.virksomhetssertifikat.hemmelighet-navn }}
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
-      value: "{{env.tls.virksomhetssertifikat.hemmelighet-versjon}}"
+      value: "{{ env.tls.virksomhetssertifikat.hemmelighet-versjon }}"
     - name: ESIGNERING_SUKSESS_URL
       value: {{ env.posten-esignering.suksess-url }}
     - name: ESIGNERING_AVBRUTT_URL
@@ -56,7 +56,7 @@ spec:
     - name: FARSKAPSPORTAL_URL
       value: {{ env.farskapsportal.url }}
     - name: INTEGRATION_TEST_CONTROLLER_PAA
-      value: "{{env.integration-test-controller.paa}}"
+      value: "{{ env.integration-test-controller.paa }}"
     - name: KAFKA_BROKERS
       value: {{ env.kafka.brokers }}
     - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
