@@ -42,11 +42,11 @@ spec:
     - name: AUD_FP
       value: {{ env.azure.aud }}
     - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
-      value: {{ env.tls.virksomhetssertifikat.prosjekt-id }}
+      value: "{{ env.tls.virksomhetssertifikat.prosjekt-id }}"
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
       value: {{ env.tls.virksomhetssertifikat.hemmelighet-navn }}
     - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
-      value: {{ env.tls.virksomhetssertifikat.hemmelighet-versjon }}
+      value: "{{ env.tls.virksomhetssertifikat.hemmelighet-versjon }}"
     - name: ESIGNERING_SUKSESS_URL
       value: {{ env.posten-esignering.suksess-url }}
     - name: ESIGNERING_AVBRUTT_URL
