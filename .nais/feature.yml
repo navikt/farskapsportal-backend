@@ -34,6 +34,6 @@ env:
     url: https://folkeregisteret-api-ekstern.sits.no
   tls:
     virksomhetssertifikat:
-      prosjekt-id: 719909854975
+      prosjekt-id: "719909854975"
       hemmelighet-navn: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
-      hemmelighet-versjon: 3
+      hemmelighet-versjon: "3"
