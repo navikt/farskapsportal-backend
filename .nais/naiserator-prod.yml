@@ -33,6 +33,13 @@ spec:
   ingresses:
     - {{ ingress }}
   env:
+  { { #each env}}
+      - name: {{this.name } }
+  value: "{{this.value}}"
+  {{/each}}
+
+
+  env:
     - name: APIGW_URL
       value: {{ apigw.url }}
     - name: BRUKERNOTIFIKASJON_PAA

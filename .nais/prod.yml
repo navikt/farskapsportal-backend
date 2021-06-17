@@ -37,3 +37,34 @@ env:
       prosjekt-id: 719909854975
       hemmelighet-navn: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
       hemmelighet-versjon: 3
+env:
+  - name: APIGW_URL
+    value: https://api-gw.oera.no
+  - name: BRUKERNOTIFIKASJON_PAA
+    value: "false"
+  - name: DISCOVERY_URL
+    value: {{ azure.discovery-url }}
+  - name: AUD_FP
+    value: {{ azure.audience }}
+  - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
+    value: "{{ tls.virksomhetssertifikat.prosjekt-id }}"
+  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
+    value: {{ tls.virksomhetssertifikat.hemmelighet-navn }}
+  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
+    value: "{{ tls.virksomhetssertifikat.hemmelighet-versjon }}"
+  - name: ESIGNERING_SUKSESS_URL
+    value: {{ posten.esignering.suksess-url }}
+  - name: ESIGNERING_AVBRUTT_URL
+    value: {{ posten.esignering.avbrutt-url }}
+  - name: ESIGNERING_FEILET_URL
+    value: {{ posten.esignering.feilet-url }}
+  - name: FARSKAPSPORTAL_URL
+    value: {{ farskapsportal.url }}
+  - name: INTEGRATION_TEST_CONTROLLER_PAA
+    value: "{{ integration-test-controller.paa }}"
+  - name: KAFKA_BROKERS
+    value: {{ kafka.brokers }}
+  - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
+    value: {{ kafka.schema-registry.url }}
+  - name: SKATT_URL
+    value: {{ skatt.url }}
