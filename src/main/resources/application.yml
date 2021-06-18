@@ -27,7 +27,7 @@ virksomhetssertifikat:
   passord:
     prosjektid: ${VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID}
     hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN}
-    hemmelighetversjon: ${${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
+    hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
 farskapsportal.egenskaper:
   innhenteStatus-ved-polling: false
