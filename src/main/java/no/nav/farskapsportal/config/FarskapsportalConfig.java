@@ -85,7 +85,7 @@ public class FarskapsportalConfig {
 
     var sertifikatP12Passord = accessSecretVersion
         .accessSecretVersion(virksomhetssertifikatPassordProsjektid, virksomhetssertifikatPassordHemmelighetNavn,
-            virksomhetssertifikatPassordHemmelighetVersjon).getData().toString();
+            virksomhetssertifikatPassordHemmelighetVersjon).getData().toStringUtf8();
 
     log.info("lengde sertifikatpassord {}", sertifikatP12Passord.length());
 

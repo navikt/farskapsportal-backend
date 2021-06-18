@@ -279,12 +279,19 @@ virksomhetssertifikat:
   prosjektid: 719909854975
   hemmelighetnavn: test-virksomhetssertifikat-lokal-test-jceks_2021-2024
   hemmelighetversjon: 1
+  passord:
+    prosjektid: 627047445397
+    hemmelighetnavn: virksomhetssertifikat-test-passord
+    hemmelighetversjon: 1
 
 ESIGNERING_SUKSESS_URL: "http://localhost:8080/api/v1/farskapsportal/farskapserklaering/redirect"
 ESIGNERING_AVBRUTT_URL: "https://farskapsportal-feature.dev.nav.no/avbrutt"
 ESIGNERING_FEILET_URL: "https://farskapsportal-feature.dev.nav.no/feilet"
 FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no/nb/"
-BRUKERNOTIFIKASJON_PAA: true
+BRUKERNOTIFIKASJON_PAA: false
+NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/farskapsportal-api/src/test/resources/server-selfsigned.jks
+NAV_TRUSTSTORE_PASSWORD: qwer1234
+SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 no.nav.security.jwt:
   issuer.selvbetjening:
