@@ -75,13 +75,19 @@ public class FarskapsportalConfig {
   @Bean
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
   public KeyStoreConfig keyStoreConfig(
-      @Value("${sm://projects/627047445397/secrets/virksomhetssertifikat-test-passord/versions/1}") String sertifikatP12Passord,
       @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
       @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
       @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
+      @Value("${virksomhetssertifikat.passord.prosjektid}") String virksomhetssertifikatPassordProsjektid,
+      @Value("${virksomhetssertifikat.passord.hemmelighetnavn}") String virksomhetssertifikatPassordHemmelighetNavn,
+      @Value("${virksomhetssertifikat.passord.hemmelighetversjon}") String virksomhetssertifikatPassordHemmelighetVersjon,
       @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
 
-    log.info("sert-pwd lengde: {}", sertifikatP12Passord.length());
+    var sertifikatP12Passord = accessSecretVersion
+        .accessSecretVersion(virksomhetssertifikatPassordProsjektid, virksomhetssertifikatPassordHemmelighetNavn,
+            virksomhetssertifikatPassordHemmelighetVersjon).getData().toString();
+
+    log.info("lengde sertifikatpassord {}", sertifikatP12Passord.length());
 
     var secretPayload = accessSecretVersion
         .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
@@ -149,7 +155,8 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public FarskapsportalService farskapsportalService(BrukernotifikasjonConsumer brukernotifikasjonConsumer, FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
+  public FarskapsportalService farskapsportalService(BrukernotifikasjonConsumer brukernotifikasjonConsumer,
+      FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer, PersistenceService persistenceService, PersonopplysningService personopplysningService,
       SkattConsumer skattConsumer,
       Mapper mapper) {

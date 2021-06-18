@@ -29,6 +29,12 @@ env:
     value: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
     value: "3"
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID
+    value: "627047445397"
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN
+    value: virksomhetssertifikat-test-passord
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
+    value: "1"
   - name: ESIGNERING_SUKSESS_URL
     value: https://farskapsportal.nav.no/suksess
   - name: ESIGNERING_AVBRUTT_URL
