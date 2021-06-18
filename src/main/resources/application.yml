@@ -281,8 +281,8 @@ virksomhetssertifikat:
   hemmelighetversjon: 1
   passord:
     prosjektid: 627047445397
-    hemmelighetnavn: virksomhetssertifikat-test-passord
-    hemmelighetversjon: 1
+    hemmelighetnavn: farskap-keystore-credentials-json
+    hemmelighetversjon: 2
 
 ESIGNERING_SUKSESS_URL: "http://localhost:8080/api/v1/farskapsportal/farskapserklaering/redirect"
 ESIGNERING_AVBRUTT_URL: "https://farskapsportal-feature.dev.nav.no/avbrutt"

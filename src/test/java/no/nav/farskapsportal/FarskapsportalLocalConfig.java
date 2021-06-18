@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Profile;
 
 @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_INTEGRATION_TEST})
 @Configuration
-@AutoConfigureWireMock(port = 8096)
 public class FarskapsportalLocalConfig {
 
   public static final String PADES = "/pades";

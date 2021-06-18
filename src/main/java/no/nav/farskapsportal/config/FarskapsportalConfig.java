@@ -6,6 +6,7 @@ import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -32,6 +33,7 @@ import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.gcp.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.gcp.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
@@ -72,6 +74,8 @@ public class FarskapsportalConfig {
         ).info(new io.swagger.v3.oas.models.info.Info().title("farskapsportal-api").version("v1"));
   }
 
+  ;
+
   @Bean
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
   public KeyStoreConfig keyStoreConfig(
@@ -83,11 +87,14 @@ public class FarskapsportalConfig {
       @Value("${virksomhetssertifikat.passord.hemmelighetversjon}") String virksomhetssertifikatPassordHemmelighetVersjon,
       @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
 
-    var sertifikatP12Passord = accessSecretVersion
+    var sertifikatpassord = accessSecretVersion
         .accessSecretVersion(virksomhetssertifikatPassordProsjektid, virksomhetssertifikatPassordHemmelighetNavn,
             virksomhetssertifikatPassordHemmelighetVersjon).getData().toStringUtf8();
 
-    log.info("lengde sertifikatpassord {}", sertifikatP12Passord.length());
+    var objectMapper = new ObjectMapper();
+    var farskapKeystoreCredentials = objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
+
+    log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
 
     var secretPayload = accessSecretVersion
         .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
@@ -96,7 +103,8 @@ public class FarskapsportalConfig {
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
     return KeyStoreConfig
-        .fromJavaKeyStore(inputStream, "nav integrasjonstjenester test", sertifikatP12Passord, sertifikatP12Passord);
+        .fromJavaKeyStore(inputStream, farskapKeystoreCredentials.getAlias(), farskapKeystoreCredentials.getPassword(),
+            farskapKeystoreCredentials.getPassword());
   }
 
   @Bean
