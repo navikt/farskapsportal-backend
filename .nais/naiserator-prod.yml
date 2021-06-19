@@ -49,6 +49,9 @@ spec:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
   accessPolicy:
+    inbound:
+      rules:
+        - application: farskapsportal-ui
     outbound:
       external:
         - host: api.signering.posten.no
