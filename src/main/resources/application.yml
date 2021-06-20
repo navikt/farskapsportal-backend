@@ -1,3 +1,6 @@
+# Skrives over av Naiserator-miljøvariabel i GCPs
+NAV_CLUSTER_NAME: dev
+
 spring:
   devtools.add-properties: false
   main.allow-bean-definition-overriding: true
