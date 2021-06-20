@@ -1,5 +1,5 @@
 # Skrives over av Naiserator-miljøvariabel i GCPs
-NAV_CLUSTER_NAME: dev
+NAV_CLUSTER_NAME: dev-gcp
 
 spring:
   devtools.add-properties: false

@@ -32,8 +32,8 @@ public class DifiEsigneringConfig {
   @Bean
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
 
-    var certificates = miljoe.equals(NavClusterName.TEST) ? Certificates.TEST : Certificates.PRODUCTION;
-    var serviceUrl = miljoe.equals(NavClusterName.TEST) ? ServiceUri.DIFI_TEST : ServiceUri.PRODUCTION;
+    var certificates = miljoe.equals(NavClusterName.TEST.toString()) ? Certificates.TEST : Certificates.PRODUCTION;
+    var serviceUrl = miljoe.equals(NavClusterName.TEST.toString()) ? ServiceUri.DIFI_TEST : ServiceUri.PRODUCTION;
 
     log.info("Kobler opp mot Postens {}-milljø for esignering med service-uri {}.", miljoe.toLowerCase(Locale.ROOT), serviceUrl);
 
