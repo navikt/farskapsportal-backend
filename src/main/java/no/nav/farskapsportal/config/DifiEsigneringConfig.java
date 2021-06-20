@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.config;
 
 import java.net.URI;
+import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
@@ -33,6 +34,8 @@ public class DifiEsigneringConfig {
 
     var certificates = miljoe.equals(NavClusterName.TEST) ? Certificates.TEST : Certificates.PRODUCTION;
     var serviceUrl = miljoe.equals(NavClusterName.TEST) ? ServiceUri.DIFI_TEST : ServiceUri.PRODUCTION;
+
+    log.info("Kobler opp mot Postens {}-milljø for esignering med service-uri {}.", miljoe.toLowerCase(Locale.ROOT), serviceUrl);
 
     return ClientConfiguration.builder(keyStoreConfig).trustStore(certificates).serviceUri(serviceUrl)
         .globalSender(new Sender(farskapsportalEgenskaper.getNavOrgnummer())).build();
