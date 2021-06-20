@@ -26,7 +26,7 @@ public class DifiEsigneringConfig {
 
   public DifiEsigneringConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper, @Value("${NAV_CLUSTER_NAME}") String navClusterName) {
     this.farskapsportalEgenskaper = farskapsportalEgenskaper;
-    this.miljoe = navClusterName.equals(NavClusterName.PROD) ? NavClusterName.PROD.toString() : NavClusterName.TEST.toString();
+    this.miljoe = navClusterName.equals(NavClusterName.PROD.getClusterName()) ? NavClusterName.PROD.toString() : NavClusterName.TEST.toString();
   }
 
   @Bean
@@ -61,8 +61,8 @@ public class DifiEsigneringConfig {
     TEST("dev-gcp"), PROD("prod-gcp");
     String clusterName;
 
-    NavClusterName(String beskrivelse) {
-      this.clusterName = beskrivelse;
+    NavClusterName(String clusterName) {
+      this.clusterName = clusterName;
     }
 
     public String getClusterName() {
