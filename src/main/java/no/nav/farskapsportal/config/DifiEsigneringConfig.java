@@ -24,7 +24,7 @@ public class DifiEsigneringConfig {
   private String miljoe;
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
-  public DifiEsigneringConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper, @Value("${NAV_CLUSTER_NAME}") String navClusterName) {
+  public DifiEsigneringConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper, @Value("${NAIS_CLUSTER_NAME}") String navClusterName) {
     this.farskapsportalEgenskaper = farskapsportalEgenskaper;
     this.miljoe = navClusterName.equals(NavClusterName.PROD.getClusterName()) ? NavClusterName.PROD.toString() : NavClusterName.TEST.toString();
   }

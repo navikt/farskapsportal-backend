@@ -134,7 +134,7 @@ KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
 NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/farskapsportal-api/src/test/resources/server-selfsigned.jks
 NAV_TRUSTSTORE_PASSWORD: qwer1234
-NAV_CLUSTER_NAME: dev
+NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 url:
