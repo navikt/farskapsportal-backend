@@ -244,7 +244,40 @@ public class FarskapsportalServiceTest {
 
       assertEquals(1, brukerinformasjon.getAvventerSigneringMotpart().stream().filter(fe -> fe.getPaaloggetBrukersRolle().equals(Rolle.MOR))
           .collect(Collectors.toSet()).size());
+    }
 
+    @Test
+    @DisplayName("Skal ikke kaste ValideringException dersom mor er separert")
+    void skalIkkeKasteValideringExceptionDersomMorErSeparert() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+
+      var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
+      farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now());
+
+      assertAll(() -> assertNotNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvMor()),
+          () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSignertAvFar()));
+
+      persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.SEPARERT).build());
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer())).thenReturn(
+          FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .build());
+
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.erMyndig(FAR.getFoedselsnummer())).thenReturn(true);
+
+      // when
+      var response = assertDoesNotThrow(() ->farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer()));
+
+      assertThat(response.isKanOppretteFarskapserklaering());
     }
 
     @Test
