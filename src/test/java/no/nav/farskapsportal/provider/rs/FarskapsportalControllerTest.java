@@ -696,6 +696,52 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
+    void skalGiOkDersomNavnMedDobbeltFornavnSpesialtegnOgKjoennErRiktig() {
+
+      // given
+      var fnrFar = "01057244444";
+      var fornavnFar = "Borat André";
+      var etternavnFar = "Sagidiyév Goliat Motreal";
+      var registrertNavn = NavnDto.builder().fornavn(fornavnFar).etternavn(etternavnFar).build();
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkFar),
+              new HentPersonNavn(registrertNavn),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+          fnrFar);
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkMor),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                  .build()),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+          MOR.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(fornavnFar + " " + etternavnFar).build()),
+          HttpStatus.class);
+
+      // then
+      assertTrue(respons.getStatusCode().is2xxSuccessful());
+    }
+
+    @Test
     @DisplayName("Skal gi bad request dersom oppgitt far er kvinne")
     void skalGiBadRequestDersomOppgittFarErKvinne() {
 
