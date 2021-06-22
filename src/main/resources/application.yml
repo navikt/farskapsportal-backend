@@ -41,7 +41,6 @@ farskapsportal.egenskaper:
   kontroll-far-forsoek-fornyes-etter-antall-dager: 1
   kontroll-far-maks-antall-forsoek: 5
   brukernotifikasjon:
-    antall-dager-forsinkelse-etter-mor-har-signert: 3
     grupperingsid-farskap: farskap
     skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
     topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1

@@ -30,12 +30,7 @@ public class BrukernotifikasjonConsumer {
     log.info("Oppretter oppgave om signering til far i farskapserklæring med id {}", idFarskapserklaering);
     oppgaveprodusent
         .oppretteOppgaveForSigneringAvFarskapserklaering(Integer.toString(idFarskapserklaering), foedselsnummerFar,
-            MELDING_OM_VENTENDE_FARSKAPSERKLAERING, false);
-  }
-
-  // Forsinket ekstern varsling - kalles av skedulert jobb
-  public void varsleFarOmSigneringsoppgave(String foedselsnummerFar) {
-    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_OM_VENTENDE_FARSKAPSERKLAERING, true, farskapsportalUrl);
+            MELDING_OM_VENTENDE_FARSKAPSERKLAERING, true);
   }
 
   public void sletteFarsSigneringsoppgave(int idFarskapserklaering, String foedselsnummerFar) {

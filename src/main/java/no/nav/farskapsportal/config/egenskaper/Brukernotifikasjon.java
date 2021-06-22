@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "brukernotifikasjon")
 public class Brukernotifikasjon {
 
-  private int antallDagerForsinkelseEtterMorHarSignert;
   private String topicBeskjed;
   private String topicFerdig;
   private String topicOppgave;
