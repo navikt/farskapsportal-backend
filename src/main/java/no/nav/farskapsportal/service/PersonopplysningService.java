@@ -162,7 +162,7 @@ public class PersonopplysningService {
 
     var sammenslaattNavnFraRegister = navnFraRegister.getFornavn() + hentMellomnavnHvisFinnes(navnFraRegister) + navnFraRegister.getEtternavn();
 
-    boolean navnStemmer = sammenslaattNavnFraRegister.equalsIgnoreCase(navn.replaceAll("\\s+", ""));
+    boolean navnStemmer = sammenslaattNavnFraRegister.replaceAll("\\s+", "").equalsIgnoreCase(navn.replaceAll("\\s+", ""));
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
@@ -186,7 +186,7 @@ public class PersonopplysningService {
   }
 
   private String hentMellomnavnHvisFinnes(NavnDto navnFraRegister) {
-    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? "" : navnFraRegister.getMellomnavn();
+    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? " " : navnFraRegister.getMellomnavn();
   }
 
   private Set<String> filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {

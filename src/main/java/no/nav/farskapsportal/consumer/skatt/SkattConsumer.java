@@ -37,6 +37,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -102,11 +103,15 @@ public class SkattConsumer {
     multipartRequest.set("melding3", xadesXmlFar);
 
     try {
-      restTemplate.exchange(
+      var respons = restTemplate.exchange(
           consumerEndpoint.retrieveEndpoint(
               SkattEndpointName.MOTTA_FARSKAPSERKLAERING),
           HttpMethod.POST,
           requestEntity, Void.class);
+      if (!respons.getStatusCode().equals(HttpStatus.ACCEPTED)) {
+        log.error("Mottok ikke-godkjent Http-kode {} ved overføring til Skatt", respons.getStatusCodeValue());
+        throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
+      }
     } catch (Exception e) {
       e.printStackTrace();
       throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET, e);
