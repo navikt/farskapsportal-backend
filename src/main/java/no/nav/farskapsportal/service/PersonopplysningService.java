@@ -165,8 +165,10 @@ public class PersonopplysningService {
     boolean navnStemmer = sammenslaattNavnFraRegister.replaceAll("\\s+", "").equalsIgnoreCase(navn.replaceAll("\\s+", ""));
 
     if (!navnStemmer) {
-      log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret");
-      throw new FeilNavnOppgittException();
+      log.error(
+          "Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn: {} er forskjellig fra navn i register: {}",
+          navn, sammenslaattNavnFraRegister);
+      throw new FeilNavnOppgittException(navn, sammenslaattNavnFraRegister);
     }
 
     log.info("Navnekontroll gjennomført uten feil");
@@ -186,7 +188,7 @@ public class PersonopplysningService {
   }
 
   private String hentMellomnavnHvisFinnes(NavnDto navnFraRegister) {
-    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? " " : navnFraRegister.getMellomnavn();
+    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? " " : " " + navnFraRegister.getMellomnavn() + " ";
   }
 
   private Set<String> filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {

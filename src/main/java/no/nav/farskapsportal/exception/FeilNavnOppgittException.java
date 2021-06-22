@@ -10,10 +10,15 @@ import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
 @Setter
 public class FeilNavnOppgittException extends ValideringException {
 
+  private String oppgittNavn;
+  private String navnIRegister;
+
   private Optional<StatusKontrollereFarDto> statusKontrollereFarDto;
 
-  public FeilNavnOppgittException() {
+  public FeilNavnOppgittException(String oppgittNavn, String navnIRegister) {
     super(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
+    this.oppgittNavn = oppgittNavn;
+    this.navnIRegister = navnIRegister;
   }
 
   public FeilNavnOppgittException(Feilkode feilkode){
