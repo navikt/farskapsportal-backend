@@ -7,7 +7,6 @@ import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsu
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.scheduled.OverfoereTilSkatt;
 import no.nav.farskapsportal.scheduled.SletteOppgave;
-import no.nav.farskapsportal.scheduled.VarsleFarOmSigneringsoppgave;
 import no.nav.farskapsportal.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,17 +33,6 @@ public class ScheduledConfig {
         .intervallMellomForsoek(farskapsportalEgenskaper.getSkatt().getIntervallOverfoering())
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
-        .build();
-  }
-
-  @Bean
-  public VarsleFarOmSigneringsoppgave varsleFarOmSigneringsoppgave(
-      BrukernotifikasjonConsumer brukernotifikasjonConsumer,
-      PersistenceService persistenceService) {
-    return VarsleFarOmSigneringsoppgave.builder()
-        .farskapsportalEgenskaper(farskapsportalEgenskaper)
-        .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .persistenceService(persistenceService)
         .build();
   }
 
