@@ -45,7 +45,7 @@ public class SkattStubController {
             && vedlegg != null && vedlegg.getSize() > 0
             && vedlegg2 != null && !vedlegg2.isEmpty()
             && vedlegg3 != null && !vedlegg3.isEmpty()
-            ? new ResponseEntity<>(HttpStatus.OK)
+            ? new ResponseEntity<>(HttpStatus.ACCEPTED)
             : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   }
 
