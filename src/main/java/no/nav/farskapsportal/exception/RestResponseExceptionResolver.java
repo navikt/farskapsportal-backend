@@ -84,7 +84,7 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler(RessursIkkeFunnetException.class)
+  @ExceptionHandler({RessursIkkeFunnetException.class, PadesUrlIkkeTilgjengeligException.class})
   protected ResponseEntity<?> handleRessursIkkeFunnetException(RessursIkkeFunnetException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
