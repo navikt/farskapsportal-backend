@@ -48,6 +48,7 @@ import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.Rolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
+import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
@@ -262,7 +263,8 @@ public class FarskapsportalServiceTest {
       persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
-      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.SEPARERT).build());
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer()))
+          .thenReturn(SivilstandDto.builder().type(Sivilstandtype.SEPARERT).build());
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
@@ -275,7 +277,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.erMyndig(FAR.getFoedselsnummer())).thenReturn(true);
 
       // when
-      var response = assertDoesNotThrow(() ->farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer()));
+      var response = assertDoesNotThrow(() -> farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer()));
 
       assertThat(response.isKanOppretteFarskapserklaering());
     }
@@ -800,7 +802,6 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-
       when(personopplysningService.henteFoedselsdato(nyfoedtBarn2.getFoedselsnummer())).thenReturn(foedselsdatoNyfoedte);
       when(personopplysningService.henteFoedeland(nyfoedtBarn2.getFoedselsnummer())).thenReturn(KODE_LAND_NORGE);
       when(personopplysningService.henteFolkeregisteridentifikator(nyfoedtBarn2.getFoedselsnummer())).thenReturn(
@@ -811,8 +812,9 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskapserklaeringRequest.builder().barn(nyfoedtBarn2).opplysningerOmFar(opplysningerOmFar).build()));
+      var valideringException = assertThrows(ValideringException.class,
+          () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+              OppretteFarskapserklaeringRequest.builder().barn(nyfoedtBarn2).opplysningerOmFar(opplysningerOmFar).build()));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FORSKJELLIGE_FEDRE);
@@ -845,8 +847,9 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskapserklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build()));
+      var valideringException = assertThrows(ValideringException.class,
+          () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+              OppretteFarskapserklaeringRequest.builder().barn(barn).opplysningerOmFar(opplysningerOmFar).build()));
 
       //then
       assertThat(valideringException.getFeilkode()).isEqualTo(MOR_OG_FAR_SAMME_PERSON);
@@ -883,8 +886,9 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskapserklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(opplysningerOmFar).build()));
+      var valideringException = assertThrows(ValideringException.class,
+          () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+              OppretteFarskapserklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(opplysningerOmFar).build()));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.TERMINDATO_UGYLDIG);
@@ -945,8 +949,9 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskapserklaeringRequest.builder().barn(barnUtenRelasjonTilMor).opplysningerOmFar(opplysningerOmFar).build()));
+      var valideringException = assertThrows(ValideringException.class,
+          () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+              OppretteFarskapserklaeringRequest.builder().barn(barnUtenRelasjonTilMor).opplysningerOmFar(opplysningerOmFar).build()));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.BARN_MANGLER_RELASJON_TIL_MOR);
@@ -995,8 +1000,9 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
+      var valideringException = assertThrows(ValideringException.class,
+          () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+              OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
 
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.INGEN_NYFOEDTE_UTEN_FAR);
     }
@@ -1043,8 +1049,9 @@ public class FarskapsportalServiceTest {
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
-          OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
+      var valideringException = assertThrows(ValideringException.class,
+          () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
+              OppretteFarskapserklaeringRequest.builder().barn(nyfoedt).opplysningerOmFar(opplysningerOmFar).build()));
 
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.NYFODT_ER_FOR_GAMMEL);
     }
@@ -1089,7 +1096,7 @@ public class FarskapsportalServiceTest {
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUrl("/confirmation"))
               .statuslenke(statuslenke)
-              .erSigneringsjobbenFerdig(true)
+              .statusSignering(StatusSignering.SUKSESS)
               .padeslenke(padesMor).signaturer(List.of(
               SignaturDto.builder()
                   .signatureier(MOR.getFoedselsnummer())
@@ -1152,7 +1159,7 @@ public class FarskapsportalServiceTest {
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUrl("/confirmation"))
               .statuslenke(statuslenke)
-              .erSigneringsjobbenFerdig(true)
+              .statusSignering(StatusSignering.SUKSESS)
               .padeslenke(padesFar).signaturer(List.of(
               SignaturDto.builder()
                   .signatureier(FAR.getFoedselsnummer())
@@ -1268,7 +1275,8 @@ public class FarskapsportalServiceTest {
       var fnrPaaloggetPerson = "00000000000";
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, lagretFarskapserklaering.getId()));
+      var valideringException = assertThrows(ValideringException.class,
+          () -> farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, lagretFarskapserklaering.getId()));
 
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING);
     }

@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.consumer.esignering;
 
+import static no.digipost.signature.client.direct.DirectJobStatus.NO_CHANGES;
+
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -33,7 +35,6 @@ import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
-import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.exception.PadesUrlIkkeTilgjengeligException;
@@ -111,10 +112,6 @@ public class DifiESignaturConsumer {
     var statusJobb = directJobStatusResponse.getStatus();
     var bekreftelseslenke = directJobStatusResponse.getConfirmationReference().getConfirmationUrl();
 
-    if (statusJobb.equals(DirectJobStatus.FAILED)) {
-      throw new EsigneringConsumerException("Signeringsjobben har status FAILED");
-    }
-
     var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(this::mapTilDto)
         .collect(Collectors.toList());
 
@@ -122,10 +119,26 @@ public class DifiESignaturConsumer {
 
     return DokumentStatusDto.builder()
         .statuslenke(statuslenke)
-        .padeslenke(pAdESReference.getpAdESUrl())
+        .statusSignering(henteSigneringsstatus(statusJobb))
+        .padeslenke(pAdESReference != null ? pAdESReference.getpAdESUrl() : null)
         .bekreftelseslenke(bekreftelseslenke)
-        .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY))
         .signaturer(signaturer).build();
+  }
+
+  private StatusSignering henteSigneringsstatus(DirectJobStatus directJobStatus) {
+    switch (directJobStatus) {
+      case COMPLETED_SUCCESSFULLY:
+        return StatusSignering.SUKSESS;
+      case IN_PROGRESS:
+        return StatusSignering.PAAGAAR;
+      case FAILED:
+        return StatusSignering.FEILET;
+      case NO_CHANGES:
+        return StatusSignering.INGEN_ENDRING;
+
+
+    }
+    throw new InternFeilException(Feilkode.UKJENT_SIGNERINGSSTATUS);
   }
 
   public byte[] henteSignertDokument(URI padesUrl) {
@@ -145,8 +158,13 @@ public class DifiESignaturConsumer {
   }
 
   public URI henteNyRedirectUrl(URI signerUrl) {
-    var directSignerResponse = client.requestNewRedirectUrl(WithSignerUrl.of(signerUrl));
-    return directSignerResponse.getRedirectUrl();
+    try {
+      var directSignerResponse = client.requestNewRedirectUrl(WithSignerUrl.of(signerUrl));
+      return directSignerResponse.getRedirectUrl();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    throw new InternFeilException(Feilkode.FEIL_ROLLE);
   }
 
   public Optional<DokumentStatusDto> henteOppdatertStatusPaaSigneringsjobbHvisEndringer(int idFarskapserklaring, byte[] farskapserklaering,
@@ -160,7 +178,7 @@ public class DifiESignaturConsumer {
         .build();
     client.create(directJob);
     var directJobStatusResponse = client.getStatusChange();
-    if (directJobStatusResponse.is(DirectJobStatus.NO_CHANGES)) {
+    if (directJobStatusResponse.is(NO_CHANGES)) {
       log.info("Ingen statusendring på signeringsjobb knyttet til farskapserklæring med id {}", idFarskapserklaring);
       client.confirm(directJobStatusResponse);
       return Optional.empty();
@@ -173,9 +191,9 @@ public class DifiESignaturConsumer {
       client.confirm(directJobStatusResponse);
 
       return Optional.of(DokumentStatusDto.builder()
+          .statusSignering(henteSigneringsstatus(statusJobb))
           .padeslenke(pAdESReference.getpAdESUrl())
           .bekreftelseslenke(bekreftelseslenke)
-          .erSigneringsjobbenFerdig(statusJobb.equals(DirectJobStatus.COMPLETED_SUCCESSFULLY))
           .build());
     }
     client.confirm(directJobStatusResponse);
@@ -184,15 +202,15 @@ public class DifiESignaturConsumer {
 
   private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {
     log.info("Henter status på signeringsjobb. Leter etter riktig status-url ut fra {} mulige kandidater", statusUrler.size());
+
     for (URI statusUrl : statusUrler) {
       var directJobResponse = new DirectJobResponse(1, null, statusUrl, null);
 
       var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
-      if (directJobStatusResponse.isPAdESAvailable()) {
-        log.info("Fant riktig status-url");
-        return Collections.singletonMap(statusUrl, directJobStatusResponse);
-      }
+      log.info("Fant riktig status-url");
+      return Collections.singletonMap(statusUrl, directJobStatusResponse);
     }
+
     throw new PadesUrlIkkeTilgjengeligException("Pades-url mangler i respons fra signeringsløsningen");
   }
 

@@ -335,6 +335,10 @@ public class FarskapsportalService {
 
       // Oppdatere for mor
       if (skalOppdatereForMor && aktuellFarskapserklaering.getMor().getFoedselsnummer().equals(signatur.getSignatureier())) {
+        if (!dokumentStatusDto.getStatusSignering().equals(StatusSignering.PAAGAAR)){
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
+          return aktuellFarskapserklaering;
+        }
         validereInnholdStatusrespons(dokumentStatusDto);
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
@@ -355,9 +359,14 @@ public class FarskapsportalService {
 
         // Oppdatere for far - sette meldingsidSkatt
       } else if (skalOppdatereForFar && aktuellFarskapserklaering.getFar().getFoedselsnummer().equals(signatur.getSignatureier())) {
+        if (!dokumentStatusDto.getStatusSignering().equals(StatusSignering.SUKSESS)) {
+          aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
+          return aktuellFarskapserklaering;
+        }
         validereInnholdStatusrespons(dokumentStatusDto);
         aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
         aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
+
         if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
           validereInnholdSignaturinformasjon(signatur);
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
@@ -416,7 +425,7 @@ public class FarskapsportalService {
 
     if (oppdatertStatus.isPresent()) {
       var dokumentStatusDto = oppdatertStatus.get();
-      var statusSignering = dokumentStatusDto.getStatus();
+      var statusSignering = dokumentStatusDto.getStatusSignering();
 
       if (StatusSignering.SUKSESS.equals(statusSignering)) {
         return persistenceService.oppdatereFarskapserklaering(oppdatereSigneringsinfo(Optional.empty(), dokumentStatusDto, farskapserklaering));

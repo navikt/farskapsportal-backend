@@ -47,6 +47,7 @@ import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Sivilstandtype;
+import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
@@ -1025,7 +1026,7 @@ public class FarskapsportalControllerTest {
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUrl("/confirmation"))
               .statuslenke(tilUri(statuslenke))
-              .erSigneringsjobbenFerdig(true)
+              .statusSignering(StatusSignering.SUKSESS)
               .padeslenke(lageUrl("/pades"))
               .signaturer(List.of(
                   SignaturDto.builder()
@@ -1098,7 +1099,7 @@ public class FarskapsportalControllerTest {
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUrl("/confirmation"))
-              .statuslenke(new URI(statuslenke)).erSigneringsjobbenFerdig(true)
+              .statuslenke(new URI(statuslenke)).statusSignering(StatusSignering.SUKSESS)
               .padeslenke(lageUrl("/pades"))
 
               .signaturer(List.of(
@@ -1171,7 +1172,7 @@ public class FarskapsportalControllerTest {
           DokumentStatusDto.builder()
               .statuslenke(lageUrl("/status"))
               .bekreftelseslenke(lageUrl("/confirmation"))
-              .erSigneringsjobbenFerdig(true)
+              .statusSignering(StatusSignering.SUKSESS)
               .padeslenke(oppdatertPades)
               .signaturer(List.of(SignaturDto.builder()
                   .signatureier(FAR.getFoedselsnummer())
