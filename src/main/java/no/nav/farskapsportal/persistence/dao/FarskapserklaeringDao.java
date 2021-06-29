@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.persistence.dao;
 
-import java.time.LocalDate;
 import java.util.Set;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import org.springframework.data.jpa.repository.Query;
@@ -25,8 +24,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Set<Farskapserklaering> henteMorsErklaeringer(String fnrMor);
 
   @Query(
-      "select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar "
-          + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null")
+      "select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null")
   Set<Farskapserklaering> henteFarsErklaeringer(String fnrFar);
 
   @Query(

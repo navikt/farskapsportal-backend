@@ -105,12 +105,13 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke dokument"),
+      @ApiResponse(responseCode = "410", description = "Status på signeringsjobben er FEILET. Farskapserklæring slettes og må opprettes på ny."),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
   public ResponseEntity<FarskapserklaeringDto> oppdatereStatusEtterRedirect(
       @Parameter(name = "status_query_token", description = "statusQueryToken som mottatt fra e-signeringsløsningen i redirect-url", required = true) @RequestParam(name = "status_query_token") String statusQueryToken) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    var signertDokument = farskapsportalService.oppdatereStatus(fnrPaaloggetPerson, statusQueryToken);
+    var signertDokument = farskapsportalService.oppdatereStatusSigneringsjobb(fnrPaaloggetPerson, statusQueryToken);
     return new ResponseEntity<>(signertDokument, HttpStatus.OK);
   }
 

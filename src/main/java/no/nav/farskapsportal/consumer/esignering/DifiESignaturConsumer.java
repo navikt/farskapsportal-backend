@@ -125,22 +125,6 @@ public class DifiESignaturConsumer {
         .signaturer(signaturer).build();
   }
 
-  private StatusSignering henteSigneringsstatus(DirectJobStatus directJobStatus) {
-    switch (directJobStatus) {
-      case COMPLETED_SUCCESSFULLY:
-        return StatusSignering.SUKSESS;
-      case IN_PROGRESS:
-        return StatusSignering.PAAGAAR;
-      case FAILED:
-        return StatusSignering.FEILET;
-      case NO_CHANGES:
-        return StatusSignering.INGEN_ENDRING;
-
-
-    }
-    throw new InternFeilException(Feilkode.UKJENT_SIGNERINGSSTATUS);
-  }
-
   public byte[] henteSignertDokument(URI padesUrl) {
     try {
       return client.getPAdES(PAdESReference.of(padesUrl)).readAllBytes();
@@ -198,6 +182,20 @@ public class DifiESignaturConsumer {
     }
     client.confirm(directJobStatusResponse);
     return Optional.empty();
+  }
+
+  private StatusSignering henteSigneringsstatus(DirectJobStatus directJobStatus) {
+    switch (directJobStatus) {
+      case COMPLETED_SUCCESSFULLY:
+        return StatusSignering.SUKSESS;
+      case IN_PROGRESS:
+        return StatusSignering.PAAGAAR;
+      case FAILED:
+        return StatusSignering.FEILET;
+      case NO_CHANGES:
+        return StatusSignering.INGEN_ENDRING;
+    }
+    throw new InternFeilException(Feilkode.UKJENT_SIGNERINGSSTATUS);
   }
 
   private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {

@@ -2,6 +2,7 @@ package no.nav.farskapsportal.consumer.esignering;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.FarskapsportalLocalConfig.PADES;
+import static no.nav.farskapsportal.FarskapsportalLocalConfig.XADES;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -20,7 +21,6 @@ import lombok.SneakyThrows;
 import no.digipost.signature.client.core.exceptions.SenderNotSpecifiedException;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectJob;
-
 import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
@@ -50,8 +50,8 @@ public class DifiESignaturConsumerTest {
 
   private static final ForelderDto MOR = ForelderDto.builder().foedselsnummer("12345678910").fornavn("Kjøttdeig").etternavn("Hammer").build();
   private static final ForelderDto FAR = ForelderDto.builder().foedselsnummer("11111122222").fornavn("Rask").etternavn("Karaffel").build();
-  private static final String STATUS_URL = "http://localhost:8096/api/12345678910/direct/signature-jobs/1/status";
-  private static final String PADES_URL = "https://api.signering.posten.no/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/pades";
+  private static final String STATUS_URL = "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/status";
+  private static final String PADES_URL = "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1" + PADES;
 
   @Mock
   DirectClient directClientMock;
@@ -117,7 +117,8 @@ public class DifiESignaturConsumerTest {
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       var exitUrls = ExitUrls
-          .of(URI.create(farskapsportalEgenskaper.getEsignering().getSuksessUrl()), URI.create(farskapsportalEgenskaper.getEsignering().getAvbruttUrl()),
+          .of(URI.create(farskapsportalEgenskaper.getEsignering().getSuksessUrl()),
+              URI.create(farskapsportalEgenskaper.getEsignering().getAvbruttUrl()),
               URI.create(farskapsportalEgenskaper.getEsignering().getFeiletUrl()));
 
       var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(exitUrls, directClientMock);
@@ -130,8 +131,8 @@ public class DifiESignaturConsumerTest {
   }
 
   @Nested
-  @DisplayName("Teste henteDokumentstatusEtterRedirect")
-  class HenteDokumentstatusEtterRedirect {
+  @DisplayName("Teste henteStatus")
+  class HenteStatus {
 
     @Test
     @DisplayName("Skal hente dokumentstatus etter redirect")
@@ -171,4 +172,40 @@ public class DifiESignaturConsumerTest {
       assertArrayEquals(originaltInnhold, dokumentinnhold);
     }
   }
+
+  @Nested
+  class HenteXadesXml {
+
+    @Test
+    void skalHenteXadesXml() {
+
+      // given
+      difiESignaturStub.runGetXades(XADES);
+
+      // when
+      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(lageUrl(XADES));
+
+      // then
+      assertNotNull(dokumentStatusDto);
+    }
+  }
+
+  @Nested
+  class HenteNyRedirectUrl{
+
+    @Test
+    void skalHenteNyRedirectUrl() throws URISyntaxException {
+
+      // given
+      var morsRedirectUrl = "https://mors-redirect-url.no/";
+      difiESignaturStub.runGetNyRedirecturl(MOR.getFoedselsnummer(), DifiESignaturStub.SIGNER_URL_MOR, morsRedirectUrl);
+
+      // when
+      var dokumentStatusDto = difiESignaturConsumer.henteNyRedirectUrl(new URI(DifiESignaturStub.SIGNER_URL_MOR));
+
+      // then
+      assertNotNull(dokumentStatusDto);
+    }
+  }
 }
+

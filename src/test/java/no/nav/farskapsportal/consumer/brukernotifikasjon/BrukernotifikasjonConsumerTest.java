@@ -45,6 +45,8 @@ import org.springframework.test.context.ActiveProfiles;
 public class BrukernotifikasjonConsumerTest {
 
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
+  private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Trykk her for å opprette ny farskapserklæring.";
+  private static final String MELDING_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Trykk her for å opprette ny farskapserklæring.";
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
@@ -120,6 +122,72 @@ public class BrukernotifikasjonConsumerTest {
   }
 
   @Test
+  void skalVarsleMorOmUtloeptOppgaveForSignering() {
+
+    // given
+    farskapserklaeringDao.deleteAll();
+
+    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
+    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+
+    var tidspunktFoerTestEpochMillis = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+
+    // when
+    brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(MOR.getFoedselsnummer());
+
+    // then
+    verify(beskjedkoe, times(1)).send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), noekkelfanger.capture(), beskjedfanger.capture());
+
+    var nokkel = noekkelfanger.getValue();
+    var beskjed = beskjedfanger.getValue();
+    var tidspunktEtterTestEpocMillis = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+
+    assertAll(
+        () -> assertThat(nokkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjed.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestEpochMillis),
+        () -> assertThat(beskjed.getTidspunkt()).isLessThanOrEqualTo(tidspunktEtterTestEpocMillis),
+        () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
+        () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl())
+    );
+  }
+
+  @Test
+  void skalVarsleMorDersomFarAvbryterSignering(){
+
+    // given
+    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
+    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+
+    var tidspunktFoerTestEpochMillis = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+
+    // when
+    brukernotifikasjonConsumer.varsleMorOmAvbruttSignering(MOR.getFoedselsnummer());
+
+    // then
+    verify(beskjedkoe, times(1)).send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), noekkelfanger.capture(), beskjedfanger.capture());
+
+    var nokkel = noekkelfanger.getValue();
+    var beskjed = beskjedfanger.getValue();
+    var tidspunktEtterTestEpocMillis = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+
+    assertAll(
+        () -> assertThat(nokkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjed.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestEpochMillis),
+        () -> assertThat(beskjed.getTidspunkt()).isLessThanOrEqualTo(tidspunktEtterTestEpocMillis),
+        () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_AVBRUTT_SIGNERING),
+        () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl())
+    );
+  }
+
+  @Test
   void skalOppretteOppgaveTilFarOmSignering() {
 
     // given
@@ -186,4 +254,5 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis)
     );
   }
+
 }

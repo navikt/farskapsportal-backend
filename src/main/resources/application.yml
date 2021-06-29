@@ -152,7 +152,7 @@ ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
 ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
 ESIGNERING_FEILET_URL: "http://localhost:8080/damn"
 INTEGRATION_TEST_CONTROLLER_PAA: true
-BRUKERNOTIFIKASJON_PAA: true
+BRUKERNOTIFIKASJON_PAA: false
 
 no.nav.security.jwt:
   issuer.selvbetjening:

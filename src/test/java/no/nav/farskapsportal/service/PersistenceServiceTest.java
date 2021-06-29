@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
@@ -40,7 +41,6 @@ import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.util.Mapper;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
@@ -232,7 +231,9 @@ public class PersistenceServiceTest {
               "PAdES-URL skal ikke være satt i farskapserklæring i det mor redirektes tilbake til farskapsportalen etter utført signering"),
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
+          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()),
+          () -> assertThat(farskapserklaeringerEtterRedirect.getDeaktivert()).isNull()
+      );
     }
 
     @Test
@@ -252,7 +253,9 @@ public class PersistenceServiceTest {
               "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
           () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
           () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()));
+          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()),
+          () -> assertThat(farskapserklaeringerEtterRedirect.getDeaktivert()).isNull()
+      );
     }
 
     @Test
@@ -271,8 +274,11 @@ public class PersistenceServiceTest {
       var hentetFarskapserklaering = hentedeFarskapserklaeringer.stream().filter(f -> FAR.getFoedselsnummer().equals(f.getFar().getFoedselsnummer()))
           .findFirst().get();
 
-      assertAll(() -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), hentetFarskapserklaering.getFar().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), hentetFarskapserklaering.getBarn().getTermindato()));
+      assertAll(
+          () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), hentetFarskapserklaering.getFar().getFoedselsnummer()),
+          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), hentetFarskapserklaering.getBarn().getTermindato()),
+          () -> assertThat(hentetFarskapserklaering.getDeaktivert()).isNull()
+      );
     }
 
     @Test
@@ -335,7 +341,8 @@ public class PersistenceServiceTest {
       assertAll(
           () -> assertThat(hentetStatusLagreKontrollereFar).isPresent(),
           () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
-          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling));
+          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling)
+      );
     }
 
     @Test
@@ -349,8 +356,11 @@ public class PersistenceServiceTest {
       var farskapserklaering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
 
       // then
-      assertThat(lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl())
-          .isEqualTo(farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl());
+      assertAll(
+          () -> assertThat(lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl())
+              .isEqualTo(farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl()),
+          () -> assertThat(lagretFarskapserklaering.getDeaktivert()).isNull()
+      );
     }
 
     @Test
@@ -378,33 +388,30 @@ public class PersistenceServiceTest {
     }
 
     @Test
-    void skalSletteFarskapserklaeringSomManglerFarsSignatur() {
+    void skalDeaktivereFarskapserklaeringSomManglerFarsSignatur() {
 
       // given
       var lagretFarskapserklaering = lagreFarskapserklaering();
 
       // when
-      persistenceService.sletteFarskapserklaering(lagretFarskapserklaering.getId());
+      persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId());
 
       // then
       assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId()));
     }
 
     @Test
-    void skalKasteInternFeilExceptionDersomFarskapserklaeringBlirForsoektSlettetIkkeFinnes() {
+    void skalKasteInternFeilExceptionDersomFarskapserklaeringBlirForsoektDeaktivertIkkeFinnes() {
 
       // given
       var lagretFarskapserklaering = lagreFarskapserklaering();
 
       // when
       var internFeilException = assertThrows(InternFeilException.class,
-          () -> persistenceService.sletteFarskapserklaering(lagretFarskapserklaering.getId() + 1));
+          () -> persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId() + 1));
 
       // then
-      assertAll(
-          () -> assertThat(internFeilException.getFeilkode()).isEqualTo(FANT_IKKE_FARSKAPSERKLAERING),
-          () -> assertThat(internFeilException.getOriginalException().getClass()).isEqualTo(EmptyResultDataAccessException.class)
-      );
+      assertThat(internFeilException.getFeilkode()).isEqualTo(FANT_IKKE_FARSKAPSERKLAERING);
     }
   }
 
@@ -574,6 +581,29 @@ public class PersistenceServiceTest {
       // given, when, then
       assertDoesNotThrow(
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), UFOEDT_BARN));
+    }
+
+    @Test
+    void skalIkkeKasteExceptionDersomMorHarEnEksisterendeDeaktivertFarskapserklaering() {
+
+      // rydde testdata
+      statusKontrollereFarDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      deaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
+      persistenceService.oppdatereFarskapserklaering(deaktivertFarskapserklaering);
+
+      // when, then
+      var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class,
+          () -> persistenceService.henteFarskapserklaeringForId(deaktivertFarskapserklaering.getId()));
+
+      assertThat(ressursIkkeFunnetException.getFeilkode()).isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+
+      assertDoesNotThrow(
+          () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), UFOEDT_BARN));
+
     }
   }
 }

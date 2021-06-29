@@ -46,6 +46,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class SletteOppgaveTest {
 
+  private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Trykk her for å opprette ny farskapserklæring.";
+
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
   private static final BarnDto BARN = henteBarnUtenFnr(5);
@@ -72,6 +74,7 @@ public class SletteOppgaveTest {
 
   @BeforeEach
   void setup() {
+
     // Bønnen sletteOppgave er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
     sletteOppgave = SletteOppgave.builder()
         .persistenceService(persistenceService)
@@ -81,7 +84,7 @@ public class SletteOppgaveTest {
   }
 
   @Test
-  void skalSletteUtloeptOppgave() {
+  void skalSletteUtloeptOppgaveOgVarsleMorDersomFarIkkeSignererInnenFristen() {
 
     // given
     var tidspunktFoerTestIEpochMillis = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
@@ -109,7 +112,6 @@ public class SletteOppgaveTest {
     // then
     verify(ferdigkoe, times(1))
         .send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicFerdig()), ferdignoekkelfanger.capture(), ferdigfanger.capture());
-
     verify(beskjedkoe, times(1))
         .send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), beskjednoekkelfanger.capture(), beskjedfanger.capture());
 
@@ -131,6 +133,7 @@ public class SletteOppgaveTest {
         () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl()),
         () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
         () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
         () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
         () -> assertThat(beskjedMorSynligFremTilDato)
             .isEqualTo(LocalDate.now().plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
@@ -138,8 +141,15 @@ public class SletteOppgaveTest {
 
     var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(farskapserklaering.getId()));
 
-    // Den lagrede farskapserklæringen skal slettes i forbindelse med at melding sendes til mor om utgått signeringsoppgave
+    // Den lagrede farskapserklæringen skal deaktiveres i forbindelse med at melding sendes til mor om utgått signeringsoppgave
     assertThat(ressursIkkeFunnetException.getFeilkode()).isEqualTo(FANT_IKKE_FARSKAPSERKLAERING);
+
+    var deaktivertFarskapserklaering = farskapserklaeringDao.findById(farskapserklaering.getId());
+
+    assertAll(
+        () -> assertThat(deaktivertFarskapserklaering).isPresent(),
+        () -> assertThat(deaktivertFarskapserklaering.get().getDeaktivert()).isNotNull()
+    );
   }
 
   @Test
@@ -166,4 +176,5 @@ public class SletteOppgaveTest {
     verify(ferdigkoe, times(0))
         .send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicFerdig()), any(), any());
   }
+
 }

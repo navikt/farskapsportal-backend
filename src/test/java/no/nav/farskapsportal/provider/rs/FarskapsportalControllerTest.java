@@ -1013,20 +1013,25 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
       var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
       Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
 
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
+          List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor), new HentPersonFoedsel(FOEDSELSDATO_MOR, false)),
           MOR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(new HentPersonNavn(registrertNavnFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
+          FAR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUrl("/confirmation"))
               .statuslenke(tilUri(statuslenke))
-              .statusSignering(StatusSignering.SUKSESS)
+              .statusSignering(StatusSignering.PAAGAAR)
               .padeslenke(lageUrl("/pades"))
               .signaturer(List.of(
                   SignaturDto.builder()

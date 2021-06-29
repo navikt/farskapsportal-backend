@@ -26,9 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
@@ -63,6 +66,7 @@ import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
@@ -1058,8 +1062,8 @@ public class FarskapsportalServiceTest {
   }
 
   @Nested
-  @DisplayName("Teste oppdatereStatus")
-  class OppdatereStatus {
+  @DisplayName("Teste oppdatereStatusSigneringsjobb")
+  class OppdatereStatusSigneringsjobb {
 
     @Test
     void skalOppdatereSigneringsinformasjonForMorEtterRedirectDersomStatusQueryTokenErGyldig() {
@@ -1096,7 +1100,7 @@ public class FarskapsportalServiceTest {
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUrl("/confirmation"))
               .statuslenke(statuslenke)
-              .statusSignering(StatusSignering.SUKSESS)
+              .statusSignering(StatusSignering.PAAGAAR)
               .padeslenke(padesMor).signaturer(List.of(
               SignaturDto.builder()
                   .signatureier(MOR.getFoedselsnummer())
@@ -1109,7 +1113,7 @@ public class FarskapsportalServiceTest {
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
 
       // when
-      farskapsportalService.oppdatereStatus(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+      farskapsportalService.oppdatereStatusSigneringsjobb(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken");
 
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
@@ -1172,7 +1176,7 @@ public class FarskapsportalServiceTest {
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
 
       // when
-      farskapsportalService.oppdatereStatus(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+      farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
 
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
@@ -1183,6 +1187,189 @@ public class FarskapsportalServiceTest {
           () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
               oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
           () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml())
+      );
+    }
+
+    @Test
+    void skalSletteSigneringsoppgaveNaarFarSignerer() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+
+      var statuslenke = lageUrl("/status");
+      var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
+      var padesFar = lageUrl("/padesFar");
+      farskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(3));
+      var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+      var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+
+      assertNull(farskapserklaering.getDokument().getSignertAvFar());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+      when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.MANN).build());
+
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer)
+          .informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(statuslenke)
+              .statusSignering(StatusSignering.SUKSESS)
+              .padeslenke(padesFar).signaturer(List.of(
+              SignaturDto.builder()
+                  .signatureier(FAR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
+                  .build())).build());
+
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+
+      // when
+      farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      // then
+      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()),
+          () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
+              oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
+          () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml())
+      );
+    }
+
+    @Test
+    void dersomMorAvbryterSigneringSkalAktuellFarskapserklaeringDeaktiveres() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+
+      var statuslenke = lageUrl("/status");
+      var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
+      var padesMor = lageUrl("/padesMor");
+
+      assertNull(farskapserklaering.getDokument().getSignertAvMor());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.henteGjeldendeKjoenn(MOR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.KVINNE).build());
+
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(statuslenke)
+              .statusSignering(StatusSignering.FEILET)
+              .padeslenke(padesMor).signaturer(List.of(
+              SignaturDto.builder()
+                  .signatureier(MOR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
+                  .build())).build());
+
+      // when
+      var esigneringConsumerException = assertThrows(EsigneringConsumerException.class,
+          () -> farskapsportalService.oppdatereStatusSigneringsjobb(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
+
+      // then
+      verify(brukernotifikasjonConsumer, times(0)).varsleMorOmAvbruttSignering(eq(MOR.getFoedselsnummer()));
+
+      assertThat(esigneringConsumerException.getFarskapserklaering().isPresent());
+      var farskapserklaeringReturnertFraException = esigneringConsumerException.getFarskapserklaering().get();
+      assertThat(farskapserklaeringReturnertFraException.getDeaktivert()).isNotNull();
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDeaktivert()).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getXadesXml()).isNull()
+      );
+    }
+
+    @Test
+    void dersomFarAvbryterSigneringSkalAktuellFarskapserklaeringDeaktiveres() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+
+      var statuslenke = lageUrl("/status");
+      var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
+      var padesFar = lageUrl("/padesFar");
+      farskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(3));
+
+      assertNotNull(farskapserklaering.getDokument().getSignertAvMor());
+      assertNull(farskapserklaering.getDokument().getSignertAvFar());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      assertNull(farskapserklaering.getDokument().getSignertAvFar());
+
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(statuslenke)
+              .statusSignering(StatusSignering.FEILET)
+              .padeslenke(padesFar).signaturer(List.of(
+              SignaturDto.builder()
+                  .signatureier(FAR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
+                  .build())).build());
+
+      // when
+      var esigneringConsumerException = assertThrows(EsigneringConsumerException.class,
+          () -> farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
+
+      // then
+      verify(brukernotifikasjonConsumer, times(1)).varsleMorOmAvbruttSignering(eq(MOR.getFoedselsnummer()));
+
+      assertThat(esigneringConsumerException.getFarskapserklaering().isPresent());
+
+      var farskapserklaeringReturnertFraException = esigneringConsumerException.getFarskapserklaering().get();
+
+      assertThat(farskapserklaeringReturnertFraException.getDeaktivert()).isNotNull();
+
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDeaktivert()).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getStatusSignering())
+              .isEqualTo(StatusSignering.FEILET.toString())
       );
     }
   }

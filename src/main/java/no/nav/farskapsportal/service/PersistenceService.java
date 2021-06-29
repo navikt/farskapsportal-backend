@@ -99,19 +99,19 @@ public class PersistenceService {
   }
 
   public Set<Farskapserklaering> henteMorsEksisterendeErklaeringer(String fnrMor) {
-    return farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
+    return bareAktive(farskapserklaeringDao.henteMorsErklaeringer(fnrMor));
   }
 
   public Set<Farskapserklaering> henteFarsErklaeringer(String fnrFar) {
-    return farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
+    return bareAktive(farskapserklaeringDao.henteFarsErklaeringer(fnrFar));
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder) {
-    return farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder);
+    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder));
   }
 
   public Optional<Farskapserklaering> henteBarnsEksisterendeErklaering(String fnrBarn) {
-    var farskapserklaeringer = farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn);
+    var farskapserklaeringer = bareAktive(farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn));
 
     if (farskapserklaeringer.isEmpty()) {
       return Optional.empty();
@@ -125,14 +125,14 @@ public class PersistenceService {
   public Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrForelder, Forelderrolle forelderrolle, KjoennType gjeldendeKjoenn) {
     switch (forelderrolle) {
       case MOR:
-        return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
+        return bareAktive(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
       case FAR:
-        return farskapserklaeringDao.henteFarskapserklaeringerForFar(fnrForelder);
+        return henteFarsErklaeringer(fnrForelder);
       case MOR_ELLER_FAR:
         if (KjoennType.KVINNE.equals(gjeldendeKjoenn)) {
-          return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
+          return bareAktive(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
         } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
-          return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
+          return bareAktive(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
         }
       default:
         throw new ValideringException(Feilkode.FEIL_ROLLE);
@@ -167,7 +167,7 @@ public class PersistenceService {
 
   public Farskapserklaering henteFarskapserklaeringForId(int idFarskapserklaering) {
     var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
-    if (farskapserklaering.isPresent()) {
+    if (farskapserklaering.isPresent() && farskapserklaering.get().getDeaktivert() == null) {
       return farskapserklaering.get();
     }
     throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
@@ -178,7 +178,7 @@ public class PersistenceService {
     var barnErOppgittMedFoedselsnummer = barnDto.getFoedselsnummer() != null && barnDto.getFoedselsnummer().length() > 10;
 
     // Hente eventuelle eksisterende farskapserklaeringer for mor
-    var morsEksisterendeErklaeringer = farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
+    var morsEksisterendeErklaeringer = henteMorsEksisterendeErklaeringer(fnrMor);
 
     // Hente eventuell eksisterende farskapserklaering for barn, hvis barn oppgitt med fnr
     var barnsEksisterendeErklaering =
@@ -198,24 +198,30 @@ public class PersistenceService {
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt() {
-    return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
+    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt());
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur() {
-    return farskapserklaeringDao.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
+    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerSomVenterPaaFarsSignatur());
   }
 
-  public void sletteFarskapserklaering(int idFarskapserklaering) {
-    try {
-      farskapserklaeringDao.deleteById(idFarskapserklaering);
-    } catch (EmptyResultDataAccessException erdae) {
-      throw new InternFeilException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING, erdae);
-    }
+  @Transactional
+  public void deaktivereFarskapserklaering(int idFarskapserklaering) {
+      var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
+      if (farskapserklaering.isPresent()) {
+        farskapserklaering.get().setDeaktivert(LocalDateTime.now());
+      } else {
+        throw new InternFeilException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+      }
   }
 
   public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {
     var nyttInnslag = Meldingslogg.builder().tidspunktForOversendelse(tidspunktForOverfoering).meldingsidSkatt(meldingsidSkatt).build();
     meldingsloggDao.save(nyttInnslag);
+  }
+
+  private Set<Farskapserklaering> bareAktive(Set<Farskapserklaering> farskapserklaeringer) {
+    return farskapserklaeringer.stream().filter(fe -> fe.getDeaktivert() == null).collect(Collectors.toSet());
   }
 
   private void farForskjelligFraFarIEksisterendeFarskapserklaeringForNyfoedt(String fnrFar,

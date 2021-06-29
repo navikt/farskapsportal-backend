@@ -37,7 +37,7 @@ public class SletteOppgave {
   private void sletteFarskapserklaeringOgsendeMeldingTilMorDersomFarIkkeHarSignert(Farskapserklaering farskapserklaering) {
     if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null
         || farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() == null) {
-      persistenceService.sletteFarskapserklaering(farskapserklaering.getId());
+      persistenceService.deaktivereFarskapserklaering(farskapserklaering.getId());
       log.info("Farskapserklæring med id {} ble slettet fra databasen.", farskapserklaering.getId());
       brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(farskapserklaering.getMor().getFoedselsnummer());
       log.info("Varsel sendt til mor om at fars oppgave for signering er utgått, og at ny farskapserklæring må opprettes.");
