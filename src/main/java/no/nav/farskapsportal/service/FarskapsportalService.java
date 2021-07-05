@@ -38,7 +38,7 @@ import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.exception.EsigneringConsumerException;
+import no.nav.farskapsportal.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.MappingException;
@@ -232,7 +232,7 @@ public class FarskapsportalService {
    * @param statusQueryToken tilgangstoken fra e-signeringsløsningen
    * @return kopi av signert dokument
    */
-  @Transactional(noRollbackFor=EsigneringConsumerException.class)
+  @Transactional(noRollbackFor = EsigneringStatusFeiletException.class)
   public FarskapserklaeringDto oppdatereStatusSigneringsjobb(String fnrPaaloggetPerson, String statusQueryToken) {
 
     log.info("Oppdaterer status på signeringsoppdrag for pålogget person");
@@ -360,12 +360,10 @@ public class FarskapsportalService {
       return aktuellFarskapserklaering;
     }
 
-    validereInnholdStatusrespons(dokumentStatusDto);
     aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
     aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
 
     if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
-      validereInnholdSignaturinformasjon(signatur);
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus());
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke().toString());
       var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
@@ -396,12 +394,11 @@ public class FarskapsportalService {
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
       return aktuellFarskapserklaering;
     }
-    validereInnholdStatusrespons(dokumentStatusDto);
+
     aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
     aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
 
     if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
-      validereInnholdSignaturinformasjon(signatur);
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus());
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesUrl(signatur.getXadeslenke().toString());
       var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
@@ -438,10 +435,12 @@ public class FarskapsportalService {
 
       if (rolle.equals(FAR)) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
-        brukernotifikasjonConsumer.varsleMorOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer());
+        if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
+          brukernotifikasjonConsumer.varsleMorOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer());
+        }
       }
 
-      throw new EsigneringConsumerException(Feilkode.ESIGNERING_STATUS_FEILET, farskapserklaering);
+      throw new EsigneringStatusFeiletException(Feilkode.ESIGNERING_STATUS_FEILET, farskapserklaering);
     }
   }
 
@@ -692,24 +691,6 @@ public class FarskapsportalService {
 
     registrerteNyfoedteUtenFar.stream().filter(Objects::nonNull).filter(fnrBarn -> fnrBarn.equals(fnrOppgittBarn)).collect(Collectors.toSet())
         .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.BARN_MANGLER_RELASJON_TIL_MOR));
-  }
-
-  private void validereInnholdStatusrespons(DokumentStatusDto dokumentStatusDto) {
-    try {
-      Validate.isTrue(dokumentStatusDto.getStatuslenke() != null, "Statuslenke mangler");
-      Validate.isTrue(dokumentStatusDto.getBekreftelseslenke() != null, "Bekreftelseslenke mangler");
-      Validate.isTrue(dokumentStatusDto.getPadeslenke() != null, "Padeslenke mangler");
-    } catch (IllegalArgumentException iae) {
-      throw new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_DATA, iae);
-    }
-  }
-
-  private void validereInnholdSignaturinformasjon(SignaturDto signatur) {
-    try {
-      Validate.isTrue(signatur.getXadeslenke() != null, "XAdES-lenke mangler");
-    } catch (IllegalArgumentException iae) {
-      throw new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_XADES, iae);
-    }
   }
 
   private void validereAtMorOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {

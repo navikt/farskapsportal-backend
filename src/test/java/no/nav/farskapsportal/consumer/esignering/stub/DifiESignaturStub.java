@@ -30,7 +30,7 @@ public class DifiESignaturStub {
     );
   }
 
-  public void runGetStatus(String statusUrl, String padesUrl, String idSender) {
+  public void runGetStatus(String statusUrl, String padesUrl, String idSigner1, String idSigner2) {
     stubFor(
         get(urlPathMatching("/api/12345678910/direct/signature-jobs/1/status.*"))
             .willReturn(
@@ -45,10 +45,13 @@ public class DifiESignaturStub {
                             "   <signature-job-id>1</signature-job-id>",
                             "   <signature-job-status>COMPLETED_SUCCESSFULLY</signature-job-status>",
                             "   <status-url>" + statusUrl + "</status-url>",
-                            "   <status signer=\"" + idSender + "\" since=\"" + LocalDateTime.now().minusSeconds(10) + "\">SIGNED</status>",
-                            "   <confirmation-url>https://api.signering.posten.no/api/" + idSender
+                            "   <status signer=\"" + idSigner1 + "\" since=\"" + LocalDateTime.now().minusSeconds(10) + "\">SIGNED</status>",
+                            "   <status signer=\"" + idSigner2 + "\" since=\"" + LocalDateTime.now().minusSeconds(10) + "\">SIGNED</status>",
+                            "   <confirmation-url>https://api.signering.posten.no/api/" + idSigner1
                                 + "/direct/signature-jobs/1/complete</confirmation-url>",
-                            "   <xades-url signer=\"" + idSender + "\">https://api.signering.posten.no/api/" + idSender
+                            "   <xades-url signer=\"" + idSigner1 + "\">https://api.signering.posten.no/api/" + idSigner1
+                                + "/direct/signature-jobs/1/xades/1</xades-url>",
+                            "   <xades-url signer=\"" + idSigner2 + "\">https://api.signering.posten.no/api/" + idSigner2
                                 + "/direct/signature-jobs/1/xades/1</xades-url>",
                             "   <pades-url>" + padesUrl + "</pades-url>",
                             " </direct-signature-job-status-response>"))));
@@ -111,9 +114,9 @@ public class DifiESignaturStub {
         "\n",
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
         "<direct-signer-response xmlns=\"http://signering.posten.no/schema/v1\" href=\"" + signerUrl + "\">",
-            "    <personal-identification-number>" + fnr + "</personal-identification-number>",
-            "    <redirect-url>" + redirectUrl + "</redirect-url>",
-            "</direct-signer-response>"
+        "    <personal-identification-number>" + fnr + "</personal-identification-number>",
+        "    <redirect-url>" + redirectUrl + "</redirect-url>",
+        "</direct-signer-response>"
     );
   }
 }

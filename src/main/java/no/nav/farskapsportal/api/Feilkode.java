@@ -11,7 +11,7 @@ public enum Feilkode {
   ERKLAERING_EKSISTERER_BARN("Det eksisterer allrede en farskapserklæring for oppgitt barn"),
   ERKLAERING_EKSISTERER_MOR("Mor har eksisterende farskapserklæring. Kan ikke opprette ny erklæring for ufødt barn."),
   ESIGNERING_MANGLENDE_DATA("Manglende data retunert fra status-kall mot esigneringstjenesten"),
-  ESIGNERING_MANGLENDE_XADES("Manglende data retunert fra status-kall mot esigneringstjenesten, ingen XADES-lenke"),
+  ESIGNERING_UKJENT_TOKEN("Ingen treff på oppgitt status query token hos esigneringstjenesten"),
   ESIGNERING_SIGNATUREIER_NULL("Signatureier er null i respons fra esigneringsløsningen!"),
   ESIGNERING_STATUS_FEILET("Signeringsoppdraget har status feilet hos Posten, og signering kan ikke gjennomføres."),
   ESIGNERING_REDIRECTURL_UKJENT("Redirecturl for ukjent part mottatt fra esigneringsløsningen!"),

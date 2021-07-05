@@ -98,7 +98,8 @@ public class FarskapsportalController {
   @PutMapping("/farskapserklaering/redirect")
   @Operation(description =
       "Kalles etter redirect fra singeringsløsningen. Oppdaterer status på signeringsjobben. Henter kopi av signert dokument fra "
-          + "dokumentlager for pålogget person. Lagrer padeslenke.",
+          + "dokumentlager for pålogget person. Lagrer padeslenke. Dersom signeringsjobben har status feilet hos Posten deaktiveres aktuell"
+          + "farskapserklæring.",
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Status ble oppdatert, og padeslenke lagret uten feil"),

@@ -53,14 +53,29 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({MappingException.class, EsigneringConsumerException.class})
+  @ExceptionHandler(MappingException.class)
   protected ResponseEntity<?> handleInternFeilException(UnrecoverableException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, "En intern feil har oppstått!");
 
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.INTERNAL_SERVER_ERROR));
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(new ResponseEntity<>(e.getMessage(), headers, HttpStatus.INTERNAL_SERVER_ERROR));
+  }
+
+  @ResponseBody
+  @ExceptionHandler({EsigneringConsumerException.class, EsigneringStatusFeiletException.class})
+  protected ResponseEntity<?> handleEsigneringConsumerException(EsigneringConsumerException e) {
+
+    exceptionLogger.logException(e, "RestResponseExceptionResolver");
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.WARNING, "En intern feil har oppstått!");
+
+    var httpStatus = feilkodeTilHttpStatus(e.getFeilkode());
+
+    return ResponseEntity.status(httpStatus).body(new ResponseEntity<>(e.getMessage(), headers, httpStatus));
   }
 
   @ResponseBody
@@ -84,7 +99,7 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({RessursIkkeFunnetException.class, PadesUrlIkkeTilgjengeligException.class})
+  @ExceptionHandler(RessursIkkeFunnetException.class)
   protected ResponseEntity<?> handleRessursIkkeFunnetException(RessursIkkeFunnetException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
@@ -103,10 +118,21 @@ public class RestResponseExceptionResolver {
 
   @ResponseBody
   @ExceptionHandler({SkattConsumerException.class, PDFConsumerException.class})
-  protected  ResponseEntity<?> handleSkattConsumerException(InternFeilException e){
+  protected ResponseEntity<?> handleSkattConsumerException(InternFeilException e) {
     exceptionLogger.logException(e.getOriginalException(), "RestResponseExceptionResolver");
 
     return generereFeilrespons(e.getMessage(), e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  private HttpStatus feilkodeTilHttpStatus(Feilkode feilkode) {
+    switch (feilkode) {
+      case ESIGNERING_UKJENT_TOKEN:
+        return HttpStatus.NOT_FOUND;
+      case ESIGNERING_STATUS_FEILET:
+        return HttpStatus.GONE;
+      default:
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
   }
 
   private ResponseEntity<FarskapserklaeringFeilResponse> generereFeilrespons(String feilmelding, Feilkode feilkode,

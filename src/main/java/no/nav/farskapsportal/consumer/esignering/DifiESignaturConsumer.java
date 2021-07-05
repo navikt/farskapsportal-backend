@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.consumer.esignering;
 
+import static no.digipost.signature.client.direct.DirectJobStatus.FAILED;
 import static no.digipost.signature.client.direct.DirectJobStatus.NO_CHANGES;
 
 import java.io.IOException;
@@ -35,9 +36,9 @@ import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
+import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
-import no.nav.farskapsportal.exception.PadesUrlIkkeTilgjengeligException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
@@ -79,7 +80,6 @@ public class DifiESignaturConsumer {
       throw new OppretteSigneringsjobbException(Feilkode.OPPRETTE_SIGNERINGSJOBB);
     }
 
-    directJobResponse.getSigners().get(0).getSignerUrl();
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
     dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl().toString());
 
@@ -87,6 +87,7 @@ public class DifiESignaturConsumer {
 
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
       Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra Esigneringstjenesten!");
+      Validate.notNull(signer.getSignerUrl(), "Null signer url mottatt fra Esigneringstjenesten!");
       if (signer.getPersonalIdentificationNumber().equals(mor.getFoedselsnummer())) {
         dokument.setSigneringsinformasjonMor(
             Signeringsinformasjon.builder().undertegnerUrl(signer.getSignerUrl().toString()).redirectUrl(signer.getRedirectUrl().toString()).build());
@@ -105,8 +106,11 @@ public class DifiESignaturConsumer {
   public DokumentStatusDto henteStatus(String statusQueryToken, Set<URI> statuslenker) {
 
     var directJobStatusResponseMap = henteSigneringsjobbstatus(statuslenker, statusQueryToken);
+
     var statuslenke = directJobStatusResponseMap.keySet().stream().findAny().get();
     var directJobStatusResponse = directJobStatusResponseMap.get(statuslenke);
+
+    validereInnholdStatusrespons(directJobStatusResponse);
 
     var pAdESReference = directJobStatusResponse.getpAdESUrl();
     var statusJobb = directJobStatusResponse.getStatus();
@@ -184,6 +188,30 @@ public class DifiESignaturConsumer {
     return Optional.empty();
   }
 
+  private void validereInnholdStatusrespons(DirectJobStatusResponse directJobStatusResponse) {
+
+    var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(this::mapTilDto)
+        .collect(Collectors.toList());
+    try {
+
+      Validate.isTrue(directJobStatusResponse.getStatus() != null, "Statusinformasjon mangler");
+
+      if (!directJobStatusResponse.getStatus().equals(FAILED)) {
+        Validate.isTrue(directJobStatusResponse.getConfirmationReference().getConfirmationUrl() != null, "Bekreftelseslenke mangler");
+        Validate.isTrue(directJobStatusResponse.getpAdESUrl() != null, "Padeslenke mangler");
+        Validate.isTrue(signaturer.size() == 2, "Feil antall singaturer");
+
+        log.info("Antall signaturer i respons fra Posten: {}", signaturer.size());
+
+        Validate.isTrue(signaturer.stream()
+            .filter(s -> s.getStatusSignering().equals(StatusSignering.SUKSESS) || s.getStatusSignering().equals(StatusSignering.PAAGAAR))
+            .filter(s -> s.getXadeslenke() == null).count() == 0, "Xades-lenke mangler!");
+      }
+    } catch (IllegalArgumentException iae) {
+      throw new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_DATA, iae);
+    }
+  }
+
   private StatusSignering henteSigneringsstatus(DirectJobStatus directJobStatus) {
     switch (directJobStatus) {
       case COMPLETED_SUCCESSFULLY:
@@ -209,7 +237,7 @@ public class DifiESignaturConsumer {
       return Collections.singletonMap(statusUrl, directJobStatusResponse);
     }
 
-    throw new PadesUrlIkkeTilgjengeligException("Pades-url mangler i respons fra signeringsløsningen");
+    throw new EsigneringConsumerException(Feilkode.ESIGNERING_UKJENT_TOKEN);
   }
 
   private void signatureierErIkkeNull(Signature signature) {

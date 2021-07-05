@@ -66,7 +66,7 @@ import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.exception.EsigneringConsumerException;
+import no.nav.farskapsportal.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
@@ -1291,14 +1291,14 @@ public class FarskapsportalServiceTest {
                   .build())).build());
 
       // when
-      var esigneringConsumerException = assertThrows(EsigneringConsumerException.class,
+      var esigneringStatusFeiletException = assertThrows(EsigneringStatusFeiletException.class,
           () -> farskapsportalService.oppdatereStatusSigneringsjobb(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
 
       // then
       verify(brukernotifikasjonConsumer, times(0)).varsleMorOmAvbruttSignering(eq(MOR.getFoedselsnummer()));
 
-      assertThat(esigneringConsumerException.getFarskapserklaering().isPresent());
-      var farskapserklaeringReturnertFraException = esigneringConsumerException.getFarskapserklaering().get();
+      assertThat(esigneringStatusFeiletException.getFarskapserklaering().isPresent());
+      var farskapserklaeringReturnertFraException = esigneringStatusFeiletException.getFarskapserklaering().get();
       assertThat(farskapserklaeringReturnertFraException.getDeaktivert()).isNotNull();
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
@@ -1349,15 +1349,17 @@ public class FarskapsportalServiceTest {
                   .build())).build());
 
       // when
-      var esigneringConsumerException = assertThrows(EsigneringConsumerException.class,
+      var esigneringStatusFeiletException = assertThrows(EsigneringStatusFeiletException.class,
           () -> farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
 
       // then
       verify(brukernotifikasjonConsumer, times(1)).varsleMorOmAvbruttSignering(eq(MOR.getFoedselsnummer()));
 
-      assertThat(esigneringConsumerException.getFarskapserklaering().isPresent());
+      assertAll(
+          () -> assertThat(esigneringStatusFeiletException.getFarskapserklaering().isPresent())
+      );
 
-      var farskapserklaeringReturnertFraException = esigneringConsumerException.getFarskapserklaering().get();
+      var farskapserklaeringReturnertFraException = esigneringStatusFeiletException.getFarskapserklaering().get();
 
       assertThat(farskapserklaeringReturnertFraException.getDeaktivert()).isNotNull();
 

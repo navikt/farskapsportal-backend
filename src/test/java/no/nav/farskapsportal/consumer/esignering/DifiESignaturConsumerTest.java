@@ -139,7 +139,7 @@ public class DifiESignaturConsumerTest {
     void skalHenteDokumentstatusEtterRedirect() throws URISyntaxException {
 
       // given
-      difiESignaturStub.runGetStatus(STATUS_URL, PADES_URL, MOR.getFoedselsnummer());
+      difiESignaturStub.runGetStatus(STATUS_URL, PADES_URL, MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
 
       // when
       var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda", Set.of(new URI(STATUS_URL)));
@@ -191,7 +191,7 @@ public class DifiESignaturConsumerTest {
   }
 
   @Nested
-  class HenteNyRedirectUrl{
+  class HenteNyRedirectUrl {
 
     @Test
     void skalHenteNyRedirectUrl() throws URISyntaxException {
