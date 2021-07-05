@@ -12,7 +12,6 @@ import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.dto.BarnDto;
-import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.exception.InternFeilException;
@@ -29,7 +28,6 @@ import no.nav.farskapsportal.persistence.entity.Meldingslogg;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.util.Mapper;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -75,27 +73,15 @@ public class PersistenceService {
 
     var eksisterendeMor = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getMor().getFoedselsnummer());
     var eksisterendeFar = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getFar().getFoedselsnummer());
+    // Barn med fødselsnummer kan kun opptre i én aktiv farskapserklæring. Det kan imidlertid eksistere deaktiverte samtidige farskapserklæringer
+    // på et nyfødt barn
+    var eksisterendeNyfoedt = barnDao.henteBarnMedFnr(nyFarskapserklaering.getBarn().getFoedselsnummer());
 
     nyFarskapserklaering.setMor(eksisterendeMor.orElseGet(nyFarskapserklaering::getMor));
     nyFarskapserklaering.setFar(eksisterendeFar.orElseGet(nyFarskapserklaering::getFar));
+    nyFarskapserklaering.setBarn(eksisterendeNyfoedt.orElseGet(nyFarskapserklaering::getBarn));
 
     return farskapserklaeringDao.save(nyFarskapserklaering);
-  }
-
-  @Transactional
-  public Farskapserklaering lagreNyFarskapserklaering(FarskapserklaeringDto farskapserklaeringDto) {
-
-    ingenKonfliktMedEksisterendeFarskapserklaeringer(farskapserklaeringDto.getMor().getFoedselsnummer(),
-        farskapserklaeringDto.getFar().getFoedselsnummer(), farskapserklaeringDto.getBarn());
-
-    var eksisterendeMor = forelderDao.henteForelderMedFnr(farskapserklaeringDto.getMor().getFoedselsnummer());
-    var eksisterendeFar = forelderDao.henteForelderMedFnr(farskapserklaeringDto.getFar().getFoedselsnummer());
-
-    var farskapserklaering = Farskapserklaering.builder().mor(eksisterendeMor.orElseGet(() -> mapper.toEntity(farskapserklaeringDto.getMor())))
-        .far(eksisterendeFar.orElseGet(() -> mapper.toEntity(farskapserklaeringDto.getFar())))
-        .barn(mapper.toEntity(farskapserklaeringDto.getBarn())).dokument(mapper.toEntity(farskapserklaeringDto.getDokument())).build();
-
-    return farskapserklaeringDao.save(farskapserklaering);
   }
 
   public Set<Farskapserklaering> henteMorsEksisterendeErklaeringer(String fnrMor) {
@@ -207,12 +193,12 @@ public class PersistenceService {
 
   @Transactional
   public void deaktivereFarskapserklaering(int idFarskapserklaering) {
-      var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
-      if (farskapserklaering.isPresent()) {
-        farskapserklaering.get().setDeaktivert(LocalDateTime.now());
-      } else {
-        throw new InternFeilException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
-      }
+    var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
+    if (farskapserklaering.isPresent()) {
+      farskapserklaering.get().setDeaktivert(LocalDateTime.now());
+    } else {
+      throw new InternFeilException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+    }
   }
 
   public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {

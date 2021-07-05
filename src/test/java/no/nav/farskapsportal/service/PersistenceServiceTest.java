@@ -31,10 +31,12 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
+import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
@@ -135,7 +137,7 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // when
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(FARSKAPSERKLAERING));
 
       var hentetFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
 
@@ -144,6 +146,33 @@ public class PersistenceServiceTest {
 
       // rydde test data
       farskapserklaeringDao.delete(lagretFarskapserklaering);
+    }
+
+    @Test
+    void lagreFarskapserklaeringMedSammeMorFarOgBarnSomIDeaktivertFarskapserklaering() {
+
+      // given
+      statusKontrollereFarDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+
+      var deaktivertFarskapserklaeringMedSammeMorFarOgBarn = henteFarskapserklaeringDto(MOR, FAR, NYFOEDT_BARN);
+      var lagretDeaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(deaktivertFarskapserklaeringMedSammeMorFarOgBarn));
+      lagretDeaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
+      persistenceService.oppdatereFarskapserklaering(lagretDeaktivertFarskapserklaering);
+
+      var duplikatAktivFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, NYFOEDT_BARN);
+
+      // when
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(duplikatAktivFarskapserklaering));
+
+      var hentetFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
+
+      // then
+      assertEquals(lagretFarskapserklaering, hentetFarskapserklaering, "Farskapserklæringen som ble lagret er lik den som ble hentet");
+
+      // rydde test data
+      farskapserklaeringDao.delete(lagretFarskapserklaering);
+
     }
 
     @Test
@@ -159,7 +188,7 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.save(mapper.toEntity(FARSKAPSERKLAERING));
 
       // when, then
-      assertThrows(ValideringException.class, () -> persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING));
+      assertThrows(ValideringException.class, () -> persistenceService.lagreNyFarskapserklaering(mapper.toEntity(FARSKAPSERKLAERING)));
     }
 
     @Test
@@ -540,7 +569,7 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      persistenceService.lagreNyFarskapserklaering(mapper.toEntity(FARSKAPSERKLAERING));
 
       // when, then
       var valideringException = assertThrows(ValideringException.class,
@@ -561,7 +590,7 @@ public class PersistenceServiceTest {
       var fnrMorUtenEksisterendeFarskapserklaering = LocalDate.now().minusYears(29).format(DateTimeFormatter.ofPattern("ddMMyy")) + "12245";
       var farskapserklaering = FarskapserklaeringDto.builder().barn(NYFOEDT_BARN).mor(MOR).far(FAR).dokument(FARSKAPSERKLAERING.getDokument())
           .build();
-      persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
 
       // when
       var valideringException = assertThrows(ValideringException.class, () -> persistenceService
@@ -591,7 +620,7 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(FARSKAPSERKLAERING));
       deaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(deaktivertFarskapserklaering);
 

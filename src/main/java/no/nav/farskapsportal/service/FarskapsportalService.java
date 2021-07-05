@@ -433,6 +433,7 @@ public class FarskapsportalService {
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
       farskapserklaering.setDeaktivert(LocalDateTime.now());
 
+
       if (rolle.equals(FAR)) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
         if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
