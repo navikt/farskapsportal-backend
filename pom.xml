@@ -6,7 +6,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.5.1</version>
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>no.nav.farskap</groupId>
@@ -34,7 +34,7 @@
     <bidrag-tilgangskontroll.version>1.9.17</bidrag-tilgangskontroll.version>
     <brukernotifikasjon-schemas.version>1.2021.01.18-11.12-b9c8c40b98d1</brukernotifikasjon-schemas.version>
     <boot-conditionals.version>1.0.20200824135201-5568111</boot-conditionals.version>
-    <token-validation-spring.version>1.3.7</token-validation-spring.version>
+    <token-validation-spring.version>1.3.8</token-validation-spring.version>
 
     <!-- other -->
     <jackson-core.version>2.12.3</jackson-core.version>
