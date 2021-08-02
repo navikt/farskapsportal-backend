@@ -8,7 +8,7 @@
 },
 "response": {
   "status": 200,
-  "body": "{\"data\":{\"hentPerson\":{\"familierelasjoner\":[{\"relatertPersonsIdent\":\"11111122222\", \"relatertPersonsRolle\": \"FAR\", \"minRolleForPerson\": \"BARN\"}], \"foedsel\": [{\"foedselsdato\": \"2020-01-01\", \"metadata\": { \"master\": \"Freg\", \"historisk\": \"false\"} }] }}}",
+  "body": "{\"data\":{\"hentPerson\":{\"forelderBarnRelasjon\":[{\"relatertPersonsIdent\":\"11111122222\", \"relatertPersonsRolle\": \"FAR\", \"minRolleForPerson\": \"BARN\"}], \"foedsel\": [{\"foedselsdato\": \"2020-01-01\", \"metadata\": { \"master\": \"Freg\", \"historisk\": \"false\"} }] }}}",
   "headers": {
   "Content-Type": "application/json"
 }

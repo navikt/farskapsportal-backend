@@ -21,8 +21,8 @@ import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
@@ -30,7 +30,7 @@ import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
-import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
@@ -276,48 +276,48 @@ public class PdlApiConsumerTest {
   }
 
   @Nested
-  @DisplayName("Hente familierelasjoner")
-  class FamilieRelasjoner {
+  @DisplayName("Hente forelderBarnRelasjon")
+  class ForelderBarnRelasjon {
 
     @Test
-    @DisplayName("Skal ikke feile dersom  mor ikke har noen familierelasjoner før barnet er født")
-    void skalIkkeFeileDersomMorIkkeHarFamilierelasjonerFoerFoedsel() {
+    @DisplayName("Skal ikke feile dersom  mor ikke har noen forelder-barn-relasjon før barnet er født")
+    void skalIkkeFeileDersomMorIkkeHarForelderBarnRelasjonFoerFoedsel() {
 
       // given
       var fnrMor = "13108411110";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFamilierelasjoner(null, "1234"));
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonForelderBarnRelasjon(null, "1234"));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var farsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrMor);
+      var morsForelderBarnRelasjon = pdlApiConsumer.henteForelderBarnRelasjon(fnrMor);
 
       // then
-      assertEquals(farsFamilierelasjoner.size(), 0, "Mor har ingen familierelasjoner før fødsel");
+      assertEquals(morsForelderBarnRelasjon.size(), 0, "Mor har ingen forelderBarnRelasjon før fødsel");
     }
 
     @Test
-    @DisplayName("Skal hente familierelasjoner for far")
-    void skalHenteFamilieRelasjonerForFar() {
+    @DisplayName("Skal hente forelder-barn-relasjon for far")
+    void skalHenteForelderBarnRelasjonForFar() {
 
       // given
       var fnrFar = "13108411111";
       var fnrBarn = "01112009091";
-      var familierelasjonerDto = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrBarn).relatertPersonsRolle(FamilierelasjonRolle.BARN)
-          .minRolleForPerson(FamilierelasjonRolle.FAR).build();
+      var forelderBarnRelasjonDto = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrBarn).relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.FAR).build();
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFamilierelasjoner(familierelasjonerDto, "1234"));
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonForelderBarnRelasjon(forelderBarnRelasjonDto, "1234"));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var farsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrFar);
+      var farsForelderBarnRelasjoner = pdlApiConsumer.henteForelderBarnRelasjon(fnrFar);
 
       // then
-      assertAll(() -> assertEquals(fnrBarn, farsFamilierelasjoner.stream().map(FamilierelasjonerDto::getRelatertPersonsIdent).findAny().get()),
-          () -> assertEquals(familierelasjonerDto.getMinRolleForPerson(),
-              farsFamilierelasjoner.stream().map(FamilierelasjonerDto::getMinRolleForPerson).findAny().get()),
-          () -> assertEquals(familierelasjonerDto.getRelatertPersonsRolle(),
-              farsFamilierelasjoner.stream().map(FamilierelasjonerDto::getRelatertPersonsRolle).findAny().get()));
+      assertAll(() -> assertEquals(fnrBarn, farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getRelatertPersonsIdent).findAny().get()),
+          () -> assertEquals(forelderBarnRelasjonDto.getMinRolleForPerson(),
+              farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getMinRolleForPerson).findAny().get()),
+          () -> assertEquals(forelderBarnRelasjonDto.getRelatertPersonsRolle(),
+              farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getRelatertPersonsRolle).findAny().get()));
     }
   }
 

@@ -10,7 +10,7 @@ import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 public class PersonDto {
 
   List<DoedsfallDto> doedsfall = new ArrayList<>();
-  List<FamilierelasjonerDto> familierelasjoner = new ArrayList<>();
+  List<ForelderBarnRelasjonDto> forelderBarnRelasjon = new ArrayList<>();
   List<FoedselDto> foedsel = new ArrayList<>();
   List<FolkeregisteridentifikatorDto> folkeregisteridentifikator = new ArrayList<>();
   List<KjoennDto> kjoenn = new ArrayList<>();

@@ -55,8 +55,8 @@ import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
@@ -65,7 +65,7 @@ import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDt
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
-import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFamilierelasjoner;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
@@ -278,13 +278,13 @@ public class FarskapsportalControllerTest {
 
       Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
       stsStub.runSecurityTokenServiceStub("jalla");
-      var morsRelasjonTilBarn = FamilierelasjonerDto.builder().minRolleForPerson(FamilierelasjonRolle.MOR)
-          .relatertPersonsRolle(FamilierelasjonRolle.BARN).relatertPersonsIdent(fnrSpedbarn).build();
-      var spedbarnetsRelasjonTilMor = FamilierelasjonerDto.builder().relatertPersonsRolle(FamilierelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
-          .minRolleForPerson(FamilierelasjonRolle.BARN).build();
+      var morsRelasjonTilBarn = ForelderBarnRelasjonDto.builder().minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).relatertPersonsIdent(fnrSpedbarn).build();
+      var spedbarnetsRelasjonTilMor = ForelderBarnRelasjonDto.builder().relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.BARN).build();
 
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonFamilierelasjoner(morsRelasjonTilBarn, "123"),
+          List.of(new HentPersonForelderBarnRelasjon(morsRelasjonTilBarn, "123"),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
               new HentPersonKjoenn(kjoennshistorikk),
@@ -298,7 +298,7 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFamilierelasjoner(spedbarnetsRelasjonTilMor, "000"),
+              new HentPersonForelderBarnRelasjon(spedbarnetsRelasjonTilMor, "000"),
               new HentPersonFoedsel(foedselsdatoSpedbarn, false)),
           fnrSpedbarn);
 
@@ -340,7 +340,7 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFamilierelasjoner(null, null),
+          new HentPersonForelderBarnRelasjon(null, null),
           new HentPersonSivilstand(Sivilstandtype.UGIFT),
           new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
           new HentPersonNavn(NAVN_MOR),
@@ -400,7 +400,7 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFamilierelasjoner(null, null),
+          new HentPersonForelderBarnRelasjon(null, null),
           new HentPersonSivilstand(Sivilstandtype.UGIFT),
           new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
           new HentPersonNavn(NAVN_MOR),
@@ -459,7 +459,7 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFamilierelasjoner(null, null),
+          new HentPersonForelderBarnRelasjon(null, null),
           new HentPersonSivilstand(Sivilstandtype.UGIFT),
           new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
           new HentPersonKjoenn(kjoennshistorikk),
@@ -467,7 +467,7 @@ public class FarskapsportalControllerTest {
           FAR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFamilierelasjoner(null, null),
+          new HentPersonForelderBarnRelasjon(null, null),
           new HentPersonSivilstand(Sivilstandtype.UGIFT),
           new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
           new HentPersonNavn(NAVN_MOR)),
@@ -514,7 +514,7 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFamilierelasjoner(null, null),
+              new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonKjoenn(kjoennshistorikk),
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
@@ -549,12 +549,12 @@ public class FarskapsportalControllerTest {
       var kjoennshistorikk = new HashMap<KjoennType, LocalDateTime>();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var spedbarnetsRelasjonTilMor = FamilierelasjonerDto.builder().relatertPersonsRolle(FamilierelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
-          .minRolleForPerson(FamilierelasjonRolle.BARN).build();
+      var spedbarnetsRelasjonTilMor = ForelderBarnRelasjonDto.builder().relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.BARN).build();
 
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFamilierelasjoner(null, ""), new HentPersonKjoenn(kjoennshistorikk)), fnrMor);
+      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonForelderBarnRelasjon(null, ""), new HentPersonKjoenn(kjoennshistorikk)), fnrMor);
       pdlApiStub.runPdlApiHentPersonStub(
-          List.of(new HentPersonFamilierelasjoner(spedbarnetsRelasjonTilMor, "000"), new HentPersonFoedsel(foedselsdatoSpedbarn, false)),
+          List.of(new HentPersonForelderBarnRelasjon(spedbarnetsRelasjonTilMor, "000"), new HentPersonFoedsel(foedselsdatoSpedbarn, false)),
           fnrSpedbarn);
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrMor);
 
@@ -580,7 +580,7 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFamilierelasjoner(null, null),
+          new HentPersonForelderBarnRelasjon(null, null),
           new HentPersonSivilstand(Sivilstandtype.UGIFT),
           new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
           new HentPersonNavn(NAVN_MOR),

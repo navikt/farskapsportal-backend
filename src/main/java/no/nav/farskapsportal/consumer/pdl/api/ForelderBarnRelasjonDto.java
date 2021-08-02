@@ -5,11 +5,11 @@ import lombok.Value;
 
 @Value
 @Builder
-public class FamilierelasjonerDto implements PdlDto {
+public class ForelderBarnRelasjonDto implements PdlDto {
 
   String relatertPersonsIdent;
-  FamilierelasjonRolle relatertPersonsRolle;
-  FamilierelasjonRolle minRolleForPerson;
+  ForelderBarnRelasjonRolle relatertPersonsRolle;
+  ForelderBarnRelasjonRolle minRolleForPerson;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;
 }
