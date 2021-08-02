@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.consumer.pdl.api;
 
-public enum FamilierelasjonRolle {
+public enum ForelderBarnRelasjonRolle {
   BARN,
   MOR,
   FAR,

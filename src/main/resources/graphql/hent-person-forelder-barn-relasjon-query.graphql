@@ -1,6 +1,6 @@
 query($ident: ID!) {
     hentPerson(ident: $ident) {
-        familierelasjoner {
+        forelderBarnRelasjon {
             relatertPersonsIdent
             relatertPersonsRolle
             minRolleForPerson

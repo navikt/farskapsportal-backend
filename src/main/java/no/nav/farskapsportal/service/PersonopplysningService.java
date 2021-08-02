@@ -18,8 +18,8 @@ import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiException;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
@@ -39,18 +39,18 @@ public class PersonopplysningService {
 
   public Set<String> henteNyligFoedteBarnUtenRegistrertFar(String fnrMor) {
     Set<String> spedbarnUtenFar = new HashSet<>();
-    List<FamilierelasjonerDto> familierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrMor);
+    List<ForelderBarnRelasjonDto> forelderBarnRelasjoner = pdlApiConsumer.henteForelderBarnRelasjon(fnrMor);
 
-    var registrerteBarn = familierelasjoner.stream().filter(Objects::nonNull)
-        .filter(mor -> mor.getMinRolleForPerson().equals(FamilierelasjonRolle.MOR))
-        .filter(barn -> barn.getRelatertPersonsRolle().equals(FamilierelasjonRolle.BARN)).map(FamilierelasjonerDto::getRelatertPersonsIdent)
+    var registrerteBarn = forelderBarnRelasjoner.stream().filter(Objects::nonNull)
+        .filter(mor -> mor.getMinRolleForPerson().equals(ForelderBarnRelasjonRolle.MOR))
+        .filter(barn -> barn.getRelatertPersonsRolle().equals(ForelderBarnRelasjonRolle.BARN)).map(ForelderBarnRelasjonDto::getRelatertPersonsIdent)
         .collect(Collectors.toSet());
 
     for (String fnrBarn : registrerteBarn) {
       var fd = henteFoedselsdato(fnrBarn);
       if (fd.isAfter(LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()))) {
-        List<FamilierelasjonerDto> spedbarnetsFamilierelasjoner = pdlApiConsumer.henteFamilierelasjoner(fnrBarn);
-        var spedbarnetsFarsrelasjon = spedbarnetsFamilierelasjoner.stream()
+        List<ForelderBarnRelasjonDto> spedbarnetsForelderBarnRelasjoner = pdlApiConsumer.henteForelderBarnRelasjon(fnrBarn);
+        var spedbarnetsFarsrelasjon = spedbarnetsForelderBarnRelasjoner.stream()
             .filter(f -> f.getRelatertPersonsRolle().name().equals(Forelderrolle.FAR.toString())).findFirst();
         if (spedbarnetsFarsrelasjon.isEmpty()) {
           spedbarnUtenFar.add(fnrBarn);
