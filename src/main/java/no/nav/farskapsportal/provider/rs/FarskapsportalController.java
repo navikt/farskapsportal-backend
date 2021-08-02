@@ -98,19 +98,21 @@ public class FarskapsportalController {
   @PutMapping("/farskapserklaering/redirect")
   @Operation(description =
       "Kalles etter redirect fra singeringsløsningen. Oppdaterer status på signeringsjobben. Henter kopi av signert dokument fra "
-          + "dokumentlager for pålogget person. Lagrer padeslenke.",
+          + "dokumentlager for pålogget person. Lagrer padeslenke. Dersom signeringsjobben har status feilet hos Posten deaktiveres aktuell"
+          + "farskapserklæring.",
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Status ble oppdatert, og padeslenke lagret uten feil"),
       @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke dokument"),
+      @ApiResponse(responseCode = "410", description = "Status på signeringsjobben er FEILET. Farskapserklæring slettes og må opprettes på ny."),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
   public ResponseEntity<FarskapserklaeringDto> oppdatereStatusEtterRedirect(
       @Parameter(name = "status_query_token", description = "statusQueryToken som mottatt fra e-signeringsløsningen i redirect-url", required = true) @RequestParam(name = "status_query_token") String statusQueryToken) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    var signertDokument = farskapsportalService.oppdatereStatus(fnrPaaloggetPerson, statusQueryToken);
+    var signertDokument = farskapsportalService.oppdatereStatusSigneringsjobb(fnrPaaloggetPerson, statusQueryToken);
     return new ResponseEntity<>(signertDokument, HttpStatus.OK);
   }
 

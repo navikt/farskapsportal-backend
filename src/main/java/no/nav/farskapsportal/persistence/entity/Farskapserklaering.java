@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -32,7 +31,7 @@ public class Farskapserklaering implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private Barn barn;
 
   @ManyToOne(cascade = CascadeType.PERSIST)
@@ -51,6 +50,8 @@ public class Farskapserklaering implements Serializable {
   private String meldingsidSkatt;
 
   private LocalDateTime sendtTilSkatt;
+
+  private LocalDateTime deaktivert;
 
   @Override
   public int hashCode() {
@@ -80,6 +81,13 @@ public class Farskapserklaering implements Serializable {
     if (!mor.equals(other.mor)) {
       return false;
     }
+
+    if (deaktivert == null ^ other.deaktivert == null) {
+      return false;
+    } else if ((deaktivert != null && other.deaktivert != null) && (!deaktivert.equals(other.deaktivert))) {
+      return false;
+    }
+
     return far.equals(other.far);
   }
 

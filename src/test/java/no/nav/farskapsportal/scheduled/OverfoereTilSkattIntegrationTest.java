@@ -22,6 +22,7 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.service.PersistenceService;
+import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,9 @@ public class OverfoereTilSkattIntegrationTest {
 
   @MockBean
   private SkattConsumer skattConsumer;
+
+  @Autowired
+  private Mapper mapper;
 
   @Autowired
   private PersistenceService persistenceService;
@@ -61,7 +65,7 @@ public class OverfoereTilSkattIntegrationTest {
     assertFalse(alleFarskapserklaeringer.iterator().hasNext());
 
     var sendingsklarFarskapserklaering1 = persistenceService
-        .lagreNyFarskapserklaering(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "11111")));
+        .lagreNyFarskapserklaering(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "11111"))));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     sendingsklarFarskapserklaering1.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(10));
     sendingsklarFarskapserklaering1.setMeldingsidSkatt("4564");
@@ -69,7 +73,7 @@ public class OverfoereTilSkattIntegrationTest {
     farskapserklaeringDao.save(sendingsklarFarskapserklaering1);
 
     var sendingsklarFarskapserklaering2 = persistenceService
-        .lagreNyFarskapserklaering(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "22222")));
+        .lagreNyFarskapserklaering(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "22222"))));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     sendingsklarFarskapserklaering2.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(10));
     sendingsklarFarskapserklaering2.setMeldingsidSkatt("4564");
@@ -77,7 +81,7 @@ public class OverfoereTilSkattIntegrationTest {
     farskapserklaeringDao.save(sendingsklarFarskapserklaering2);
 
     var ikkeSendingsklarFarskapserklaering = persistenceService
-        .lagreNyFarskapserklaering(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "33333")));
+        .lagreNyFarskapserklaering(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusMonths(1), "33333"))));
     // Bare farskapserklæringer som er signert av far, og har satt meldingsIdSkatt er aktuelle for overføring
     ikkeSendingsklarFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(15));
     farskapserklaeringDao.save(ikkeSendingsklarFarskapserklaering);

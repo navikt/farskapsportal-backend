@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import no.nav.farskapsportal.api.StatusSignering;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.validation.annotation.Validated;
 

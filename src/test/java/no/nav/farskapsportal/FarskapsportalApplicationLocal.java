@@ -50,7 +50,8 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@ComponentScan(excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = {FarskapsportalApplication.class, FarskapsportalTestConfig.class})})
+@ComponentScan(excludeFilters = {
+    @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = {FarskapsportalApplication.class, FarskapsportalTestConfig.class})})
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"},
     topics = {"aapen-brukernotifikasjon-nyBeskjed-v1", "aapen-brukernotifikasjon-done-v1", "aapen-brukernotifikasjon-nyOppgave-v1"})
 @EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})

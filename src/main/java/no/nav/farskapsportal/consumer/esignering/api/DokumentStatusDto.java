@@ -12,10 +12,9 @@ import no.nav.farskapsportal.api.StatusSignering;
 @Getter
 public class DokumentStatusDto {
 
-  boolean erSigneringsjobbenFerdig;
   List<SignaturDto> signaturer;
   URI padeslenke;
   URI statuslenke;
   URI bekreftelseslenke;
-  StatusSignering status;
+  StatusSignering statusSignering;
 }
