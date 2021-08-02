@@ -77,6 +77,7 @@ import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.util.Mapper;
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -1185,6 +1186,73 @@ public class FarskapsportalServiceTest {
           () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
               oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
           () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml())
+      );
+    }
+
+    @Test
+    void skalOppdatereSigneringsjobbDersomMorHarAktivOgDeaktivertFarskapserklaering() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+
+      var statuslenke = lageUrl("/status");
+      var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
+      var padesMor = lageUrl("/padesMor");
+      var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+      var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+
+      assertNull(farskapserklaering.getDokument().getSignertAvMor());
+
+      var lagretDeaktivFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
+      lagretDeaktivFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretDeaktivFarskapserklaering.setDeaktivert(LocalDateTime.now());
+      farskapserklaeringDao.save(lagretDeaktivFarskapserklaering);
+
+      var lagretAktivFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
+      lagretAktivFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      farskapserklaeringDao.save(lagretAktivFarskapserklaering);
+
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.henteGjeldendeKjoenn(MOR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.KVINNE).build());
+
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretAktivFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer)
+          .informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(statuslenke)
+              .statusSignering(StatusSignering.PAAGAAR)
+              .padeslenke(padesMor).signaturer(List.of(
+              SignaturDto.builder()
+                  .signatureier(MOR.getFoedselsnummer())
+                  .harSignert(true)
+                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .xadeslenke(lageUrl("/xades"))
+                  .build())).build());
+
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+
+      // when
+      farskapsportalService.oppdatereStatusSigneringsjobb(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken");
+
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretAktivFarskapserklaering.getId());
+
+      // then
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
+          () -> assertArrayEquals(farskapserklaeringDokumentinnhold,
+              oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
+          () -> assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getXadesXml())
       );
     }
 
