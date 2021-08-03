@@ -11,7 +11,7 @@
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.118-SNAPSHOT</version>
+  <version>0.0.119-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -44,7 +44,7 @@
     <apache-pdfbox.version>2.0.24</apache-pdfbox.version>
     <kafka-avro-serializer.version>6.1.1</kafka-avro-serializer.version>
     <apache.commons-lang.version>3.12.0</apache.commons-lang.version>
-    <apache.commons-io.version>2.10.0</apache.commons-io.version>
+    <apache.commons-io.version>2.11.0</apache.commons-io.version>
     <jsoup.version>1.14.1</jsoup.version>
     <openhtml.version>1.0.9</openhtml.version>
     <modelmapper.version>2.4.4</modelmapper.version>
