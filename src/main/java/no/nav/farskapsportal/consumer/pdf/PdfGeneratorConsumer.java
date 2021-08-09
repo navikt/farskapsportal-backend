@@ -3,15 +3,19 @@ package no.nav.farskapsportal.consumer.pdf;
 import static no.nav.farskapsportal.api.Feilkode.OPPRETTE_PDF_FEILET;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder.PdfAConformance;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.PDFConsumerException;
+import org.apache.commons.compress.utils.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Element;
@@ -33,12 +37,21 @@ public class PdfGeneratorConsumer {
       org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(htmlSomStroem, "UTF-8", "pdf-template/template.html");
       Document doc = new W3CDom().fromJsoup(jsoupDoc);
 
-      new PdfRendererBuilder()
-          .useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
+      var builder =  new PdfRendererBuilder();
+
+          builder.useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
           .useFastMode()
+          .usePdfAConformance(PdfAConformance.PDFA_2_A)
+          //.useFont(new File("src/main/resources/pdf-template/arial.ttf"), "ArialNormal")
+          .useFont(new File("src/main/resources/pdf-template/arial.ttf"), "ArialNormal")
           .withW3cDocument(doc, "classpath:/pdf-template/")
           .toStream(pdfStream)
           .run();
+
+      try (InputStream colorProfile = PdfGeneratorConsumer.class.getResourceAsStream("/pdf-template/ISOcoated_v2_300_bas.ICC")) {
+        byte[] colorProfileBytes = IOUtils.toByteArray(colorProfile);
+        builder.useColorProfile(colorProfileBytes);
+      }
 
       return pdfStream.toByteArray();
     } catch(IOException ioe) {

@@ -46,7 +46,7 @@ import org.apache.commons.lang3.Validate;
 @RequiredArgsConstructor
 public class DifiESignaturConsumer {
 
-  private static final String TITTEL_FARSKAPSERKLAERING = "Farskapserklaering";
+  private static final String TITTEL_FARSKAPSERKLAERING = "Farskapserklæring";
   private static final String NAVN_FARSKAPSERKLAERINGSDOKUMENT = "farskapserklaering.pdf";
 
   private final ExitUrls exitUrls;

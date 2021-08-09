@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.persistence.dao;
 
-import java.time.LocalDate;
 import java.util.Set;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import org.springframework.data.jpa.repository.Query;

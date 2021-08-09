@@ -2,19 +2,19 @@
 
 h1 {
     font-size: 1.333em;
-    font-family: Arial;
+    font-family: 'ArialNormal';
     font-weight:bold;
 }
 
 h2 {
     font-size : 1.167em;
-    font-family: Arial;
+    font-family: 'ArialNormal';
     font-weight: bold;
 }
 
 body {
     font-size : 1em;
-    font-family: Arial;
+    font-family: 'ArialNormal';
     background-color: white;
     margin-left: 75px;
     margin-right: 75px;
@@ -23,12 +23,12 @@ body {
 
 p {
     font-size : 1em;
-    font-family: Arial;
+    font-family: 'ArialNormal';
 }
 
 td.beskrivelse {
     font-size : 1em;
-    font-family: Arial;
+    font-family: 'ArialNormal';
     font-weight: bold;
 }
 img.logo {
@@ -43,6 +43,6 @@ img.logo {
 
 table {
     font-size : 1em;
-    font-family: Arial;
+    font-family: 'ArialNormal';
     margin-bottom: 10px;
 }
