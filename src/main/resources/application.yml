@@ -16,7 +16,7 @@ spring:
           password: ${NAV_TRUSTSTORE_PASSWORD}
 
 springdoc:
-  packages-to-scan: {no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs}
+  packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
   show-login-endpoint: true
   swagger-ui.path: /swagger-ui.html
 
@@ -114,7 +114,7 @@ no.nav:
 
 ---
 spring:
-  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test, integration-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -145,14 +145,25 @@ farskapsportal-api.systembruker.passord: se-vault
 
 ---
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: test
+
+BRUKERNOTIFIKASJON_PAA: true
+
+---
+spring:
+  config.activate.on-profile: local, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test, integration-test
+  flyway.enabled: false
+
+BRUKERNOTIFIKASJON_PAA: false
+
+---
+spring:
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test, integration-test
   flyway.enabled: false
 
 ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
 ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
 ESIGNERING_FEILET_URL: "http://localhost:8080/damn"
-INTEGRATION_TEST_CONTROLLER_PAA: true
-BRUKERNOTIFIKASJON_PAA: true
 
 no.nav.security.jwt:
   issuer.selvbetjening:
@@ -180,7 +191,7 @@ wiremock.server:
 
 ---
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test
+  config.activate.on-profile: local-postgres, remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -207,7 +218,8 @@ APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8080
-BRUKERNOTIFIKASJON_PAA: true
+BRUKERNOTIFIKASJON_PAA: false
+NAIS_CLUSTER_NAME: dev-gcp
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
@@ -260,12 +272,10 @@ sertifikat:
   keystore-type: jks
   keystore-name: client-selfsigned.jks
 
-
 ---
 # Integrasjonstesting mot Posten og Skatt
 spring:
   config.activate.on-profile: integration-test
-  flyway.enabled: false
 
 farskapsportal.egenskaper:
   skatt:
@@ -283,24 +293,6 @@ virksomhetssertifikat:
     prosjektid: 627047445397
     hemmelighetnavn: farskap-keystore-credentials-json
     hemmelighetversjon: 2
-
-ESIGNERING_SUKSESS_URL: "http://localhost:8080/api/v1/farskapsportal/farskapserklaering/redirect"
-ESIGNERING_AVBRUTT_URL: "https://farskapsportal-feature.dev.nav.no/avbrutt"
-ESIGNERING_FEILET_URL: "https://farskapsportal-feature.dev.nav.no/feilet"
-FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no/nb/"
-BRUKERNOTIFIKASJON_PAA: false
-NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/farskapsportal-api/src/test/resources/server-selfsigned.jks
-NAV_TRUSTSTORE_PASSWORD: qwer1234
-SRVFARSKAPSPORTAL_PWD: top_hemmelig
-
-no.nav.security.jwt:
-  issuer.selvbetjening:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
-
-# Lar wiremock håndtere esignering
-farskapsportal-api.disable-esignering: false
 
 wiremock.server:
   files: classpath:/__files

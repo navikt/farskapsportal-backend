@@ -60,6 +60,10 @@ Confluent krever Java 11:
 [Installere Confluent CLI](https://docs.confluent.io/confluent-cli/current/install.html)
 [Quick Start using Community Components (Local)](https://docs.confluent.io/5.1.3/quickstart/cos-quickstart.html)
 
+####### Starte lokalt Confluent-miljø
+export JAVA_HOME=/usr/local/Cellar/openjdk@11/11.0.10
+confluent local services start
+
 ###### Kafka Apache
 farskapsportal-api sender meldinger til brukernotifkasjons kafka-topics. Ved lokal kjøring brukes lokal Kafkainstans. (Kafka kan installeres på Mac 
 med >brew install kafka). Her må aktuelle topics også defineres:

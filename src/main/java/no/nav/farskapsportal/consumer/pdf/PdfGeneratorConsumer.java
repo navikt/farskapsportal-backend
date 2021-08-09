@@ -119,6 +119,6 @@ public class PdfGeneratorConsumer {
   }
 
   private String henteMellomnavnHvisRegistrert(ForelderDto forelderDto) {
-    return forelderDto.getMellomnavn() != null ? " " + forelderDto.getMellomnavn() : " ";
+    return forelderDto.getMellomnavn() != null ? " " + forelderDto.getMellomnavn() + " " : " ";
   }
 }

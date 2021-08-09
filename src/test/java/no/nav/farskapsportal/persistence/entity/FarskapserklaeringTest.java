@@ -1,10 +1,12 @@
 package no.nav.farskapsportal.persistence.entity;
 
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -123,6 +125,50 @@ public class FarskapserklaeringTest {
 
     // when, then
     assertEquals(farskapserklaering, enAnnenFarskapserklaeringMedSammeParter);
+  }
+
+  @Test
+  void deaktivertFarskapserklaeringEllersIdentiskMedAktivFarskapserklaeringSkalKategoriseresSomUlike() {
+
+    // given
+    var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
+    var mor = Forelder.builder().foedselsnummer("01019012345").build();
+    var far = Forelder.builder().foedselsnummer("01038832140").build();
+
+    var redirectUrlMor = "https://redirect-mor";
+    var redirectUrlFar = "https://redirect-far";
+
+    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).dokumentStatusUrl("")
+        .dokumentnavn("farskapserklaering.pdf").build();
+
+    var aktivFarskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var deaktivFarskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).deaktivert(LocalDateTime.now()).build();
+
+    // when, then
+    assertThat(aktivFarskapserklaering).isNotEqualTo(deaktivFarskapserklaering);
+  }
+
+  @Test
+  void toFarskapserklaeringerMedSammeParterMenForskjelligDeaktiveringstidspunktSkalKategoriseresSomUlike() {
+
+    // given
+    var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
+    var mor = Forelder.builder().foedselsnummer("01019012345").build();
+    var far = Forelder.builder().foedselsnummer("01038832140").build();
+
+    var redirectUrlMor = "https://redirect-mor";
+    var redirectUrlFar = "https://redirect-far";
+
+    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).dokumentStatusUrl("")
+        .dokumentnavn("farskapserklaering.pdf").build();
+
+    var deaktivFarskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).deaktivert(LocalDateTime.now().minusMinutes(3)).build();
+    var deaktivFarskapserklaering2 = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).deaktivert(LocalDateTime.now()).build();
+
+    // when, then
+    assertThat(deaktivFarskapserklaering).isNotEqualTo(deaktivFarskapserklaering2);
   }
 
   @Test

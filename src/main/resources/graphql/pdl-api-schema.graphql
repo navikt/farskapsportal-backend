@@ -85,12 +85,12 @@ type FalskIdentitetIdentifiserendeInformasjon {
     statsborgerskap: [String!]!
 }
 
-type Familierelasjon {
+type ForelderBarnRelasjon {
     folkeregistermetadata: Folkeregistermetadata
     metadata: Metadata!
-    minRolleForPerson: Familierelasjonsrolle
+    minRolleForPerson: ForelderBarnRelasjonsrolle
     relatertPersonsIdent: String!
-    relatertPersonsRolle: Familierelasjonsrolle!
+    relatertPersonsRolle: ForelderBarnRelasjonsrolle!
 }
 
 type Foedsel {
@@ -330,7 +330,7 @@ type Person {
     doedfoedtBarn: [DoedfoedtBarn!]!
     doedsfall: [Doedsfall!]!
     falskIdentitet: FalskIdentitet
-    familierelasjoner: [Familierelasjon!]!
+    forelderBarnRelasjon: [ForelderBarnRelasjon!]!
     foedsel: [Foedsel!]!
     folkeregisteridentifikator(historikk: Boolean = false): [Folkeregisteridentifikator!]!
     folkeregisterpersonstatus(historikk: Boolean = false): [Folkeregisterpersonstatus!]!
@@ -532,7 +532,7 @@ enum Endringstype {
     OPPRETT
 }
 
-enum Familierelasjonsrolle {
+enum ForelderBarnRelasjonsrolle {
     BARN
     FAR
     MEDMOR

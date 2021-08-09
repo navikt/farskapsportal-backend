@@ -17,7 +17,7 @@ import lombok.val;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
@@ -97,10 +97,10 @@ public class PdlApiConsumer {
     return folkeregisteridentifikatorDtosFraFregEllerPdl.stream().filter(Objects::nonNull)
         .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av folkeregisteridentifikator, forventet bare et innslag av folkeregisteridentifikator på person")));
   }
-  public List<FamilierelasjonerDto> henteFamilierelasjoner(String foedselsnummer) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FAMILIERELASJONER, false);
-    var familierelasjonerDtos = respons.getData().getHentPerson().getFamilierelasjoner();
-    return familierelasjonerDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
+  public List<ForelderBarnRelasjonDto> henteForelderBarnRelasjon(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FORELDER_BARN_RELASJON, false);
+    var forelderBarnRelasjonDtos = respons.getData().getHentPerson().getForelderBarnRelasjon();
+    return forelderBarnRelasjonDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
   }
 
   public KjoennDto henteKjoennUtenHistorikk(String foedselsnummer) {

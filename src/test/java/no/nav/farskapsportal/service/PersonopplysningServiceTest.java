@@ -26,8 +26,8 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.FamilierelasjonerDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregistermetadataDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
@@ -378,13 +378,13 @@ public class PersonopplysningServiceTest {
       var fnrNyfoedtTvilling1 = foedselsdatoTvillinger.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerTvilling1;
       var fnrNyfoedtTvilling2 = foedselsdatoTvillinger.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerTvilling2;
 
-      var tvilling1 = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrNyfoedtTvilling1).minRolleForPerson(FamilierelasjonRolle.MOR)
-          .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
+      var tvilling1 = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrNyfoedtTvilling1).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
-      var tvilling2 = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrNyfoedtTvilling2).minRolleForPerson(FamilierelasjonRolle.MOR)
-          .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
+      var tvilling2 = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrNyfoedtTvilling2).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
-      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(tvilling1, tvilling2));
+      when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(tvilling1, tvilling2));
       when(pdlApiConsumerMock.henteFoedsel(anyString()))
           .thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoTvillinger).foedeland(KODE_LAND_NORGE).build());
 
@@ -406,14 +406,14 @@ public class PersonopplysningServiceTest {
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
       var fnrFar = foedselsdatoSpedbarn.plusYears(31).plusMonths(7).plusDays(5).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(FamilierelasjonRolle.MOR)
-          .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
-      var spedbarnsRelasjonTilFar = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrFar).minRolleForPerson(FamilierelasjonRolle.BARN)
-          .relatertPersonsRolle(FamilierelasjonRolle.FAR).build();
+      var spedbarnsRelasjonTilFar = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrFar).minRolleForPerson(ForelderBarnRelasjonRolle.BARN)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.FAR).build();
 
-      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
-      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrSpedbarn)).thenReturn(List.of(spedbarnsRelasjonTilFar));
+      when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
+      when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrSpedbarn)).thenReturn(List.of(spedbarnsRelasjonTilFar));
       when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).build());
 
       // when
@@ -431,10 +431,10 @@ public class PersonopplysningServiceTest {
       var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(FamilierelasjonRolle.MOR)
-          .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
-      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
+      when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
       when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland("UGANDA").build());
 
       // when
@@ -453,10 +453,10 @@ public class PersonopplysningServiceTest {
       var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = FamilierelasjonerDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(FamilierelasjonRolle.MOR)
-          .relatertPersonsRolle(FamilierelasjonRolle.BARN).build();
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
-      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
+      when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
       when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland(null).build());
 
       // when
@@ -475,7 +475,7 @@ public class PersonopplysningServiceTest {
       var foedselsdatoMor = LocalDate.now().minusMonths(2).minusDays(13);
       var fnrMor = foedselsdatoMor.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      when(pdlApiConsumerMock.henteFamilierelasjoner(fnrMor)).thenReturn(new ArrayList<>());
+      when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(new ArrayList<>());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);

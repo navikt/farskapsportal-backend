@@ -1,27 +1,23 @@
 package no.nav.farskapsportal.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import no.nav.farskapsportal.api.Feilkode;
 
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 public class EsigneringConsumerException extends UnrecoverableException {
 
-  private final String message;
+  private final Feilkode feilkode;
 
-  public EsigneringConsumerException(String message) {
-    super(message);
-    this.message = message;
-  }
-
-  public EsigneringConsumerException(String message, Exception e) {
-    super(message, e);
+  public EsigneringConsumerException(Feilkode feilkode, Exception e) {
+    super(feilkode.getBeskrivelse(), e);
     e.printStackTrace();
-    this.message = message;
+    this.feilkode = feilkode;
   }
 
-  public String getMessage() {
-    return this.message;
+  public EsigneringConsumerException(Feilkode feilkode) {
+    super(feilkode.getBeskrivelse());
+    this.feilkode = feilkode;
   }
 
+  public Feilkode getFeilkode() {
+    return this.feilkode;
+  }
 }
-
