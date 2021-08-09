@@ -42,7 +42,7 @@ public class PdfGeneratorConsumer {
           builder.useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
           .useFastMode()
           .usePdfAConformance(PdfAConformance.PDFA_2_A)
-          .useFont(new File("src/main/resources/pdf-template/Arialn.ttf"), "ArialNormal")
+          .useFont(new File("src/main/resources/pdf-template/Arial.ttf"), "ArialNormal")
           .withW3cDocument(doc, "classpath:/pdf-template/")
           .toStream(pdfStream)
           .run();
