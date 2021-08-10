@@ -32,7 +32,7 @@ public class PdfGeneratorConsumerTest {
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
   private static final BarnDto UFOEDT_BARN = henteBarnUtenFnr(17);
   private static final BarnDto NYFOEDT_BARN = henteNyligFoedtBarn();
-  private static boolean skriveUtPdf = false;
+  private static boolean skriveUtPdf = true;
 
   @Autowired
   private PdfGeneratorConsumer pdfGeneratorConsumer;
