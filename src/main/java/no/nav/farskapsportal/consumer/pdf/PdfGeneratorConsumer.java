@@ -7,6 +7,7 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder.PdfAConformance;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +17,7 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.PDFConsumerException;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.jsoup.Jsoup;
@@ -45,13 +47,16 @@ public class PdfGeneratorConsumer {
         builder.useColorProfile(colorProfileBytes);
       }
 
-      var supplier = new PDFontSupplier(PDType1Font.TIMES_ROMAN);
-      
+      try (InputStream fontStream = PdfGeneratorConsumer.class.getResourceAsStream("/pdf-template/Arial.ttf")) {
+        byte[] fontBytes = IOUtils.toByteArray(fontStream);
+        FileUtils.writeByteArrayToFile(new File("Arial.ttf"), fontBytes);
+        builder.useFont(new File("Arial.ttf"), "ArialNormal");
+      }
+
       try {
         builder.useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
             .useFastMode()
             .usePdfAConformance(PdfAConformance.PDFA_2_A)
-            .useFont(supplier, "ArialNormal")
             .withW3cDocument(doc, "classpath:/pdf-template/")
             .toStream(pdfStream)
             .run();
