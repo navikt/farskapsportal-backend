@@ -2,11 +2,11 @@ package no.nav.farskapsportal.consumer.pdf;
 
 import static no.nav.farskapsportal.api.Feilkode.OPPRETTE_PDF_FEILET;
 
+import com.openhtmltopdf.pdfboxout.PDFontSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder.PdfAConformance;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +16,8 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.PDFConsumerException;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Element;
@@ -27,7 +29,7 @@ import org.w3c.dom.Document;
 @Slf4j
 public class PdfGeneratorConsumer {
 
-  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer)  {
+  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer) {
     log.info("Oppretter dokument for farskapserklæring");
 
     var html = byggeHtmlstrengFraMal("/pdf-template/template.html", barnMedDetaljer, morMedDetaljer, farMedDetaljer);
@@ -36,28 +38,36 @@ public class PdfGeneratorConsumer {
       var htmlSomStroem = new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8));
       org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(htmlSomStroem, "UTF-8", "pdf-template/template.html");
       Document doc = new W3CDom().fromJsoup(jsoupDoc);
-
-      var builder =  new PdfRendererBuilder();
-
-          builder.useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
-          .useFastMode()
-          .usePdfAConformance(PdfAConformance.PDFA_2_A)
-          .useFont(new File("src/main/resources/pdf-template/Arial.ttf"), "ArialNormal")
-          .withW3cDocument(doc, "classpath:/pdf-template/")
-          .toStream(pdfStream)
-          .run();
+      var builder = new PdfRendererBuilder();
 
       try (InputStream colorProfile = PdfGeneratorConsumer.class.getResourceAsStream("/pdf-template/ISOcoated_v2_300_bas.ICC")) {
         byte[] colorProfileBytes = IOUtils.toByteArray(colorProfile);
         builder.useColorProfile(colorProfileBytes);
       }
 
-      return pdfStream.toByteArray();
-    } catch(IOException ioe) {
+      var supplier = new PDFontSupplier(PDType1Font.TIMES_ROMAN);
+      
+      try {
+        builder.useProtocolsStreamImplementation(new ClassPathStreamFactory(), "classpath")
+            .useFastMode()
+            .usePdfAConformance(PdfAConformance.PDFA_2_A)
+            .useFont(supplier, "ArialNormal")
+            .withW3cDocument(doc, "classpath:/pdf-template/")
+            .toStream(pdfStream)
+            .run();
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+      var innhold = pdfStream.toByteArray();
+      pdfStream.close();
+
+      return innhold;
+    } catch (IOException ioe) {
       throw new PDFConsumerException(OPPRETTE_PDF_FEILET, ioe);
     }
   }
-
 
   private void leggeTilDataBarn(Element barnElement, BarnDto barnDto) {
     if (barnDto.getFoedselsnummer() != null) {
