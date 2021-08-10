@@ -113,14 +113,54 @@ no.nav:
     accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
 ---
+### H2 ###
 spring:
-  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test, integration-test
+  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
+---
+### POSTGRES ###
+spring:
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test
+  # Oppsett for flyway med hikari og postgres
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5432/postgres
+    password:
+    databaseName: postgres
+    portNumber: 5432
+    serverName: localhost
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  flyway:
+    enabled: false
+    flyway.locations: classpath:/db/migration
+  jpa:
+    hibernate:
+      connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+---
+### MOCK AZURE ###
+spring:
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
 
+no.nav.security.jwt:
+  issuer.selvbetjening:
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+---
+spring:
+  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test, integration-test
+
+INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
@@ -158,18 +198,12 @@ BRUKERNOTIFIKASJON_PAA: false
 
 ---
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test, integration-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
   flyway.enabled: false
 
 ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
 ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
 ESIGNERING_FEILET_URL: "http://localhost:8080/damn"
-
-no.nav.security.jwt:
-  issuer.selvbetjening:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
 
 # Lar wiremock håndtere esignering
 farskapsportal-api.disable-esignering: false
@@ -192,26 +226,6 @@ wiremock.server:
 ---
 spring:
   config.activate.on-profile: local-postgres, remote-postgres
-  # Oppsett for flyway med hikari og postgres
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/postgres
-    password:
-    databaseName: postgres
-    portNumber: 5432
-    serverName: localhost
-    hikari:
-      idle-timeout: 10001
-      max-lifetime: 30001
-      connectionTimeout: 1000
-      maximum-pool-size: 10
-      minimum-idle: 1
-  flyway:
-    enabled: false
-    flyway.locations: classpath:/db/migration
-  jpa:
-    hibernate:
-      connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
@@ -241,8 +255,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
     password: ${REMOTE_POSTGRES_PWD}
     databaseName: farskapsportaldb-feature
-
-
 
 ---
 spring.config.activate.on-profile: scheduled-test
@@ -300,15 +312,9 @@ wiremock.server:
 
 ---
 
-spring.config.activate.on-profile: integration-test2
+spring.config.activate.on-profile: integration-test
 
 no.nav:
   security.jwt.issuer.selvbetjening:
     discoveryurl: https://navtestb2c.b2clogin.com/navtestb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
     accepted_audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
-
-url:
-  pdl-api:
-    base-url: https://api-gw-q1.oera.no
-  sts:
-    base-url: https://api-gw-q1.oera.no

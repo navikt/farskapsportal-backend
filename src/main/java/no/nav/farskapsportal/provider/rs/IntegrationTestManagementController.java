@@ -5,7 +5,11 @@ import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.DokumentinnholdDao;
@@ -55,6 +59,9 @@ public class IntegrationTestManagementController {
   @Autowired
   private SigneringsinformasjonDao signeringsinformasjonDao;
 
+  @Autowired
+  private PdfGeneratorConsumer pdfGeneratorConsumer;
+
   @GetMapping("/testdata/slette")
   @Operation(description = "Sletter lokale testdata. Tilgjengelig kun i DEV.")
   public String sletteTestdata() {
@@ -75,7 +82,7 @@ public class IntegrationTestManagementController {
     return "Testdata slettet fra Farskapsportal public-skjema";
   }
 
-  @GetMapping("/farskapserklaering/{idFarskapserklaering}/xades")
+  @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades")
   @Operation(description = "Henter XADES for en farskapserklærings forelder")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
@@ -88,5 +95,17 @@ public class IntegrationTestManagementController {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
     var innholdXades = fp.get().getDokument().getSigneringsinformasjonMor().getXadesXml();
     return new ResponseEntity<>(innholdXades, HttpStatus.OK);
+  }
+
+  @GetMapping("/test/pdf")
+  @Operation(description = "Henter test-PDF")
+  public ResponseEntity<byte[]> hentePdf() {
+
+    var barn = BarnDto.builder().termindato(LocalDate.now().plusMonths(1)).build();
+    var mor = ForelderDto.builder().foedselsnummer("11046000201").fornavn("Bambi").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26)).build();
+    var far  = ForelderDto.builder().foedselsnummer("11029400522").fornavn("Bamse").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26)).build();
+
+    var pdf = pdfGeneratorConsumer.genererePdf(barn, mor, far);
+    return new ResponseEntity<>(pdf, HttpStatus.OK);
   }
 }
