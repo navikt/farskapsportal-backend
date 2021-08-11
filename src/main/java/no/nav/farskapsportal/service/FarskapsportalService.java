@@ -192,7 +192,6 @@ public class FarskapsportalService {
         .mor(mapper.toEntity(forelderDtoMor))
         .far(mapper.toEntity(forelderDtoFar))
         .dokument(dokument)
-        .morBorSammenMedFar(request.isMorBorSammenMedFar())
         .build();
 
     persistenceService.lagreNyFarskapserklaering(farskapserklaering);
@@ -273,10 +272,10 @@ public class FarskapsportalService {
     var undertegnerUrl = velgeRiktigUndertegnerUrl(fnrPaaloggetPerson, farskapserklaering);
     var nyRedirectUrl = difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrl);
 
-    if (personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
-      farskapserklaering.getDokument().getSigneringsinformasjonMor().setRedirectUrl(nyRedirectUrl.toString());
-    } else {
+    if (personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setRedirectUrl(nyRedirectUrl.toString());
+    } else {
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setRedirectUrl(nyRedirectUrl.toString());
     }
 
     return nyRedirectUrl;
@@ -288,9 +287,7 @@ public class FarskapsportalService {
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(request.getIdFarskapserklaering());
     validereAtPersonErForelderIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
 
-    if (personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
-      farskapserklaering.setMorBorSammenMedFar(request.isBorSammen());
-    } else {
+    if (personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
       farskapserklaering.setFarBorSammenMedMor(request.isBorSammen());
     }
 
@@ -301,7 +298,7 @@ public class FarskapsportalService {
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
     validereAtPersonErForelderIFarskapserklaering(fnrForelder, farskapserklaering);
 
-    if (personErMorIFarskapserklaering(fnrForelder, farskapserklaering)) {
+    if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
       return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
     } else if (morHarSignert(farskapserklaering)) {
       return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
@@ -781,7 +778,7 @@ public class FarskapsportalService {
   }
 
   private void validereAtPaaloggetPersonIkkeAlleredeHarSignert(String fnrPaaloggetPerson, Farskapserklaering farskapserklaering) {
-    boolean erMor = personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    boolean erMor = personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
     if (erMor && farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
       return;
     } else if (!erMor && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null) {
@@ -802,8 +799,8 @@ public class FarskapsportalService {
     throw new ValideringException(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING);
   }
 
-  private boolean personErMorIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
-    return foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer());
+  private boolean personErFarIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
+    return foedselsnummer.equals(farskapserklaering.getFar().getFoedselsnummer());
   }
 
   private URI velgeRiktigUndertegnerUrl(String foedselsnummerUndertegner, Farskapserklaering farskapserklaering) {

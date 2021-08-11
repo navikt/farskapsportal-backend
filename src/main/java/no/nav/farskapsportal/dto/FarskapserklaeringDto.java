@@ -25,8 +25,6 @@ public class FarskapserklaeringDto {
   private ForelderDto mor;
   @Parameter(description = "Barnets far")
   private ForelderDto far;
-  @Parameter(description = "Mor oppgir om hun bor sammen med far")
-  Boolean morBorSammenMedFar;
   @Parameter(description = "Far oppgir om han bor sammen med mor")
   Boolean farBorSammenMedMor;
   @Parameter(description = "Farskapserklæringsdokumentet")

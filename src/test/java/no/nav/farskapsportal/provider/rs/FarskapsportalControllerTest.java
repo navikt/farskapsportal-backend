@@ -55,9 +55,9 @@ import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
@@ -65,9 +65,9 @@ import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDt
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
-import no.nav.farskapsportal.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
@@ -85,6 +85,7 @@ import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.Mapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -98,6 +99,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -251,6 +253,12 @@ public class FarskapsportalControllerTest {
     doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
   }
 
+  @BeforeEach
+  void ryddeTestdata() {
+    farskapserklaeringDao.deleteAll();
+    forelderDao.deleteAll();
+  }
+
   private static class CustomHeader {
 
     String headerName;
@@ -280,7 +288,8 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
       var morsRelasjonTilBarn = ForelderBarnRelasjonDto.builder().minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).relatertPersonsIdent(fnrSpedbarn).build();
-      var spedbarnetsRelasjonTilMor = ForelderBarnRelasjonDto.builder().relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
+      var spedbarnetsRelasjonTilMor = ForelderBarnRelasjonDto.builder().relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsIdent(fnrMor)
           .minRolleForPerson(ForelderBarnRelasjonRolle.BARN).build();
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -323,9 +332,6 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal liste farskapserklæringer som venter på fars signatur ved henting av brukerinformasjon for mor")
     void skalListeFarskapserklaeringerSomVenterPaaFarVedHentingAvBrukerinformasjonForMor() {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-
       // given
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
@@ -340,21 +346,21 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonForelderBarnRelasjon(null, null),
-          new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-          new HentPersonNavn(NAVN_MOR),
-          new HentPersonKjoenn(kjoennshistorikk),
-          new HentPersonBostedsadresse(BostedsadresseDto.builder()
-              .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
-              .build()),
-          new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+              new HentPersonForelderBarnRelasjon(null, null),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonNavn(NAVN_MOR),
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                  .build()),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-          new HentPersonNavn(NAVN_FAR)),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonNavn(NAVN_FAR)),
           FAR.getFoedselsnummer());
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
@@ -384,9 +390,6 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal liste farskapserklæringer som venter på mors signatur ved henting av brukerinformasjon for mor")
     void skalListeFarskapserklaeringerSomVenterPaaMorVedHentingAvBrukerinformasjonForMor() {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-
       // given
       var farskapserklaeringSomVenterPaaMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
 
@@ -400,21 +403,21 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonForelderBarnRelasjon(null, null),
-          new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-          new HentPersonNavn(NAVN_MOR),
-          new HentPersonKjoenn(kjoennshistorikk),
-          new HentPersonBostedsadresse(BostedsadresseDto.builder()
-              .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
-              .build()),
-          new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+              new HentPersonForelderBarnRelasjon(null, null),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonNavn(NAVN_MOR),
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                  .build()),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-          new HentPersonNavn(NAVN_FAR)),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonNavn(NAVN_FAR)),
           FAR.getFoedselsnummer());
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
@@ -442,9 +445,6 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal liste farskapserklæringer som venter på far ved henting av brukerinformasjon for far")
     void skalListeFarskapserklaeringerSomVenterPaaFarVedHentingAvBrukerinformasjonForFar() {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-
       // given
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
@@ -459,18 +459,18 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonForelderBarnRelasjon(null, null),
-          new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-          new HentPersonKjoenn(kjoennshistorikk),
-          new HentPersonNavn(NAVN_FAR)),
+              new HentPersonForelderBarnRelasjon(null, null),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonNavn(NAVN_FAR)),
           FAR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonForelderBarnRelasjon(null, null),
-          new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-          new HentPersonNavn(NAVN_MOR)),
+              new HentPersonForelderBarnRelasjon(null, null),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonNavn(NAVN_MOR)),
           MOR.getFoedselsnummer());
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
@@ -490,16 +490,11 @@ public class FarskapsportalControllerTest {
               "Farskapserklæringen gjelder riktig far"),
           () -> assertEquals(0, brukerinformasjonResponse.getFnrNyligFoedteBarnUtenRegistrertFar().size()));
 
-      // cleanup db
-      farskapserklaeringDao.deleteAll();
     }
 
     @Test
     @DisplayName("Farskapserklæringer som venter på mor skal ikke dukke opp i fars liste")
     void skalIkkeListeFarskapserklaeringerSomVenterPaaMorVedHentingAvBrukerinformasjonForFar() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
 
       // given
       var farskapserklaeringSomVenterPaaMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
@@ -549,7 +544,8 @@ public class FarskapsportalControllerTest {
       var kjoennshistorikk = new HashMap<KjoennType, LocalDateTime>();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      var spedbarnetsRelasjonTilMor = ForelderBarnRelasjonDto.builder().relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR).relatertPersonsIdent(fnrMor)
+      var spedbarnetsRelasjonTilMor = ForelderBarnRelasjonDto.builder().relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR)
+          .relatertPersonsIdent(fnrMor)
           .minRolleForPerson(ForelderBarnRelasjonRolle.BARN).build();
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonForelderBarnRelasjon(null, ""), new HentPersonKjoenn(kjoennshistorikk)), fnrMor);
@@ -580,21 +576,21 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonForelderBarnRelasjon(null, null),
-          new HentPersonSivilstand(Sivilstandtype.UGIFT),
-          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-          new HentPersonNavn(NAVN_MOR),
-          new HentPersonKjoenn(kjoennshistorikk),
-          new HentPersonBostedsadresse(BostedsadresseDto.builder()
-              .utenlandskAdresse(UtenlandskAdresseDto.builder().adressenavnNummer("Parkway Avenue 123").bySted("Newcastle").landkode("US").build())
-              .build()),
-          new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+              new HentPersonForelderBarnRelasjon(null, null),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonNavn(NAVN_MOR),
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .utenlandskAdresse(UtenlandskAdresseDto.builder().adressenavnNummer("Parkway Avenue 123").bySted("Newcastle").landkode("US").build())
+                  .build()),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-          new HentPersonNavn(NAVN_FAR)),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonNavn(NAVN_FAR)),
           FAR.getFoedselsnummer());
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
@@ -614,7 +610,6 @@ public class FarskapsportalControllerTest {
     void farSkalSeListeOverSignerteFarskapserklaeringerSomVenterPaaRegistrering() {
 
       // given
-      farskapserklaeringDao.deleteAll();
       brukeStandardMocks(FAR.getFoedselsnummer());
 
       var signertFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
@@ -641,7 +636,6 @@ public class FarskapsportalControllerTest {
     @Test
     @DisplayName("Bruker med forelderrolle MOR_ELLER_FAR skal se ventende farskapserklæringer for både mor og far")
     void brukerMedForelderrolleMorEllerFarSkalSeVentendeFarskapserklaeringerForBaadeMorOgFar() {
-      farskapserklaeringDao.deleteAll();
       brukeStandardMocks(FAR.getFoedselsnummer());
     }
   }
@@ -833,7 +827,6 @@ public class FarskapsportalControllerTest {
     void morSkalKunneOppretteFarskapserklaeringForBarnMedTermindato() {
 
       // given
-      farskapserklaeringDao.deleteAll();
       brukeStandardMocks(MOR.getFoedselsnummer());
 
       // legger på redirecturl til dokument i void-metode
@@ -853,8 +846,6 @@ public class FarskapsportalControllerTest {
       assertAll(() -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
           () -> assertEquals(REDIRECT_URL, respons.getBody().getRedirectUrlForSigneringMor()));
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
     }
 
     @Test
@@ -862,8 +853,6 @@ public class FarskapsportalControllerTest {
     void skalGiBadRequestDersomFarskapserklaeringAlleredeEksistererForUfoedtBarnMedSammeForeldre() {
 
       // given
-      farskapserklaeringDao.deleteAll();
-
       var farskapserklaeringSomVenterPaaFar = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSomVenterPaaFar.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
       var eksisterendeFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaeringSomVenterPaaFar));
@@ -922,7 +911,6 @@ public class FarskapsportalControllerTest {
     void morKanOppretteFarskapserklaeringSelvOmFarErGift() {
 
       // given
-      farskapserklaeringDao.deleteAll();
       brukeStandardMocksUtenPdlApi(MOR.getFoedselsnummer());
 
       var sivilstandMor = Sivilstandtype.UGIFT;
@@ -997,10 +985,6 @@ public class FarskapsportalControllerTest {
     @DisplayName("Skal oppdatere status på signeringsjobb etter mors redirect")
     void skalOppdatereStatusPaaSigneringsjobbEtterMorsRedirect() {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
       // given
       var farskapserklaeringUtenSignaturer = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
 
@@ -1069,10 +1053,6 @@ public class FarskapsportalControllerTest {
     @Test
     @DisplayName("Skal oppdatere status for signeringsjobb etter redirect")
     void skalOppdatereStatusForSigneringsjobbEtterRedirect() {
-
-      // Rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
 
       // given
       var farskapserklaeringSignertAvMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
@@ -1383,7 +1363,6 @@ public class FarskapsportalControllerTest {
       forelderDao.deleteAll();
 
       // given
-      var oppdatertPades = lageUrl("/pades-opppdatert");
       var farskapserklaeringSignertAvMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mapper.toEntity(farskapserklaeringSignertAvMor));
@@ -1467,23 +1446,32 @@ public class FarskapsportalControllerTest {
 
       var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR));
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
-      persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       when(difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrlFar)).thenReturn(nyRedirectUrl);
 
+      ResponseEntity<FarskapserklaeringFeilResponse> respons = null;
+
       // when
-      var respons = httpHeaderTestRestTemplate
-          .exchange(UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", 5).build().encode().toString(),
-              HttpMethod.POST, null, FarskapserklaeringFeilResponse.class);
+      try {
+        respons = httpHeaderTestRestTemplate
+            .exchange(
+                UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId() + 1)
+                    .build().encode().toString(),
+                HttpMethod.POST, null, FarskapserklaeringFeilResponse.class);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
 
       // then
       var farskapserklaeringFeilResponse = respons.getBody();
 
-      assertAll(() -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
+      ResponseEntity<FarskapserklaeringFeilResponse> finalRespons = respons;
+      assertAll(() -> assertThat(finalRespons.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
           () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING).isEqualTo(farskapserklaeringFeilResponse.getFeilkode()),
           () -> assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING.getBeskrivelse()).isEqualTo(farskapserklaeringFeilResponse.getFeilkodebeskrivelse()),
-          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty());
+          () -> assertThat(finalRespons.getBody().getAntallResterendeForsoek()).isEmpty());
     }
   }
 
@@ -1507,13 +1495,13 @@ public class FarskapsportalControllerTest {
       stsStub.runSecurityTokenServiceStub("jalla");
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-          new HentPersonNavn(NAVN_MOR)),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonNavn(NAVN_MOR)),
           MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-          new HentPersonNavn(NAVN_FAR)),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonNavn(NAVN_FAR)),
           FAR.getFoedselsnummer());
 
       // when
@@ -1523,52 +1511,11 @@ public class FarskapsportalControllerTest {
 
       // then
       assertAll(() -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue(),
-          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isNull());
-    }
-
-    @Test
-    void skalOppdatereMorBorSammenMedFar() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-
-      // given
-      var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR));
-
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-
-      stsStub.runSecurityTokenServiceStub("jalla");
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-          new HentPersonNavn(NAVN_MOR)),
-          MOR.getFoedselsnummer());
-
-      pdlApiStub.runPdlApiHentPersonStub(List.of(
-          new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-          new HentPersonNavn(NAVN_FAR)),
-          FAR.getFoedselsnummer());
-
-      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
-
-      // when
-      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
-          initHttpEntity(
-              OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(false).build()),
-          OppdatereFarskapserklaeringResponse.class);
-
-      // then
-      assertAll(() -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isFalse(),
-          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isNull());
+          () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue());
     }
 
     @Test
     void skalGiFeilkodePersonIkkePartIFarskapserklaeringDersomPaaloggetPersonIkkeErPartIOppgittFarskapserklaering() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
 
       // given
       var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR));
@@ -1596,9 +1543,6 @@ public class FarskapsportalControllerTest {
     @Test
     void skalHenteDokumentInnholdForFarMedVentendeErklaering() {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-
       // given
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
@@ -1617,10 +1561,6 @@ public class FarskapsportalControllerTest {
 
     @Test
     void skalGiBadRequestDersomFarIkkeErPartIErklaering() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
 
       // given
       var farSomIkkeErPartIErklaeringen = FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + "55555";
@@ -1643,9 +1583,6 @@ public class FarskapsportalControllerTest {
 
     @Test
     void skalGiNotFoundDersomErklaeringIkkeFinnes() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
 
       // given
       var idFarskapserklaeringSomIkkeFinnes = 4;

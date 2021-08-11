@@ -20,6 +20,4 @@ public class OppretteFarskapserklaeringRequest {
   @Parameter(description = "Opplysninger om far, er tom dersom far skal signere erklæring")
   KontrollerePersonopplysningerRequest opplysningerOmFar;
 
-  @Parameter(description = "Mor opplyser om hun bor sammen med far eller ikke", example = "true")
-  boolean morBorSammenMedFar;
 }

@@ -77,7 +77,6 @@ import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.util.Mapper;
-import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -209,8 +208,8 @@ public class FarskapsportalServiceTest {
 
       // then
       assertAll(() -> assertEquals(1,
-          brukerinformasjon.getAvventerSigneringBruker().stream().filter(fe -> fe.getPaaloggetBrukersRolle().equals(Rolle.MOR))
-              .collect(Collectors.toSet()).size()), () -> assertEquals(0, brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()),
+              brukerinformasjon.getAvventerSigneringBruker().stream().filter(fe -> fe.getPaaloggetBrukersRolle().equals(Rolle.MOR))
+                  .collect(Collectors.toSet()).size()), () -> assertEquals(0, brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().size()),
           () -> assertEquals(0, brukerinformasjon.getAvventerSigneringMotpart().size()));
     }
 
@@ -515,14 +514,12 @@ public class FarskapsportalServiceTest {
           OppretteFarskapserklaeringRequest.builder()
               .barn(barn)
               .opplysningerOmFar(opplysningerOmFar)
-              .morBorSammenMedFar(true)
               .build());
 
       // then
       var opprettetFarskapserklaering = persistenceService.henteFarskapserklaeringerForForelder(MOR.getFoedselsnummer());
       assertAll(
-          () -> assertThat(opprettetFarskapserklaering.size()).isEqualTo(1),
-          () -> assertThat(opprettetFarskapserklaering.stream().findAny().get().getMorBorSammenMedFar()).isTrue()
+          () -> assertThat(opprettetFarskapserklaering.size()).isEqualTo(1)
       );
     }
 
@@ -718,7 +715,6 @@ public class FarskapsportalServiceTest {
           OppretteFarskapserklaeringRequest.builder()
               .barn(barnFoedtInnenforGyldigIntervall)
               .opplysningerOmFar(opplysningerOmFar)
-              .morBorSammenMedFar(true)
               .build());
 
       // then
@@ -1101,12 +1097,12 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .statusSignering(StatusSignering.PAAGAAR)
               .padeslenke(padesMor).signaturer(List.of(
-              SignaturDto.builder()
-                  .signatureier(MOR.getFoedselsnummer())
-                  .harSignert(true)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
-                  .xadeslenke(lageUrl("/xades"))
-                  .build())).build());
+                  SignaturDto.builder()
+                      .signatureier(MOR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
+                      .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
@@ -1164,12 +1160,12 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .statusSignering(StatusSignering.SUKSESS)
               .padeslenke(padesFar).signaturer(List.of(
-              SignaturDto.builder()
-                  .signatureier(FAR.getFoedselsnummer())
-                  .harSignert(true)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
-                  .xadeslenke(lageUrl("/xades"))
-                  .build())).build());
+                  SignaturDto.builder()
+                      .signatureier(FAR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
+                      .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
@@ -1231,12 +1227,12 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .statusSignering(StatusSignering.PAAGAAR)
               .padeslenke(padesMor).signaturer(List.of(
-              SignaturDto.builder()
-                  .signatureier(MOR.getFoedselsnummer())
-                  .harSignert(true)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
-                  .xadeslenke(lageUrl("/xades"))
-                  .build())).build());
+                  SignaturDto.builder()
+                      .signatureier(MOR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
+                      .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
@@ -1294,12 +1290,12 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .statusSignering(StatusSignering.SUKSESS)
               .padeslenke(padesFar).signaturer(List.of(
-              SignaturDto.builder()
-                  .signatureier(FAR.getFoedselsnummer())
-                  .harSignert(true)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
-                  .xadeslenke(lageUrl("/xades"))
-                  .build())).build());
+                  SignaturDto.builder()
+                      .signatureier(FAR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
+                      .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
@@ -1349,12 +1345,12 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .statusSignering(StatusSignering.FEILET)
               .padeslenke(padesMor).signaturer(List.of(
-              SignaturDto.builder()
-                  .signatureier(MOR.getFoedselsnummer())
-                  .harSignert(true)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
-                  .xadeslenke(lageUrl("/xades"))
-                  .build())).build());
+                  SignaturDto.builder()
+                      .signatureier(MOR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
+                      .build())).build());
 
       // when
       var esigneringStatusFeiletException = assertThrows(EsigneringStatusFeiletException.class,
@@ -1407,12 +1403,12 @@ public class FarskapsportalServiceTest {
               .statuslenke(statuslenke)
               .statusSignering(StatusSignering.FEILET)
               .padeslenke(padesFar).signaturer(List.of(
-              SignaturDto.builder()
-                  .signatureier(FAR.getFoedselsnummer())
-                  .harSignert(true)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
-                  .xadeslenke(lageUrl("/xades"))
-                  .build())).build());
+                  SignaturDto.builder()
+                      .signatureier(FAR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUrl("/xades"))
+                      .build())).build());
 
       // when
       var esigneringStatusFeiletException = assertThrows(EsigneringStatusFeiletException.class,
@@ -1495,8 +1491,10 @@ public class FarskapsportalServiceTest {
       var oppdatertFarskapserklaering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
 
       // then
-      assertAll(() -> assertThat(nyRedirectUrlFar).isEqualTo(returnertRedirectUrl), () -> assertThat(nyRedirectUrlFar.toString())
-          .isEqualTo(oppdatertFarskapserklaering.getDokument().getSigneringsinformasjonFar().getRedirectUrl()));
+      assertAll(
+          () -> assertThat(nyRedirectUrlFar).isEqualTo(returnertRedirectUrl),
+          () -> assertThat(nyRedirectUrlFar.toString()).isEqualTo(
+              oppdatertFarskapserklaering.getDokument().getSigneringsinformasjonFar().getRedirectUrl()));
     }
 
     @Test
@@ -1929,35 +1927,7 @@ public class FarskapsportalServiceTest {
   class OppdaterFarskapserklaering {
 
     @Test
-    void skalOppdatereBorSammeninformasjonForMorDersomPersonErMorIFarskapserklaeringen() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-
-      // given
-      var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN));
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-
-      var fnrPaaloggetPerson = MOR.getFoedselsnummer();
-      var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build();
-
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
-      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
-
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
-      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
-
-      // when
-      var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
-
-      // then
-      assertAll(() -> assertThat(respons.getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isTrue(),
-          () -> assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isNull());
-    }
-
-    @Test
-    void skalOppdatereBorSammeninformasjonForFaDersomPersonErFarIFarskapserklaeringen() {
+    void skalOppdatereBorSammeninformasjonForFarDersomPersonErFarIFarskapserklaeringen() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -1980,8 +1950,7 @@ public class FarskapsportalServiceTest {
       var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
 
       // then
-      assertAll(() -> assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue(),
-          () -> assertThat(respons.getOppdatertFarskapserklaeringDto().getMorBorSammenMedFar()).isNull());
+      assertAll(() -> assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue());
     }
 
     @Test
