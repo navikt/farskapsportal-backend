@@ -511,9 +511,7 @@ public class FarskapsportalService {
     return ForelderDto.builder()
         .foedselsnummer(foedseslnummer)
         .foedselsdato(foedselsdato)
-        .fornavn(navnDto.getFornavn())
-        .mellomnavn(navnDto.getMellomnavn())
-        .etternavn(navnDto.getEtternavn())
+        .navn(navnDto)
         .build();
   }
 

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.BarnDao;
@@ -102,10 +103,19 @@ public class IntegrationTestManagementController {
   public ResponseEntity<byte[]> hentePdf() {
 
     var barn = BarnDto.builder().termindato(LocalDate.now().plusMonths(1)).build();
-    var mor = ForelderDto.builder().foedselsnummer("11046000201").fornavn("Bambi").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26)).build();
-    var far  = ForelderDto.builder().foedselsnummer("11029400522").fornavn("Bamse").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26)).build();
+
+    var mor = ForelderDto.builder()
+        .foedselsnummer("11046000201")
+        .foedselsdato(LocalDate.now().minusYears(26))
+        .navn(NavnDto.builder().fornavn("Bambi").etternavn("Normann").build()).build();
+
+    var far  = ForelderDto.builder()
+        .foedselsnummer("11029400522")
+        .foedselsdato(LocalDate.now().minusYears(26))
+        .navn(NavnDto.builder().fornavn("Bamse").etternavn("Normann").build()).build();
 
     var pdf = pdfGeneratorConsumer.genererePdf(barn, mor, far);
+
     return new ResponseEntity<>(pdf, HttpStatus.OK);
   }
 }

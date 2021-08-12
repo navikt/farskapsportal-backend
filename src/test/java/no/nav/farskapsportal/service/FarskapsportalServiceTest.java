@@ -93,9 +93,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class FarskapsportalServiceTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
-  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
-  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
   private static final BarnDto BARN = henteBarnUtenFnr(5);
 
   @MockBean
@@ -151,14 +149,14 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer())).thenReturn(
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
 
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
@@ -192,7 +190,7 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer())).thenReturn(
@@ -200,7 +198,7 @@ public class FarskapsportalServiceTest {
               .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
 
       // when
@@ -232,7 +230,7 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
@@ -241,7 +239,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.erMyndig(FAR.getFoedselsnummer())).thenReturn(true);
 
       // when
@@ -269,7 +267,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer()))
           .thenReturn(SivilstandDto.builder().type(Sivilstandtype.SEPARERT).build());
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.erMyndig(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
@@ -277,7 +275,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.erMyndig(FAR.getFoedselsnummer())).thenReturn(true);
 
       // when
@@ -417,10 +415,10 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
       when(personopplysningService.henteSivilstand(FAR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
 
@@ -448,7 +446,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
       when(personopplysningService.henteSivilstand(FAR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
 
       // when
       var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(FAR.getFoedselsnummer());
@@ -474,8 +472,8 @@ public class FarskapsportalServiceTest {
 
       // given
       var barn = henteBarnUtenFnr(4);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -533,8 +531,8 @@ public class FarskapsportalServiceTest {
       // given
       var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(foedselsdatoBarn);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -599,8 +597,8 @@ public class FarskapsportalServiceTest {
       // given
       var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(foedselsdatoBarn);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -659,8 +657,8 @@ public class FarskapsportalServiceTest {
       var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(foedselsdatoBarn);
       var eksisterendeFarskapserklaeringUfoedtBarnVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder()
           .foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
@@ -730,8 +728,8 @@ public class FarskapsportalServiceTest {
 
       // given
       var ufoedtBarn = henteBarnUtenFnr(13);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -765,13 +763,15 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var enAnnenFar = ForelderDto.builder().fornavn("Svampe").etternavn("Bob")
-          .foedselsnummer(LocalDate.now().minusYears(35).format(DateTimeFormatter.ofPattern("ddMMyy")) + "01011").build();
+      var enAnnenFar = ForelderDto.builder()
+          .foedselsnummer(LocalDate.now().minusYears(35).format(DateTimeFormatter.ofPattern("ddMMyy")) + "01011")
+          .navn(NavnDto.builder().fornavn("Svampe").etternavn("Bob").build()).build();
+
       var foedselsdatoNyfoedte = LocalDate.now().minusMonths(1);
       var nyfoedtBarn1 = henteBarnMedFnr(foedselsdatoNyfoedte);
       var nyfoedtBarn2 = BarnDto.builder().foedselsnummer(foedselsdatoNyfoedte.format(DateTimeFormatter.ofPattern("ddMMyy")) + "11111").build();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
       var farskapserklaeringSomVenterPaaEnAnnenFarsSignatur = henteFarskapserklaeringDto(MOR, enAnnenFar, nyfoedtBarn1);
@@ -825,8 +825,8 @@ public class FarskapsportalServiceTest {
 
       // given
       var barn = henteBarnUtenFnr(4);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = MOR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(MOR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -863,8 +863,8 @@ public class FarskapsportalServiceTest {
 
       //given
       var barnMedTermindatoForLangtFremITid = henteBarnUtenFnr(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 2);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -907,8 +907,8 @@ public class FarskapsportalServiceTest {
           .foedselsnummer(LocalDate.now().minusMonths(2).minusDays(21).format(DateTimeFormatter.ofPattern("ddMMyy")) + "10100")
           .foedselsdato(foedselsdatoBarnUtenRelasjonTilMor)
           .build();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -965,8 +965,8 @@ public class FarskapsportalServiceTest {
 
       // given
       var nyfoedt = henteNyligFoedtBarn();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -1016,8 +1016,8 @@ public class FarskapsportalServiceTest {
       // given
       var foedselsdatoNyfoedt = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel());
       var nyfoedt = henteBarnMedFnr(foedselsdatoNyfoedt);
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
 
@@ -1078,14 +1078,14 @@ public class FarskapsportalServiceTest {
       lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteGjeldendeKjoenn(MOR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.KVINNE).build());
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
 
       doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
@@ -1142,11 +1142,11 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
       when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.MANN).build());
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
@@ -1208,14 +1208,14 @@ public class FarskapsportalServiceTest {
       lagretAktivFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretAktivFarskapserklaering);
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
       when(personopplysningService.henteGjeldendeKjoenn(MOR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.KVINNE).build());
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
 
       doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretAktivFarskapserklaering.getId(), FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
@@ -1272,11 +1272,11 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
       when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.MANN).build());
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
@@ -1333,7 +1333,7 @@ public class FarskapsportalServiceTest {
       lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
@@ -1394,7 +1394,7 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvFar());
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
@@ -1547,7 +1547,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
@@ -1575,7 +1575,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
@@ -1602,7 +1602,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
@@ -1629,7 +1629,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
@@ -1656,7 +1656,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
@@ -1687,8 +1687,8 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
+      var registrertNavnMor = MOR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer()).navn("Borat Sagidyev").build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
@@ -1711,8 +1711,8 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
+      var registrertNavnMor = MOR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer()).navn("Borat Sagidyev").build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
@@ -1744,10 +1744,10 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder()
           .foedselsnummer(MOR.getFoedselsnummer())
-          .navn(MOR.getFornavn() + " " + MOR.getEtternavn()).build();
+          .navn(MOR.getNavn().sammensattNavn()).build();
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR_ELLER_FAR);
@@ -1775,7 +1775,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
           .navn(registrertNavnFar.getFornavn() + " " + registrertNavnFar.getEtternavn()).build();
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
@@ -1939,10 +1939,10 @@ public class FarskapsportalServiceTest {
       var fnrPaaloggetPerson = FAR.getFoedselsnummer();
       var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build();
 
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 

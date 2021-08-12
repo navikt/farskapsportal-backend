@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 @Slf4j
@@ -35,7 +36,7 @@ public class RestTemplateConfig {
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
 
-  FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   public RestTemplateConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper) {
     this.farskapsportalEgenskaper = farskapsportalEgenskaper;
@@ -55,6 +56,18 @@ public class RestTemplateConfig {
       @Value("${APIKEY_STS_FP}") String xApiKeySts) {
     log.info("Setter {} for STS", X_API_KEY);
     httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeySts);
+    return httpHeaderRestTemplate;
+  }
+
+  @Bean
+  @Qualifier("journalpostapi")
+  @Scope("prototype")
+  public HttpHeaderRestTemplate journalpostApiRestTemplate(
+      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+      @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
+    httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
+    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + securityTokenServiceConsumer
+        .hentIdTokenForServicebruker(farskapsportalEgenskaper.getSystembrukerBrukernavn(), farskapsportalEgenskaper.getSystembrukerPassord()));
     return httpHeaderRestTemplate;
   }
 

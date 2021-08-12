@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
@@ -70,17 +71,13 @@ public class TestUtils {
       return ForelderDto.builder()
           .foedselsnummer(FOEDSELSDATO_MOR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
           .foedselsdato(FOEDSELSDATO_MOR)
-          .fornavn("Ronaldina")
-          .etternavn("McDonald")
-          .build();
+          .navn(NavnDto.builder().fornavn("Ronaldina").etternavn("McDonald").build()).build();
     } else {
       var personnummerFar = "12345";
       return ForelderDto.builder()
           .foedselsnummer(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar)
           .foedselsdato(FOEDSELSDATO_FAR)
-          .fornavn("Ronald")
-          .etternavn("McDonald")
-          .build();
+          .navn(NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build()).build();
     }
   }
 }

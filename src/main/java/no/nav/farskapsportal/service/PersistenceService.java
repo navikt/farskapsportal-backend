@@ -220,9 +220,8 @@ public class PersistenceService {
   }
 
   private ForelderDto henteForelder(String fnr) {
-    var navn = personopplysningService.henteNavn(fnr);
-    return ForelderDto.builder().foedselsnummer(fnr).fornavn(navn.getFornavn()).mellomnavn(navn.getMellomnavn()).etternavn(navn.getEtternavn())
-        .build();
+    var navnDto = personopplysningService.henteNavn(fnr);
+    return ForelderDto.builder().foedselsnummer(fnr).navn(navnDto).build();
   }
 
   private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, LocalDateTime tidspunktForNullstilling) {

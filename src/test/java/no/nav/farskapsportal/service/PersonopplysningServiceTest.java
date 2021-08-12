@@ -26,10 +26,10 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregistermetadataDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
@@ -66,7 +66,7 @@ public class PersonopplysningServiceTest {
 
   private KjoennDto henteKjoennMedGyldighetstidspunkt(KjoennType typeKjoenn, LocalDate datoForGyldighet) {
     return KjoennDto.builder().kjoenn(typeKjoenn).folkeregistermetadata(FolkeregistermetadataDto.builder()
-        .gyldighetstidspunkt(LocalDateTime.ofEpochSecond(datoForGyldighet.toEpochSecond(LocalTime.MIN, ZoneOffset.MIN), 0, ZoneOffset.MIN)).build())
+            .gyldighetstidspunkt(LocalDateTime.ofEpochSecond(datoForGyldighet.toEpochSecond(LocalTime.MIN, ZoneOffset.MIN), 0, ZoneOffset.MIN)).build())
         .build();
   }
 
@@ -209,8 +209,9 @@ public class PersonopplysningServiceTest {
     void skalIkkeKasteExceptionDersomOppgittNavnStemmerMedRegister() {
 
       // given
-      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getFornavn()).mellomnavn("Danger").etternavn(FAR.getEtternavn()).build();
-      var farsNavn = FAR.getFornavn() + " Danger " + FAR.getEtternavn();
+      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getNavn().getFornavn()).mellomnavn("Danger").etternavn(FAR.getNavn().getEtternavn())
+          .build();
+      var farsNavn = FAR.getNavn().getFornavn() + " Danger " + FAR.getNavn().getEtternavn();
 
       // when, then
       assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
@@ -220,8 +221,9 @@ public class PersonopplysningServiceTest {
     void skalKasteValideringExceptionDersomOppgittNavnIkkeStemmerMedRegister() {
 
       // given
-      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getFornavn()).mellomnavn("Danger").etternavn(FAR.getEtternavn()).build();
-      var farsNavn = FAR.getFornavn() + " Dangerous " + FAR.getEtternavn();
+      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getNavn().getFornavn()).mellomnavn("Danger").etternavn(FAR.getNavn().getEtternavn())
+          .build();
+      var farsNavn = FAR.getNavn().getFornavn() + " Dangerous " + FAR.getNavn().getEtternavn();
 
       // when
       var valideringException = assertThrows(ValideringException.class, () -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
@@ -334,7 +336,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenThrow(RessursIkkeFunnetException.class);
 
       // when, then
-     assertThrows(RessursIkkeFunnetException.class, () -> personopplysningService.bestemmeForelderrolle(foedselsnummer));
+      assertThrows(RessursIkkeFunnetException.class, () -> personopplysningService.bestemmeForelderrolle(foedselsnummer));
     }
   }
 
@@ -406,7 +408,8 @@ public class PersonopplysningServiceTest {
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
       var fnrFar = foedselsdatoSpedbarn.plusYears(31).plusMonths(7).plusDays(5).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
       var spedbarnsRelasjonTilFar = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrFar).minRolleForPerson(ForelderBarnRelasjonRolle.BARN)
@@ -431,11 +434,13 @@ public class PersonopplysningServiceTest {
       var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
-      when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland("UGANDA").build());
+      when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(
+          FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland("UGANDA").build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
@@ -453,7 +458,8 @@ public class PersonopplysningServiceTest {
       var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));

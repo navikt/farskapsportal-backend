@@ -30,7 +30,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!-- navikt -->
-    <bidrag-commons.version>0.4.2</bidrag-commons.version>
+    <bidrag-commons.version>0.5.8</bidrag-commons.version>
     <bidrag-tilgangskontroll.version>1.9.17</bidrag-tilgangskontroll.version>
     <brukernotifikasjon-schemas.version>1.2021.01.18-11.12-b9c8c40b98d1</brukernotifikasjon-schemas.version>
     <boot-conditionals.version>1.0.20200824135201-5568111</boot-conditionals.version>

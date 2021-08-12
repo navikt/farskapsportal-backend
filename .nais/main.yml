@@ -46,6 +46,8 @@ env:
     value: https://farskapsportal.dev.nav.no
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
+  - name: JOURNALPOSTAPI_URL
+    value: https://dokarkiv-q2.dev.adeo.no
   - name: KAFKA_BROKERS
     value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
   - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG

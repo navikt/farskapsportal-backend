@@ -3,6 +3,7 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.consumer.dokarkiv.JournalpostApiConsumerEndpointName.ARKIVERE_JOURNALPOST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
@@ -25,11 +26,12 @@ import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.consumer.dokarkiv.JournalpostApiConsumer;
+import no.nav.farskapsportal.consumer.dokarkiv.mapping.FarskapsportalJoarkMapper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
-import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.gcp.secretmanager.AccessSecretVersion;
@@ -108,8 +110,25 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public ConsumerEndpoint consumerEndpoint() {
-    return new ConsumerEndpoint();
+  public JournalpostApiConsumer journalpostApiConsumer(
+      @Qualifier("journalpostapi") RestTemplate restTemplate,
+      @Value("${url.dokarkiv.journalpostapi.v1.base-url}") String journalpostapiUrl,
+      @Value("${url.dokarkiv.journalpostapi.v1.endpoint}") String journalpostapiEndpoint,
+      ConsumerEndpoint consumerEndpoint,
+      FarskapsportalJoarkMapper farskapsportalJoarkMapper) {
+    consumerEndpoint.addEndpoint(ARKIVERE_JOURNALPOST, journalpostapiEndpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostapiUrl));
+    log.info("Oppretter JournalpostApiConsumer med url {}", journalpostapiUrl);
+    return new JournalpostApiConsumer(restTemplate, consumerEndpoint, farskapsportalJoarkMapper);
+  }
+
+  @Bean
+  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,
+      @Value("${url.pdl-api.graphql}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
+    consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+    log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
+    return PdlApiConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
   }
 
   @Bean
@@ -128,25 +147,6 @@ public class FarskapsportalConfig {
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     return new SkattConsumer(restTemplate, consumerEndpoint);
-  }
-
-  @Bean
-  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,
-      @Value("${url.pdl-api.graphql}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
-    consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
-    return PdlApiConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
-  }
-
-  @Bean
-  public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${url.pdl-api.base-url}") String baseUrl, @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
-      ConsumerEndpoint consumerEndpoint) {
-    consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    log.info("Oppretter PdlApiHelsesjekkConsumer med url {}", baseUrl);
-    return PdlApiHelsesjekkConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
   }
 
   @Bean

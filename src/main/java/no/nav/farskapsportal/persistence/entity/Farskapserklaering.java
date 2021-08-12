@@ -49,6 +49,10 @@ public class Farskapserklaering implements Serializable {
 
   private LocalDateTime sendtTilSkatt;
 
+  private String joarkJournalpostId;
+
+  private LocalDateTime sendtTilJoark;
+
   private LocalDateTime deaktivert;
 
   @Override

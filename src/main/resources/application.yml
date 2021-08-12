@@ -69,9 +69,9 @@ management:
   endpoint.health.show-details: always
 
 url:
-  familieintegrasjoner:
-    base-url: ${FAMILIEINTEGRASJONER_URL}
-    poststed: "api/kodeverk/poststed/%s"
+  dokarkiv.journalpostapi.v1:
+    base-url: ${JOURNALPOSTAPI_URL}
+    endpoint: /rest/journalpostapi/v1/journalpost
   farskapsportal:
     url: ${FARSKAPSPORTAL_URL}
   pdl-api:
@@ -177,6 +177,7 @@ NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 url:
+  dokarkiv.journalpostapi.v1.base-url: ${WIREMOCK_URL}
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
   skatt.base-url: http://localhost

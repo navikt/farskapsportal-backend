@@ -15,6 +15,7 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,8 +29,13 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = FarskapsportalApplicationLocal.class)
 public class DifiESignaturConsumerIntegrationTest {
 
-  private static final ForelderDto MOR = ForelderDto.builder().foedselsnummer("11029000478").fornavn("Rakrygget").etternavn("Veggpryd").build();
-  private static final ForelderDto FAR = ForelderDto.builder().foedselsnummer("11029400522").fornavn("Treig").etternavn("Tranflaske").build();
+  private static final ForelderDto MOR = ForelderDto.builder()
+      .foedselsnummer("11029000478")
+      .navn(NavnDto.builder().fornavn("Rakrygget").etternavn("Veggpryd").build()).build();
+
+  private static final ForelderDto FAR = ForelderDto.builder()
+      .foedselsnummer("11029400522")
+      .navn(NavnDto.builder().fornavn("Treig").etternavn("Tranflaske").build()).build();
 
   @Autowired
   DirectClient directClientMock;

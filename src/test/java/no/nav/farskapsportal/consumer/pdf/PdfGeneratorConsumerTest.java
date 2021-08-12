@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -92,7 +93,13 @@ public class PdfGeneratorConsumerTest {
 
     // given
     var farMedMellomnavn = henteForelder(Forelderrolle.FAR);
-    farMedMellomnavn.setMellomnavn("Strømstad");
+    var farsOpprinneligeNavn = farMedMellomnavn.getNavn();
+
+    farMedMellomnavn.setNavn(
+        NavnDto.builder()
+            .fornavn(farsOpprinneligeNavn.getFornavn())
+            .mellomnavn("Strømstad")
+            .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
 
     // when
     var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn);
@@ -123,13 +130,9 @@ public class PdfGeneratorConsumerTest {
 
   private void validereInformasjonOmForeldrene(String dokumenttekst, ForelderDto mor, ForelderDto far) {
 
-    var navnFar = Stream.of(far.getFornavn(), far.getMellomnavn(), far.getEtternavn())
-        .filter(s -> s != null && !s.isEmpty())
-        .collect(Collectors.joining(" "));
+    var navnFar = far.getNavn().sammensattNavn();
 
-    var navnMor = Stream.of(mor.getFornavn(), mor.getMellomnavn(), mor.getEtternavn())
-        .filter(s -> s != null && !s.isEmpty())
-        .collect(Collectors.joining(" "));
+    var navnMor = mor.getNavn().sammensattNavn();
 
     assertAll(
         () -> assertThat(dokumenttekst).contains("Opplysninger om mor"),

@@ -110,13 +110,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class FarskapsportalControllerTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
-  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+  private static final NavnDto NAVN_MOR = MOR.getNavn();
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
-  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+  private static final NavnDto NAVN_FAR = FAR.getNavn();
   private static final BarnDto BARN_UTEN_FNR = henteBarnUtenFnr(5);
   private static final BarnDto BARN_MED_FNR = henteNyligFoedtBarn();
   private static final KontrollerePersonopplysningerRequest KONTROLLEREOPPLYSNINGER_OM_FAR = KontrollerePersonopplysningerRequest.builder()
-      .foedselsnummer(FAR.getFoedselsnummer()).navn(FAR.getFornavn() + " " + FAR.getEtternavn()).build();
+      .foedselsnummer(FAR.getFoedselsnummer()).navn(FAR.getNavn().sammensattNavn()).build();
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_MOR = getKjoennshistorikk(KjoennType.KVINNE);
   private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_FAR = getKjoennshistorikk(KjoennType.MANN);
   private static final BostedsadresseDto BOSTEDSADRESSE = getBostedsadresse(true);
@@ -742,7 +742,7 @@ public class FarskapsportalControllerTest {
     void skalGiBadRequestDersomOppgittFarErKvinne() {
 
       // given
-      var oppgittNavn = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var oppgittNavn = MOR.getNavn();
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
@@ -997,8 +997,8 @@ public class FarskapsportalControllerTest {
       lagretFarskapserklaering.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
+      var registrertNavnFar = FAR.getNavn();
       var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
@@ -1066,8 +1066,8 @@ public class FarskapsportalControllerTest {
       lagretFarskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.no/" + MOR.getFoedselsnummer() + "/status");
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
+      var registrertNavnMor = MOR.getNavn();
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       doNothing().when(skattConsumer).registrereFarskap(lagretFarskapserklaeringSignertAvMor);
@@ -1136,8 +1136,8 @@ public class FarskapsportalControllerTest {
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
+      var registrertNavnMor = MOR.getNavn();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
@@ -1204,7 +1204,7 @@ public class FarskapsportalControllerTest {
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(nyopprettetFarskapserklaering);
 
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnMor = MOR.getNavn();
       Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
@@ -1264,7 +1264,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
 
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
@@ -1324,7 +1324,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
 
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
       Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
@@ -1371,8 +1371,8 @@ public class FarskapsportalControllerTest {
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
-      var registrertNavnFar = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
-      var registrertNavnMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var registrertNavnFar = FAR.getNavn();
+      var registrertNavnMor = MOR.getNavn();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)

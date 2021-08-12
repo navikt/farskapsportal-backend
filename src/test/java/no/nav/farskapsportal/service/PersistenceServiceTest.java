@@ -31,12 +31,10 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
-import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.DokumentDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
-import no.nav.farskapsportal.persistence.entity.Barn;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
@@ -64,8 +62,8 @@ public class PersistenceServiceTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
-  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
-  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR.getFornavn()).etternavn(FAR.getEtternavn()).build();
+  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR.getNavn().getFornavn()).etternavn(MOR.getNavn().getEtternavn()).build();
+  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR.getNavn().getFornavn()).etternavn(FAR.getNavn().getEtternavn()).build();
   private static final BarnDto UFOEDT_BARN = henteBarnUtenFnr(17);
   private static final BarnDto NYFOEDT_BARN = henteBarnMedFnr(LocalDate.now().minusWeeks(2));
   private static final FarskapserklaeringDto FARSKAPSERKLAERING = henteFarskapserklaeringDto(MOR, FAR, UFOEDT_BARN);
@@ -156,7 +154,8 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.deleteAll();
 
       var deaktivertFarskapserklaeringMedSammeMorFarOgBarn = henteFarskapserklaeringDto(MOR, FAR, NYFOEDT_BARN);
-      var lagretDeaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(deaktivertFarskapserklaeringMedSammeMorFarOgBarn));
+      var lagretDeaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(
+          mapper.toEntity(deaktivertFarskapserklaeringMedSammeMorFarOgBarn));
       lagretDeaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(lagretDeaktivertFarskapserklaering);
 
@@ -201,7 +200,7 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullsettingAvForsoek = 1;
-      var navnDtoMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var navnDtoMor = NavnDto.builder().fornavn(MOR.getNavn().getFornavn()).etternavn(MOR.getNavn().getEtternavn()).build();
       when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(navnDtoMor);
 
       // when
@@ -484,7 +483,7 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      var navnDtoMor = NavnDto.builder().fornavn(MOR.getFornavn()).etternavn(MOR.getEtternavn()).build();
+      var navnDtoMor = NavnDto.builder().fornavn(MOR.getNavn().getFornavn()).etternavn(MOR.getNavn().getEtternavn()).build();
       when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(navnDtoMor);
 
       // when

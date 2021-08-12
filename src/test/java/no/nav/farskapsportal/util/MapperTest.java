@@ -39,9 +39,9 @@ import org.springframework.test.context.ActiveProfiles;
 public class MapperTest {
 
   private static final ForelderDto MOR_DTO = henteForelder(Forelderrolle.MOR);
-  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn(MOR_DTO.getFornavn()).etternavn(MOR_DTO.getEtternavn()).build();
+  private static final NavnDto NAVN_MOR = MOR_DTO.getNavn();
   private static final ForelderDto FAR_DTO = henteForelder(Forelderrolle.FAR);
-  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn(FAR_DTO.getFornavn()).etternavn(FAR_DTO.getEtternavn()).build();
+  private static final NavnDto NAVN_FAR = FAR_DTO.getNavn();
   private static final DokumentDto DOKUMENT_DTO = getDokumentDto();
   private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(2).minusDays(13);
 
@@ -62,6 +62,15 @@ public class MapperTest {
     }
 
     return null;
+  }
+
+  private void standardPersonopplysningerMocks(Forelder far, Forelder mor) {
+    when(personopplysningService.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
+    when(personopplysningService.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR_DTO.getFoedselsdato());
+
+    when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getFoedselsdato());
+    when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
   }
 
   @Nested
@@ -324,14 +333,5 @@ public class MapperTest {
           () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(entitet.getTidspunktForNullstilling()),
           () -> assertThat(antallFeiledeForsoek).isEqualTo(entitet.getAntallFeiledeForsoek()));
     }
-  }
-
-  private void standardPersonopplysningerMocks(Forelder far, Forelder mor) {
-    when(personopplysningService.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
-    when(personopplysningService.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR_DTO.getFoedselsdato());
-
-    when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(MOR_DTO.getFoedselsdato());
-    when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
   }
 }
