@@ -28,7 +28,7 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public ArkivereFarskapserklaeringer overfoereTilSkatt(PersistenceService persistenceService, SkattConsumer skattConsumer) {
+  public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(PersistenceService persistenceService, SkattConsumer skattConsumer) {
     return ArkivereFarskapserklaeringer.builder()
         .intervallMellomForsoek(farskapsportalEgenskaper.getSkatt().getIntervallOverfoering())
         .persistenceService(persistenceService)

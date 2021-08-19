@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.scheduled;
 
+import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.FAR;
 import static no.nav.farskapsportal.TestUtils.MOR;
@@ -33,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -44,7 +44,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("AkivereFarskapserklaeringer")
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureWireMock(port = 8096)
-@SpringBootTest(classes = {FarskapsportalApplicationLocal.class, FarskapsportalTestConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = FarskapsportalApplicationLocal.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ArkivereFarskapserklaeringerTest {
 
   @MockBean
@@ -109,8 +109,6 @@ public class ArkivereFarskapserklaeringerTest {
           .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
       farskapserklaering.setMeldingsidSkatt("123");
       farskapserklaering.setFarBorSammenMedMor(true);
-
-
 
       var lagretSignertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
