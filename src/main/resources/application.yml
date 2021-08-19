@@ -40,6 +40,7 @@ farskapsportal.egenskaper:
   url: ${FARSKAPSPORTAL_URL}
   kontroll-far-forsoek-fornyes-etter-antall-dager: 1
   kontroll-far-maks-antall-forsoek: 5
+  arkiveringsintervall: 3600000
   brukernotifikasjon:
     grupperingsid-farskap: farskap
     skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
@@ -61,7 +62,6 @@ farskapsportal.egenskaper:
     maks-ventetid-lesing: 10000
     maks-ventetid-forbindelse: 10000
   skatt:
-    intervall-overfoering: 1
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 10000
@@ -264,7 +264,7 @@ spring:
 
 ---
 spring.config.activate.on-profile: scheduled-test
-farskapsportal.egenskaper.skatt.intervall-overfoering: 3000
+farskapsportal.egenskaper.arkiveringsintervall: 3000
 
 ---
 spring.config.activate.on-profile: skatt-ssl-test
@@ -295,9 +295,7 @@ sertifikat:
 spring:
   config.activate.on-profile: integration-test
 
-farskapsportal.egenskaper:
-  skatt:
-    intervall-overfoering: 3600000
+farskapsportal.egenskaper.arkiveringsintervall: 3600000
 
 url:
   skatt.base-url: https://folkeregisteret-api-ekstern.sits.no

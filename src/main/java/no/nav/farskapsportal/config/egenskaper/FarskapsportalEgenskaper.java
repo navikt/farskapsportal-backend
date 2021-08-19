@@ -24,4 +24,5 @@ public class FarskapsportalEgenskaper {
   private Esignering esignering;
   private Brukernotifikasjon brukernotifikasjon;
   private Skatt skatt;
+  private int arkiveringsintervall;
 }

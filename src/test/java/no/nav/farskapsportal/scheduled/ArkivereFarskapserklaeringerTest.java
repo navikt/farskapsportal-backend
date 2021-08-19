@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.scheduled;
 
-import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.FAR;
 import static no.nav.farskapsportal.TestUtils.MOR;
@@ -16,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
-import no.nav.farskapsportal.FarskapsportalTestConfig;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.consumer.joark.api.DokumentInfo;
@@ -41,7 +39,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
-@DisplayName("AkivereFarskapserklaeringer")
+@DisplayName("ArkivereFarskapserklaeringer")
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureWireMock(port = 8096)
 @SpringBootTest(classes = FarskapsportalApplicationLocal.class, webEnvironment = WebEnvironment.RANDOM_PORT)

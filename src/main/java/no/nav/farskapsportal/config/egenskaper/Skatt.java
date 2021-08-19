@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class Skatt {
 
-  private int intervallOverfoering;
   private int maksAntallForbindelser;
   private int maksAntallForbindelserPerRute;
   private int maksVentetidLesing;

@@ -85,7 +85,7 @@ public class ArkivereFarskapserklaeringerIntegrationTest {
     assertNull(ikkeSendingsklarFarskapserklaering.getSendtTilSkatt());
 
     // when
-    Thread.sleep(farskapsportalEgenskaper.getSkatt().getIntervallOverfoering() * 2);
+    Thread.sleep(farskapsportalEgenskaper.getArkiveringsintervall() * 2);
 
     var fe1 = farskapserklaeringDao.findById(sendingsklarFarskapserklaering1.getId());
     var fe2 = farskapserklaeringDao.findById(sendingsklarFarskapserklaering2.getId());

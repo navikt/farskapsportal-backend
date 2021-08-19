@@ -24,7 +24,7 @@ public class ArkivereFarskapserklaeringer {
   private JournalpostApiConsumer journalpostApiConsumer;
   private int intervallMellomForsoek;
 
-  @Scheduled(initialDelay = 60000, fixedDelayString = "${farskapsportal.egenskaper.arkivere.intervall}")
+  @Scheduled(initialDelay = 60000, fixedDelayString = "${farskapsportal.egenskaper.arkiveringsintervall}")
   void vurdereArkivering() {
 
     log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til  Skatt og evnt Joark");
@@ -34,7 +34,7 @@ public class ArkivereFarskapserklaeringer {
       overfoereTilSkatt(farskapserklaeringer);
     } catch (SkattConsumerException sce) {
       log.error("Overføring til Skatt feilet. Nytt forsøk vil bli gjennomført ved neste overføringsintervall kl {}",
-          LocalDateTime.now().plusHours(intervallMellomForsoek));
+          LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000));
     }
     var farskapserklaeringSomSkalOverfoeresTilJoark = farskapserklaeringer.stream()
         .filter(s -> !s.getFarBorSammenMedMor() && s.getJoarkJournalpostId() == null)
