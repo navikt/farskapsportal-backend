@@ -3,6 +3,7 @@ target/
 **/src/main/**/target/
 **/src/test/**/target/
 *.orig
+*.log
 
 ### STS ###
 .apt_generated
@@ -35,5 +36,5 @@ build/
 ### Maven ###
 .mvn/
 
-fp.pdf
+*.pdf
 test_VS_decrypt_*

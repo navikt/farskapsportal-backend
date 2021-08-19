@@ -138,8 +138,6 @@ public class FarskapsportalControllerTest {
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   @MockBean
   private DifiESignaturConsumer difiESignaturConsumer;
-  @MockBean
-  private SkattConsumer skattConsumer;
   @Autowired
   private PersistenceService persistenceService;
   @Autowired
@@ -1070,7 +1068,6 @@ public class FarskapsportalControllerTest {
       var registrertNavnMor = MOR.getNavn();
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-      doNothing().when(skattConsumer).registrereFarskap(lagretFarskapserklaeringSignertAvMor);
       stsStub.runSecurityTokenServiceStub("jalla");
       Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 

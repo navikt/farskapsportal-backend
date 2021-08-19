@@ -8,6 +8,7 @@ import static no.nav.farskapsportal.api.Feilkode.DOKUMENT_MANGLER_INNOHLD;
 import static no.nav.farskapsportal.api.Feilkode.XADES_FAR_UTEN_INNHOLD;
 import static no.nav.farskapsportal.api.Feilkode.XADES_MOR_UTEN_INNHOLD;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -47,7 +48,7 @@ public class SkattConsumerTest {
   private Mapper mapper;
 
   @Test
-  void skalIkkeKasteExceptionDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {
+  void skalReturnereTidspunktForOverfoeringDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {
 
     // given
     var farskapserklaering = mapper.toEntity(FARSKAPSERKLAERING);
@@ -59,10 +60,15 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
-    // when, then
-    assertDoesNotThrow(() -> skattConsumer.registrereFarskap(farskapserklaering));
+    // when
+    var tidspunktForOverfoering = skattConsumer.registrereFarskap(farskapserklaering);
+
+    // then
+    assertAll(
+        () -> assertThat(tidspunktForOverfoering.isBefore(LocalDateTime.now())),
+        () -> assertThat(tidspunktForOverfoering.isAfter(LocalDateTime.now().minusMinutes(5)))
+        );
   }
 
   @Test
@@ -76,7 +82,6 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
     farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("jadda".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then
     var skattConsumerException = assertThrows(SkattConsumerException.class, () -> skattConsumer.registrereFarskap(farskapserklaering));
@@ -95,7 +100,6 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("".getBytes(StandardCharsets.UTF_8));
     farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("jadda".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then
     var skattConsumerException = assertThrows(SkattConsumerException.class, () -> skattConsumer.registrereFarskap(farskapserklaering));
@@ -114,7 +118,6 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
     farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then
     var skattConsumerException = assertThrows(SkattConsumerException.class, () -> skattConsumer.registrereFarskap(farskapserklaering));

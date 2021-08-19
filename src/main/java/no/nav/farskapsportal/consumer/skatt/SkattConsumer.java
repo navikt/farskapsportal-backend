@@ -3,6 +3,7 @@ package no.nav.farskapsportal.consumer.skatt;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -58,9 +59,10 @@ public class SkattConsumer {
   private final ConsumerEndpoint consumerEndpoint;
 
   @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
-  public void registrereFarskap(Farskapserklaering farskapserklaering) {
+  public LocalDateTime registrereFarskap(Farskapserklaering farskapserklaering) {
 
-    var xml = byggeMeldingTilSkatt(farskapserklaering);
+    var meldingOmRegistreringAvFarskap = tilMeldingOmRegistreringAvFarskap(farskapserklaering);
+    var xml = tilStreng(meldingOmRegistreringAvFarskap);
 
     MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
@@ -112,6 +114,7 @@ public class SkattConsumer {
         log.error("Mottok ikke-godkjent Http-kode {} ved overføring til Skatt", respons.getStatusCodeValue());
         throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
       }
+      return LocalDateTime.parse(meldingOmRegistreringAvFarskap.getInnsending().getAvsendersInnsendingstidspunkt().getDateTime());
     } catch (Exception e) {
       e.printStackTrace();
       throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET, e);
@@ -132,16 +135,12 @@ public class SkattConsumer {
     return new HttpEntity<>(fileAsResource, requestHeadersVedlegg);
   }
 
-  private String byggeMeldingTilSkatt(Farskapserklaering farskapserklaering) {
-
+  private String tilStreng(MeldingOmRegistreringAvFarskap meldingOmRegistreringAvFarskap) {
     try {
-      var meldingOmRegistreringAvFarskap = tilMeldingOmRegistreringAvFarskap(farskapserklaering);
-
       var xmlString = new StringWriter();
       Marshaller marshaller = JAXBContext.newInstance(MeldingOmRegistreringAvFarskap.class).createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       marshaller.marshal(meldingOmRegistreringAvFarskap, xmlString);
-
       return xmlString.toString();
     } catch (JAXBException jaxbe) {
       throw new SkattConsumerException(Feilkode.SKATT_MELDINGSFORMAT, jaxbe);
@@ -154,7 +153,7 @@ public class SkattConsumer {
 
     return MeldingOmRegistreringAvFarskap.builder()
         .innsending(Innsending.builder()
-            .avsendersInnsendingstidspunkt(tilDatoKlokkeslett(farskapserklaering.getSendtTilSkatt()))
+            .avsendersInnsendingstidspunkt(tilDatoKlokkeslett(LocalDateTime.now()))
             .kildesystem(new Tekst(AVSENDER_KILDESYSTEM))
             .avsendersMeldingsidentifikator(new Tekst(farskapserklaering.getMeldingsidSkatt()))
             .build())
@@ -193,7 +192,6 @@ public class SkattConsumer {
 
   private void validereFarskapserklaeringKlarTilOversendelse(Farskapserklaering farskapserklaering) {
     try {
-      Validate.isTrue(farskapserklaering.getSendtTilSkatt() != null);
       Validate.isTrue(farskapserklaering.getMeldingsidSkatt() != null);
       Validate.isTrue(farskapserklaering.getFar().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getMor().getFoedselsnummer() != null);

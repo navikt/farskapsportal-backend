@@ -5,7 +5,7 @@ import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
-import no.nav.farskapsportal.scheduled.OverfoereTilSkatt;
+import no.nav.farskapsportal.scheduled.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.scheduled.SletteOppgave;
 import no.nav.farskapsportal.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +28,8 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public OverfoereTilSkatt overfoereTilSkatt(PersistenceService persistenceService, SkattConsumer skattConsumer) {
-    return OverfoereTilSkatt.builder()
+  public ArkivereFarskapserklaeringer overfoereTilSkatt(PersistenceService persistenceService, SkattConsumer skattConsumer) {
+    return ArkivereFarskapserklaeringer.builder()
         .intervallMellomForsoek(farskapsportalEgenskaper.getSkatt().getIntervallOverfoering())
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)

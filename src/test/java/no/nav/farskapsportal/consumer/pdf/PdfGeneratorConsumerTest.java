@@ -10,8 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;

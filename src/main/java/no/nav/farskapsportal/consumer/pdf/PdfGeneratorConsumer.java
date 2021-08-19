@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -98,7 +96,7 @@ public class PdfGeneratorConsumer {
   private void leggeTilDataForelder(Element forelderelement, ForelderDto forelderDto) {
     var navn = forelderelement.getElementsByClass("navn");
 
-    navn.first().text("Navn: " + forelderDto.getNavn().sammensattNavn() );
+    navn.first().text("Navn: " + forelderDto.getNavn().sammensattNavn());
 
     var foedselsdato = forelderelement.getElementsByClass("foedselsdato");
     foedselsdato.first().text("Fødselsdato: " + forelderDto.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));

@@ -1,6 +1,7 @@
 package no.nav.farskapsportal;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.consumer.joark.JournalpostApiConsumerEndpointName.ARKIVERE_JOURNALPOST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
@@ -19,6 +20,8 @@ import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.consumer.joark.FarskapsportalJoarkMapper;
+import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
@@ -37,7 +40,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

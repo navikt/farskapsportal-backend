@@ -183,6 +183,10 @@ public class PersistenceService {
     }
   }
 
+  public Set<Farskapserklaering> henteFarskapserklaeringerHvorFarIkkeBorSammenMedMorOgErSendtTilSkattMenIkkeJoark() {
+    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerSomTidligereErForsoektSendtTilJoark());
+  }
+
   public Set<Farskapserklaering> henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt() {
     return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt());
   }

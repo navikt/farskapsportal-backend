@@ -117,7 +117,7 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
-  @ExceptionHandler({SkattConsumerException.class, PDFConsumerException.class})
+  @ExceptionHandler({JournalpostApiConsumerException.class, SkattConsumerException.class, PDFConsumerException.class,})
   protected ResponseEntity<?> handleSkattConsumerException(InternFeilException e) {
     exceptionLogger.logException(e.getOriginalException(), "RestResponseExceptionResolver");
 

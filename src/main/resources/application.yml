@@ -55,8 +55,13 @@ farskapsportal.egenskaper:
     suksess-url: ${ESIGNERING_SUKSESS_URL}
     avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
     feilet-url: ${ESIGNERING_FEILET_URL}
+  joark:
+    maks-antall-forbindelser: 5
+    maks-antall-forbindelser-per-rute: 5
+    maks-ventetid-lesing: 10000
+    maks-ventetid-forbindelse: 10000
   skatt:
-    intervall-overfoering: 3600000
+    intervall-overfoering: 1
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 10000
@@ -69,9 +74,9 @@ management:
   endpoint.health.show-details: always
 
 url:
-  dokarkiv.journalpostapi.v1:
+  joark:
     base-url: ${JOURNALPOSTAPI_URL}
-    endpoint: /rest/journalpostapi/v1/journalpost
+    opprette-journalpost: /rest/journalpostapi/v1/journalpost
   farskapsportal:
     url: ${FARSKAPSPORTAL_URL}
   pdl-api:
@@ -158,7 +163,7 @@ no.nav.security.jwt:
 
 ---
 spring:
-  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test, integration-test
+  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
@@ -177,7 +182,7 @@ NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 url:
-  dokarkiv.journalpostapi.v1.base-url: ${WIREMOCK_URL}
+  joark.base-url: ${WIREMOCK_URL}
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
   skatt.base-url: http://localhost
