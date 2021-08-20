@@ -265,8 +265,8 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNotNull(),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isEqualTo(
-              lagretFarskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getSendtTilJoark()),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark().withNano(0)).isEqualTo(
+              lagretFarskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getSendtTilJoark().withNano(0)),
           () -> assertThat(logginnslag.iterator()).hasNext(),
           () -> assertThat(logginnslag.iterator().next().getTidspunktForOversendelse())
               .isEqualTo(arkivertFarskapserklaering.get().getSendtTilSkatt()),
@@ -315,7 +315,7 @@ public class ArkivereFarskapserklaeringerTest {
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isEqualTo(tidspunktSendtTilSkatt),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(tidspunktSendtTilSkatt.withNano(0)),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isAfter(arkivertFarskapserklaering.get().getSendtTilSkatt()),
           () -> assertThat(arkivertFarskapserklaering.get().getJoarkJournalpostId()).isEqualTo(jpId)
@@ -355,7 +355,7 @@ public class ArkivereFarskapserklaeringerTest {
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isEqualTo(tidspunktSendtTilSkatt),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(tidspunktSendtTilSkatt.withNano(0)),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getJoarkJournalpostId()).isNull()
       );
@@ -395,7 +395,7 @@ public class ArkivereFarskapserklaeringerTest {
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isEqualTo(lagretFarskapserklaering.getSendtTilSkatt()),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(lagretFarskapserklaering.getSendtTilSkatt().withNano(0)),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isAfter(arkivertFarskapserklaering.get().getSendtTilSkatt()),
           () -> assertThat(arkivertFarskapserklaering.get().getJoarkJournalpostId()).isEqualTo(jpId)
