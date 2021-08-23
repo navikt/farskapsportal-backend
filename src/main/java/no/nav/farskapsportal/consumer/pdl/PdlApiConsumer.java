@@ -5,10 +5,12 @@ import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName.PDL_
 import static no.nav.farskapsportal.consumer.pdl.PdlDtoUtils.isMasterPdlOrFreg;
 import static no.nav.farskapsportal.util.Utils.toSingletonOrThrow;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.NonNull;
@@ -23,6 +25,7 @@ import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
+import no.nav.farskapsportal.consumer.pdl.api.VergemaalEllerFremtidsfullmaktDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.consumer.pdl.graphql.GraphQLResponse;
@@ -150,6 +153,20 @@ public class PdlApiConsumer {
 
     return sivilstandFraPdlEllerFreg.stream().filter(Objects::nonNull)
         .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av sivilstand, forventet bare et innslag av sivilstand på person")));
+  }
+
+  public List<VergemaalEllerFremtidsfullmaktDto> henteVergeEllerFremtidsfullmakt(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_VERGE, false);
+    var vergemaalEllerFremtidsfullmaktDtos = respons.getData().getHentPerson().getVerge();
+
+    var vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg = vergemaalEllerFremtidsfullmaktDtos.stream().filter(isMasterPdlOrFreg()).collect(
+        Collectors.toList());
+
+    if (vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg.isEmpty() || !isMasterPdlOrFreg(vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg.get(0))) {
+      return new ArrayList<>();
+    } else {
+      return vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg;
+    }
   }
 
   private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {

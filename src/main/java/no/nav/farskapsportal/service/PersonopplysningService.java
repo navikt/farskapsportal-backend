@@ -104,6 +104,10 @@ public class PersonopplysningService {
     return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedeland();
   }
 
+  public boolean harVerge(String foedselsnummer) {
+    return !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).isEmpty();
+  }
+
   public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
     return pdlApiConsumer.henteFolkeregisteridentifikator(foedselsnummer);
   }

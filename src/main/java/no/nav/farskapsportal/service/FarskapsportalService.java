@@ -211,7 +211,7 @@ public class FarskapsportalService {
     // Mor kan ikke være død
     validereAtForelderIkkeErDoed(fnrMor);
 
-    // Mor må være myndig
+    // Mor må være myndig (dvs er over 18 år og ingen verge)
     validereAtForelderErMyndig(fnrMor);
 
     // Mor må ha norsk bostedsadresse
@@ -580,7 +580,7 @@ public class FarskapsportalService {
     // Far kan ikke være død
     validereAtForelderIkkeErDoed(foedselsnummer);
 
-    // Far må være myndig
+    // Far må være myndig (dvs er over 18 år og ingen verge)
     validereAtForelderErMyndig(foedselsnummer);
 
     var farsForelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
@@ -618,6 +618,10 @@ public class FarskapsportalService {
   private void validereAtForelderErMyndig(String foedselsnummer) {
     if (!personopplysningService.erMyndig(foedselsnummer)) {
       throw new ValideringException(Feilkode.IKKE_MYNDIG);
+    }
+
+    if (personopplysningService.harVerge(foedselsnummer)) {
+      throw new ValideringException(Feilkode.FORELDER_HAR_VERGE);
     }
   }
 

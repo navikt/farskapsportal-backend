@@ -5,9 +5,9 @@ import lombok.Value;
 
 @Value
 @Builder
-public class KjoennDto implements PdlDto {
+public class VergemaalEllerFremtidsfullmaktDto implements PdlDto {
 
-  KjoennType kjoenn;
+  VergeEllerFullmektigDto vergeEllerFullmektig;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;
 }

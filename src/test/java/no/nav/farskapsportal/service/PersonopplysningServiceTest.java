@@ -236,7 +236,7 @@ public class PersonopplysningServiceTest {
   class ErMyndig {
 
     @Test
-    void skalReturnereSannForMyndigPerson() {
+    void skalReturnereSannForPersonOver18Aar() {
 
       // given
       when(pdlApiConsumerMock.henteFoedsel(FAR.getFoedselsnummer())).thenReturn(FoedselDto.builder().foedselsdato(FAR.getFoedselsdato()).build());
@@ -249,7 +249,7 @@ public class PersonopplysningServiceTest {
     }
 
     @Test
-    void skalReturnereUsannForUmyndigPerson() {
+    void skalReturnereUsannForPersonUnder18Aar() {
 
       // given
       when(pdlApiConsumerMock.henteFoedsel(NYDFOEDT_BARN.getFoedselsnummer()))

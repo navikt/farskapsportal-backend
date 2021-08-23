@@ -1,0 +1,25 @@
+query($ident: ID!, $historikk: Boolean!) {
+    hentPerson(ident: $ident) {
+        vergemaalEllerFremtidsfullmakt(historikk: $historikk) {
+            vergeEllerFullmektig{
+                omfang
+            },
+            folkeregistermetadata {
+                ajourholdstidspunkt,
+                gyldighetstidspunkt,
+                opphoerstidspunkt,
+                kilde,
+                aarsak,
+                sekvens
+            },
+            metadata {
+                opplysningsId,
+                master,
+                endringer {
+                    type,
+                    registrert,
+                }
+            }
+        }
+    }
+}s
