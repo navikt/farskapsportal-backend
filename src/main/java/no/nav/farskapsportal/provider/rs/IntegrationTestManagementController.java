@@ -10,14 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.persistence.dao.BarnDao;
-import no.nav.farskapsportal.persistence.dao.DokumentDao;
-import no.nav.farskapsportal.persistence.dao.DokumentinnholdDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
-import no.nav.farskapsportal.persistence.dao.ForelderDao;
-import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
-import no.nav.farskapsportal.persistence.dao.SigneringsinformasjonDao;
-import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -36,50 +31,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class IntegrationTestManagementController {
 
   @Autowired
-  private BarnDao barnDao;
-
-  @Autowired
-  private DokumentDao dokumentDao;
-
-  @Autowired
-  private DokumentinnholdDao dokumentinnholdDao;
-
-  @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
-
-  @Autowired
-  private ForelderDao forelderDao;
-
-  @Autowired
-  private StatusKontrollereFarDao statusKontrollereFarDao;
-
-  @Autowired
-  private MeldingsloggDao meldingsloggDao;
-
-  @Autowired
-  private SigneringsinformasjonDao signeringsinformasjonDao;
 
   @Autowired
   private PdfGeneratorConsumer pdfGeneratorConsumer;
 
-  @GetMapping("/testdata/slette")
-  @Operation(description = "Sletter lokale testdata. Tilgjengelig kun i DEV.")
-  public String sletteTestdata() {
+  @Autowired
+  private PersistenceService persistenceService;
+
+  @GetMapping("/testdata/deaktivere")
+  @Operation(description = "Deaktiverer farskapserklæringer. Tilgjengelig kun i DEV.")
+  public String deaktivereTestdata() {
 
     try {
-      statusKontrollereFarDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-      dokumentDao.deleteAll();
-      dokumentinnholdDao.deleteAll();
-      barnDao.deleteAll();
-      signeringsinformasjonDao.deleteAll();
-      meldingsloggDao.deleteAll();
+      for (Farskapserklaering fe : farskapserklaeringDao.findAll()) {
+        persistenceService.deaktivereFarskapserklaering(fe.getId());
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
 
-    return "Testdata slettet fra Farskapsportal public-skjema";
+    return "Farskapserklæringene i Farskapsportal public-skjema er nå deaktivert";
   }
 
   @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades")
@@ -102,8 +74,10 @@ public class IntegrationTestManagementController {
   public ResponseEntity<byte[]> hentePdf() {
 
     var barn = BarnDto.builder().termindato(LocalDate.now().plusMonths(1)).build();
-    var mor = ForelderDto.builder().foedselsnummer("11046000201").fornavn("Bambi").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26)).build();
-    var far  = ForelderDto.builder().foedselsnummer("11029400522").fornavn("Bamse").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26)).build();
+    var mor = ForelderDto.builder().foedselsnummer("11046000201").fornavn("Bambi").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26))
+        .build();
+    var far = ForelderDto.builder().foedselsnummer("11029400522").fornavn("Bamse").etternavn("Normann").foedselsdato(LocalDate.now().minusYears(26))
+        .build();
 
     var pdf = pdfGeneratorConsumer.genererePdf(barn, mor, far);
     return new ResponseEntity<>(pdf, HttpStatus.OK);
