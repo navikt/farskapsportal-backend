@@ -158,7 +158,7 @@ public class PdlApiConsumer {
 
   public List<VergemaalEllerFremtidsfullmaktDto> henteVergeEllerFremtidsfullmakt(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_VERGE, false);
-    var vergemaalEllerFremtidsfullmaktDtos = respons.getData().getHentPerson().getVerge();
+    var vergemaalEllerFremtidsfullmaktDtos = respons.getData().getHentPerson().getVergemaalEllerFremtidsfullmakt();
 
     var vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg = vergemaalEllerFremtidsfullmaktDtos.stream()
         .filter(Objects::nonNull)

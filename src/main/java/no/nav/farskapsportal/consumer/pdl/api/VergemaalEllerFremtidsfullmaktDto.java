@@ -7,6 +7,8 @@ import lombok.Value;
 @Builder
 public class VergemaalEllerFremtidsfullmaktDto implements PdlDto {
 
+  String type;
+  String embete;
   VergeEllerFullmektigDto vergeEllerFullmektig;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;

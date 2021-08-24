@@ -477,8 +477,9 @@ public class FarskapsportalService {
 
 
   private void validereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
+
     // Kun myndige personer kan bruke løsningen
-    personopplysningService.erOver18Aar(foedselsnummer);
+    validereAtForelderErMyndig(foedselsnummer);
 
     // Løsningen er ikke åpen for medmor eller person med udefinerbar forelderrolle
     if (Forelderrolle.MEDMOR.equals(forelderrolle) || Forelderrolle.UKJENT.equals(forelderrolle)) {

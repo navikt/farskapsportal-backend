@@ -24,7 +24,7 @@ query($ident: ID!, $historikk: Boolean!) {
                 master,
                 endringer {
                     type,
-                    registrert,
+                    registrert
                 }
             }
         }
