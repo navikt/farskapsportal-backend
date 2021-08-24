@@ -238,7 +238,7 @@ public class FarskapsportalService {
     log.info("Oppdaterer status på signeringsoppdrag for pålogget person");
 
     // Forelder må være myndig
-    personopplysningService.erMyndig(fnrPaaloggetPerson);
+    personopplysningService.erOver18Aar(fnrPaaloggetPerson);
 
     var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
 
@@ -478,7 +478,7 @@ public class FarskapsportalService {
 
   private void validereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
     // Kun myndige personer kan bruke løsningen
-    personopplysningService.erMyndig(foedselsnummer);
+    personopplysningService.erOver18Aar(foedselsnummer);
 
     // Løsningen er ikke åpen for medmor eller person med udefinerbar forelderrolle
     if (Forelderrolle.MEDMOR.equals(forelderrolle) || Forelderrolle.UKJENT.equals(forelderrolle)) {
@@ -616,10 +616,9 @@ public class FarskapsportalService {
   }
 
   private void validereAtForelderErMyndig(String foedselsnummer) {
-    if (!personopplysningService.erMyndig(foedselsnummer)) {
+    if (!personopplysningService.erOver18Aar(foedselsnummer)) {
       throw new ValideringException(Feilkode.IKKE_MYNDIG);
     }
-
     if (personopplysningService.harVerge(foedselsnummer)) {
       throw new ValideringException(Feilkode.FORELDER_HAR_VERGE);
     }

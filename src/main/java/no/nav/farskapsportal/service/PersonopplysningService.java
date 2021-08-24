@@ -18,9 +18,9 @@ import no.nav.farskapsportal.api.Kjoenn;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiException;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
@@ -32,6 +32,9 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Slf4j
 public class PersonopplysningService {
+
+  private static final String VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER = "personligeOgOekonomiskeInteresser";
+  private static final String VERGE_OMFANG_PERSONLIGE_INTERESSER = "personligeInteresser";
 
   private final PdlApiConsumer pdlApiConsumer;
 
@@ -105,7 +108,12 @@ public class PersonopplysningService {
   }
 
   public boolean harVerge(String foedselsnummer) {
-    return !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).isEmpty();
+    return !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).stream()
+        .filter(Objects::nonNull)
+        .filter(verge ->
+            verge.getVergeEllerFullmektig().getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER) ||
+                verge.getVergeEllerFullmektig().getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_INTERESSER))
+        .collect(Collectors.toList()).isEmpty();
   }
 
   public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
@@ -153,7 +161,7 @@ public class PersonopplysningService {
     return pdlApiConsumer.henteSivilstand(foedselsnummer);
   }
 
-  public boolean erMyndig(String foedselsnummer) {
+  public boolean erOver18Aar(String foedselsnummer) {
     var foedselsdato = henteFoedselsdato(foedselsnummer);
     if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
       log.warn("Forelder med fødselsdato {}, er ikke myndig", foedselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
@@ -192,7 +200,8 @@ public class PersonopplysningService {
   }
 
   private String hentMellomnavnHvisFinnes(NavnDto navnFraRegister) {
-    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? " " : " " + navnFraRegister.getMellomnavn() + " ";
+    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? " "
+        : " " + navnFraRegister.getMellomnavn() + " ";
   }
 
   private Set<String> filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
