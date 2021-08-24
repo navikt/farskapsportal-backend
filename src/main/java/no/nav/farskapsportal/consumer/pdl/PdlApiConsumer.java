@@ -19,9 +19,9 @@ import lombok.val;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
@@ -41,11 +41,10 @@ import org.springframework.web.client.RestTemplate;
 @Builder
 public class PdlApiConsumer {
 
-  private static final String TEMA = "Tema";
-  private static final String TEMA_FAR = "FAR";
   public static final String PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK = "I_BRUK";
   public static final String PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR = "FNR";
-
+  private static final String TEMA = "Tema";
+  private static final String TEMA_FAR = "FAR";
   @NonNull
   private final RestTemplate restTemplate;
   @NonNull
@@ -98,8 +97,10 @@ public class PdlApiConsumer {
     }
 
     return folkeregisteridentifikatorDtosFraFregEllerPdl.stream().filter(Objects::nonNull)
-        .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av folkeregisteridentifikator, forventet bare et innslag av folkeregisteridentifikator på person")));
+        .collect(toSingletonOrThrow(new UnrecoverableException(
+            "Feil ved mapping av folkeregisteridentifikator, forventet bare et innslag av folkeregisteridentifikator på person")));
   }
+
   public List<ForelderBarnRelasjonDto> henteForelderBarnRelasjon(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FORELDER_BARN_RELASJON, false);
     var forelderBarnRelasjonDtos = respons.getData().getHentPerson().getForelderBarnRelasjon();
@@ -159,8 +160,9 @@ public class PdlApiConsumer {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_VERGE, false);
     var vergemaalEllerFremtidsfullmaktDtos = respons.getData().getHentPerson().getVerge();
 
-    var vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg = vergemaalEllerFremtidsfullmaktDtos.stream().filter(isMasterPdlOrFreg()).collect(
-        Collectors.toList());
+    var vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg = vergemaalEllerFremtidsfullmaktDtos.stream()
+        .filter(Objects::nonNull)
+        .filter(isMasterPdlOrFreg()).collect(Collectors.toList());
 
     if (vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg.isEmpty() || !isMasterPdlOrFreg(vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg.get(0))) {
       return new ArrayList<>();
