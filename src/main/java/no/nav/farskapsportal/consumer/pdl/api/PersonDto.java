@@ -15,6 +15,7 @@ public class PersonDto {
   List<FolkeregisteridentifikatorDto> folkeregisteridentifikator = new ArrayList<>();
   List<KjoennDto> kjoenn = new ArrayList<>();
   List<BostedsadresseDto> bostedsadresse = new ArrayList<>();
+  List<VergemaalEllerFremtidsfullmaktDto> vergemaalEllerFremtidsfullmakt = new ArrayList<>();
 
   @Singular("navn")
   List<NavnDto> navn = new ArrayList<>();

@@ -11,7 +11,7 @@
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.121-SNAPSHOT</version>
+  <version>0.0.125-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -45,7 +45,7 @@
     <kafka-avro-serializer.version>6.1.1</kafka-avro-serializer.version>
     <apache.commons-lang.version>3.12.0</apache.commons-lang.version>
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
-    <jsoup.version>1.14.1</jsoup.version>
+    <jsoup.version>1.14.2</jsoup.version>
     <openhtml.version>1.0.9</openhtml.version>
     <modelmapper.version>2.4.4</modelmapper.version>
     <guava.version>30.1.1-jre</guava.version>
@@ -56,7 +56,7 @@
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <nimbus-jose-jwt.version>8.22.1</nimbus-jose-jwt.version>
     <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-    <springdoc-openapi-ui.version>1.5.9</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.5.10</springdoc-openapi-ui.version>
 
     <!-- test -->
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
