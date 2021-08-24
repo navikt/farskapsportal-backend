@@ -26,14 +26,16 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FoedselDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregistermetadataDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
+import no.nav.farskapsportal.consumer.pdl.api.VergeEllerFullmektigDto;
+import no.nav.farskapsportal.consumer.pdl.api.VergemaalEllerFremtidsfullmaktDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
@@ -66,7 +68,7 @@ public class PersonopplysningServiceTest {
 
   private KjoennDto henteKjoennMedGyldighetstidspunkt(KjoennType typeKjoenn, LocalDate datoForGyldighet) {
     return KjoennDto.builder().kjoenn(typeKjoenn).folkeregistermetadata(FolkeregistermetadataDto.builder()
-        .gyldighetstidspunkt(LocalDateTime.ofEpochSecond(datoForGyldighet.toEpochSecond(LocalTime.MIN, ZoneOffset.MIN), 0, ZoneOffset.MIN)).build())
+            .gyldighetstidspunkt(LocalDateTime.ofEpochSecond(datoForGyldighet.toEpochSecond(LocalTime.MIN, ZoneOffset.MIN), 0, ZoneOffset.MIN)).build())
         .build();
   }
 
@@ -232,41 +234,39 @@ public class PersonopplysningServiceTest {
   }
 
   @Nested
-  @DisplayName(" Tester erMyndig")
-  class ErMyndig {
+  @DisplayName(" Tester erOver18Aar")
+  class ErOver18Aar {
 
     @Test
-    void skalReturnereSannForMyndigPerson() {
+    void skalReturnereSannForPersonOver18Aar() {
 
       // given
       when(pdlApiConsumerMock.henteFoedsel(FAR.getFoedselsnummer())).thenReturn(FoedselDto.builder().foedselsdato(FAR.getFoedselsdato()).build());
 
       // when
-      var farErMyndig = personopplysningService.erMyndig(FAR.getFoedselsnummer());
+      var farErMyndig = personopplysningService.erOver18Aar(FAR.getFoedselsnummer());
 
       // then
       assertThat(farErMyndig).isTrue();
     }
 
     @Test
-    void skalReturnereUsannForUmyndigPerson() {
+    void skalReturnereUsannForPersonUnder18Aar() {
 
       // given
       when(pdlApiConsumerMock.henteFoedsel(NYDFOEDT_BARN.getFoedselsnummer()))
           .thenReturn(FoedselDto.builder().foedselsdato(NYDFOEDT_BARN.getFoedselsdato()).build());
 
       // when
-      var erMyndig = personopplysningService.erMyndig(NYDFOEDT_BARN.getFoedselsnummer());
+      var erMyndig = personopplysningService.erOver18Aar(NYDFOEDT_BARN.getFoedselsnummer());
 
       // then
       assertThat(erMyndig).isFalse();
-
     }
-
   }
 
   @Nested
-  @DisplayName(" Tester erDoed")
+  @DisplayName("Tester erDoed")
   class ErDoed {
 
     @Test
@@ -296,6 +296,68 @@ public class PersonopplysningServiceTest {
       assertThat(farErDoed).isFalse();
     }
 
+  }
+
+  @Nested
+  @DisplayName("Tester harVerge")
+  class HarVerge {
+
+    @Test
+    void skalReturnereSannDersomPersonHarVergeMedOmfangPersonligeInteresser() {
+      // given
+      when(pdlApiConsumerMock.henteVergeEllerFremtidsfullmakt(FAR.getFoedselsnummer())).thenReturn(List.of(
+          VergemaalEllerFremtidsfullmaktDto.builder().vergeEllerFullmektig(VergeEllerFullmektigDto.builder().omfang("personligeInteresser").build())
+              .build()));
+
+      // when
+      var farHarVerge = personopplysningService.harVerge(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farHarVerge).isTrue();
+    }
+
+    @Test
+    void skalReturnereSannDersomPersonHarVergeMedOmfangPersonligeOgOekonomiskeInteresser() {
+
+      // given
+      when(pdlApiConsumerMock.henteVergeEllerFremtidsfullmakt(FAR.getFoedselsnummer())).thenReturn(List.of(
+          VergemaalEllerFremtidsfullmaktDto.builder()
+              .vergeEllerFullmektig(VergeEllerFullmektigDto.builder().omfang("personligeOgOekonomiskeInteresser").build()).build()));
+
+      // when
+      var farHarVerge = personopplysningService.harVerge(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farHarVerge).isTrue();
+    }
+
+    @Test
+    void skalReturnereUsannDersomPersonHarVergeMedOmfangUtlendingssakerPersonligeOgOekonomiskeInteresser() {
+
+      // given
+      when(pdlApiConsumerMock.henteVergeEllerFremtidsfullmakt(FAR.getFoedselsnummer())).thenReturn(List.of(
+          VergemaalEllerFremtidsfullmaktDto.builder()
+              .vergeEllerFullmektig(VergeEllerFullmektigDto.builder().omfang("utlendingssakerPersonligeOgOekonomiskeInteresser").build()).build()));
+
+      // when
+      var farHarVerge = personopplysningService.harVerge(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farHarVerge).isFalse();
+    }
+
+    @Test
+    void skalReturnereUsannDersomPersonIkkeErRegistrertMedVerge() {
+
+      // given
+      when(pdlApiConsumerMock.henteVergeEllerFremtidsfullmakt(FAR.getFoedselsnummer())).thenReturn(new ArrayList<>());
+
+      // when
+      var farHarVerge = personopplysningService.harVerge(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farHarVerge).isFalse();
+    }
   }
 
   @Nested
@@ -334,7 +396,7 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenThrow(RessursIkkeFunnetException.class);
 
       // when, then
-     assertThrows(RessursIkkeFunnetException.class, () -> personopplysningService.bestemmeForelderrolle(foedselsnummer));
+      assertThrows(RessursIkkeFunnetException.class, () -> personopplysningService.bestemmeForelderrolle(foedselsnummer));
     }
   }
 
@@ -406,7 +468,8 @@ public class PersonopplysningServiceTest {
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
       var fnrFar = foedselsdatoSpedbarn.plusYears(31).plusMonths(7).plusDays(5).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
       var spedbarnsRelasjonTilFar = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrFar).minRolleForPerson(ForelderBarnRelasjonRolle.BARN)
@@ -431,11 +494,13 @@ public class PersonopplysningServiceTest {
       var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));
-      when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland("UGANDA").build());
+      when(pdlApiConsumerMock.henteFoedsel(fnrSpedbarn)).thenReturn(
+          FoedselDto.builder().foedselsdato(foedselsdatoSpedbarn).foedeland("UGANDA").build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
@@ -453,7 +518,8 @@ public class PersonopplysningServiceTest {
       var fnrSpedbarn = foedselsdatoSpedbarn.format(DateTimeFormatter.ofPattern("ddMMyy")) + "00011";
       var fnrMor = foedselsdatoSpedbarn.plusYears(29).plusMonths(2).plusDays(13).format(DateTimeFormatter.ofPattern("ddMMyy")) + "24680";
 
-      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn).minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
+      var morsRelasjonTilSpedbarn = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrSpedbarn)
+          .minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).build();
 
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor)).thenReturn(List.of(morsRelasjonTilSpedbarn));

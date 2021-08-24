@@ -1,10 +1,11 @@
 query($ident: ID!, $historikk: Boolean!) {
     hentPerson(ident: $ident) {
-        sivilstand(historikk: $historikk) {
+        vergemaalEllerFremtidsfullmakt(historikk: $historikk) {
             type,
-            gyldigFraOgMed,
-            relatertVedSivilstand,
-            bekreftelsesdato,
+            embete,
+            vergeEllerFullmektig{
+                omfang
+            },
             folkeregistermetadata {
                 ajourholdstidspunkt,
                 gyldighetstidspunkt,
@@ -15,11 +16,7 @@ query($ident: ID!, $historikk: Boolean!) {
             },
             metadata {
                 opplysningsId,
-                master,
-                endringer {
-                    type,
-                    registrert
-                }
+                master
             }
         }
     }

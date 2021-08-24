@@ -21,22 +21,25 @@ import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
 import no.nav.farskapsportal.consumer.pdl.api.DoedsfallDto;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.consumer.pdl.api.VergeEllerFullmektigDto;
+import no.nav.farskapsportal.consumer.pdl.api.VergemaalEllerFremtidsfullmaktDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
-import no.nav.farskapsportal.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSubResponse;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonVergeEllerFremtidsfullmakt;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -303,7 +306,8 @@ public class PdlApiConsumerTest {
       // given
       var fnrFar = "13108411111";
       var fnrBarn = "01112009091";
-      var forelderBarnRelasjonDto = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrBarn).relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN)
+      var forelderBarnRelasjonDto = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrBarn)
+          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN)
           .minRolleForPerson(ForelderBarnRelasjonRolle.FAR).build();
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonForelderBarnRelasjon(forelderBarnRelasjonDto, "1234"));
@@ -313,7 +317,8 @@ public class PdlApiConsumerTest {
       var farsForelderBarnRelasjoner = pdlApiConsumer.henteForelderBarnRelasjon(fnrFar);
 
       // then
-      assertAll(() -> assertEquals(fnrBarn, farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getRelatertPersonsIdent).findAny().get()),
+      assertAll(
+          () -> assertEquals(fnrBarn, farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getRelatertPersonsIdent).findAny().get()),
           () -> assertEquals(forelderBarnRelasjonDto.getMinRolleForPerson(),
               farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getMinRolleForPerson).findAny().get()),
           () -> assertEquals(forelderBarnRelasjonDto.getRelatertPersonsRolle(),
@@ -444,5 +449,50 @@ public class PdlApiConsumerTest {
 
     }
 
+  }
+
+  @Nested
+  @DisplayName("Hente vergeEllerFremtidsfullmakt")
+  class VergeEllerFremtidsfullmakt {
+
+    @Test
+    @DisplayName("Skal hente vergeEllerFremtidsfullmakt for person med verge")
+    void skalHenteVergeEllerFremtidsfullmaktForEksisterendePerson() {
+
+      // given
+      var vergemaalEllerFremtidsfullmaktDto = VergemaalEllerFremtidsfullmaktDto.builder().type("voksen").embete("Fylkesmannen i Innlandet")
+          .vergeEllerFullmektig(
+              VergeEllerFullmektigDto.builder().omfang("personligeOgOekonomiskeInteresser").build()).build();
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonVergeEllerFremtidsfullmakt(vergemaalEllerFremtidsfullmaktDto));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var vergemaalEllerFremtidsfullmaktDtos = pdlApiConsumer.henteVergeEllerFremtidsfullmakt(MOR.getFoedselsnummer());
+
+      // then
+      assertAll(
+          () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.size()).isEqualTo(1),
+          () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.get(0).getType()).isEqualTo("voksen"),
+          () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.get(0).getEmbete()).isEqualTo("Fylkesmannen i Innlandet"),
+          () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.get(0).getVergeEllerFullmektig().getOmfang()).isEqualTo(
+              "personligeOgOekonomiskeInteresser"));
+    }
+
+    @Test
+    @DisplayName("Skal returnere tom vergeEllerFremtidsfullmakt for person uten verge")
+    void skalReturnereTomVergeEllerFremtidsfullmaktForPersonUtenVerge() {
+
+      // given
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      List<HentPersonSubResponse> subResponses =  List.of(new HentPersonVergeEllerFremtidsfullmakt(null));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var vergemaalEllerFremtidsfullmaktDtos = pdlApiConsumer.henteVergeEllerFremtidsfullmakt(MOR.getFoedselsnummer());
+
+      // then
+      assertThat(vergemaalEllerFremtidsfullmaktDtos.size()).isEqualTo(0);
+    }
   }
 }

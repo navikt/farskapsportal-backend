@@ -37,3 +37,4 @@ build/
 
 fp.pdf
 test_VS_decrypt_*
+*.pdf
