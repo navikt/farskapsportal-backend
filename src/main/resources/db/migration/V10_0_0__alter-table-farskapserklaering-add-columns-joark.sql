@@ -7,5 +7,5 @@
  */
 
 ALTER TABLE public.farskapserklaering
-    ADD COLUMN joark_journalpost_id integer,
+    ADD COLUMN joark_journalpost_id varchar(50),
     ADD COLUMN sendt_til_joark timestamp without time zone;

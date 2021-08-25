@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,19 +41,20 @@ public class IntegrationTestManagementController {
   @Autowired
   private PersistenceService persistenceService;
 
-  @GetMapping("/testdata/deaktivere")
+  @PostMapping("/testdata/deaktivere")
   @Operation(description = "Deaktiverer farskapserklæringer. Tilgjengelig kun i DEV.")
-  public String deaktivereTestdata() {
-
-    try {
-      for (Farskapserklaering fe : farskapserklaeringDao.findAll()) {
-        persistenceService.deaktivereFarskapserklaering(fe.getId());
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+  public String deaktivereAlleFarskapserklaeringer() {
+    for (Farskapserklaering fe : farskapserklaeringDao.findAll()) {
+      persistenceService.deaktivereFarskapserklaering(fe.getId());
     }
-
     return "Farskapserklæringene i Farskapsportal public-skjema er nå deaktivert";
+  }
+
+  @PostMapping("/testdata/deaktivere/{id}")
+  @Operation(description = "Deaktiverer farskapserklæringer. Tilgjengelig kun i DEV.")
+  public String deaktivereFarskapserklaering(@PathVariable int id) {
+    persistenceService.deaktivereFarskapserklaering(id);
+    return "Farskapserklæring med id" + id + " er nå deaktivert";
   }
 
   @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades")
@@ -81,7 +83,7 @@ public class IntegrationTestManagementController {
         .foedselsdato(LocalDate.now().minusYears(26))
         .navn(NavnDto.builder().fornavn("Bambi").etternavn("Normann").build()).build();
 
-    var far  = ForelderDto.builder()
+    var far = ForelderDto.builder()
         .foedselsnummer("11029400522")
         .foedselsdato(LocalDate.now().minusYears(26))
         .navn(NavnDto.builder().fornavn("Bamse").etternavn("Normann").build()).build();

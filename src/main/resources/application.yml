@@ -120,7 +120,7 @@ no.nav:
 ---
 ### H2 ###
 spring:
-  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: test, local, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -129,7 +129,7 @@ spring:
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test, scheduled-test
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -264,7 +264,7 @@ spring:
 
 ---
 spring.config.activate.on-profile: scheduled-test
-farskapsportal.egenskaper.arkiveringsintervall: 3000
+farskapsportal.egenskaper.arkiveringsintervall: 60000
 
 ---
 spring.config.activate.on-profile: skatt-ssl-test

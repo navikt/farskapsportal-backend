@@ -213,14 +213,14 @@ public class FarskapsportalService {
     // Mor må være myndig (dvs er over 18 år og ingen verge)
     validereAtForelderErMyndig(fnrMor);
 
-    // Mor må ha norsk bostedsadresse
-    validereMorErBosattINorge(fnrMor);
-
     // Mor kan ikke være registrert med dnummer
     validereAtPersonHarAktivtFoedselsnummer(fnrMor, Rolle.MOR);
 
     // Bare mor kan oppretteFarskapserklæring
     riktigRolleForOpprettingAvErklaering(fnrMor);
+
+    // Mor må ha norsk bostedsadresse
+    validereMorErBosattINorge(fnrMor);
   }
 
   /**

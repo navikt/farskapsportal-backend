@@ -1,9 +1,11 @@
 package no.nav.farskapsportal.config;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.scheduled.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.scheduled.SletteOppgave;
@@ -15,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@Profile(PROFILE_LIVE)
+@Profile({PROFILE_LIVE, PROFILE_SCHEDULED_TEST})
 @Configuration
 @EnableScheduling
 @ComponentScan
@@ -28,9 +30,14 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(PersistenceService persistenceService, SkattConsumer skattConsumer) {
+  public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(
+      JournalpostApiConsumer journalpostApiConsumer,
+      PersistenceService persistenceService,
+      SkattConsumer skattConsumer) {
+
     return ArkivereFarskapserklaeringer.builder()
         .intervallMellomForsoek(farskapsportalEgenskaper.getArkiveringsintervall())
+        .journalpostApiConsumer(journalpostApiConsumer)
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
         .build();

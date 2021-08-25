@@ -8,6 +8,9 @@ import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
@@ -273,6 +276,44 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(logginnslag.iterator().next().getMeldingsidSkatt()).isEqualTo(arkivertFarskapserklaering.get().getMeldingsidSkatt())
       );
     }
+
+    @Test
+    void skalIkkeOverfoereFarskapserklaeringerSomAlleredeErSendtTilSkatt() {
+
+      // given
+      var farskapserklaeringAlleredeOverfoert = mapper.toEntity(
+          henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonMor()
+          .setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
+      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonMor()
+          .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonFar()
+          .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+      farskapserklaeringAlleredeOverfoert.setFarBorSammenMedMor(false);
+      farskapserklaeringAlleredeOverfoert.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      farskapserklaeringAlleredeOverfoert.setMeldingsidSkatt("1234");
+      farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(LocalDateTime.now());
+      farskapserklaeringAlleredeOverfoert.setSendtTilJoark(LocalDateTime.now());
+
+      var lagretFarskapserklaeringAlleredeOverfoert= persistenceService.lagreNyFarskapserklaering(
+          farskapserklaeringAlleredeOverfoert);
+
+      verify(skattConsumerMock, never()).registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);
+
+      // when
+      arkivereFarskapserklaeringer.vurdereArkivering();
+
+      // then
+      var arkivertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaeringAlleredeOverfoert.getId());
+
+      assertAll(
+          () -> assertThat(arkivertFarskapserklaering).isPresent(),
+          () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isNotNull(),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isNotNull()
+      );
+    }
   }
 
   @Nested
@@ -326,7 +367,6 @@ public class ArkivereFarskapserklaeringerTest {
     void skalOverfoereFarskapserklaeringerSomGjelderForeldreSomBorSammenTilSkattMenIkkeJoark() {
 
       // given
-      var jpId = "123";
       var tidspunktSendtTilSkatt = LocalDateTime.now();
       var farskapserklaeringTilSkattOgJoark = mapper.toEntity(
           henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
@@ -395,7 +435,8 @@ public class ArkivereFarskapserklaeringerTest {
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(lagretFarskapserklaering.getSendtTilSkatt().withNano(0)),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(
+              lagretFarskapserklaering.getSendtTilSkatt().withNano(0)),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isAfter(arkivertFarskapserklaering.get().getSendtTilSkatt()),
           () -> assertThat(arkivertFarskapserklaering.get().getJoarkJournalpostId()).isEqualTo(jpId)
@@ -484,6 +525,45 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isBefore(LocalDateTime.now()),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNull(),
           () -> assertThat(journalpostApiConsumerException.getFeilkode()).isEqualTo(Feilkode.JOARK_OVERFOERING_FEILET)
+      );
+    }
+
+    @Test
+    void skalIkkeOverfoereFarskapserklaeringerSomAlleredeHarBlittSendtTilJoark() {
+
+      // given
+      var farskapserklaeringerAlleredeOverfoert = mapper.toEntity(
+          henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+      farskapserklaeringerAlleredeOverfoert.getDokument().getSigneringsinformasjonMor()
+          .setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
+      farskapserklaeringerAlleredeOverfoert.getDokument().getSigneringsinformasjonMor()
+          .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+      farskapserklaeringerAlleredeOverfoert.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaeringerAlleredeOverfoert.getDokument().getSigneringsinformasjonFar()
+          .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+      farskapserklaeringerAlleredeOverfoert.setFarBorSammenMedMor(false);
+      farskapserklaeringerAlleredeOverfoert.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      farskapserklaeringerAlleredeOverfoert.setMeldingsidSkatt("1234");
+      farskapserklaeringerAlleredeOverfoert.setSendtTilSkatt(LocalDateTime.now());
+      farskapserklaeringerAlleredeOverfoert.setSendtTilJoark(LocalDateTime.now());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringerAlleredeOverfoert);
+
+      when(skattConsumerMock.registrereFarskap(lagretFarskapserklaering)).thenReturn(LocalDateTime.now());
+      verify(journalpostApiConsumerMock, never()).arkivereFarskapserklaering(farskapserklaeringerAlleredeOverfoert);
+
+      // when
+      arkivereFarskapserklaeringer.vurdereArkivering();
+
+      // then
+      var arkivertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(arkivertFarskapserklaering).isPresent(),
+          () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isBefore(LocalDateTime.now()),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isBefore(LocalDateTime.now())
       );
     }
   }

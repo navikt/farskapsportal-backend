@@ -19,9 +19,9 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 public class ArkivereFarskapserklaeringer {
 
+  private JournalpostApiConsumer journalpostApiConsumer;
   private PersistenceService persistenceService;
   private SkattConsumer skattConsumer;
-  private JournalpostApiConsumer journalpostApiConsumer;
   private int intervallMellomForsoek;
 
   @Scheduled(initialDelay = 60000, fixedDelayString = "${farskapsportal.egenskaper.arkiveringsintervall}")
@@ -45,7 +45,7 @@ public class ArkivereFarskapserklaeringer {
   }
 
   private void overfoereTilSkatt(Set<Farskapserklaering> farskapserklaeringer) {
-    var fpTekst = farskapserklaeringer.size() == 1 ? "farskapserklæring" : "farskapserklæring";
+    var fpTekst = farskapserklaeringer.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
     log.info("Fant {} {} som er klar for overføring til skatt.", farskapserklaeringer.size(), fpTekst);
     for (Farskapserklaering fe : farskapserklaeringer) {
       log.debug("Oppdaterer tidspunkt for oversendelse til skatt for farskapserklæring med id {}", fe.getId());
@@ -69,7 +69,7 @@ public class ArkivereFarskapserklaeringer {
   }
 
   private void overfoereTilJoark(Set<Farskapserklaering> farskapserklaeringer) {
-    var fpTekst = farskapserklaeringer.size() == 1 ? "farskapserklæring" : "farskapserklæring";
+    var fpTekst = farskapserklaeringer.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
     log.info("Fant {} {} som er klar for overføring til Joark/Dokarkiv.", farskapserklaeringer.size(), fpTekst);
     for (Farskapserklaering fe : farskapserklaeringer) {
       try {
@@ -88,7 +88,7 @@ public class ArkivereFarskapserklaeringer {
       }
     }
     if (farskapserklaeringer.size() > 0) {
-      log.info("Farskapserklæringene ble overført til Skatt uten problemer");
+      log.info("Farskapserklæringene ble overført til Joark uten problemer");
     }
   }
 }
