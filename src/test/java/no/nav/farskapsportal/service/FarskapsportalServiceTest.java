@@ -384,10 +384,15 @@ public class FarskapsportalServiceTest {
 
       // given
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(false);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer()))
-          .thenReturn(SivilstandDto.builder().type(Sivilstandtype.REGISTRERT_PARTNER).build());
+          .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.erOver18Aar(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer())).thenReturn(FolkeregisteridentifikatorDto.builder()
+          .type("FNR")
+          .status("I_BRUK")
+          .build());
 
       // when
       var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer()));
@@ -1842,6 +1847,8 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(false);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer()))
+          .thenReturn(FolkeregisteridentifikatorDto.builder().type("FNR").status("I_BRUK").build());
 
       // when
       var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
