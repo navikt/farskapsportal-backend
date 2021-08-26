@@ -37,7 +37,7 @@ public class ArkivereFarskapserklaeringer {
           LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000));
     }
     var farskapserklaeringSomSkalOverfoeresTilJoark = farskapserklaeringer.stream()
-        .filter(s -> !s.getFarBorSammenMedMor() && s.getJoarkJournalpostId() == null)
+        .filter(s -> s.getFarBorSammenMedMor() != null && !s.getFarBorSammenMedMor() && s.getJoarkJournalpostId() == null)
         .collect(Collectors.toSet());
 
     farskapserklaeringSomSkalOverfoeresTilJoark.addAll(farskapserklaeringerTilJoark);
