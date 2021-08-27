@@ -90,8 +90,10 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
   public ResponseEntity<OppretteFarskapserklaeringResponse> nyFarskapserklaering(@RequestBody OppretteFarskapserklaeringRequest request) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    var respons = farskapsportalService.oppretteFarskapserklaering(fnrPaaloggetPerson, request);
 
+    // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
+   farskapsportalService.kontrollereFar(fnrPaaloggetPerson, request.getOpplysningerOmFar());
+    var respons = farskapsportalService.oppretteFarskapserklaering(fnrPaaloggetPerson, request);
     return new ResponseEntity(respons, HttpStatus.OK);
   }
 
@@ -145,7 +147,7 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
   public ResponseEntity<OppdatereFarskapserklaeringResponse> oppdatereFarskapserklaering(@RequestBody OppdatereFarskapserklaeringRequest request) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    var respons = farskapsportalService.oppdatereFarskapserklaering(fnrPaaloggetPerson, request);
+    var respons = farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(fnrPaaloggetPerson, request);
     return new ResponseEntity<>(respons, HttpStatus.CREATED);
   }
 

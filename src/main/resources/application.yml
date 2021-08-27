@@ -39,7 +39,7 @@ farskapsportal.egenskaper:
   nav-orgnummer: 889640782
   url: ${FARSKAPSPORTAL_URL}
   kontroll-far-forsoek-fornyes-etter-antall-dager: 1
-  kontroll-far-maks-antall-forsoek: 5
+  kontroll-far-maks-antall-forsoek: 3
   arkiveringsintervall: 3600000
   brukernotifikasjon:
     grupperingsid-farskap: farskap
