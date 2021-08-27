@@ -211,8 +211,9 @@ public class PersonopplysningServiceTest {
     void skalIkkeKasteExceptionDersomOppgittNavnStemmerMedRegister() {
 
       // given
-      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getFornavn()).mellomnavn("Danger").etternavn(FAR.getEtternavn()).build();
-      var farsNavn = FAR.getFornavn() + " Danger " + FAR.getEtternavn();
+      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getNavn().getFornavn()).mellomnavn("Danger").etternavn(FAR.getNavn().getEtternavn())
+          .build();
+      var farsNavn = FAR.getNavn().getFornavn() + " Danger " + FAR.getNavn().getEtternavn();
 
       // when, then
       assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
@@ -222,8 +223,9 @@ public class PersonopplysningServiceTest {
     void skalKasteValideringExceptionDersomOppgittNavnIkkeStemmerMedRegister() {
 
       // given
-      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getFornavn()).mellomnavn("Danger").etternavn(FAR.getEtternavn()).build();
-      var farsNavn = FAR.getFornavn() + " Dangerous " + FAR.getEtternavn();
+      var farsRegistrerteNavn = NavnDto.builder().fornavn(FAR.getNavn().getFornavn()).mellomnavn("Danger").etternavn(FAR.getNavn().getEtternavn())
+          .build();
+      var farsNavn = FAR.getNavn().getFornavn() + " Dangerous " + FAR.getNavn().getEtternavn();
 
       // when
       var valideringException = assertThrows(ValideringException.class, () -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));

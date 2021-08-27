@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -28,12 +29,7 @@ public class ForelderDto {
   @Parameter(description = "Forelderens fødselsnummer", example = "12345678910")
   private @NonNull String foedselsnummer;
 
-  @Parameter(description = "Forelderens fornavn", example = "Kjøttdeig")
-  private @NonNull String fornavn;
+  @Parameter(description = "Forelderens navn")
+  private @NonNull NavnDto navn;
 
-  @Parameter(description = "Forelderens mellomnavn", example = "")
-  private String mellomnavn;
-
-  @Parameter(description = "Forelderens etternavn", example = "Hammer")
-  private @NonNull String etternavn;
 }

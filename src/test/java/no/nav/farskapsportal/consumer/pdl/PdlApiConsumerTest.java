@@ -381,7 +381,6 @@ public class PdlApiConsumerTest {
       // then
       assertEquals(Sivilstandtype.UOPPGITT, personensSivilstand.getType());
     }
-
   }
 
   @Nested

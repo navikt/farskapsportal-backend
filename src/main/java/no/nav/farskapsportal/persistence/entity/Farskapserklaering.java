@@ -40,8 +40,6 @@ public class Farskapserklaering implements Serializable {
   @ManyToOne(cascade = CascadeType.PERSIST)
   private Forelder far;
 
-  private Boolean morBorSammenMedFar;
-
   private Boolean farBorSammenMedMor;
 
   @OneToOne(cascade = CascadeType.ALL)
@@ -50,6 +48,10 @@ public class Farskapserklaering implements Serializable {
   private String meldingsidSkatt;
 
   private LocalDateTime sendtTilSkatt;
+
+  private String joarkJournalpostId;
+
+  private LocalDateTime sendtTilJoark;
 
   private LocalDateTime deaktivert;
 

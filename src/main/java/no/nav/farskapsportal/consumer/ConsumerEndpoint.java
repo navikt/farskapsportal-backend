@@ -2,7 +2,9 @@ package no.nav.farskapsportal.consumer;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ConsumerEndpoint {
 
   private Map<ConsumerEndpointName, String> endpointMap = new HashMap<>();

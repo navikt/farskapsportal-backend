@@ -1,6 +1,7 @@
 package no.nav.farskapsportal;
 
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
@@ -47,6 +48,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
@@ -59,7 +61,6 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class FarskapsportalApplicationLocal {
 
-  public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
   public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
   public static final String PROFILE_LOCAL = "local";
@@ -197,6 +198,17 @@ public class FarskapsportalApplicationLocal {
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
       restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
       return new SkattConsumer(restTemplate, consumerEndpoint);
+    }
+  }
+
+  @Configuration
+  @EnableScheduling
+  @Profile(PROFILE_SCHEDULED_TEST)
+  static class ScheduledTestConfig {
+
+    @Bean
+    public void loggings() {
+      log.info("Skedulering er skrudd på..");
     }
   }
 

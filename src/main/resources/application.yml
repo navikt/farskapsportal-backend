@@ -40,6 +40,7 @@ farskapsportal.egenskaper:
   url: ${FARSKAPSPORTAL_URL}
   kontroll-far-forsoek-fornyes-etter-antall-dager: 1
   kontroll-far-maks-antall-forsoek: 5
+  arkiveringsintervall: 3600000
   brukernotifikasjon:
     grupperingsid-farskap: farskap
     skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
@@ -55,8 +56,12 @@ farskapsportal.egenskaper:
     suksess-url: ${ESIGNERING_SUKSESS_URL}
     avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
     feilet-url: ${ESIGNERING_FEILET_URL}
+  joark:
+    maks-antall-forbindelser: 5
+    maks-antall-forbindelser-per-rute: 5
+    maks-ventetid-lesing: 10000
+    maks-ventetid-forbindelse: 10000
   skatt:
-    intervall-overfoering: 3600000
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 10000
@@ -69,9 +74,9 @@ management:
   endpoint.health.show-details: always
 
 url:
-  familieintegrasjoner:
-    base-url: ${FAMILIEINTEGRASJONER_URL}
-    poststed: "api/kodeverk/poststed/%s"
+  joark:
+    base-url: ${JOURNALPOSTAPI_URL}
+    opprette-journalpost: /rest/journalpostapi/v1/journalpost
   farskapsportal:
     url: ${FARSKAPSPORTAL_URL}
   pdl-api:
@@ -115,7 +120,7 @@ no.nav:
 ---
 ### H2 ###
 spring:
-  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: test, local, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -124,7 +129,7 @@ spring:
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test, scheduled-test
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -158,7 +163,7 @@ no.nav.security.jwt:
 
 ---
 spring:
-  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test, integration-test
+  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
@@ -177,6 +182,7 @@ NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 url:
+  joark.base-url: ${WIREMOCK_URL}
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
   skatt.base-url: http://localhost
@@ -258,7 +264,7 @@ spring:
 
 ---
 spring.config.activate.on-profile: scheduled-test
-farskapsportal.egenskaper.skatt.intervall-overfoering: 3000
+farskapsportal.egenskaper.arkiveringsintervall: 60000
 
 ---
 spring.config.activate.on-profile: skatt-ssl-test
@@ -289,9 +295,7 @@ sertifikat:
 spring:
   config.activate.on-profile: integration-test
 
-farskapsportal.egenskaper:
-  skatt:
-    intervall-overfoering: 3600000
+farskapsportal.egenskaper.arkiveringsintervall: 3600000
 
 url:
   skatt.base-url: https://folkeregisteret-api-ekstern.sits.no

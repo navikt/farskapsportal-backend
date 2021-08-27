@@ -25,6 +25,7 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
@@ -48,8 +49,14 @@ import org.springframework.test.context.ActiveProfiles;
 @AutoConfigureWireMock(port = 8096)
 public class DifiESignaturConsumerTest {
 
-  private static final ForelderDto MOR = ForelderDto.builder().foedselsnummer("12345678910").fornavn("Kjøttdeig").etternavn("Hammer").build();
-  private static final ForelderDto FAR = ForelderDto.builder().foedselsnummer("11111122222").fornavn("Rask").etternavn("Karaffel").build();
+  private static final ForelderDto MOR = ForelderDto.builder()
+      .foedselsnummer("12345678910")
+      .navn(NavnDto.builder().fornavn("Kjøttdeig").etternavn("Hammer").build()).build();
+
+  private static final ForelderDto FAR = ForelderDto.builder()
+      .foedselsnummer("11111122222")
+      .navn(NavnDto.builder().fornavn("Rask").etternavn("Karaffel").build()).build();
+  
   private static final String STATUS_URL = "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/status";
   private static final String PADES_URL = "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1" + PADES;
 

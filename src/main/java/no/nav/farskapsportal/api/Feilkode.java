@@ -34,6 +34,7 @@ public enum Feilkode {
   NYFODT_ER_FOR_GAMMEL("Gyldighetsperioden for å erklære farskap er utløpt for oppgitt barn"),
   MEDMOR_ELLER_UKJENT("Medmor eller person med ukjent roll kan ikke benytte løsningen"),
   FORSKJELLIGE_FEDRE("Mor kan ikke opprette farskapserklæringer med forskjellige fedre for samme kull nyfødte"),
+  JOARK_OVERFOERING_FEILET("En feil oppstod ved overføring til Joark. Farskapserklæringen ble ikke arkivert. Nytt forsøk ved neste intervall."),
   KONTROLLERE_FAR_NAVN_MANGLER("Navn på far mangler!"),
   MAKS_ANTALL_FORSOEK("Mor har brukt opp antall mulige forsøk på å komme frem til riktig kombinasjon av fars fødselsnummer og navn"),
   MOR_HAR_ALLEREDE_SIGNERT("Mor har allerede signert farskapserklæringen"),

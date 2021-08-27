@@ -1,0 +1,12 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

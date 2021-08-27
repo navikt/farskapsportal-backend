@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -143,7 +144,8 @@ public class SletteOppgaveTest {
             .isEqualTo(LocalDate.now().plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
     );
 
-    var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(farskapserklaering.getId()));
+    var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class,
+        () -> persistenceService.henteFarskapserklaeringForId(farskapserklaering.getId()));
 
     // Den lagrede farskapserklæringen skal deaktiveres i forbindelse med at melding sendes til mor om utgått signeringsoppgave
     assertThat(ressursIkkeFunnetException.getFeilkode()).isEqualTo(FANT_IKKE_FARSKAPSERKLAERING);

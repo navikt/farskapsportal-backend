@@ -2,7 +2,6 @@ package no.nav.farskapsportal.consumer.pdf;
 
 import static no.nav.farskapsportal.api.Feilkode.OPPRETTE_PDF_FEILET;
 
-import com.openhtmltopdf.pdfboxout.PDFontSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder.PdfAConformance;
 import java.io.ByteArrayInputStream;
@@ -18,8 +17,6 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.PDFConsumerException;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Element;
@@ -98,9 +95,8 @@ public class PdfGeneratorConsumer {
 
   private void leggeTilDataForelder(Element forelderelement, ForelderDto forelderDto) {
     var navn = forelderelement.getElementsByClass("navn");
-    navn.first().text("Navn: " + forelderDto.getFornavn()
-        + henteMellomnavnHvisRegistrert(forelderDto)
-        + forelderDto.getEtternavn());
+
+    navn.first().text("Navn: " + forelderDto.getNavn().sammensattNavn());
 
     var foedselsdato = forelderelement.getElementsByClass("foedselsdato");
     foedselsdato.first().text("Fødselsdato: " + forelderDto.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
@@ -130,9 +126,5 @@ public class PdfGeneratorConsumer {
     } catch (IOException ioe) {
       throw new PDFConsumerException(OPPRETTE_PDF_FEILET, ioe);
     }
-  }
-
-  private String henteMellomnavnHvisRegistrert(ForelderDto forelderDto) {
-    return forelderDto.getMellomnavn() != null ? " " + forelderDto.getMellomnavn() + " " : " ";
   }
 }

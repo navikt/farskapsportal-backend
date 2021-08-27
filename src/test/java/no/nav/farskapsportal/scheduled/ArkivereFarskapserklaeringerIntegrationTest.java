@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.scheduled;
 
-import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_SCHEDULED_TEST;
+import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
@@ -17,7 +17,6 @@ import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.config.ScheduledConfig;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
-import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
@@ -25,22 +24,17 @@ import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @ActiveProfiles(PROFILE_SCHEDULED_TEST)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApplicationLocal.class)
 @SpringJUnitConfig(ScheduledConfig.class)
-public class OverfoereTilSkattIntegrationTest {
+public class ArkivereFarskapserklaeringerIntegrationTest {
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
-
-  @MockBean
-  private SkattConsumer skattConsumer;
 
   @Autowired
   private Mapper mapper;
@@ -88,7 +82,7 @@ public class OverfoereTilSkattIntegrationTest {
     assertNull(ikkeSendingsklarFarskapserklaering.getSendtTilSkatt());
 
     // when
-    Thread.sleep(farskapsportalEgenskaper.getSkatt().getIntervallOverfoering() * 2);
+    Thread.sleep(farskapsportalEgenskaper.getArkiveringsintervall() * 2);
 
     var fe1 = farskapserklaeringDao.findById(sendingsklarFarskapserklaering1.getId());
     var fe2 = farskapserklaeringDao.findById(sendingsklarFarskapserklaering2.getId());

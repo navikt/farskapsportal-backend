@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/rest/journalpostapi/v1/journalpost"
+  },
+  "response": {
+    "status": 202,
+    "body": "{\"journalpostId\": \"467010363\"}",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

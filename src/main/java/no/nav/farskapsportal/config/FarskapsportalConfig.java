@@ -3,6 +3,7 @@ package no.nav.farskapsportal.config;
 import static no.nav.farskapsportal.FarskapsportalApplication.ISSUER;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.FarskapsportalApplication.PROFILE_LIVE;
+import static no.nav.farskapsportal.consumer.joark.JournalpostApiConsumerEndpointName.ARKIVERE_JOURNALPOST;
 import static no.nav.farskapsportal.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.consumer.sts.SecurityTokenServiceEndpointName.HENTE_IDTOKEN_FOR_SERVICEUSER;
 
@@ -25,11 +26,12 @@ import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
+import no.nav.farskapsportal.consumer.joark.FarskapsportalJoarkMapper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
-import no.nav.farskapsportal.consumer.pdl.PdlApiHelsesjekkConsumer;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.gcp.secretmanager.AccessSecretVersion;
@@ -108,31 +110,23 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public ConsumerEndpoint consumerEndpoint() {
-    return new ConsumerEndpoint();
+  public JournalpostApiConsumer journalpostApiConsumer(
+      @Qualifier("journalpostapi") RestTemplate restTemplate,
+      @Value("${url.joark.base-url}") String journalpostapiUrl,
+      @Value("${url.joark.opprette-journalpost}") String journalpostapiEndpoint,
+      ConsumerEndpoint consumerEndpoint,
+      FarskapsportalJoarkMapper farskapsportalJoarkMapper) {
+    consumerEndpoint.addEndpoint(ARKIVERE_JOURNALPOST, journalpostapiEndpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostapiUrl));
+    log.info("Oppretter JournalpostApiConsumer med url {}", journalpostapiUrl);
+    return new JournalpostApiConsumer(restTemplate, consumerEndpoint, farskapsportalJoarkMapper);
   }
 
   @Bean
-  SecurityTokenServiceConsumer securityTokenServiceConsumer(@Qualifier("sts") RestTemplate restTemplate, @Value("${url.sts.base-url}") String baseUrl,
-      @Value("${url.sts.security-token-service}") String endpoint, ConsumerEndpoint consumerEndpoint) {
-    log.info("Oppretter SecurityTokenServiceConsumer med url {}", baseUrl);
-    consumerEndpoint.addEndpoint(HENTE_IDTOKEN_FOR_SERVICEUSER, endpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    return new SecurityTokenServiceConsumer(restTemplate, consumerEndpoint);
-  }
-
-  @Bean
-  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
-      @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
-    log.info("Oppretter SkattConsumer med url {}", baseUrl);
-    consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    return new SkattConsumer(restTemplate, consumerEndpoint);
-  }
-
-  @Bean
-  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate, @Value("${url.pdl-api.base-url}") String baseUrl,
-      @Value("${url.pdl-api.graphql}") String pdlApiEndpoint, ConsumerEndpoint consumerEndpoint) {
+  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
+      @Value("${url.pdl-api.base-url}") String baseUrl,
+      @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
+      ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
@@ -140,32 +134,52 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PdlApiHelsesjekkConsumer pdlApiHelsesjekkConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${url.pdl-api.base-url}") String baseUrl, @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
+  SecurityTokenServiceConsumer securityTokenServiceConsumer(@Qualifier("sts") RestTemplate restTemplate,
+      @Value("${url.sts.base-url}") String baseUrl,
+      @Value("${url.sts.security-token-service}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
-    consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
+    log.info("Oppretter SecurityTokenServiceConsumer med url {}", baseUrl);
+    consumerEndpoint.addEndpoint(HENTE_IDTOKEN_FOR_SERVICEUSER, endpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    log.info("Oppretter PdlApiHelsesjekkConsumer med url {}", baseUrl);
-    return PdlApiHelsesjekkConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
+    return new SecurityTokenServiceConsumer(restTemplate, consumerEndpoint);
   }
 
   @Bean
-  public PersistenceService persistenceService(PersonopplysningService personopplysningService, FarskapserklaeringDao farskapserklaeringDao,
-      Mapper mapper, BarnDao barnDao, ForelderDao forelderDao,
-      StatusKontrollereFarDao kontrollereFarDao, MeldingsloggDao meldingsloggDao) {
+  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
+      @Value("${url.skatt.base-url}") String baseUrl,
+      @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+      ConsumerEndpoint consumerEndpoint) {
+    log.info("Oppretter SkattConsumer med url {}", baseUrl);
+    consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+    return new SkattConsumer(restTemplate, consumerEndpoint);
+  }
+
+  @Bean
+  public PersistenceService persistenceService(PersonopplysningService personopplysningService,
+      FarskapserklaeringDao farskapserklaeringDao,
+      Mapper mapper,
+      BarnDao barnDao,
+      ForelderDao forelderDao,
+      StatusKontrollereFarDao kontrollereFarDao,
+      MeldingsloggDao meldingsloggDao) {
     return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
         meldingsloggDao, mapper);
   }
 
   @Bean
-  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer, FarskapsportalEgenskaper farskapsportalEgenskaper) {
+  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer,
+      FarskapsportalEgenskaper farskapsportalEgenskaper) {
     return PersonopplysningService.builder().pdlApiConsumer(pdlApiConsumer).farskapsportalEgenskaper(farskapsportalEgenskaper).build();
   }
 
   @Bean
   public FarskapsportalService farskapsportalService(BrukernotifikasjonConsumer brukernotifikasjonConsumer,
-      FarskapsportalEgenskaper farskapsportalEgenskaper, DifiESignaturConsumer difiESignaturConsumer,
-      PdfGeneratorConsumer pdfGeneratorConsumer, PersistenceService persistenceService, PersonopplysningService personopplysningService,
+      FarskapsportalEgenskaper farskapsportalEgenskaper,
+      DifiESignaturConsumer difiESignaturConsumer,
+      PdfGeneratorConsumer pdfGeneratorConsumer,
+      PersistenceService persistenceService,
+      PersonopplysningService personopplysningService,
       SkattConsumer skattConsumer,
       Mapper mapper) {
 
