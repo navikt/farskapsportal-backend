@@ -1370,7 +1370,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.oppdatereStatusSigneringsjobb(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
 
       // then
-      verify(brukernotifikasjonConsumer, times(0)).varsleMorOmAvbruttSignering(eq(MOR.getFoedselsnummer()));
+      verify(brukernotifikasjonConsumer, times(0)).varsleOmAvbruttSignering(eq(MOR.getFoedselsnummer()), eq(FAR.getFoedselsnummer()));
 
       assertThat(esigneringStatusFeiletException.getFarskapserklaering().isPresent());
       var farskapserklaeringReturnertFraException = esigneringStatusFeiletException.getFarskapserklaering().get();
@@ -1428,7 +1428,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
 
       // then
-      verify(brukernotifikasjonConsumer, times(1)).varsleMorOmAvbruttSignering(eq(MOR.getFoedselsnummer()));
+      verify(brukernotifikasjonConsumer, times(1)).varsleOmAvbruttSignering(eq(MOR.getFoedselsnummer()),eq(FAR.getFoedselsnummer()));
 
       assertAll(
           () -> assertThat(esigneringStatusFeiletException.getFarskapserklaering().isPresent())

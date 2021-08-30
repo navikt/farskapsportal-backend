@@ -432,7 +432,8 @@ public class FarskapsportalService {
       if (rolle.equals(FAR)) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
         if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
-          brukernotifikasjonConsumer.varsleMorOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer());
+          brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer(),
+              farskapserklaering.getFar().getFoedselsnummer());
         }
       }
 
