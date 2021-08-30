@@ -789,10 +789,11 @@ public class FarskapsportalService {
   }
 
   private void validereAtPaaloggetPersonIkkeAlleredeHarSignert(String fnrPaaloggetPerson, Farskapserklaering farskapserklaering) {
-    boolean erMor = personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    boolean erMor = personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    boolean erFar = personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
     if (erMor && farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
       return;
-    } else if (!erMor && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null) {
+    } else if (erFar && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null) {
       return;
     }
     throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
@@ -812,6 +813,10 @@ public class FarskapsportalService {
 
   private boolean personErFarIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
     return foedselsnummer.equals(farskapserklaering.getFar().getFoedselsnummer());
+  }
+
+  private boolean personErMorIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
+    return foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer());
   }
 
   private URI velgeRiktigUndertegnerUrl(String foedselsnummerUndertegner, Farskapserklaering farskapserklaering) {
