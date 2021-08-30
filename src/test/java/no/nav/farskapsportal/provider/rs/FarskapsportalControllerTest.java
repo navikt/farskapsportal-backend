@@ -72,7 +72,6 @@ import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
-import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
@@ -80,11 +79,13 @@ import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.Mapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -144,6 +145,8 @@ public class FarskapsportalControllerTest {
   private FarskapserklaeringDao farskapserklaeringDao;
   @Autowired
   private ForelderDao forelderDao;
+  @Autowired
+  private StatusKontrollereFarDao statusKontrollereFarDao;
   @Autowired
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
   @Autowired
@@ -251,9 +254,10 @@ public class FarskapsportalControllerTest {
     doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
   }
 
-  @BeforeEach
+  @AfterEach
   void ryddeTestdata() {
     farskapserklaeringDao.deleteAll();
+    statusKontrollereFarDao.deleteAll();
     forelderDao.deleteAll();
   }
 
@@ -271,6 +275,13 @@ public class FarskapsportalControllerTest {
   @Nested
   @DisplayName("Teste henteBrukerinformasjon")
   class HenteBrukerinformasjon {
+
+    @BeforeEach
+    void ryddeTestdata() {
+      farskapserklaeringDao.deleteAll();
+      statusKontrollereFarDao.deleteAll();
+      forelderDao.deleteAll();
+    }
 
     @Test
     @DisplayName("Skal liste nylig fødte barn uten registrert far ved henting av brukerinformasjon for mor")
@@ -642,6 +653,13 @@ public class FarskapsportalControllerTest {
   @DisplayName("Teste kontrollereOpplysningerFar")
   class KontrollereOpplysningerFar {
 
+    @BeforeEach
+    void ryddeTestdata() {
+      farskapserklaeringDao.deleteAll();
+      statusKontrollereFarDao.deleteAll();
+      forelderDao.deleteAll();
+    }
+
     @Test
     @DisplayName("Skal gi Ok dersom navn og kjønn er riktig")
     void skalGiOkDersomNavnOgKjoennErRiktig() {
@@ -813,6 +831,117 @@ public class FarskapsportalControllerTest {
     @Test
     void skalViseAntallResterendeForsoekDersomFeilNavnOppgis() {
 
+      // given
+      var registrertNavnFar = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
+      var oppgittNavnFar = "Borat Nicolai Sagdiyev";
+      var fnrFar = "01058011444";
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkMor),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonNavn(MOR.getNavn()),
+              new HentPersonBostedsadresse(
+                  BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Snarveien 15").build()).build()),
+              new HentPersonDoedsfall(null)), MOR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkFar),
+              new HentPersonFoedsel(FAR.getFoedselsdato(), false),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonNavn(registrertNavnFar),
+              new HentPersonBostedsadresse(
+                  BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Langata 5").build()).build()),
+              new HentPersonDoedsfall(null)), fnrFar);
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
+          String.class);
+
+      // then
+      assertTrue(respons.getStatusCode().is4xxClientError());
+    }
+
+    @Test
+    void skalGiBadRequestDersomAntallForsoekErBruktOpp() {
+
+      // given
+      var registrertNavnFar = NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
+      var oppgittNavnFar = "Borat Nicolai Sagdiyev";
+      var fnrFar = "01058011444";
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkMor),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonNavn(MOR.getNavn()),
+              new HentPersonBostedsadresse(
+                  BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Snarveien 15").build()).build()),
+              new HentPersonDoedsfall(null)), MOR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkFar),
+              new HentPersonFoedsel(FAR.getFoedselsdato(), false),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonNavn(registrertNavnFar),
+              new HentPersonBostedsadresse(
+                  BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Langata 5").build()).build()),
+              new HentPersonDoedsfall(null)), fnrFar);
+
+      // when
+      for (int i = 1; i <= farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek(); i++) {
+        var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+            initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
+            FarskapserklaeringFeilResponse.class);
+
+        // then
+        int finalI = i;
+
+        assertAll(
+            () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+            () -> assertThat(respons.getBody().getAntallResterendeForsoek().get()).isEqualTo(
+                farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - finalI),
+            () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER)
+        );
+      }
+
+      // when
+      var tidspunktSisteForsoek = LocalDateTime.now();
+      var resultatEtterOppbruktAntallForsoek = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
+          FarskapserklaeringFeilResponse.class);
+
+      // then
+      assertAll(
+          () -> assertThat(resultatEtterOppbruktAntallForsoek.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(resultatEtterOppbruktAntallForsoek.getBody().getAntallResterendeForsoek().get()).isEqualTo(0),
+          () -> assertThat(resultatEtterOppbruktAntallForsoek.getBody().getFeilkode()).isEqualTo(Feilkode.MAKS_ANTALL_FORSOEK),
+          () -> assertThat(resultatEtterOppbruktAntallForsoek.getBody().getTidspunktForNullstillingAvForsoek()).isBefore(
+              tidspunktSisteForsoek.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
+      );
     }
   }
 
@@ -1476,6 +1605,13 @@ public class FarskapsportalControllerTest {
   @DisplayName("Oppdatere farskapserklæring")
   class OppdatereFarskapserklaering {
 
+    @BeforeEach
+    void ryddeTestdata() {
+      farskapserklaeringDao.deleteAll();
+      statusKontrollereFarDao.deleteAll();
+      forelderDao.deleteAll();
+    }
+
     @Test
     void skalOppdatereFarBorSammenMedMor() {
 
@@ -1503,12 +1639,51 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
-          initHttpEntity(OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build()),
+          initHttpEntity(
+              OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true).build()),
           OppdatereFarskapserklaeringResponse.class);
 
       // then
       assertAll(() -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.CREATED),
           () -> assertThat(respons.getBody().getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue());
+    }
+
+    @Test
+    void skalGiBadRequestDersomMorForsoekerAaOppdatereBorSammen() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+
+      // given
+      var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR));
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonNavn(NAVN_MOR)),
+          MOR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonNavn(NAVN_FAR)),
+          FAR.getFoedselsnummer());
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
+          initHttpEntity(
+              OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(false).build()),
+          FarskapserklaeringFeilResponse.class);
+
+      // then
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.BOR_SAMMEN_INFO_KAN_BARE_OPPDATERES_AV_FAR)
+      );
     }
 
     @Test
@@ -1523,7 +1698,8 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
-          initHttpEntity(OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).borSammen(true).build()),
+          initHttpEntity(
+              OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true).build()),
           FarskapserklaeringFeilResponse.class);
 
       // then

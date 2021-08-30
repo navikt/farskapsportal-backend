@@ -21,6 +21,12 @@ public class FeilNavnOppgittException extends ValideringException {
     this.navnIRegister = navnIRegister;
   }
 
+  public FeilNavnOppgittException(Feilkode feilkode, String oppgittNavn, String navnIRegister) {
+    super(feilkode);
+    this.oppgittNavn = oppgittNavn;
+    this.navnIRegister = navnIRegister;
+  }
+
   public FeilNavnOppgittException(Feilkode feilkode){
     super(feilkode);
   }

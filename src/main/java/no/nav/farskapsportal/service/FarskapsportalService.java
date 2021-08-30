@@ -168,10 +168,6 @@ public class FarskapsportalService {
     // Sjekker om mor skal kunne opprette ny farskapserklæring
     validereTilgangMor(fnrMor, request);
 
-    // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
-    kontrollereNavnOgNummerFar(fnrMor, request.getOpplysningerOmFar());
-    validereFar(request.getOpplysningerOmFar().getFoedselsnummer());
-
     var barnDto = oppretteBarnDto(request);
     var forelderDtoMor = oppretteForelderDto(fnrMor);
     var forelderDtoFar = oppretteForelderDto(request.getOpplysningerOmFar().getFoedselsnummer());
@@ -200,7 +196,7 @@ public class FarskapsportalService {
   }
 
   public void kontrollereFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
-    validereAtMorOgFarErForskjelligePersoner(fnrMor, request.getFoedselsnummer());
+    validereAtMorOgFarIkkeDelerFoedselsnummer(fnrMor, request.getFoedselsnummer());
     antallsbegrensetKontrollAvNavnOgNummerPaaFar(fnrMor, request);
     validereFar(request.getFoedselsnummer());
   }
@@ -282,13 +278,16 @@ public class FarskapsportalService {
   }
 
   @Transactional
-  public OppdatereFarskapserklaeringResponse oppdatereFarskapserklaering(String fnrPaaloggetPerson, OppdatereFarskapserklaeringRequest request) {
+  public OppdatereFarskapserklaeringResponse oppdatereFarskapserklaeringMedFarBorSammenInfo(String fnrPaaloggetPerson,
+      OppdatereFarskapserklaeringRequest request) {
 
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(request.getIdFarskapserklaering());
     validereAtPersonErForelderIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
 
     if (personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
-      farskapserklaering.setFarBorSammenMedMor(request.isBorSammen());
+      farskapserklaering.setFarBorSammenMedMor(request.isFarBorSammenMedMor());
+    } else {
+      throw new ValideringException(Feilkode.BOR_SAMMEN_INFO_KAN_BARE_OPPDATERES_AV_FAR);
     }
 
     return OppdatereFarskapserklaeringResponse.builder().oppdatertFarskapserklaeringDto(mapper.toDto(farskapserklaering)).build();
@@ -433,7 +432,8 @@ public class FarskapsportalService {
       if (rolle.equals(FAR)) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
         if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
-          brukernotifikasjonConsumer.varsleMorOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer());
+          brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer(),
+              farskapserklaering.getFar().getFoedselsnummer());
         }
       }
 
@@ -547,7 +547,8 @@ public class FarskapsportalService {
 
   private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
     var statusKontrollereFarDto = mapper
-        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()));
+        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
+            farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek()));
     e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
     var resterendeAntallForsoek = farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
     resterendeAntallForsoek = resterendeAntallForsoek < 0 ? 0 : resterendeAntallForsoek;
@@ -555,20 +556,28 @@ public class FarskapsportalService {
     throw e;
   }
 
-  private void validereOppgittNavnFar(String foedselsnummerFar, String fulltNavnFar) {
+  private void validereOppgittNavnFar(String foedselsnummerFar, String oppgittNavnPaaFar) {
 
     if (foedselsnummerFar == null || foedselsnummerFar.trim().length() < 1) {
       throw new ValideringException(Feilkode.FOEDSELNUMMER_MANGLER_FAR);
     }
 
-    if (fulltNavnFar == null || fulltNavnFar.trim().length() < 1) {
+    if (oppgittNavnPaaFar == null || oppgittNavnPaaFar.trim().length() < 1) {
       throw new ValideringException(Feilkode.KONTROLLERE_FAR_NAVN_MANGLER);
     }
 
-    NavnDto navnDtoFraFolkeregisteret = personopplysningService.henteNavn(foedselsnummerFar);
+    NavnDto navnDtoFraFolkeregisteret = null;
 
-    // Validere input
-    personopplysningService.navnekontroll(fulltNavnFar, navnDtoFraFolkeregisteret);
+    try {
+      navnDtoFraFolkeregisteret = personopplysningService.henteNavn(foedselsnummerFar);
+      // Validere input
+      personopplysningService.navnekontroll(oppgittNavnPaaFar, navnDtoFraFolkeregisteret);
+    } catch (RessursIkkeFunnetException rife) {
+      throw new FeilNavnOppgittException(rife.getFeilkode(), oppgittNavnPaaFar,
+          navnDtoFraFolkeregisteret != null ? navnDtoFraFolkeregisteret.sammensattNavn() : "");
+    } catch (ValideringException ve) {
+      throw new FeilNavnOppgittException(oppgittNavnPaaFar, navnDtoFraFolkeregisteret != null ? navnDtoFraFolkeregisteret.sammensattNavn() : "");
+    }
   }
 
   private void validereFar(String foedselsnummer) {
@@ -641,7 +650,7 @@ public class FarskapsportalService {
     // Validere alder, fødested, og relasjon til mor for eventuell nyfødt
     validereNyfoedt(fnrMor, request.getBarn().getFoedselsnummer());
     // Kontrollere at mor og far ikke er samme person
-    validereAtMorOgFarErForskjelligePersoner(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer());
+    validereAtMorOgFarIkkeDelerFoedselsnummer(fnrMor, request.getOpplysningerOmFar().getFoedselsnummer());
     // Validere at termindato er innenfor gyldig intervall dersom barn ikke er født
     termindatoErGyldig(request.getBarn());
     // Sjekke at ny farskapserklæring ikke kommmer i konflikt med eksisterende
@@ -692,7 +701,7 @@ public class FarskapsportalService {
         .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.BARN_MANGLER_RELASJON_TIL_MOR));
   }
 
-  private void validereAtMorOgFarErForskjelligePersoner(String fnrMor, String fnrFar) {
+  private void validereAtMorOgFarIkkeDelerFoedselsnummer(String fnrMor, String fnrFar) {
     log.info("Sjekker at mor og far ikke er én og samme person");
     try {
       Validate.isTrue(!fnrMor.equals(fnrFar), "Mor og far kan ikke være samme person!");
@@ -780,10 +789,11 @@ public class FarskapsportalService {
   }
 
   private void validereAtPaaloggetPersonIkkeAlleredeHarSignert(String fnrPaaloggetPerson, Farskapserklaering farskapserklaering) {
-    boolean erMor = personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    boolean erMor = personErMorIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
+    boolean erFar = personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
     if (erMor && farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
       return;
-    } else if (!erMor && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null) {
+    } else if (erFar && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null) {
       return;
     }
     throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
@@ -803,6 +813,10 @@ public class FarskapsportalService {
 
   private boolean personErFarIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
     return foedselsnummer.equals(farskapserklaering.getFar().getFoedselsnummer());
+  }
+
+  private boolean personErMorIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
+    return foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer());
   }
 
   private URI velgeRiktigUndertegnerUrl(String foedselsnummerUndertegner, Farskapserklaering farskapserklaering) {

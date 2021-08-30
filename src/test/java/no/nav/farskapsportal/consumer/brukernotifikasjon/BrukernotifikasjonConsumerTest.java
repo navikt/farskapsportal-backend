@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
@@ -44,7 +45,8 @@ public class BrukernotifikasjonConsumerTest {
 
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Trykk her for å opprette ny farskapserklæring.";
-  private static final String MELDING_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Trykk her for å opprette ny farskapserklæring.";
+  private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Trykk her for å opprette ny farskapserklæring.";
+  private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan evntuelt opprette ny hvis ønskelig.";
 
   private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
@@ -161,7 +163,7 @@ public class BrukernotifikasjonConsumerTest {
   }
 
   @Test
-  void skalVarsleMorDersomFarAvbryterSignering() {
+  void skalVarsleMorOgFarDersomFarAvbryterSignering() {
 
     // given
     var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
@@ -170,26 +172,43 @@ public class BrukernotifikasjonConsumerTest {
     var tidspunktFoerTestEpochMillis = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
 
     // when
-    brukernotifikasjonConsumer.varsleMorOmAvbruttSignering(MOR.getFoedselsnummer());
+    brukernotifikasjonConsumer.varsleOmAvbruttSignering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
 
     // then
-    verify(beskjedkoe, times(1))
+    verify(beskjedkoe, times(2))
         .send(eq(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), noekkelfanger.capture(), beskjedfanger.capture());
 
-    var nokkel = noekkelfanger.getValue();
-    var beskjed = beskjedfanger.getValue();
+    var alleBeskjeder = beskjedfanger.getAllValues();
+    var beskjedTilMor = alleBeskjeder.get(0);
+    var beskjedTilFar = alleBeskjeder.get(1);
+
+    var alleNoekler = noekkelfanger.getAllValues();
+    var noekkelTilMor = alleNoekler.get(0);
+    var noekkelTilFar = alleNoekler.get(1);
     var tidspunktEtterTestEpocMillis = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
 
+        assertAll(
+        () -> assertThat(noekkelTilMor.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjedTilMor.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjedTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(beskjedTilMor.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilMor.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjedTilMor.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestEpochMillis),
+        () -> assertThat(beskjedTilMor.getTidspunkt()).isLessThanOrEqualTo(tidspunktEtterTestEpocMillis),
+        () -> assertThat(beskjedTilMor.getTekst()).isEqualTo(MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING),
+        () -> assertThat(beskjedTilMor.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl())
+    );
+
     assertAll(
-        () -> assertThat(nokkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
-        () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
-        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-        () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
-        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
-        () -> assertThat(beskjed.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestEpochMillis),
-        () -> assertThat(beskjed.getTidspunkt()).isLessThanOrEqualTo(tidspunktEtterTestEpocMillis),
-        () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_AVBRUTT_SIGNERING),
-        () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl())
+        () -> assertThat(noekkelTilFar.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjedTilFar.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjedTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        () -> assertThat(beskjedTilFar.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilFar.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjedTilFar.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestEpochMillis),
+        () -> assertThat(beskjedTilFar.getTidspunkt()).isLessThanOrEqualTo(tidspunktEtterTestEpocMillis),
+        () -> assertThat(beskjedTilFar.getTekst()).isEqualTo(MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING),
+        () -> assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl())
     );
   }
 

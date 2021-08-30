@@ -126,23 +126,21 @@ public class PersistenceService {
   }
 
   @Transactional
-  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, int antallDagerTilForsoekNullstilles) {
+  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
     var muligStatusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
     var naa = LocalDateTime.now();
 
     if (muligStatusKontrollereFar.isEmpty()) {
       return lagreNyStatusKontrollereFar(fnrMor, LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
     } else {
-
       var statusKontrollereFar = muligStatusKontrollereFar.get();
       if (statusKontrollereFar.getTidspunktForNullstilling().isBefore(naa)) {
         statusKontrollereFar.setAntallFeiledeForsoek(1);
         statusKontrollereFar.setTidspunktForNullstilling(LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
-      } else {
+      } else if (statusKontrollereFar.getAntallFeiledeForsoek() < maksAntallFeiledeForsoek) {
         var antallFeiledeForsoek = statusKontrollereFar.getAntallFeiledeForsoek();
         statusKontrollereFar.setAntallFeiledeForsoek(++antallFeiledeForsoek);
       }
-
       return statusKontrollereFar;
     }
   }

@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
@@ -41,6 +42,7 @@ import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.util.Mapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -82,6 +84,8 @@ public class PersistenceServiceTest {
   private StatusKontrollereFarDao statusKontrollereFarDao;
   @Autowired
   private Mapper mapper;
+  @Autowired
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
   @Test
   void skalSetteAntallFeiledeForseokTilEnDersomTidspunktForNullstillingErNaadd() {
@@ -204,7 +208,8 @@ public class PersistenceServiceTest {
       when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(navnDtoMor);
 
       // when
-      var lagretStatusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullsettingAvForsoek);
+      var lagretStatusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullsettingAvForsoek,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
 
       var hentetStatusKontrollereFar = statusKontrollereFarDao.findById(lagretStatusKontrollereFar.getId());
 
@@ -358,7 +363,8 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullsettingAvForsoek = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
-      persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullsettingAvForsoek);
+      persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullsettingAvForsoek,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // when
       var hentetStatusLagreKontrollereFar = persistenceService.henteStatusKontrollereFar(MOR.getFoedselsnummer());
@@ -447,13 +453,15 @@ public class PersistenceServiceTest {
   @DisplayName("OppdatereStatusKontrollereFar")
   class OppdatereStatusKontrollereFar {
 
-    @Test
-    void skalOppretteNyOppdatereStatusKontrollereFarDersomKontrollFarFeilerForFoersteGang() {
-
-      // rydde testdata
+    @BeforeEach
+    void ryddeTestdata() {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+    }
+
+    @Test
+    void skalOppretteNyOppdatereStatusKontrollereFarDersomKontrollFarFeilerForFoersteGang() {
 
       // given
       var antallDagerTilNullstilling = 1;
@@ -461,7 +469,8 @@ public class PersistenceServiceTest {
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var tidspunktForNullstillingEtterLogging = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
@@ -476,10 +485,6 @@ public class PersistenceServiceTest {
     @Test
     void skalLeggeInnMorSomForelderDersomHunIkkeEksistererIDatabasenVedOpprettelseAvNyttInnslagIStatusKontrollereFar() {
 
-      // rydde testdata
-      statusKontrollereFarDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
-
       // given
       var antallDagerTilNullstilling = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
@@ -487,7 +492,8 @@ public class PersistenceServiceTest {
       when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(navnDtoMor);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
@@ -500,20 +506,75 @@ public class PersistenceServiceTest {
     }
 
     @Test
-    void skalInkrementereAntallFeiledeForsoekDersomTidspunktForNullstillingIkkeErNaadd() {
+    void skalReferereTilRiktigForelder() {
 
-      // rydde testdata
-      statusKontrollereFarDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
+      // given
+      var antallDagerTilNullstilling = 1;
+      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var navnDtoMor = NavnDto.builder().fornavn(MOR.getNavn().getFornavn()).etternavn(MOR.getNavn().getEtternavn()).build();
+      when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(navnDtoMor);
+      forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
+
+      // when
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
+
+      // then
+      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+
+      assertAll(
+          () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
+          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+    }
+
+    @Test
+    void skalIkkeOppdatereDersomAntallForsoekErOverskredetOgFornyelseperiodeIkkeUtloept() {
+
+      // given
+      var antallDagerTilNullstilling = 1;
+      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var navnDtoMor = NavnDto.builder().fornavn(MOR.getNavn().getFornavn()).etternavn(MOR.getNavn().getEtternavn()).build();
+      when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(navnDtoMor);
+      forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
+
+      // when
+      for (int i = 1; i <= farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek(); i++) {
+        var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+            farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
+        int finalI = i;
+        assertAll(
+            () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(finalI),
+            () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer())
+        );
+      }
+
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
+
+      // then
+      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+
+      assertAll(
+          () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek()),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling),
+          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
+          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+    }
+
+    @Test
+    void skalInkrementereAntallFeiledeForsoekDersomTidspunktForNullstillingIkkeErNaadd() {
 
       // given
       var antallDagerTilNullstilling = 1;
       var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      var eksisterendeStatusKontrollereFar = lagreStatusKontrollereFarMedMor(2, tidspunktForNullstilling);
+      var eksisterendeStatusKontrollereFar = lagreStatusKontrollereFarMedMor(farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1,
+          tidspunktForNullstilling);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
@@ -527,18 +588,14 @@ public class PersistenceServiceTest {
     @Test
     void skalSetteAntallForsoekTilEnVedFeilDersomTidspunktForNullstillingErNaadd() {
 
-      // rydde testdata
-      statusKontrollereFarDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
       // given
       var antallDagerTilNullstilling = 0;
       var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      lagreStatusKontrollereFarMedMor(4, tidspunktForNullstilling);
+      lagreStatusKontrollereFarMedMor(farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1, tidspunktForNullstilling);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling);
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+          farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var tidspunktEtterLogging = LocalDateTime.now();
@@ -560,12 +617,14 @@ public class PersistenceServiceTest {
   @DisplayName("IngenKonfliktMedEksisterendeFarskapserklaeringer")
   class IngenKonfliktMedEksisterendeFarskapserklaeringer {
 
-    @Test
-    void skalKasteValideringExceptionDersomMorHarEksisterendeFarskapserklaeringOgOppretterNyMedTermindato() {
-
-      // rydde testdata
+    @BeforeEach
+    void ryddeTestdata() {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
+    }
+
+    @Test
+    void skalKasteValideringExceptionDersomMorHarEksisterendeFarskapserklaeringOgOppretterNyMedTermindato() {
 
       // given
       persistenceService.lagreNyFarskapserklaering(mapper.toEntity(FARSKAPSERKLAERING));
@@ -580,10 +639,6 @@ public class PersistenceServiceTest {
 
     @Test
     void skalKasteValideringExceptionDersomNyfoedtBarnInngaarIEksisterendeFarskapserklaering() {
-
-      // rydde testdata
-      statusKontrollereFarDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
 
       // given
       var fnrMorUtenEksisterendeFarskapserklaering = LocalDate.now().minusYears(29).format(DateTimeFormatter.ofPattern("ddMMyy")) + "12245";
@@ -602,10 +657,6 @@ public class PersistenceServiceTest {
     @Test
     void skalIkkeKasteExceptionDersomMorIkkeHarEksisterendeFarskapserklaering() {
 
-      // rydde testdata
-      statusKontrollereFarDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
-
       // given, when, then
       assertDoesNotThrow(
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(), UFOEDT_BARN));
@@ -613,10 +664,6 @@ public class PersistenceServiceTest {
 
     @Test
     void skalIkkeKasteExceptionDersomMorHarEnEksisterendeDeaktivertFarskapserklaering() {
-
-      // rydde testdata
-      statusKontrollereFarDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
 
       // given
       var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(FARSKAPSERKLAERING));

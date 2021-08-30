@@ -15,7 +15,7 @@ public class OppdatereFarskapserklaeringRequest {
   @Parameter(description = "ID til farskapserklæring som skal oppdateres", example = "1000000")
   int idFarskapserklaering;
 
-  @Parameter(description = "Angir om foreldrene bor sammen", example = "true")
-  boolean borSammen;
+  @Parameter(description = "Angir om far bor sammen med mor", example = "true")
+  boolean farBorSammenMedMor;
 
 }

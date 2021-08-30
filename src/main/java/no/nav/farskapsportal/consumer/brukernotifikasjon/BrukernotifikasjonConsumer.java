@@ -10,7 +10,8 @@ public class BrukernotifikasjonConsumer {
 
   private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING = "Du har en signert farskapserklæring er tilgjengelig for nedlasting i en begrenset tidsperiode fra farskapsportalen:";
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
-  private static final String MELDING_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Trykk her for å opprette ny farskapserklæring.";
+  private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Trykk her for å opprette ny farskapserklæring.";
+  private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan evntuelt opprette ny hvis ønskelig.";
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Trykk her for å opprette ny farskapserklæring.";
 
 
@@ -28,8 +29,9 @@ public class BrukernotifikasjonConsumer {
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, farskapsportalUrl);
   }
 
-  public void varsleMorOmAvbruttSignering(String foedselsnummerMor) {
-    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_AVBRUTT_SIGNERING, true, farskapsportalUrl);
+  public void varsleOmAvbruttSignering(String foedselsnummerMor, String foedselsnummerFar) {
+    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING, true, farskapsportalUrl);
+    beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING, true, farskapsportalUrl);
   }
 
   public void oppretteOppgaveTilFarOmSignering(int idFarskapserklaering, String foedselsnummerFar) {
