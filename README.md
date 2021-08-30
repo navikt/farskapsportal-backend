@@ -3,6 +3,23 @@
 Støttefunksjoner for farskapsportal. Gjør oppslag mot PDL for å hente nødvendige personopplysninger i forbindelse med erklæring av farskap. Inneholder
 også grenesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæringer.
 
+### brukernotifikasjoner
+
+ - #### Oppgave til far om signering
+   - Oppgave til far om signering opprettes med ekstern varsling umiddelbart etter at mor har signert
+
+ - #### Beskjed til begge foreldrene om ferdigstilt farskapserklæring
+   - Beskjed med ekstern varsling om tilgjengelig farskapserklæring sendes begge foreldrene etter at far har gjennomført signering.
+
+ - #### Beskjed ved avbrutt signering
+   - Mor avbryter => ingen beskjed
+   - Far avbryter => ekstern beskjed til mor og far
+
+ - #### Slette signeringsoppgave
+   - Slettemelding sendes umiddelbart etter at far har signert 
+   - Slettemelding sendes av skedulert jobb for oppgaver som er eldre enn 30 dager
+
+
 ### hemmeligheter
 
 !NB: Ved k8 delete app må appens Google service account legges til som Secret Manager Accessor for GCP-hemmeligheter (gjelder f.eks tilgang til 
