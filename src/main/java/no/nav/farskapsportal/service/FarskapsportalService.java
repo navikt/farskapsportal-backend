@@ -572,7 +572,8 @@ public class FarskapsportalService {
       // Validere input
       personopplysningService.navnekontroll(oppgittNavnPaaFar, navnDtoFraFolkeregisteret);
     } catch (RessursIkkeFunnetException rife) {
-      throw new FeilNavnOppgittException(rife.getFeilkode(), oppgittNavnPaaFar, navnDtoFraFolkeregisteret != null ? navnDtoFraFolkeregisteret.sammensattNavn() : "");
+      throw new FeilNavnOppgittException(rife.getFeilkode(), oppgittNavnPaaFar,
+          navnDtoFraFolkeregisteret != null ? navnDtoFraFolkeregisteret.sammensattNavn() : "");
     } catch (ValideringException ve) {
       throw new FeilNavnOppgittException(oppgittNavnPaaFar, navnDtoFraFolkeregisteret != null ? navnDtoFraFolkeregisteret.sammensattNavn() : "");
     }
@@ -806,10 +807,6 @@ public class FarskapsportalService {
       return;
     }
     throw new ValideringException(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING);
-  }
-
-  private boolean personErMorIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {
-    return foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer());
   }
 
   private boolean personErFarIFarskapserklaering(String foedselsnummer, Farskapserklaering farskapserklaering) {

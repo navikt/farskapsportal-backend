@@ -1739,7 +1739,8 @@ public class FarskapsportalServiceTest {
 
       // when
       var tidspunktTestStart = LocalDateTime.now();
-      var feilNavnOppgittException = assertThrows(FeilNavnOppgittException.class, () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
+      var feilNavnOppgittException = assertThrows(FeilNavnOppgittException.class,
+          () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       var tidspunktTestSlutt = LocalDateTime.now();
 
@@ -1749,9 +1750,12 @@ public class FarskapsportalServiceTest {
           () -> assertThat(feilNavnOppgittException.getOppgittNavn()).isEqualTo(oppgittNavnPaaFar),
           () -> assertThat(feilNavnOppgittException.getNavnIRegister()).isEqualTo(registrertNavnFar.sammensattNavn()),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek()).isEqualTo(farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isAfter(tidspunktTestStart.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isBefore(tidspunktTestSlutt.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
+          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek()).isEqualTo(
+              farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
+          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isAfter(
+              tidspunktTestStart.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
+          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isBefore(
+              tidspunktTestSlutt.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
       );
 
       // rydde testdata
@@ -1824,7 +1828,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalTelleSomForsoekDersomOppgittFnrTilFarIkkeEksisterer(){
+    void skalTelleSomForsoekDersomOppgittFnrTilFarIkkeEksisterer() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -1839,10 +1843,10 @@ public class FarskapsportalServiceTest {
       doThrow(new RessursIkkeFunnetException(Feilkode.PDL_PERSON_IKKE_FUNNET)).when(personopplysningService).henteNavn(fnrIkkeEksisterende);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(registrertNavnMor);
 
-
       // when
       var tidspunktTestStart = LocalDateTime.now();
-      var feilNavnOppgittException = assertThrows(FeilNavnOppgittException.class, () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
+      var feilNavnOppgittException = assertThrows(FeilNavnOppgittException.class,
+          () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       var tidspunktTestSlutt = LocalDateTime.now();
 
@@ -1852,9 +1856,12 @@ public class FarskapsportalServiceTest {
           () -> assertThat(feilNavnOppgittException.getOppgittNavn()).isEqualTo(oppgittNavnPaaFar),
           () -> assertThat(feilNavnOppgittException.getNavnIRegister()).isEqualTo(registrertNavnFar),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek()).isEqualTo(farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isAfter(tidspunktTestStart.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isBefore(tidspunktTestSlutt.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
+          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek()).isEqualTo(
+              farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
+          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isAfter(
+              tidspunktTestStart.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
+          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling()).isBefore(
+              tidspunktTestSlutt.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
       );
 
       // rydde testdata
@@ -2074,156 +2081,156 @@ public class FarskapsportalServiceTest {
     @Test
     void skalOppdatereBorSammeninformasjonDersomPersonErFarIFarskapserklaeringen() {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
+        // rydde testdata
+        farskapserklaeringDao.deleteAll();
 
-      // given
-      var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN));
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+        // given
+        var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN));
+        var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
-      var fnrPaaloggetPerson = FAR.getFoedselsnummer();
-      var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true)
-          .build();
+        var fnrPaaloggetPerson = FAR.getFoedselsnummer();
+        var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true)
+            .build();
 
-      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
-      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
+        when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
+        when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());
 
-      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
-      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
-      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+        when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
+        when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
+        when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
-      // when
-      var respons = farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(fnrPaaloggetPerson, request);
+        // when
+        var respons = farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(fnrPaaloggetPerson, request);
 
-      // then
-      assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue();
+        // then
+        assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue();
+      }
+
+      @Test
+      void skalKasteValideringExceptionDersomPersonIkkeErPartIFarskapserklaeringeg () {
+
+        // rydde testdata
+        farskapserklaeringDao.deleteAll();
+
+        // given
+        var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN));
+        var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+        var fnrPaaloggetPerson = "12345678910";
+        var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true)
+            .build();
+
+        // when, then
+        assertThrows(ValideringException.class,
+            () -> farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(fnrPaaloggetPerson, request));
+      }
     }
 
-    @Test
-    void skalKasteValideringExceptionDersomPersonIkkeErPartIFarskapserklaeringeg() {
+    @Nested
+    class HenteDokumentinnhold {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
+      @Test
+      void skalHenteDokumentinnholdForFarMedVentendeErklaering() {
 
-      // given
-      var farskapserklaering = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN));
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+        // rydde testdata
+        farskapserklaeringDao.deleteAll();
+        forelderDao.deleteAll();
 
-      var fnrPaaloggetPerson = "12345678910";
-      var request = OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true)
-          .build();
+        // given
+        var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
+        farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
+        farskapserklaering.getDokument().setDokumentinnhold(
+            Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
+        farskapserklaeringDao.save(farskapserklaering);
 
-      // when, then
-      assertThrows(ValideringException.class,
-          () -> farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(fnrPaaloggetPerson, request));
+        // when
+        var dokumentinnhold = farskapsportalService.henteDokumentinnhold(FAR.getFoedselsnummer(), farskapserklaering.getId());
+
+        // then
+        assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
+      }
+
+      @Test
+      void skalKasteExceptionDersomPersonIkkeErPartIErklaeringen() {
+
+        // rydde testdata
+        farskapserklaeringDao.deleteAll();
+        forelderDao.deleteAll();
+
+        // given
+        var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
+        farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
+        farskapserklaeringDao.save(farskapserklaering);
+
+        // when, then
+        assertThrows(ValideringException.class, () -> farskapsportalService
+            .henteDokumentinnhold(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + "35351", farskapserklaering.getId()));
+      }
+
+      @Test
+      void skalKasteRessursIkkeFunnetExceptionForFarDersomErklaeringIkkeFinnes() {
+
+        // given
+        var idFarskapserklaeringSomIkkeFinnes = 123;
+
+        // when, then
+        assertThrows(RessursIkkeFunnetException.class, () -> farskapsportalService
+            .henteDokumentinnhold(FAR.getFoedselsnummer(), idFarskapserklaeringSomIkkeFinnes));
+
+      }
+
+      @Test
+      void skalKasteExceptionForFarHvisMorIkkeHarSignert() {
+
+        // rydde testdata
+        farskapserklaeringDao.deleteAll();
+        forelderDao.deleteAll();
+
+        // given
+        var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
+        farskapserklaeringDao.save(farskapserklaering);
+
+        // when
+        var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService
+            .henteDokumentinnhold(FAR.getFoedselsnummer(), farskapserklaering.getId()));
+
+        // then
+        assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
+
+      }
+
+      @Test
+      void skalHenteDokumentForMorMedAktivErklaering() {
+
+        // rydde testdata
+        farskapserklaeringDao.deleteAll();
+        forelderDao.deleteAll();
+
+        // given
+        var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
+        farskapserklaering.getDokument().setDokumentinnhold(
+            Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
+        farskapserklaeringDao.save(farskapserklaering);
+
+        // when
+        var dokumentinnhold = farskapsportalService.henteDokumentinnhold(MOR.getFoedselsnummer(), farskapserklaering.getId());
+
+        // then
+        assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
+      }
+
+      @Test
+      void skalKasteRessursIkkeFunnetExceptionForMorUtenAktiveErklaeringer() {
+
+        // rydde testdata
+        farskapserklaeringDao.deleteAll();
+
+        // given
+        var idFarskapserklaeringSomIkkeFinnes = 1525;
+
+        // when, then
+        assertThrows(RessursIkkeFunnetException.class, () -> farskapsportalService
+            .henteDokumentinnhold(FAR.getFoedselsnummer(), idFarskapserklaeringSomIkkeFinnes));
+      }
     }
   }
-
-  @Nested
-  class HenteDokumentinnhold {
-
-    @Test
-    void skalHenteDokumentinnholdForFarMedVentendeErklaering() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
-      // given
-      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
-      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaering.getDokument().setDokumentinnhold(
-          Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
-      farskapserklaeringDao.save(farskapserklaering);
-
-      // when
-      var dokumentinnhold = farskapsportalService.henteDokumentinnhold(FAR.getFoedselsnummer(), farskapserklaering.getId());
-
-      // then
-      assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
-    }
-
-    @Test
-    void skalKasteExceptionDersomPersonIkkeErPartIErklaeringen() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
-      // given
-      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
-      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaeringDao.save(farskapserklaering);
-
-      // when, then
-      assertThrows(ValideringException.class, () -> farskapsportalService
-          .henteDokumentinnhold(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + "35351", farskapserklaering.getId()));
-    }
-
-    @Test
-    void skalKasteRessursIkkeFunnetExceptionForFarDersomErklaeringIkkeFinnes() {
-
-      // given
-      var idFarskapserklaeringSomIkkeFinnes = 123;
-
-      // when, then
-      assertThrows(RessursIkkeFunnetException.class, () -> farskapsportalService
-          .henteDokumentinnhold(FAR.getFoedselsnummer(), idFarskapserklaeringSomIkkeFinnes));
-
-    }
-
-    @Test
-    void skalKasteExceptionForFarHvisMorIkkeHarSignert() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
-      // given
-      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
-      farskapserklaeringDao.save(farskapserklaering);
-
-      // when
-      var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService
-          .henteDokumentinnhold(FAR.getFoedselsnummer(), farskapserklaering.getId()));
-
-      // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
-
-    }
-
-    @Test
-    void skalHenteDokumentForMorMedAktivErklaering() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
-      // given
-      var farskapserklaering = farskapserklaeringDao.save(mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, BARN)));
-      farskapserklaering.getDokument().setDokumentinnhold(
-          Dokumentinnhold.builder().innhold("Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8)).build());
-      farskapserklaeringDao.save(farskapserklaering);
-
-      // when
-      var dokumentinnhold = farskapsportalService.henteDokumentinnhold(MOR.getFoedselsnummer(), farskapserklaering.getId());
-
-      // then
-      assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
-    }
-
-    @Test
-    void skalKasteRessursIkkeFunnetExceptionForMorUtenAktiveErklaeringer() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-
-      // given
-      var idFarskapserklaeringSomIkkeFinnes = 1525;
-
-      // when, then
-      assertThrows(RessursIkkeFunnetException.class, () -> farskapsportalService
-          .henteDokumentinnhold(FAR.getFoedselsnummer(), idFarskapserklaeringSomIkkeFinnes));
-    }
-  }
-}
