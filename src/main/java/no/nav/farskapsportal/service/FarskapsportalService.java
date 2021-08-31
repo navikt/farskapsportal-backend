@@ -434,6 +434,7 @@ public class FarskapsportalService {
         if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
           brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer(),
               farskapserklaering.getFar().getFoedselsnummer());
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
         }
       }
 

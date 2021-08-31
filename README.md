@@ -15,6 +15,9 @@ også grenesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæri
    - Mor avbryter => ingen beskjed
    - Far avbryter => ekstern beskjed til mor og far
 
+ - #### Beskjed til mor ved utgått signeringsoppgave
+   - Mor mottar ekstern melding dersom far ikke signerer innen fristen
+
  - #### Slette signeringsoppgave
    - Slettemelding sendes umiddelbart etter at far har signert 
    - Slettemelding sendes av skedulert jobb for oppgaver som er eldre enn 30 dager
