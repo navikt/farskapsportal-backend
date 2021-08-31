@@ -21,15 +21,18 @@ public class BrukernotifikasjonConsumer {
   private final Oppgaveprodusent oppgaveprodusent;
 
   public void informereForeldreOmTilgjengeligFarskapserklaering(String foedselsnummerMor, String foedselsnummerFar) {
+    log.info("Informerer foreldre om ferdigstilt farskapserklæring.");
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, farskapsportalUrl);
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, farskapsportalUrl);
   }
 
   public void varsleMorOmUtgaattOppgaveForSignering(String foedselsnummerMor) {
+    log.info("Sender varsel til mor om utgått signeringsoppgave");
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, farskapsportalUrl);
   }
 
   public void varsleOmAvbruttSignering(String foedselsnummerMor, String foedselsnummerFar) {
+    log.info("Varsler brukere om avbrutt signering");
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerMor, MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING, true, farskapsportalUrl);
     beskjedprodusent.oppretteBeskjedTilBruker(foedselsnummerFar, MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING, true, farskapsportalUrl);
   }
@@ -42,6 +45,7 @@ public class BrukernotifikasjonConsumer {
   }
 
   public void sletteFarsSigneringsoppgave(int idFarskapserklaering, String foedselsnummerFar) {
+    log.info("Sletter signeringsoppgave knyttet til farskapserklæring med id {}", idFarskapserklaering);
     ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Integer.toString(idFarskapserklaering), foedselsnummerFar);
   }
 }
