@@ -64,8 +64,8 @@ farskapsportal.egenskaper:
   skatt:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 10000
-    maks-ventetid-forbindelse: 10000
+    maks-ventetid-lesing: 120000
+    maks-ventetid-forbindelse: 130000
 
 management:
   endpoints.web:
