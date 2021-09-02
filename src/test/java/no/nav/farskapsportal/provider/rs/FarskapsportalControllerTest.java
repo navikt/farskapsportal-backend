@@ -29,11 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
@@ -118,8 +115,8 @@ public class FarskapsportalControllerTest {
   private static final BarnDto BARN_MED_FNR = henteNyligFoedtBarn();
   private static final KontrollerePersonopplysningerRequest KONTROLLEREOPPLYSNINGER_OM_FAR = KontrollerePersonopplysningerRequest.builder()
       .foedselsnummer(FAR.getFoedselsnummer()).navn(FAR.getNavn().sammensattNavn()).build();
-  private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_MOR = getKjoennshistorikk(KjoennType.KVINNE);
-  private static final Map<KjoennType, LocalDateTime> KJOENNSHISTORIKK_FAR = getKjoennshistorikk(KjoennType.MANN);
+  private static final LinkedHashMap<KjoennType, LocalDateTime> KJOENNSHISTORIKK_MOR = getKjoennshistorikk(KjoennType.KVINNE);
+  private static final LinkedHashMap<KjoennType, LocalDateTime> KJOENNSHISTORIKK_FAR = getKjoennshistorikk(KjoennType.MANN);
   private static final BostedsadresseDto BOSTEDSADRESSE = getBostedsadresse(true);
   private static final String REDIRECT_URL = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
 
@@ -166,9 +163,11 @@ public class FarskapsportalControllerTest {
     return new HttpEntity<>(body, headers);
   }
 
-  private static Map<KjoennType, LocalDateTime> getKjoennshistorikk(KjoennType kjoennType) {
-    return Stream.of(new Object[][]{{kjoennType, LocalDateTime.now()}})
-        .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+  private static LinkedHashMap<KjoennType, LocalDateTime> getKjoennshistorikk(KjoennType kjoennType) {
+    var kjoennshistorikk = new LinkedHashMap<KjoennType, LocalDateTime>();
+    kjoennshistorikk.put(kjoennType, LocalDateTime.now());
+
+    return kjoennshistorikk;
   }
 
   private static BostedsadresseDto getBostedsadresse(boolean erNorsk) {
@@ -250,7 +249,7 @@ public class FarskapsportalControllerTest {
 
     when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrPaaloggetBruker);
 
-    when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
+    when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
     doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
   }
 
@@ -293,7 +292,7 @@ public class FarskapsportalControllerTest {
       var foedselsdatoMor = foedselsdatoSpedbarn.minusYears(28).minusMonths(2).minusDays(13);
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + "12340";
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
       stsStub.runSecurityTokenServiceStub("jalla");
       var morsRelasjonTilBarn = ForelderBarnRelasjonDto.builder().minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN).relatertPersonsIdent(fnrSpedbarn).build();
@@ -350,7 +349,7 @@ public class FarskapsportalControllerTest {
           .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
       persistenceService.oppdatereFarskapserklaering(lagretFarskapserklaering);
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -407,7 +406,7 @@ public class FarskapsportalControllerTest {
           .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
       persistenceService.oppdatereFarskapserklaering(lagretFarskapserklaering);
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -463,7 +462,7 @@ public class FarskapsportalControllerTest {
           .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -512,7 +511,7 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaeringSomVenterPaaMor));
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -550,7 +549,7 @@ public class FarskapsportalControllerTest {
       var foedselsdatoMor = foedselsdatoSpedbarn.minusYears(28).minusMonths(2).minusDays(13);
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + "12340";
 
-      var kjoennshistorikk = new HashMap<KjoennType, LocalDateTime>();
+      var kjoennshistorikk = new LinkedHashMap<KjoennType, LocalDateTime>();
       stsStub.runSecurityTokenServiceStub("jalla");
 
       var spedbarnetsRelasjonTilMor = ForelderBarnRelasjonDto.builder().relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR)
@@ -580,7 +579,7 @@ public class FarskapsportalControllerTest {
     void valideringFeilerDersomMorErBosattUtenforNorge() {
 
       // given
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
@@ -645,7 +644,73 @@ public class FarskapsportalControllerTest {
     @Test
     @DisplayName("Bruker med forelderrolle MOR_ELLER_FAR skal se ventende farskapserklæringer for både mor og far")
     void brukerMedForelderrolleMorEllerFarSkalSeVentendeFarskapserklaeringerForBaadeMorOgFar() {
-      brukeStandardMocks(FAR.getFoedselsnummer());
+
+      var enAnnenMor = ForelderDto.builder().navn(NavnDto.builder().fornavn("Høne").etternavn("Mor").build()).forelderrolle(Forelderrolle.MOR)
+          .foedselsnummer("01010144444").foedselsdato(LocalDate.now().minusYears(30)).build();
+      var kvinneSomHarSkiftetKjoenn = MOR;
+
+      // given
+      var farskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne = henteFarskapserklaeringDto(enAnnenMor, kvinneSomHarSkiftetKjoenn, BARN_UTEN_FNR);
+      farskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
+
+      var lagretFarskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne = persistenceService.lagreNyFarskapserklaering(
+          mapper.toEntity(farskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne));
+      lagretFarskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      persistenceService.oppdatereFarskapserklaering(lagretFarskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne);
+
+      var farskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering = henteFarskapserklaeringDto(kvinneSomHarSkiftetKjoenn, FAR, BARN_UTEN_FNR);
+      farskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering.getDokument().setSignertAvMor(LocalDateTime.now().minusDays(3));
+
+      var lagretFarskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering = persistenceService.lagreNyFarskapserklaering(
+          mapper.toEntity(farskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering));
+      lagretFarskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      persistenceService.oppdatereFarskapserklaering(lagretFarskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering);
+
+      var kjoennshistorikk = new LinkedHashMap<KjoennType, LocalDateTime>();
+      kjoennshistorikk.put(KjoennType.KVINNE, LocalDateTime.now().minusYears(9));
+      kjoennshistorikk.put(KjoennType.MANN, LocalDateTime.now().minusYears(2));
+
+      stsStub.runSecurityTokenServiceStub("jalla");
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+              new HentPersonForelderBarnRelasjon(null, null),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonFoedsel(kvinneSomHarSkiftetKjoenn.getFoedselsdato(), false),
+              new HentPersonNavn(kvinneSomHarSkiftetKjoenn.getNavn()),
+              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                  .build()),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+          kvinneSomHarSkiftetKjoenn.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonNavn(FAR.getNavn())),
+          FAR.getFoedselsnummer());
+
+      pdlApiStub.runPdlApiHentPersonStub(List.of(
+          new HentPersonFoedsel(enAnnenMor.getFoedselsdato(), false),
+          new HentPersonNavn(enAnnenMor.getNavn())
+      ), enAnnenMor.getFoedselsnummer());
+
+      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(kvinneSomHarSkiftetKjoenn.getFoedselsnummer());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+
+      var brukerinformasjonResponse = respons.getBody();
+
+      // then
+      assertAll(
+          () -> assertThat(respons.getStatusCode().is2xxSuccessful()).isTrue(),
+          () -> assertThat(brukerinformasjonResponse.isKanOppretteFarskapserklaering()).isTrue(),
+          () -> assertThat(brukerinformasjonResponse.getForelderrolle()).isEqualTo(Forelderrolle.MOR_ELLER_FAR),
+          () -> assertThat(brukerinformasjonResponse.getAvventerSigneringBruker().size()).isEqualTo(1),
+          () -> assertThat(brukerinformasjonResponse.getAvventerSigneringMotpart().size()).isEqualTo(1));
     }
   }
 
@@ -671,8 +736,8 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn(fornavnFar).etternavn(etternavnFar).build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
-      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -717,8 +782,8 @@ public class FarskapsportalControllerTest {
       var registrertNavn = NavnDto.builder().fornavn(fornavnFar).etternavn(etternavnFar).build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
-      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -763,7 +828,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -792,7 +857,7 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -840,8 +905,8 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -886,8 +951,8 @@ public class FarskapsportalControllerTest {
 
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -1129,7 +1194,7 @@ public class FarskapsportalControllerTest {
       var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonKjoenn(kjoennshistorikkMor), new HentPersonNavn(registrertNavnMor), new HentPersonFoedsel(FOEDSELSDATO_MOR, false)),
@@ -1198,7 +1263,7 @@ public class FarskapsportalControllerTest {
       var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonNavn(registrertNavnFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
@@ -1269,7 +1334,7 @@ public class FarskapsportalControllerTest {
       doNothing().when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(registrertNavnFar)),
@@ -1331,7 +1396,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(nyopprettetFarskapserklaering);
 
       var registrertNavnMor = MOR.getNavn();
-      Map<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
@@ -1391,7 +1456,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
 
       var registrertNavnFar = FAR.getNavn();
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
@@ -1451,7 +1516,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
 
       var registrertNavnFar = FAR.getNavn();
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
@@ -1504,7 +1569,7 @@ public class FarskapsportalControllerTest {
       doNothing().when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      Map<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
+      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(new HentPersonKjoenn(kjoennshistorikkFar), new HentPersonFoedsel(FOEDSELSDATO_FAR, false), new HentPersonNavn(registrertNavnFar)),

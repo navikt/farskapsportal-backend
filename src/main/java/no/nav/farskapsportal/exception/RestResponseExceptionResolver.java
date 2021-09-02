@@ -8,6 +8,7 @@ import no.nav.farskapsportal.api.FarskapserklaeringFeilResponse;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.pdl.PdlApiErrorException;
 import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class RestResponseExceptionResolver {
 
   private final ExceptionLogger exceptionLogger;
+
+  @ExceptionHandler(ConversionFailedException.class)
+  public ResponseEntity<String> handleConflict(RuntimeException ex) {
+    return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
 
   @ResponseBody
   @ExceptionHandler(IllegalArgumentException.class)

@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.PDFConsumerException;
@@ -28,10 +30,15 @@ import org.w3c.dom.Document;
 @Slf4j
 public class PdfGeneratorConsumer {
 
-  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer) {
-    log.info("Oppretter dokument for farskapserklæring");
+  private static final String STI_TIL_PDF_TEMPLATE = "/pdf-template/";
 
-    var html = byggeHtmlstrengFraMal("/pdf-template/template.html", barnMedDetaljer, morMedDetaljer, farMedDetaljer);
+  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer, Optional<Skriftspraak> skriftsspraak) {
+
+    var valgtSkriftspraak = skriftsspraak.isEmpty() ? Skriftspraak.BOKMAAL : skriftsspraak.get();
+
+    log.info("Oppretter dokument for farskapserklæring på {}", valgtSkriftspraak);
+
+    var html = byggeHtmlstrengFraMal(STI_TIL_PDF_TEMPLATE + valgtSkriftspraak.toString().toLowerCase() + ".html", barnMedDetaljer, morMedDetaljer, farMedDetaljer);
     try (final ByteArrayOutputStream pdfStream = new ByteArrayOutputStream()) {
 
       var htmlSomStroem = new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8));
@@ -105,9 +112,9 @@ public class PdfGeneratorConsumer {
     foedselsnummer.first().text("Fødselsnummer: " + forelderDto.getFoedselsnummer());
   }
 
-  private String byggeHtmlstrengFraMal(String stiHtmlMal, BarnDto barn, ForelderDto mor, ForelderDto far) {
+  private String byggeHtmlstrengFraMal(String pdfmal, BarnDto barn, ForelderDto mor, ForelderDto far) {
     try {
-      var input = new ClassPathResource(stiHtmlMal).getInputStream();
+      var input = new ClassPathResource(pdfmal).getInputStream();
       var document = Jsoup.parse(input, "UTF-8", "");
 
       // Legge til informasjon om barn

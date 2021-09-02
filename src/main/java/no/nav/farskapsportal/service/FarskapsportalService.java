@@ -172,7 +172,8 @@ public class FarskapsportalService {
     var forelderDtoMor = oppretteForelderDto(fnrMor);
     var forelderDtoFar = oppretteForelderDto(request.getOpplysningerOmFar().getFoedselsnummer());
 
-    var innhold = pdfGeneratorConsumer.genererePdf(barnDto, forelderDtoMor, forelderDtoFar);
+    var innhold = pdfGeneratorConsumer.genererePdf(barnDto, forelderDtoMor, forelderDtoFar,
+        request.getSkriftspraak() == null ? Optional.empty() : Optional.of(request.getSkriftspraak()));
 
     var dokument = Dokument.builder()
         .dokumentnavn("Farskapserklaering.pdf")
@@ -499,8 +500,8 @@ public class FarskapsportalService {
 
     validereSivilstand(fnrPaaloggetPerson);
 
-    var kjoennPaaloggetPerson = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-    var paaloggetPersonKanOpptreSomMor = Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson);
+    var forelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
+    var paaloggetPersonKanOpptreSomMor = Forelderrolle.MOR.equals(forelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(forelderrolle);
 
     if (!paaloggetPersonKanOpptreSomMor) {
       throw new ValideringException(Feilkode.FEIL_ROLLE_OPPRETTE);

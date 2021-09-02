@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
@@ -40,7 +41,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfForUfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR, Optional.empty());
 
     // then
     if (skriveUtPdf) {
@@ -64,7 +65,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfForNyfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR, Optional.empty());
 
     // then
     if (skriveUtPdf) {
@@ -100,7 +101,7 @@ public class PdfGeneratorConsumerTest {
             .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn, Optional.empty());
 
     // then
     PDDocument doc = PDDocument.load(pdfstroem);

@@ -23,12 +23,13 @@ import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
-import no.nav.farskapsportal.consumer.joark.FarskapsportalJoarkMapper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.consumer.joark.FarskapsportalJoarkMapper;
+import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.consumer.pdl.PdlApiConsumerEndpointName;
@@ -56,7 +57,10 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Slf4j
 @Configuration
@@ -75,8 +79,6 @@ public class FarskapsportalConfig {
             .addSecuritySchemes("bearer-key", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
         ).info(new io.swagger.v3.oas.models.info.Info().title("farskapsportal-api").version("v1"));
   }
-
-  ;
 
   @Bean
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
@@ -121,6 +123,8 @@ public class FarskapsportalConfig {
     log.info("Oppretter JournalpostApiConsumer med url {}", journalpostapiUrl);
     return new JournalpostApiConsumer(restTemplate, consumerEndpoint, farskapsportalJoarkMapper);
   }
+
+  ;
 
   @Bean
   public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
@@ -241,6 +245,23 @@ public class FarskapsportalConfig {
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) throws InterruptedException {
       Thread.sleep(30000);
       Flyway.configure().dataSource(dataSource).load().migrate();
+    }
+  }
+
+  public class StringToEnumConverter implements Converter<String, Skriftspraak> {
+
+    @Override
+    public Skriftspraak convert(String source) {
+      return Skriftspraak.valueOf(source.toUpperCase());
+    }
+  }
+
+  @Configuration
+  public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+      registry.addConverter(new StringToEnumConverter());
     }
   }
 }

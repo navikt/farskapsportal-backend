@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
@@ -510,7 +511,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
       // legger på redirecturl til dokument i void-metode
       doAnswer(invocation -> {
@@ -579,7 +580,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
       // legger på redirecturl til dokument i void-metode
       doAnswer(new Answer() {
@@ -644,7 +645,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFolkeregisteridentifikator(barnFoedtInnenforGyldigIntervall.getFoedselsnummer())).thenReturn(
           FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .build());
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
       // legger på redirecturl til dokument i void-metode
       doAnswer(new Answer() {
@@ -711,7 +712,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
       // legger på redirecturl til dokument i void-metode
       doAnswer(new Answer() {
@@ -822,7 +823,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
@@ -857,7 +858,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .build());
 
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
@@ -896,7 +897,7 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(true);
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
       // when
@@ -946,7 +947,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(FAR.getFoedselsnummer()).status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build());
 
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
       when(personopplysningService.henteFoedeland(fnrSpedbarnUtenFar)).thenReturn(KODE_LAND_NORGE);
       when(personopplysningService.henteFoedeland(barnUtenRelasjonTilMor.getFoedselsnummer())).thenReturn(KODE_LAND_NORGE);
@@ -1009,7 +1010,7 @@ public class FarskapsportalServiceTest {
 
       when(personopplysningService.henteFoedselsdato(nyfoedt.getFoedselsnummer())).thenReturn(nyfoedt.getFoedselsdato());
 
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 
@@ -1058,7 +1059,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFolkeregisteridentifikator(nyfoedt.getFoedselsnummer())).thenReturn(
           FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .build());
-      when(pdfGeneratorConsumer.genererePdf(any(), any(), any())).thenReturn(pdf);
+      when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
       doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
 

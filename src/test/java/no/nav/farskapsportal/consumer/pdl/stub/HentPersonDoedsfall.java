@@ -33,4 +33,9 @@ public class HentPersonDoedsfall implements HentPersonSubResponse {
       return String.join("\n", " \"doedsfall\": [", "]");
     }
   }
+
+  @Override
+  public String hentRespons(boolean medHistorikk) {
+    return medHistorikk ? response : response;
+  }
 }

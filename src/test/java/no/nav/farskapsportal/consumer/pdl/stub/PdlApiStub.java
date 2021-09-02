@@ -21,7 +21,7 @@ public class PdlApiStub {
   @Value("${url.pdl-api.graphql}")
   private String pdlApiGraphqlEndpoint;
 
-  private static String stubHentPerson(List<HentPersonSubResponse> subResponses) {
+  private static String stubHentPerson(List<HentPersonSubResponse> subResponses, boolean medHistorikk) {
 
     var startingElements = String.join("\n", " {", " \"data\": {", " \"hentPerson\": {");
 
@@ -32,7 +32,7 @@ public class PdlApiStub {
 
     var count = 0;
     for (HentPersonSubResponse subResponse : subResponses) {
-      stubResponse.append(subResponse.getResponse());
+      stubResponse.append(subResponse.hentRespons(medHistorikk));
       if (subResponses.size() > 1 && (count == 0 || count < (subResponses.size() - 1))) {
         stubResponse.append(",");
       }
@@ -50,10 +50,14 @@ public class PdlApiStub {
 
   public void runPdlApiHentPersonStub(List<HentPersonSubResponse> subResponses, String ident) {
 
-    var query = stubHentPerson(subResponses);
+    var responsUtenHistorikk = stubHentPerson(subResponses, false);
+    var responsMedHistorikk = stubHentPerson(subResponses, true);
 
-    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).willReturn(
-        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(query)));
+    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).withRequestBody(containing("historikk\":false")).willReturn(
+        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(responsUtenHistorikk)));
+
+    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).withRequestBody(containing("historikk\":true")).willReturn(
+        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK).withBody(responsMedHistorikk)));
   }
 
   public void runPdlApiHentPersonFantIkkePersonenStub() {
