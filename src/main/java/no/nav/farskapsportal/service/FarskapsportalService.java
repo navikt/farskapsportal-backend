@@ -182,7 +182,8 @@ public class FarskapsportalService {
         .build();
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
-    difiESignaturConsumer.oppretteSigneringsjobb(dokument, Skriftspraak.BOKMAAL, mapper.toEntity(forelderDtoMor), mapper.toEntity(forelderDtoFar));
+    difiESignaturConsumer.oppretteSigneringsjobb(dokument, request.getSkriftspraak() == null ? Skriftspraak.BOKMAAL : request.getSkriftspraak(),
+        mapper.toEntity(forelderDtoMor), mapper.toEntity(forelderDtoFar));
 
     log.info("Lagre farskapserklæring");
     var farskapserklaering = Farskapserklaering.builder()
