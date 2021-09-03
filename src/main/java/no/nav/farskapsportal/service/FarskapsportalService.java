@@ -26,6 +26,7 @@ import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Rolle;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
@@ -176,12 +177,12 @@ public class FarskapsportalService {
         request.getSkriftspraak() == null ? Optional.empty() : Optional.of(request.getSkriftspraak()));
 
     var dokument = Dokument.builder()
-        .dokumentnavn("Farskapserklaering.pdf")
+        .navn("Farskapserklaering.pdf")
         .dokumentinnhold(Dokumentinnhold.builder().innhold(innhold).build())
         .build();
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
-    difiESignaturConsumer.oppretteSigneringsjobb(dokument, mapper.toEntity(forelderDtoMor), mapper.toEntity(forelderDtoFar));
+    difiESignaturConsumer.oppretteSigneringsjobb(dokument, Skriftspraak.BOKMAAL, mapper.toEntity(forelderDtoMor), mapper.toEntity(forelderDtoFar));
 
     log.info("Lagre farskapserklæring");
     var farskapserklaering = Farskapserklaering.builder()
@@ -247,7 +248,7 @@ public class FarskapsportalService {
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
     var aktuellFarskapserklaering = farskapserklaeringer.stream().filter(Objects::nonNull)
-        .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
+        .filter(fe -> fe.getDokument().getStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
         .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.INGEN_TREFF_PAA_TOKEN));
 
     log.info("Statuslenke tilhører farskapserklaering med id {}", aktuellFarskapserklaering.getId());
@@ -772,7 +773,7 @@ public class FarskapsportalService {
 
     log.info("Henter dokumentstatus fra Posten.");
 
-    Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getDokumentStatusUrl)
+    Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getStatusUrl)
         .map(this::tilUri)
         .collect(Collectors.toSet());
 

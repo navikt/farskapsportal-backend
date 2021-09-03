@@ -41,11 +41,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
@@ -83,7 +81,6 @@ import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -519,7 +516,7 @@ public class FarskapsportalServiceTest {
         var dokument = (Dokument) args[0];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/mors-redirect").toString()).build());
         return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
@@ -590,7 +587,7 @@ public class FarskapsportalServiceTest {
           dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/mors-redirect").toString()).build());
           return null;
         }
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
@@ -655,7 +652,7 @@ public class FarskapsportalServiceTest {
           dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/mors-redirect").toString()).build());
           return null;
         }
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when, then
       assertThrows(ValideringException.class, () -> farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
@@ -722,7 +719,7 @@ public class FarskapsportalServiceTest {
           dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build());
           return null;
         }
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var respons = farskapsportalService.oppretteFarskapserklaering(MOR.getFoedselsnummer(),
@@ -824,7 +821,7 @@ public class FarskapsportalServiceTest {
               .build());
 
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -859,7 +856,7 @@ public class FarskapsportalServiceTest {
               .build());
 
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -898,7 +895,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(registrertNavnFar);
       when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(true);
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -961,7 +958,7 @@ public class FarskapsportalServiceTest {
               .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build());
 
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -1012,7 +1009,7 @@ public class FarskapsportalServiceTest {
 
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -1061,7 +1058,7 @@ public class FarskapsportalServiceTest {
               .build());
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
 
-      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -1091,7 +1088,7 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvMor());
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
@@ -1154,7 +1151,7 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvFar());
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -1216,12 +1213,12 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvMor());
 
       var lagretDeaktivFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretDeaktivFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretDeaktivFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       lagretDeaktivFarskapserklaering.setDeaktivert(LocalDateTime.now());
       farskapserklaeringDao.save(lagretDeaktivFarskapserklaering);
 
       var lagretAktivFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretAktivFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretAktivFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretAktivFarskapserklaering);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
@@ -1284,7 +1281,7 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvFar());
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -1349,7 +1346,7 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvFar());
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -1410,7 +1407,7 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvMor());
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
@@ -1468,7 +1465,7 @@ public class FarskapsportalServiceTest {
       assertNull(farskapserklaering.getDokument().getSignertAvFar());
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
-      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       assertNull(farskapserklaering.getDokument().getSignertAvFar());

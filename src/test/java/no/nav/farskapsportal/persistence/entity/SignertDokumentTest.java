@@ -3,7 +3,6 @@ package no.nav.farskapsportal.persistence.entity;
 import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,11 +20,11 @@ public class SignertDokumentTest {
 
     var signertDokument =
         Dokument.builder()
-            .dokumentnavn("farsSignerteErklaering.pdf")
+            .navn("farsSignerteErklaering.pdf")
             .build();
 
     var toString = signertDokument.toString();
 
-    assertEquals("Dokumentnavn: " + signertDokument.getDokumentnavn(), toString);
+    assertEquals("Dokumentnavn: " + signertDokument.getNavn(), toString);
   }
 }

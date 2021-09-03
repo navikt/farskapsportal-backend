@@ -3,7 +3,6 @@ package no.nav.farskapsportal.consumer.skatt;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -91,7 +90,7 @@ public class SkattConsumer {
 
     // Vedlegg - Ferdig signert farskapserklæring PAdES
     var padesDokument = oppretteVedlegg(MediaType.APPLICATION_PDF, farskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
-        farskapserklaering.getDokument().getDokumentnavn());
+        farskapserklaering.getDokument().getNavn());
     multipartRequest.set("vedlegg", padesDokument);
 
     // vedlegg2 - XADES mor
@@ -182,7 +181,7 @@ public class SkattConsumer {
             .saksbehandlersVurdering(SaksbehandlersVurdering.builder().skjemaErAttestert(tilBoolsk(true))
                 .vedlagtFarskapsskjemaErOriginalt(tilBoolsk(true)).build())
             .vedlegg(List.of(
-                new Vedlegg(new Tekst("PDF"), new Tekst(farskapserklaering.getDokument().getDokumentnavn())),
+                new Vedlegg(new Tekst("PDF"), new Tekst(farskapserklaering.getDokument().getNavn())),
                 new Vedlegg(new Tekst("XML"), new Tekst("xadesMor.xml")),
                 new Vedlegg(new Tekst("XML"), new Tekst("xadesFar.xml"))))
             .foreldreBorSammen(new Boolsk(true))
@@ -195,7 +194,7 @@ public class SkattConsumer {
       Validate.isTrue(farskapserklaering.getMeldingsidSkatt() != null);
       Validate.isTrue(farskapserklaering.getFar().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getMor().getFoedselsnummer() != null);
-      Validate.isTrue(farskapserklaering.getDokument().getDokumentnavn() != null);
+      Validate.isTrue(farskapserklaering.getDokument().getNavn() != null);
       Validate.isTrue(farskapserklaering.getDokument().getDokumentinnhold().getInnhold() != null);
       Validate.isTrue(farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null);
       Validate.isTrue(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null);

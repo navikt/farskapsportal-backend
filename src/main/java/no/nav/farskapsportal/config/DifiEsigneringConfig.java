@@ -12,6 +12,7 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DifiEsigneringConfig {
 
-  private String miljoe;
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private String miljoe;
 
   public DifiEsigneringConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper, @Value("${NAIS_CLUSTER_NAME}") String navClusterName) {
     this.farskapsportalEgenskaper = farskapsportalEgenskaper;
@@ -47,14 +48,14 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
-  public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient) {
+  public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient, @Autowired PersistenceService persistenceService) {
 
     var exitUrls = ExitUrls
         .of(URI.create(farskapsportalEgenskaper.getEsignering().getSuksessUrl()),
             URI.create(farskapsportalEgenskaper.getEsignering().getAvbruttUrl()),
             URI.create(farskapsportalEgenskaper.getEsignering().getFeiletUrl()));
 
-    return new DifiESignaturConsumer(exitUrls, directClient);
+    return new DifiESignaturConsumer(exitUrls, directClient, persistenceService);
   }
 
   private enum NavClusterName {

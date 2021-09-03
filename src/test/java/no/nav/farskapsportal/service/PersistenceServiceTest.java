@@ -115,7 +115,7 @@ public class PersistenceServiceTest {
       var redirectUrlMor = "https://esignering.no/redirect-mor";
       var redirectUrlFar = "https://esignering.no/redirect-far";
 
-      var dokument = Dokument.builder().dokumentnavn("farskapserklaring.pdf")
+      var dokument = Dokument.builder().navn("farskapserklaring.pdf")
           .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
           .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).build();
 
@@ -124,7 +124,7 @@ public class PersistenceServiceTest {
       var hentetDokument = dokumentDao.findById(lagretDokument.getId()).get();
 
       // then
-      assertEquals(dokument.getDokumentnavn(), hentetDokument.getDokumentnavn());
+      assertEquals(dokument.getNavn(), hentetDokument.getNavn());
 
       // clean up test data
       dokumentDao.delete(lagretDokument);

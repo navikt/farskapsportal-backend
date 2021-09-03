@@ -188,7 +188,7 @@ public class MapperTest {
       var dokument = mapper.toEntity(DOKUMENT_DTO);
 
       // then
-      assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getDokumentnavn()),
+      assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getNavn()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokument.getSigneringsinformasjonFar().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokument.getSigneringsinformasjonMor().getSigneringstidspunkt()),
           () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar().toString(), dokument.getSigneringsinformasjonFar().getRedirectUrl()),

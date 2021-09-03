@@ -250,7 +250,7 @@ public class FarskapsportalControllerTest {
     when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrPaaloggetBruker);
 
     when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
-    doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+    doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
   }
 
   @AfterEach
@@ -1027,7 +1027,7 @@ public class FarskapsportalControllerTest {
         var dokument = (Dokument) args[0];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
         return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1139,7 +1139,7 @@ public class FarskapsportalControllerTest {
         var dokument = (Dokument) args[0];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-mor").toString()).build());
         return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any());
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1186,12 +1186,12 @@ public class FarskapsportalControllerTest {
       var lagretFarskapserklaering = farskapserklaeringDao.save(mapper.toEntity(farskapserklaeringUtenSignaturer));
       lagretFarskapserklaering.getDokument()
           .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
-      lagretFarskapserklaering.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      lagretFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status").toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       var registrertNavnMor = MOR.getNavn();
       var registrertNavnFar = FAR.getNavn();
-      var statuslenke = lagretFarskapserklaering.getDokument().getDokumentStatusUrl();
+      var statuslenke = lagretFarskapserklaering.getDokument().getStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
@@ -1254,13 +1254,13 @@ public class FarskapsportalControllerTest {
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mapper.toEntity(farskapserklaeringSignertAvMor));
       lagretFarskapserklaeringSignertAvMor.getDokument()
           .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-      lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl("https://esignering.no/status");
+      lagretFarskapserklaeringSignertAvMor.getDokument().setStatusUrl("https://esignering.no/status");
       lagretFarskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.no/" + MOR.getFoedselsnummer() + "/status");
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var registrertNavnFar = FAR.getNavn();
       var registrertNavnMor = MOR.getNavn();
-      var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentStatusUrl();
+      var statuslenke = lagretFarskapserklaeringSignertAvMor.getDokument().getStatusUrl();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
@@ -1322,7 +1322,7 @@ public class FarskapsportalControllerTest {
       var farskapserklaeringSignertAvMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mapper.toEntity(farskapserklaeringSignertAvMor));
-      lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      lagretFarskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status").toString());
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
@@ -1390,7 +1390,7 @@ public class FarskapsportalControllerTest {
       var oppdatertPades = lageUrl("/pades-opppdatert");
       var bestillingAvNyFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       var nyopprettetFarskapserklaering = farskapserklaeringDao.save(mapper.toEntity(bestillingAvNyFarskapserklaering));
-      nyopprettetFarskapserklaering.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status").toString());
       nyopprettetFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(nyopprettetFarskapserklaering);
@@ -1449,7 +1449,7 @@ public class FarskapsportalControllerTest {
       // given
       var bestillingAvNyFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       var farskapserklaeringSignertAvMor = farskapserklaeringDao.save(mapper.toEntity(bestillingAvNyFarskapserklaering));
-      farskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status").toString());
       farskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
@@ -1509,7 +1509,7 @@ public class FarskapsportalControllerTest {
       // given
       var bestillingAvNyFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       var farskapserklaeringSignertAvMor = farskapserklaeringDao.save(mapper.toEntity(bestillingAvNyFarskapserklaering));
-      farskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status").toString());
       farskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
@@ -1557,7 +1557,7 @@ public class FarskapsportalControllerTest {
       var farskapserklaeringSignertAvMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       farskapserklaeringSignertAvMor.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(10));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(mapper.toEntity(farskapserklaeringSignertAvMor));
-      lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentStatusUrl(lageUrl("/status").toString());
+      lagretFarskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status").toString());
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);

@@ -2,7 +2,6 @@ package no.nav.farskapsportal.persistence.entity;
 
 import java.io.Serializable;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import no.nav.farskapsportal.api.StatusSignering;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.validation.annotation.Validated;
 
@@ -31,12 +29,14 @@ public class Dokument implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  private String dokumentnavn;
+  private String navn;
+
+  private String tittel;
 
   @OneToOne(cascade = CascadeType.ALL)
   private Dokumentinnhold dokumentinnhold;
 
-  private String dokumentStatusUrl;
+  private String statusUrl;
 
   private String padesUrl;
 
@@ -50,6 +50,6 @@ public class Dokument implements Serializable {
 
   @Override
   public String toString() {
-    return "Dokumentnavn: " + dokumentnavn;
+    return "Dokumentnavn: " + navn;
   }
 }
