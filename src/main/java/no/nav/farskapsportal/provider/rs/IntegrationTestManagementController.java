@@ -88,7 +88,7 @@ public class IntegrationTestManagementController {
         .foedselsdato(LocalDate.now().minusYears(26))
         .navn(NavnDto.builder().fornavn("Bamse").etternavn("Normann").build()).build();
 
-    var pdf = pdfGeneratorConsumer.genererePdf(barn, mor, far);
+    var pdf = pdfGeneratorConsumer.genererePdf(barn, mor, far, null);
 
     return new ResponseEntity<>(pdf, HttpStatus.OK);
   }

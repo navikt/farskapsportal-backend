@@ -38,4 +38,9 @@ public class HentPersonNavn implements HentPersonSubResponse {
               "]");
     }
   }
+
+  @Override
+  public String hentRespons(boolean medHistorikk) {
+    return medHistorikk ? response : response;
+  }
 }

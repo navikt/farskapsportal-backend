@@ -36,4 +36,9 @@ public class HentPersonFolkeregisteridentifikator implements HentPersonSubRespon
       return String.join("\n", " \"folkeregisteridentifikator\": [", "]");
     }
   }
+
+  @Override
+  public String hentRespons(boolean medHistorikk) {
+    return medHistorikk ? response : response;
+  }
 }

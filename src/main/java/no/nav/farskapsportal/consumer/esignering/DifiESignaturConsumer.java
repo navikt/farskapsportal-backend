@@ -33,6 +33,7 @@ import no.digipost.signature.client.direct.StatusReference;
 import no.digipost.signature.client.direct.StatusRetrievalMethod;
 import no.digipost.signature.client.direct.WithSignerUrl;
 import no.nav.farskapsportal.api.Feilkode;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
@@ -42,17 +43,35 @@ import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.service.PersistenceService;
 import org.apache.commons.lang3.Validate;
 
 @Slf4j
 @RequiredArgsConstructor
 public class DifiESignaturConsumer {
 
-  private static final String TITTEL_FARSKAPSERKLAERING = "Farskapserklæring";
-  private static final String NAVN_FARSKAPSERKLAERINGSDOKUMENT = "farskapserklaering.pdf";
-
+  private static final Map<Tekst, String> tekstBokmaal = Map.of(
+      Tekst.DOKUMENT_FILNAVN, "farskapserklaering.pdf",
+      Tekst.DOKUMENT_TITTEL, "Farskapserklæring"
+  );
+  private static final Map<Tekst, String> tekstEngelsk = Map.of(
+      Tekst.DOKUMENT_FILNAVN, "declaration-of-paternity.pdf",
+      Tekst.DOKUMENT_TITTEL, "Declaration Of Paternity"
+  );
   private final ExitUrls exitUrls;
   private final DirectClient client;
+  private final PersistenceService persistenceService;
+
+  private String tekstvelger(Tekst tekst, Skriftspraak skriftspraak) {
+    switch (skriftspraak) {
+      case ENGELSK -> {
+        return tekstEngelsk.get(tekst);
+      }
+      default -> {
+        return tekstBokmaal.get(tekst);
+      }
+    }
+  }
 
   /**
    * Oppretter signeringsjobb hos signeringsløsingen. Oppdaterer dokument med status-url og redirect-urler for signeringspartene.
@@ -61,11 +80,12 @@ public class DifiESignaturConsumer {
    * @param mor første signatør
    * @param far andre signatør
    */
-  public void oppretteSigneringsjobb(Dokument dokument, Forelder mor, Forelder far) {
+  public void oppretteSigneringsjobb(Dokument dokument, Skriftspraak skriftspraak, Forelder mor, Forelder far) {
 
     log.info("Oppretter signeringsjobb");
 
-    var document = DirectDocument.builder(TITTEL_FARSKAPSERKLAERING, NAVN_FARSKAPSERKLAERINGSDOKUMENT, dokument.getDokumentinnhold().getInnhold())
+    var document = DirectDocument.builder(tekstvelger(Tekst.DOKUMENT_TITTEL, skriftspraak), tekstvelger(Tekst.DOKUMENT_FILNAVN, skriftspraak),
+            dokument.getDokumentinnhold().getInnhold())
         .build();
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
@@ -81,7 +101,7 @@ public class DifiESignaturConsumer {
     }
 
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
-    dokument.setDokumentStatusUrl(directJobResponse.getStatusUrl().toString());
+    dokument.setStatusUrl(directJobResponse.getStatusUrl().toString());
 
     log.info("Antall signatører i respons: {}", directJob.getSigners().size());
 
@@ -155,12 +175,17 @@ public class DifiESignaturConsumer {
     throw new InternFeilException(Feilkode.FEIL_ROLLE);
   }
 
-  public Optional<DokumentStatusDto> henteOppdatertStatusPaaSigneringsjobbHvisEndringer(int idFarskapserklaring, byte[] farskapserklaering,
+  public Optional<DokumentStatusDto> henteOppdatertStatusPaaSigneringsjobbHvisEndringer(int idFarskapserklaring, byte[] dokument,
       String fnrMor, String fnrFar) {
+
+    var farsskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaring);
+    var dokumenttittel = farsskapserklaering.getDokument().getTittel() == null ? tekstvelger(Tekst.DOKUMENT_TITTEL, Skriftspraak.BOKMAAL) : farsskapserklaering.getDokument().getTittel() ;
+    var dokumentnavn = farsskapserklaering.getDokument().getNavn() == null ? tekstvelger(Tekst.DOKUMENT_FILNAVN, Skriftspraak.BOKMAAL) :farsskapserklaering.getDokument().getNavn();
 
     var directSigners = List
         .of(DirectSigner.withPersonalIdentificationNumber(fnrMor).build(), DirectSigner.withPersonalIdentificationNumber(fnrFar).build());
-    var directDocument = DirectDocument.builder(TITTEL_FARSKAPSERKLAERING, NAVN_FARSKAPSERKLAERINGSDOKUMENT, farskapserklaering).build();
+    var directDocument = DirectDocument.builder(dokumentnavn, dokumenttittel, dokument)
+        .build();
     var directJob = DirectJob.builder(directDocument, exitUrls, directSigners)
         .retrieveStatusBy(StatusRetrievalMethod.POLLING)
         .build();
@@ -246,7 +271,6 @@ public class DifiESignaturConsumer {
     }
   }
 
-
   private SignaturDto mapTilDto(Signature signature) {
     signatureierErIkkeNull(signature);
     var tidspunktForStatus = LocalDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
@@ -270,4 +294,8 @@ public class DifiESignaturConsumer {
     }
   }
 
+  private enum Tekst {
+    DOKUMENT_FILNAVN,
+    DOKUMENT_TITTEL
+  }
 }

@@ -172,8 +172,7 @@ public class PdlApiConsumer {
   }
 
   private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
-    var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
     var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (kjoennFraPdlEllerFreg.isEmpty()) {

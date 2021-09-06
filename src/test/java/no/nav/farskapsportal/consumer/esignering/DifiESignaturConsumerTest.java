@@ -23,6 +23,7 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectJob;
 import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
@@ -31,6 +32,7 @@ import no.nav.farskapsportal.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.service.PersistenceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -56,7 +58,7 @@ public class DifiESignaturConsumerTest {
   private static final ForelderDto FAR = ForelderDto.builder()
       .foedselsnummer("11111122222")
       .navn(NavnDto.builder().fornavn("Rask").etternavn("Karaffel").build()).build();
-  
+
   private static final String STATUS_URL = "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/status";
   private static final String PADES_URL = "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1" + PADES;
 
@@ -71,6 +73,9 @@ public class DifiESignaturConsumerTest {
 
   @Autowired
   private DifiESignaturStub difiESignaturStub;
+
+  @Autowired
+  private PersistenceService persistenceService;
 
   @Nested
   @DisplayName("Teste oppretteSigneringsjobb")
@@ -87,16 +92,16 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument = Dokument.builder()
-          .dokumentnavn("Farskapsportal.pdf")
+          .navn("Farskapsportal.pdf")
           .dokumentinnhold(Dokumentinnhold.builder()
               .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
-          .dokumentStatusUrl("https://getstatus.no/").build();
+          .statusUrl("https://getstatus.no/").build();
 
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       // when
-      difiESignaturConsumer.oppretteSigneringsjobb(dokument, mor, far);
+      difiESignaturConsumer.oppretteSigneringsjobb(dokument, Skriftspraak.BOKMAAL, mor, far);
 
       // then
       assertAll(() -> assertNotNull(dokument.getSigneringsinformasjonMor().getRedirectUrl(), "Mors redirectUrl skal være lagt til"),
@@ -114,10 +119,10 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument = Dokument.builder()
-          .dokumentnavn("Farskapsportal.pdf")
+          .navn("Farskapsportal.pdf")
           .dokumentinnhold(Dokumentinnhold.builder()
               .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
-          .dokumentStatusUrl("https://getstatus.no/")
+          .statusUrl("https://getstatus.no/")
           .build();
 
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
@@ -128,11 +133,12 @@ public class DifiESignaturConsumerTest {
               URI.create(farskapsportalEgenskaper.getEsignering().getAvbruttUrl()),
               URI.create(farskapsportalEgenskaper.getEsignering().getFeiletUrl()));
 
-      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(exitUrls, directClientMock);
+      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(exitUrls, directClientMock, persistenceService);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);
 
       // when
-      assertThrows(OppretteSigneringsjobbException.class, () -> difiEsignaturConsumerWithMocks.oppretteSigneringsjobb(dokument, mor, far),
+      assertThrows(OppretteSigneringsjobbException.class,
+          () -> difiEsignaturConsumerWithMocks.oppretteSigneringsjobb(dokument, Skriftspraak.BOKMAAL, mor, far),
           "Skal kaste OppretteSigneringsjobbException dersom Difiklient feiler");
     }
   }

@@ -48,7 +48,7 @@ public class Mapper {
     return Dokument.builder()
         .signeringsinformasjonMor(signeringsinformasjonMor)
         .signeringsinformasjonFar(signeringsinformasjonFar)
-        .dokumentnavn(dokumentDto.getDokumentnavn())
+        .navn(dokumentDto.getDokumentnavn())
         .build();
   }
 
@@ -56,7 +56,7 @@ public class Mapper {
 
     try {
       return DokumentDto.builder()
-          .dokumentnavn(dokument.getDokumentnavn())
+          .dokumentnavn(dokument.getNavn())
           .redirectUrlFar(dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
               ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null)
           .redirectUrlMor(dokument.getSigneringsinformasjonMor().getRedirectUrl() != null

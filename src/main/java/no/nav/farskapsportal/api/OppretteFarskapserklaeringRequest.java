@@ -20,4 +20,7 @@ public class OppretteFarskapserklaeringRequest {
   @Parameter(description = "Opplysninger om far, er tom dersom far skal signere erklæring")
   KontrollerePersonopplysningerRequest opplysningerOmFar;
 
+  @Parameter(description = "Skriftspråket erklæringen skal være på")
+  Skriftspraak skriftspraak;
+
 }

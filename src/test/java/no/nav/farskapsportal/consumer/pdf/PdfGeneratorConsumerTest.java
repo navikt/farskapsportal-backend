@@ -10,7 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -31,16 +33,16 @@ public class PdfGeneratorConsumerTest {
   private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
   private static final BarnDto UFOEDT_BARN = henteBarnUtenFnr(17);
   private static final BarnDto NYFOEDT_BARN = henteNyligFoedtBarn();
-  private static boolean skriveUtPdf = true;
+  private static boolean skriveUtPdf = false;
 
   @Autowired
   private PdfGeneratorConsumer pdfGeneratorConsumer;
 
   @Test
-  void skalGenererePdfForUfoedt() throws IOException {
+  void skalGenererePdfPaaBokmaalForUfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR, Optional.empty());
 
     // then
     if (skriveUtPdf) {
@@ -56,15 +58,38 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Termindato: " + UFOEDT_BARN.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
     );
 
-    validereInformasjonOmForeldrene(dokumenttekst, MOR, FAR);
+    validereInformasjonOmForeldrenePaaBokmaal(dokumenttekst, MOR, FAR);
 
   }
 
   @Test
-  void skalGenererePdfForNyfoedt() throws IOException {
+  void skalGenererePdfPaaEngelskForUfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR, Optional.of(Skriftspraak.ENGELSK));
+
+    // then
+    if (skriveUtPdf) {
+      skriveUtPdfForInspeksjon(pdfstroem);
+    }
+
+    PDDocument doc = PDDocument.load(pdfstroem);
+    PDFTextStripper pdfTextStripper = new PDFTextStripper();
+    String dokumenttekst = pdfTextStripper.getText(doc);
+
+    assertAll(
+        () -> assertThat(dokumenttekst).doesNotContain("Place of birth"),
+        () -> assertThat(dokumenttekst).contains("Expected date of birth: " + UFOEDT_BARN.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+    );
+
+    validereInformasjonOmForeldrenePaaEngelsk(dokumenttekst, MOR, FAR);
+  }
+
+  @Test
+  void skalGenererePdfPaaBokmaalForNyfoedt() throws IOException {
+
+    // when
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR, Optional.empty());
 
     // then
     if (skriveUtPdf) {
@@ -83,11 +108,37 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Fødested: " + NYFOEDT_BARN.getFoedested())
     );
 
-    validereInformasjonOmForeldrene(dokumenttekst, MOR, FAR);
+    validereInformasjonOmForeldrenePaaBokmaal(dokumenttekst, MOR, FAR);
   }
 
   @Test
-  void skalGenererePdfForForelderMedMellomnavn() throws IOException {
+  void skalGenererePdfPaaEngelskForNyfoedt() throws IOException {
+
+    // when
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR, Optional.of(Skriftspraak.ENGELSK));
+
+    // then
+    if (skriveUtPdf) {
+      skriveUtPdfForInspeksjon(pdfstroem);
+    }
+
+    PDDocument doc = PDDocument.load(pdfstroem);
+    PDFTextStripper pdfTextStripper = new PDFTextStripper();
+    String dokumenttekst = pdfTextStripper.getText(doc);
+
+    assertAll(
+        () -> assertThat(dokumenttekst).doesNotContain("Expected date of birth "),
+        () -> assertThat(dokumenttekst).contains("Child"),
+        () -> assertThat(dokumenttekst).contains("Social security number: " + NYFOEDT_BARN.getFoedselsnummer()),
+        () -> assertThat(dokumenttekst).contains("Date of birth: " + NYFOEDT_BARN.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains("Place of birth: " + NYFOEDT_BARN.getFoedested())
+    );
+
+    validereInformasjonOmForeldrenePaaEngelsk(dokumenttekst, MOR, FAR);
+  }
+
+  @Test
+  void skalGenererePdfPaaBokmaalForForelderMedMellomnavn() throws IOException {
 
     // given
     var farMedMellomnavn = henteForelder(Forelderrolle.FAR);
@@ -100,7 +151,7 @@ public class PdfGeneratorConsumerTest {
             .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn, Optional.empty());
 
     // then
     PDDocument doc = PDDocument.load(pdfstroem);
@@ -115,8 +166,45 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Fødested: " + NYFOEDT_BARN.getFoedested())
     );
 
-    validereInformasjonOmForeldrene(dokumenttekst, MOR, farMedMellomnavn);
+    validereInformasjonOmForeldrenePaaBokmaal(dokumenttekst, MOR, farMedMellomnavn);
   }
+
+  @Test
+  void skalGenererePdfPaaEngelskForForelderMedMellomnavn() throws IOException {
+
+    // given
+    var farMedMellomnavn = henteForelder(Forelderrolle.FAR);
+    var farsOpprinneligeNavn = farMedMellomnavn.getNavn();
+
+    farMedMellomnavn.setNavn(
+        NavnDto.builder()
+            .fornavn(farsOpprinneligeNavn.getFornavn())
+            .mellomnavn("Strømstad")
+            .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
+
+    // when
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn, Optional.of(Skriftspraak.ENGELSK));
+
+    // then
+    PDDocument doc = PDDocument.load(pdfstroem);
+    PDFTextStripper pdfTextStripper = new PDFTextStripper();
+    String dokumenttekst = pdfTextStripper.getText(doc);
+
+    if (skriveUtPdf) {
+      skriveUtPdfForInspeksjon(pdfstroem);
+    }
+
+    assertAll(
+        () -> assertThat(dokumenttekst).doesNotContain("Expected date of birth "),
+        () -> assertThat(dokumenttekst).contains("Child"),
+        () -> assertThat(dokumenttekst).contains("Social security number: " + NYFOEDT_BARN.getFoedselsnummer()),
+        () -> assertThat(dokumenttekst).contains("Date of birth: " + NYFOEDT_BARN.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains("Place of birth: " + NYFOEDT_BARN.getFoedested())
+    );
+
+    validereInformasjonOmForeldrenePaaEngelsk(dokumenttekst, MOR, farMedMellomnavn);
+  }
+
 
   private void skriveUtPdfForInspeksjon(byte[] pdfstroem) {
     try (final FileOutputStream filstroem = new FileOutputStream("farskapserklaering.pdf")) {
@@ -126,7 +214,9 @@ public class PdfGeneratorConsumerTest {
     }
   }
 
-  private void validereInformasjonOmForeldrene(String dokumenttekst, ForelderDto mor, ForelderDto far) {
+
+
+  private void validereInformasjonOmForeldrenePaaBokmaal(String dokumenttekst, ForelderDto mor, ForelderDto far) {
 
     var navnFar = far.getNavn().sammensattNavn();
 
@@ -141,6 +231,24 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Fødselsnummer: " + far.getFoedselsnummer()),
         () -> assertThat(dokumenttekst).contains("Fødselsdato: " + far.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
         () -> assertThat(dokumenttekst).contains("Navn: " + navnFar)
+    );
+  }
+
+  private void validereInformasjonOmForeldrenePaaEngelsk(String dokumenttekst, ForelderDto mor, ForelderDto far) {
+
+    var navnFar = far.getNavn().sammensattNavn();
+
+    var navnMor = mor.getNavn().sammensattNavn();
+
+    assertAll(
+        () -> assertThat(dokumenttekst).contains("Mother"),
+        () -> assertThat(dokumenttekst).contains("Social security number: " + mor.getFoedselsnummer()),
+        () -> assertThat(dokumenttekst).contains("Date of birth: " + mor.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains("Name: " + navnMor),
+        () -> assertThat(dokumenttekst).contains("Father"),
+        () -> assertThat(dokumenttekst).contains("Social security number: " + far.getFoedselsnummer()),
+        () -> assertThat(dokumenttekst).contains("Date of birth: " + far.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains("Name: " + navnFar)
     );
   }
 }

@@ -42,4 +42,9 @@ public class HentPersonSivilstand implements HentPersonSubResponse {
 
     return sivilstandElement.toString();
   }
+
+  @Override
+  public String hentRespons(boolean medHistorikk) {
+    return medHistorikk ? response : response;
+  }
 }

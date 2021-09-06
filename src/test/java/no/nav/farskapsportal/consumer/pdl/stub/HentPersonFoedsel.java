@@ -42,4 +42,9 @@ public class HentPersonFoedsel implements HentPersonSubResponse {
           "]");
     }
   }
+
+  @Override
+  public String hentRespons(boolean medHistorikk) {
+    return medHistorikk ? response : response;
+  }
 }

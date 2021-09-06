@@ -9,14 +9,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Sivilstandtype;
@@ -81,7 +78,11 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(KjoennType.KVINNE));
+
+      var kjoennshistorikk = new LinkedHashMap<KjoennType, LocalDateTime>();
+      kjoennshistorikk.put(KjoennType.KVINNE, LocalDateTime.now().minusYears(30));
+
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(kjoennshistorikk));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -125,23 +126,23 @@ public class PdlApiConsumerTest {
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
 
-      var map = Stream
-          .of(new Object[][]{{KjoennType.KVINNE, LocalDateTime.now().minusYears(30)}, {KjoennType.MANN, LocalDateTime.now().minusYears(4)}})
-          .collect(Collectors.toMap(data -> (KjoennType) data[0], data -> (LocalDateTime) data[1]));
+      var kjoennshistorikk = new LinkedHashMap<KjoennType, LocalDateTime>();
+      kjoennshistorikk.put(KjoennType.KVINNE, LocalDateTime.now().minusYears(30));
+      kjoennshistorikk.put(KjoennType.MANN, LocalDateTime.now().minusYears(4));
 
-      var sortedMap = new TreeMap<KjoennType, LocalDateTime>(map);
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(sortedMap));
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(kjoennshistorikk));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var historikk = pdlApiConsumer.henteKjoennMedHistorikk(fnrMor);
 
       // then
-      assertAll(() -> assertEquals(historikk.size(), 2, "Historikken skal inneholde to elementer"),
-          () -> assertTrue(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.MANN)).findFirst().get().getMetadata().getHistorisk(),
-              "Personen har mann som historisk kjønn"), () -> Assertions
-              .assertFalse(historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.KVINNE)).findFirst().get().getMetadata().getHistorisk(),
-                  "Personen har kvinne som gjeldende kjønn"));
+      assertAll(
+          () -> assertThat(historikk.size()).isEqualTo(2),
+          () -> assertThat(
+              historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.MANN)).findFirst().get().getMetadata().getHistorisk()).isFalse(),
+          () -> assertThat(
+              historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.KVINNE)).findFirst().get().getMetadata().getHistorisk()).isTrue());
     }
 
     @Test
@@ -484,7 +485,7 @@ public class PdlApiConsumerTest {
 
       // given
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-      List<HentPersonSubResponse> subResponses =  List.of(new HentPersonVergeEllerFremtidsfullmakt(null));
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonVergeEllerFremtidsfullmakt(null));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when

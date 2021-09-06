@@ -40,4 +40,9 @@ public class HentPersonVergeEllerFremtidsfullmakt implements HentPersonSubRespon
 
     return vergemaalEllerFremtidsfullmaktElement.toString();
   }
+
+  @Override
+  public String hentRespons(boolean medHistorikk) {
+    return medHistorikk ? response : response;
+  }
 }

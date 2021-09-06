@@ -4,6 +4,7 @@ import static no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub.hentFolkerigste
 import static no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub.hentMetadataElement;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Value;
@@ -13,17 +14,16 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 @Getter
 public class HentPersonKjoenn implements HentPersonSubResponse {
 
-  String response;
+  String responsMedHistorikk;
 
-  public HentPersonKjoenn(KjoennType kjoenn) {
-    this.response = buildResponseKjoenn(kjoenn, "sagga-dagga", false);
+  String responsUtenHistorikk;
+
+  public HentPersonKjoenn(LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk) {
+    this.responsMedHistorikk = buildResponseKjoenn(kjoennshistorikk, true);
+    this.responsUtenHistorikk = buildResponseKjoenn(kjoennshistorikk, false);
   }
 
-  public HentPersonKjoenn(Map<KjoennType, LocalDateTime> kjoennshistorikk) {
-    this.response = buildResponseKjoennMedHistorikk(kjoennshistorikk);
-  }
-
-  private String buildResponseKjoennMedHistorikk(Map<KjoennType, LocalDateTime> input) {
+  private String buildResponseKjoenn(LinkedHashMap<KjoennType, LocalDateTime> input, boolean medHistorikk) {
     if (input == null || input.isEmpty()) {
       return String.join("\n", " \"kjoenn\": [", "]");
     } else {
@@ -37,26 +37,23 @@ public class HentPersonKjoenn implements HentPersonSubResponse {
       var count = 0;
       for (Map.Entry<KjoennType, LocalDateTime> kjoenn : input.entrySet()) {
         var historisk = input.size() > 1 && (count == 0 || count < input.size() - 2);
-        kjoennshistorikk.append(hentKjoennElement(kjoenn.getKey(), kjoenn.getValue(), "123", historisk));
-        if (input.size() > 1 && (count == 0 || count > input.size() - 1)) {
-          kjoennshistorikk.append(",");
+        if (!medHistorikk) {
+          if (!historisk) {
+            kjoennshistorikk.append(hentKjoennElement(kjoenn.getKey(), kjoenn.getValue(), "123", false));
+            kjoennshistorikk.append(closingElements);
+            return kjoennshistorikk.toString();
+          }
+        } else {
+          kjoennshistorikk.append(hentKjoennElement(kjoenn.getKey(), kjoenn.getValue(), "123", historisk));
+          if (input.size() > 1 && (count == 0 || count > input.size() - 1)) {
+            kjoennshistorikk.append(",");
+          }
         }
         count++;
       }
 
       kjoennshistorikk.append(closingElements);
       return kjoennshistorikk.toString();
-    }
-  }
-
-  private String buildResponseKjoenn(KjoennType kjoenn, String opplysningsId, boolean historisk) {
-    if (kjoenn == null) {
-      return String.join("\n", " \"kjoenn\": [", "]");
-    } else {
-      var startingElements = String.join("\n", " \"kjoenn\": [");
-      var closingElements = String.join("\n", "]");
-
-      return startingElements + hentKjoennElement(kjoenn, null, opplysningsId, historisk) + closingElements;
     }
   }
 
@@ -74,5 +71,10 @@ public class HentPersonKjoenn implements HentPersonSubResponse {
     kjoennElement.append(String.join("\n", " }"));
 
     return kjoennElement.toString();
+  }
+
+  @Override
+  public String hentRespons(boolean medHistorikk) {
+    return medHistorikk ? responsMedHistorikk : responsUtenHistorikk;
   }
 }

@@ -26,6 +26,7 @@ import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Rolle;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
@@ -172,15 +173,17 @@ public class FarskapsportalService {
     var forelderDtoMor = oppretteForelderDto(fnrMor);
     var forelderDtoFar = oppretteForelderDto(request.getOpplysningerOmFar().getFoedselsnummer());
 
-    var innhold = pdfGeneratorConsumer.genererePdf(barnDto, forelderDtoMor, forelderDtoFar);
+    var innhold = pdfGeneratorConsumer.genererePdf(barnDto, forelderDtoMor, forelderDtoFar,
+        request.getSkriftspraak() == null ? Optional.empty() : Optional.of(request.getSkriftspraak()));
 
     var dokument = Dokument.builder()
-        .dokumentnavn("Farskapserklaering.pdf")
+        .navn("Farskapserklaering.pdf")
         .dokumentinnhold(Dokumentinnhold.builder().innhold(innhold).build())
         .build();
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
-    difiESignaturConsumer.oppretteSigneringsjobb(dokument, mapper.toEntity(forelderDtoMor), mapper.toEntity(forelderDtoFar));
+    difiESignaturConsumer.oppretteSigneringsjobb(dokument, request.getSkriftspraak() == null ? Skriftspraak.BOKMAAL : request.getSkriftspraak(),
+        mapper.toEntity(forelderDtoMor), mapper.toEntity(forelderDtoFar));
 
     log.info("Lagre farskapserklæring");
     var farskapserklaering = Farskapserklaering.builder()
@@ -246,7 +249,7 @@ public class FarskapsportalService {
 
     // filtrerer ut farskapserklæringen statuslenka tilhører
     var aktuellFarskapserklaering = farskapserklaeringer.stream().filter(Objects::nonNull)
-        .filter(fe -> fe.getDokument().getDokumentStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
+        .filter(fe -> fe.getDokument().getStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
         .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.INGEN_TREFF_PAA_TOKEN));
 
     log.info("Statuslenke tilhører farskapserklaering med id {}", aktuellFarskapserklaering.getId());
@@ -499,8 +502,8 @@ public class FarskapsportalService {
 
     validereSivilstand(fnrPaaloggetPerson);
 
-    var kjoennPaaloggetPerson = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-    var paaloggetPersonKanOpptreSomMor = Forelderrolle.MOR.equals(kjoennPaaloggetPerson) || Forelderrolle.MOR_ELLER_FAR.equals(kjoennPaaloggetPerson);
+    var forelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
+    var paaloggetPersonKanOpptreSomMor = Forelderrolle.MOR.equals(forelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(forelderrolle);
 
     if (!paaloggetPersonKanOpptreSomMor) {
       throw new ValideringException(Feilkode.FEIL_ROLLE_OPPRETTE);
@@ -771,7 +774,7 @@ public class FarskapsportalService {
 
     log.info("Henter dokumentstatus fra Posten.");
 
-    Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getDokumentStatusUrl)
+    Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getStatusUrl)
         .map(this::tilUri)
         .collect(Collectors.toSet());
 
