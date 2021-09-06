@@ -4,6 +4,7 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.FarskapsportalLocalConfig.PADES;
 import static no.nav.farskapsportal.FarskapsportalLocalConfig.XADES;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -108,6 +109,36 @@ public class DifiESignaturConsumerTest {
           () -> assertNotNull(dokument.getSigneringsinformasjonFar().getRedirectUrl(), "Far redirectUrl skal være lagt til"),
           () -> assertEquals(morsRedirectUrl, dokument.getSigneringsinformasjonMor().getRedirectUrl(), "Mors redirectUrl er riktig"),
           () -> assertEquals(farsRedirectUrl, dokument.getSigneringsinformasjonFar().getRedirectUrl(), "Fars redirectUrl er riktig"));
+    }
+
+    @Test
+    void skalSetteDokumentnavnOgTittelVedOpprettelseAvSigneringsoppdragMedEngelskDokument() {
+
+      // given
+      var morsRedirectUrl = "https://mors-redirect-url.no/";
+      var farsRedirectUrl = "https://fars-redirect-url.no/";
+      difiESignaturStub.runOppretteSigneringsjobbStub(STATUS_URL, morsRedirectUrl, farsRedirectUrl);
+
+      var dokument = Dokument.builder()
+          .navn("Farskapsportal.pdf")
+          .dokumentinnhold(Dokumentinnhold.builder()
+              .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
+          .statusUrl("https://getstatus.no/").build();
+
+      var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
+      var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
+
+      // when
+      difiESignaturConsumer.oppretteSigneringsjobb(dokument, Skriftspraak.ENGELSK, mor, far);
+
+      // then
+      assertAll(
+          () -> assertThat(dokument.getSigneringsinformasjonMor().getRedirectUrl()).isNotNull(),
+          () -> assertThat(dokument.getSigneringsinformasjonFar().getRedirectUrl()).isNotNull(),
+          () -> assertThat(dokument.getTittel()).isEqualTo("Declaration Of Paternity"),
+          () -> assertThat(dokument.getNavn()).isEqualTo("declaration-of-paternity.pdf"),
+          () -> assertThat(dokument.getSigneringsinformasjonMor().getRedirectUrl()).isEqualTo(morsRedirectUrl),
+          () -> assertThat(dokument.getSigneringsinformasjonFar().getRedirectUrl()).isEqualTo(farsRedirectUrl));
     }
 
     @Test

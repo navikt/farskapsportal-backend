@@ -83,15 +83,15 @@ public class DifiESignaturConsumer {
   public void oppretteSigneringsjobb(Dokument dokument, Skriftspraak skriftspraak, Forelder mor, Forelder far) {
 
     log.info("Oppretter signeringsjobb");
+    var tittel = tekstvelger(Tekst.DOKUMENT_TITTEL, skriftspraak);
+    var dokumentnavn = tekstvelger(Tekst.DOKUMENT_FILNAVN, skriftspraak);
 
-    var document = DirectDocument.builder(tekstvelger(Tekst.DOKUMENT_TITTEL, skriftspraak), tekstvelger(Tekst.DOKUMENT_FILNAVN, skriftspraak),
-            dokument.getDokumentinnhold().getInnhold())
-        .build();
+    var directDocument = DirectDocument.builder(tittel, dokumentnavn, dokument.getDokumentinnhold().getInnhold()).build();
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
 
-    var directJob = DirectJob.builder(document, exitUrls, List.of(morSignerer, farSignerer)).build();
+    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer)).build();
     DirectJobResponse directJobResponse;
     try {
       directJobResponse = client.create(directJob);
@@ -99,6 +99,9 @@ public class DifiESignaturConsumer {
       e.printStackTrace();
       throw new OppretteSigneringsjobbException(Feilkode.OPPRETTE_SIGNERINGSJOBB);
     }
+
+    dokument.setTittel(tittel);
+    dokument.setNavn(dokumentnavn);
 
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
     dokument.setStatusUrl(directJobResponse.getStatusUrl().toString());
@@ -179,8 +182,10 @@ public class DifiESignaturConsumer {
       String fnrMor, String fnrFar) {
 
     var farsskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaring);
-    var dokumenttittel = farsskapserklaering.getDokument().getTittel() == null ? tekstvelger(Tekst.DOKUMENT_TITTEL, Skriftspraak.BOKMAAL) : farsskapserklaering.getDokument().getTittel() ;
-    var dokumentnavn = farsskapserklaering.getDokument().getNavn() == null ? tekstvelger(Tekst.DOKUMENT_FILNAVN, Skriftspraak.BOKMAAL) :farsskapserklaering.getDokument().getNavn();
+    var dokumenttittel = farsskapserklaering.getDokument().getTittel() == null ? tekstvelger(Tekst.DOKUMENT_TITTEL, Skriftspraak.BOKMAAL)
+        : farsskapserklaering.getDokument().getTittel();
+    var dokumentnavn = farsskapserklaering.getDokument().getNavn() == null ? tekstvelger(Tekst.DOKUMENT_FILNAVN, Skriftspraak.BOKMAAL)
+        : farsskapserklaering.getDokument().getNavn();
 
     var directSigners = List
         .of(DirectSigner.withPersonalIdentificationNumber(fnrMor).build(), DirectSigner.withPersonalIdentificationNumber(fnrFar).build());
