@@ -18,7 +18,7 @@ env:
   - name: APIGW_URL
     value: https://api-gw.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
-    value: "false"
+    value: "true"
   - name: DISCOVERY_URL
     value: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
   - name: AUD_FP
