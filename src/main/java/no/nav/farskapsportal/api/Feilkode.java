@@ -33,7 +33,7 @@ public enum Feilkode {
   KONTROLLERE_FAR_NAVN_MANGLER("Navn på far mangler!"),
   MAKS_ANTALL_FORSOEK("Mor har brukt opp antall mulige forsøk på å komme frem til riktig kombinasjon av fars fødselsnummer og navn"),
   MOR_HAR_ALLEREDE_SIGNERT("Mor har allerede signert farskapserklæringen"),
-  MOR_HAR_IKKE_FNUMMER("Mor er registrert med fødselsnummer i PDL"),
+  MOR_HAR_IKKE_FNUMMER("Mor er ikke registrert med fødselsnummer i PDL"),
   MOR_IKKE_NORSK_BOSTEDSADRESSE("Mor er ikke registrert med norsk bostedsadresse."),
   MOR_OG_FAR_SAMME_PERSON("Mor kan ikke oppgi seg selv som far."),
   MOR_SIVILSTAND_GIFT("Mor kan ikke opprette farskapserklæring dersom hun er gift"),
