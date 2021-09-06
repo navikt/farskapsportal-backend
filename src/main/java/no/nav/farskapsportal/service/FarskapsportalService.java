@@ -189,7 +189,6 @@ public class FarskapsportalService {
         .mor(mapper.toEntity(forelderDtoMor))
         .far(mapper.toEntity(forelderDtoFar))
         .dokument(dokument)
-        .morBorSammenMedFar(request.isMorBorSammenMedFar())
         .build();
 
     persistenceService.lagreNyFarskapserklaering(farskapserklaering);

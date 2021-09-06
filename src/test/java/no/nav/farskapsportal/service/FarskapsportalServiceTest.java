@@ -510,7 +510,6 @@ public class FarskapsportalServiceTest {
           OppretteFarskapserklaeringRequest.builder()
               .barn(barn)
               .opplysningerOmFar(opplysningerOmFar)
-              .morBorSammenMedFar(true)
               .build());
 
       // then
@@ -713,7 +712,6 @@ public class FarskapsportalServiceTest {
           OppretteFarskapserklaeringRequest.builder()
               .barn(barnFoedtInnenforGyldigIntervall)
               .opplysningerOmFar(opplysningerOmFar)
-              .morBorSammenMedFar(true)
               .build());
 
       // then
