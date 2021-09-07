@@ -42,7 +42,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaBokmaalForUfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR, Optional.empty());
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR, Skriftspraak.BOKMAAL);
 
     // then
     if (skriveUtPdf) {
@@ -66,7 +66,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForUfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR, Optional.of(Skriftspraak.ENGELSK));
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(UFOEDT_BARN, MOR, FAR, Skriftspraak.ENGELSK);
 
     // then
     if (skriveUtPdf) {
@@ -89,7 +89,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaBokmaalForNyfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR, Optional.empty());
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR, Skriftspraak.BOKMAAL);
 
     // then
     if (skriveUtPdf) {
@@ -115,7 +115,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForNyfoedt() throws IOException {
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR, Optional.of(Skriftspraak.ENGELSK));
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, FAR, Skriftspraak.ENGELSK);
 
     // then
     if (skriveUtPdf) {
@@ -151,7 +151,7 @@ public class PdfGeneratorConsumerTest {
             .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn, Optional.empty());
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn, Skriftspraak.BOKMAAL);
 
     // then
     PDDocument doc = PDDocument.load(pdfstroem);
@@ -183,7 +183,7 @@ public class PdfGeneratorConsumerTest {
             .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn, Optional.of(Skriftspraak.ENGELSK));
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(NYFOEDT_BARN, MOR, farMedMellomnavn, Skriftspraak.ENGELSK);
 
     // then
     PDDocument doc = PDDocument.load(pdfstroem);
