@@ -23,6 +23,7 @@ public class ArkivereFarskapserklaeringer {
   private PersistenceService persistenceService;
   private SkattConsumer skattConsumer;
   private int intervallMellomForsoek;
+  private boolean arkivereIJoark;
 
   @Scheduled(initialDelay = 60000, fixedDelayString = "${farskapsportal.egenskaper.arkiveringsintervall}")
   void vurdereArkivering() {
@@ -36,12 +37,16 @@ public class ArkivereFarskapserklaeringer {
       log.error("Overføring til Skatt feilet. Nytt forsøk vil bli gjennomført ved neste overføringsintervall kl {}",
           LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000));
     }
-    var farskapserklaeringSomSkalOverfoeresTilJoark = farskapserklaeringer.stream()
-        .filter(s -> s.getFarBorSammenMedMor() != null && !s.getFarBorSammenMedMor() && s.getJoarkJournalpostId() == null)
-        .collect(Collectors.toSet());
+    // TODO: Fjerne if så snart Joark-integrasjon er klar
+    log.warn("Overføring til Joark er skrudd av i påvente av ferdigstilling av integrasjon");
+    if (arkivereIJoark) {
+      var farskapserklaeringSomSkalOverfoeresTilJoark = farskapserklaeringer.stream()
+          .filter(s -> s.getFarBorSammenMedMor() != null && !s.getFarBorSammenMedMor() && s.getJoarkJournalpostId() == null)
+          .collect(Collectors.toSet());
 
-    farskapserklaeringSomSkalOverfoeresTilJoark.addAll(farskapserklaeringerTilJoark);
-    overfoereTilJoark(farskapserklaeringSomSkalOverfoeresTilJoark);
+      farskapserklaeringSomSkalOverfoeresTilJoark.addAll(farskapserklaeringerTilJoark);
+      overfoereTilJoark(farskapserklaeringSomSkalOverfoeresTilJoark);
+    }
   }
 
   private void overfoereTilSkatt(Set<Farskapserklaering> farskapserklaeringer) {

@@ -25,4 +25,5 @@ public class FarskapsportalEgenskaper {
   private Brukernotifikasjon brukernotifikasjon;
   private Skatt skatt;
   private int arkiveringsintervall;
+  private boolean arkivereIJoark;
 }

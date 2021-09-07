@@ -36,6 +36,7 @@ public class ScheduledConfig {
       SkattConsumer skattConsumer) {
 
     return ArkivereFarskapserklaeringer.builder()
+        .arkivereIJoark(farskapsportalEgenskaper.isArkivereIJoark())
         .intervallMellomForsoek(farskapsportalEgenskaper.getArkiveringsintervall())
         .journalpostApiConsumer(journalpostApiConsumer)
         .persistenceService(persistenceService)
