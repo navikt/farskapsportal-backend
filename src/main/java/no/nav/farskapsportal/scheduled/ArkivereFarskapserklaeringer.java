@@ -71,24 +71,28 @@ public class ArkivereFarskapserklaeringer {
   private void overfoereTilJoark(Set<Farskapserklaering> farskapserklaeringer) {
     var fpTekst = farskapserklaeringer.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
     log.info("Fant {} {} som er klar for overføring til Joark/Dokarkiv.", farskapserklaeringer.size(), fpTekst);
-    for (Farskapserklaering fe : farskapserklaeringer) {
-      try {
-        var opprettJournalpostResponse = journalpostApiConsumer.arkivereFarskapserklaering(fe);
-        log.debug("Oppdaterer tidspunkt for oversendelse til Joark for farskapserklæring med id {}", fe.getId());
-        fe.setSendtTilJoark(LocalDateTime.now());
-        fe.setJoarkJournalpostId(opprettJournalpostResponse.getJournalpostId());
-        persistenceService.oppdatereFarskapserklaering(fe);
-        log.debug("Meldingslogg oppdatert");
-      } catch (JournalpostApiConsumerException jace) {
-        var tidspunktNesteForsoek = LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000);
-        log.error(
-            "En feil oppstod i kommunikasjon med Joark. Farskapserklæring med meldingsidSkatt {} ble ikke overført. Nytt forsøk vil bli igangsatt kl {}",
-            fe.getMeldingsidSkatt(), tidspunktNesteForsoek, jace);
-        throw jace;
+    log.warn("Overføring til Joark er skrudd av i påvente av ferdigstilling av integrasjon");
+    // TODO: Fjerne if så snart Joark-integrasjon er klar
+    if (false) {
+      for (Farskapserklaering fe : farskapserklaeringer) {
+        try {
+          var opprettJournalpostResponse = journalpostApiConsumer.arkivereFarskapserklaering(fe);
+          log.debug("Oppdaterer tidspunkt for oversendelse til Joark for farskapserklæring med id {}", fe.getId());
+          fe.setSendtTilJoark(LocalDateTime.now());
+          fe.setJoarkJournalpostId(opprettJournalpostResponse.getJournalpostId());
+          persistenceService.oppdatereFarskapserklaering(fe);
+          log.debug("Meldingslogg oppdatert");
+        } catch (JournalpostApiConsumerException jace) {
+          var tidspunktNesteForsoek = LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000);
+          log.error(
+              "En feil oppstod i kommunikasjon med Joark. Farskapserklæring med meldingsidSkatt {} ble ikke overført. Nytt forsøk vil bli igangsatt kl {}",
+              fe.getMeldingsidSkatt(), tidspunktNesteForsoek, jace);
+          throw jace;
+        }
       }
-    }
-    if (farskapserklaeringer.size() > 0) {
-      log.info("Farskapserklæringene ble overført til Joark uten problemer");
+      if (farskapserklaeringer.size() > 0) {
+        log.info("Farskapserklæringene ble overført til Joark uten problemer");
+      }
     }
   }
 }
