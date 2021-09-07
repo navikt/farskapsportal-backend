@@ -1240,7 +1240,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
