@@ -124,8 +124,6 @@ public class FarskapsportalConfig {
     return new JournalpostApiConsumer(restTemplate, consumerEndpoint, farskapsportalJoarkMapper);
   }
 
-  ;
-
   @Bean
   public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
       @Value("${url.pdl-api.base-url}") String baseUrl,

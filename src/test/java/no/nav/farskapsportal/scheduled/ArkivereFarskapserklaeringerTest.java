@@ -82,6 +82,7 @@ public class ArkivereFarskapserklaeringerTest {
     // Bønnen arkivereFarskapserklaeringer er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
     arkivereFarskapserklaeringer = ArkivereFarskapserklaeringer.builder()
         .journalpostApiConsumer(journalpostApiConsumerMock)
+        .arkivereIJoark(true)
         .skattConsumer(skattConsumerMock)
         .persistenceService(persistenceService).build();
   }
@@ -565,6 +566,53 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isBefore(LocalDateTime.now()),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isBefore(LocalDateTime.now())
       );
+    }
+
+    @Test
+    void skalIkkeOverfoereFarskapserklaeringerTilJoarkDersomArkivereIJoarkErUsann() {
+
+      // given
+      arkivereFarskapserklaeringer = ArkivereFarskapserklaeringer.builder()
+          .journalpostApiConsumer(journalpostApiConsumerMock)
+          .arkivereIJoark(false)
+          .skattConsumer(skattConsumerMock)
+          .persistenceService(persistenceService).build();
+
+      var jpId = "123";
+      var tidspunktSendtTilSkatt = LocalDateTime.now();
+      var farskapserklaeringTilSkattOgJoark = mapper.toEntity(
+          henteFarskapserklaeringDto(MOR, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+      farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonMor()
+          .setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
+      farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonMor()
+          .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+      farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonFar()
+          .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+      farskapserklaeringTilSkattOgJoark.setFarBorSammenMedMor(false);
+      farskapserklaeringTilSkattOgJoark.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      farskapserklaeringTilSkattOgJoark.setMeldingsidSkatt("1234");
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringTilSkattOgJoark);
+
+      when(skattConsumerMock.registrereFarskap(lagretFarskapserklaering)).thenReturn(tidspunktSendtTilSkatt);
+
+      when(journalpostApiConsumerMock.arkivereFarskapserklaering(lagretFarskapserklaering)).thenReturn(
+          OpprettJournalpostResponse.builder().journalpostId(jpId).journalpostferdigstilt(true)
+              .dokumenter(List.of(DokumentInfo.builder().dokumentInfoId("dok1").build())).build());
+      // when
+      arkivereFarskapserklaeringer.vurdereArkivering();
+
+      // then
+      var arkivertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(arkivertFarskapserklaering).isPresent(),
+          () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(tidspunktSendtTilSkatt.withNano(0)),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNull(),
+          () -> assertThat(arkivertFarskapserklaering.get().getJoarkJournalpostId()).isNull());
     }
   }
 }

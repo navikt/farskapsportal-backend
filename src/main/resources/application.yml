@@ -41,6 +41,7 @@ farskapsportal.egenskaper:
   kontroll-far-forsoek-fornyes-etter-antall-dager: 1
   kontroll-far-maks-antall-forsoek: 3
   arkiveringsintervall: 3600000
+  arkivere-i-joark: false
   brukernotifikasjon:
     grupperingsid-farskap: farskap
     skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
