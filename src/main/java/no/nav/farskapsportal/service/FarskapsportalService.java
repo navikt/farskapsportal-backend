@@ -173,8 +173,7 @@ public class FarskapsportalService {
     var forelderDtoMor = oppretteForelderDto(fnrMor);
     var forelderDtoFar = oppretteForelderDto(request.getOpplysningerOmFar().getFoedselsnummer());
 
-    var innhold = pdfGeneratorConsumer.genererePdf(barnDto, forelderDtoMor, forelderDtoFar,
-        request.getSkriftspraak() == null ? Optional.empty() : Optional.of(request.getSkriftspraak()));
+    var innhold = pdfGeneratorConsumer.genererePdf(barnDto, forelderDtoMor, forelderDtoFar, request.getSkriftspraak());
 
     var dokument = Dokument.builder()
         .navn("Farskapserklaering.pdf")
@@ -288,7 +287,7 @@ public class FarskapsportalService {
     validereAtPersonErForelderIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering);
 
     if (personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
-      farskapserklaering.setFarBorSammenMedMor(request.isFarBorSammenMedMor());
+      farskapserklaering.setFarBorSammenMedMor(request.getFarBorSammenMedMor().booleanValue());
     } else {
       throw new ValideringException(Feilkode.BOR_SAMMEN_INFO_KAN_BARE_OPPDATERES_AV_FAR);
     }

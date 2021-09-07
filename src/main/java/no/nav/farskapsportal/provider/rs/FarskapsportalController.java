@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.api.Feilkode;
@@ -22,6 +23,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,10 +33,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
+@Validated
 @RestController
 @RequestMapping("/api/v1/farskapsportal")
 @ProtectedWithClaims(issuer = ISSUER)
-@Slf4j
 public class FarskapsportalController {
 
   @Autowired
@@ -69,7 +72,7 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "404", description = "Fant ikke fødselsnummer eller navn"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
-  public ResponseEntity<Feilkode> kontrollereOpplysningerFar(@RequestBody KontrollerePersonopplysningerRequest request) {
+  public ResponseEntity<Feilkode> kontrollereOpplysningerFar(@Valid @RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
     var fnrMor = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     farskapsportalService.validereMor(fnrMor);
@@ -88,7 +91,7 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "404", description = "Fant ikke fødselsnummer eller navn"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
-  public ResponseEntity<OppretteFarskapserklaeringResponse> nyFarskapserklaering(@RequestBody OppretteFarskapserklaeringRequest request) {
+  public ResponseEntity<OppretteFarskapserklaeringResponse> nyFarskapserklaering(@Valid @RequestBody OppretteFarskapserklaeringRequest request) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
 
     // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til digital erklæering
@@ -145,7 +148,7 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
-  public ResponseEntity<OppdatereFarskapserklaeringResponse> oppdatereFarskapserklaering(@RequestBody OppdatereFarskapserklaeringRequest request) {
+  public ResponseEntity<OppdatereFarskapserklaeringResponse> oppdatereFarskapserklaering(@Valid @RequestBody OppdatereFarskapserklaeringRequest request) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var respons = farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(fnrPaaloggetPerson, request);
     return new ResponseEntity<>(respons, HttpStatus.CREATED);

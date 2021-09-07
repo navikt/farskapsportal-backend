@@ -44,6 +44,7 @@ import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.api.Sivilstandtype;
+import no.nav.farskapsportal.api.Skriftspraak;
 import no.nav.farskapsportal.api.StatusSignering;
 import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
@@ -1031,7 +1032,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -1081,6 +1082,102 @@ public class FarskapsportalControllerTest {
       // then
       assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
     }
+
+    @Test
+    void skalGiBadRequestDersomSkriftspraakMangler() {
+
+      // given
+      brukeStandardMocks(MOR.getFoedselsnummer());
+
+      // legger på redirecturl til dokument i void-metode
+      doAnswer(invocation -> {
+        Object[] args = invocation.getArguments();
+        var dokument = (Dokument) args[0];
+        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
+        return null;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          OppretteFarskapserklaeringResponse.class);
+
+      // then
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+    }
+
+    @Test
+    void skalGiBadRequestDersomFarsFoedselsnummerMangler() {
+
+      // given
+      brukeStandardMocks(MOR.getFoedselsnummer());
+
+      // legger på redirecturl til dokument i void-metode
+      doAnswer(invocation -> {
+        Object[] args = invocation.getArguments();
+        var dokument = (Dokument) args[0];
+        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
+        return null;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR).opplysningerOmFar(
+              KontrollerePersonopplysningerRequest.builder().navn(FAR.getNavn().sammensattNavn()).build()).build()),
+          OppretteFarskapserklaeringResponse.class);
+
+      // then
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+    }
+
+    @Test
+    void skalGiBadRequestDersomFarsNavnMangler() {
+
+      // given
+      brukeStandardMocks(MOR.getFoedselsnummer());
+
+      // legger på redirecturl til dokument i void-metode
+      doAnswer(invocation -> {
+        Object[] args = invocation.getArguments();
+        var dokument = (Dokument) args[0];
+        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
+        return null;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR).opplysningerOmFar(
+              KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer()).build()).build()),
+          OppretteFarskapserklaeringResponse.class);
+
+      // then
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+    }
+
+    @Test
+    void skalGiBadRequestDersomBarnMangler() {
+
+      // given
+      brukeStandardMocks(MOR.getFoedselsnummer());
+
+      // legger på redirecturl til dokument i void-metode
+      doAnswer(invocation -> {
+        Object[] args = invocation.getArguments();
+        var dokument = (Dokument) args[0];
+        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
+        return null;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+
+      // when
+      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).opplysningerOmFar(
+              KontrollerePersonopplysningerRequest.builder().navn(FAR.getNavn().sammensattNavn()).foedselsnummer(FAR.getFoedselsnummer()).build()).build()),
+          OppretteFarskapserklaeringResponse.class);
+
+      // then
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+    }
+
 
     @Test
     @DisplayName("Skal gi BAD REQUEST dersom oppgitt nyfoedt mangler relasjon til mor")

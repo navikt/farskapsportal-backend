@@ -62,13 +62,11 @@ public class PdfGeneratorConsumer {
       Tekst.TERMINDATO, "Expected date of birth"
   );
 
-  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer, Optional<Skriftspraak> skriftspraak) {
+  public byte[] genererePdf(BarnDto barnMedDetaljer, ForelderDto morMedDetaljer, ForelderDto farMedDetaljer, Skriftspraak skriftspraak) {
 
-    var valgtSkriftspraak = skriftspraak.isEmpty() ? Skriftspraak.BOKMAAL : skriftspraak.get();
+    log.info("Oppretter dokument for farskapserklæring på {}", skriftspraak);
 
-    log.info("Oppretter dokument for farskapserklæring på {}", valgtSkriftspraak);
-
-    var html = byggeHtmlstrengFraMal(STI_TIL_PDF_TEMPLATE, valgtSkriftspraak, barnMedDetaljer, morMedDetaljer,
+    var html = byggeHtmlstrengFraMal(STI_TIL_PDF_TEMPLATE, skriftspraak, barnMedDetaljer, morMedDetaljer,
         farMedDetaljer);
     try (final ByteArrayOutputStream pdfStream = new ByteArrayOutputStream()) {
 

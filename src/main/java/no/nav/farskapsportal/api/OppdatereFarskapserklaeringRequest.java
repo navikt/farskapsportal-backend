@@ -2,20 +2,22 @@ package no.nav.farskapsportal.api;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
-import org.springframework.validation.annotation.Validated;
 
 @Schema
 @Value
 @Builder
-@Validated
 public class OppdatereFarskapserklaeringRequest {
+
 
   @Parameter(description = "ID til farskapserklæring som skal oppdateres", example = "1000000")
   int idFarskapserklaering;
 
+
+  @NotNull
   @Parameter(description = "Angir om far bor sammen med mor", example = "true")
-  boolean farBorSammenMedMor;
+  Boolean farBorSammenMedMor;
 
 }
