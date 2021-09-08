@@ -1,0 +1,21 @@
+name: Deploy farskapsportal-api alerts to dev-gcp
+on:
+  push:
+    branches:
+      - '**'
+      - '!release'
+    paths:
+      - '.nais/alerts-dev.yml'
+jobs:
+  apply-alerts:
+    name: Apply alerts to cluster
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: deploy to dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/alerts-dev.yml
