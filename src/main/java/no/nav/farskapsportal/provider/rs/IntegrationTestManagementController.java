@@ -57,7 +57,22 @@ public class IntegrationTestManagementController {
     return "Farskapserklæring med id" + id + " er nå deaktivert";
   }
 
-  @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades")
+  @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/pades")
+  @Operation(description = "Henter PADES for en farskapserklærings forelder")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
+      @ApiResponse(responseCode = "500", description = "Serverfeil"),
+      @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  public ResponseEntity<byte[]> hentePades(@PathVariable int idFarskapserklaering) {
+    var fp = farskapserklaeringDao.findById(idFarskapserklaering);
+    var innholdPades = fp.get().getDokument().getDokumentinnhold().getInnhold();
+    return new ResponseEntity<>(innholdPades, HttpStatus.OK);
+  }
+
+  @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades/mor")
   @Operation(description = "Henter XADES for en farskapserklærings forelder")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
@@ -66,9 +81,24 @@ public class IntegrationTestManagementController {
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
-  public ResponseEntity<byte[]> henteXades(@PathVariable int idFarskapserklaering) {
+  public ResponseEntity<byte[]> henteXadesMor(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
     var innholdXades = fp.get().getDokument().getSigneringsinformasjonMor().getXadesXml();
+    return new ResponseEntity<>(innholdXades, HttpStatus.OK);
+  }
+
+  @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades/far")
+  @Operation(description = "Henter XADES for en farskapserklærings forelder")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
+      @ApiResponse(responseCode = "500", description = "Serverfeil"),
+      @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  public ResponseEntity<byte[]> henteXadesFar(@PathVariable int idFarskapserklaering) {
+    var fp = farskapserklaeringDao.findById(idFarskapserklaering);
+    var innholdXades = fp.get().getDokument().getSigneringsinformasjonFar().getXadesXml();
     return new ResponseEntity<>(innholdXades, HttpStatus.OK);
   }
 
