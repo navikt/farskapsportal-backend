@@ -3,6 +3,7 @@ ingress: https://farskapsportal-api-feature.dev.nav.no
 gcp:
   sql-instances:
     name: farskapsportal-feature
+    diskSize: 500
     tier: db-custom-1-3840
     type: POSTGRES_12
     databases:
