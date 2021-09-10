@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.Set;
 import lombok.SneakyThrows;
 import no.digipost.signature.client.core.exceptions.SenderNotSpecifiedException;
@@ -189,10 +190,14 @@ public class DifiESignaturConsumerTest {
       var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda", Set.of(new URI(STATUS_URL)));
 
       // then
-      assertNotNull(dokumentStatusDto, "Retur-objekt skal ikke være null");
-      assertEquals(STATUS_URL, dokumentStatusDto.getStatuslenke().toString(), "Status-url skal være riktig");
-      assertNotNull(dokumentStatusDto.getPadeslenke(), "Pades-url skal være satt");
-      assertEquals(PADES_URL, dokumentStatusDto.getPadeslenke().toString(), "Pades-url skal være riktig");
+      assertAll(
+          () -> assertThat(dokumentStatusDto).isNotNull(),
+          () -> assertThat(dokumentStatusDto.getStatuslenke().toString()).isEqualTo(STATUS_URL),
+          () -> assertThat(dokumentStatusDto.getPadeslenke()).isNotNull(),
+          () -> assertThat(dokumentStatusDto.getPadeslenke().toString()).isEqualTo(PADES_URL),
+          () -> assertThat(dokumentStatusDto.getSignaturer().get(1).getTidspunktForStatus()).isAfter(ZonedDateTime.now().minusSeconds(15)),
+          () -> assertThat(dokumentStatusDto.getSignaturer().get(1).getTidspunktForStatus()).isBefore(ZonedDateTime.now())
+      );
     }
   }
 

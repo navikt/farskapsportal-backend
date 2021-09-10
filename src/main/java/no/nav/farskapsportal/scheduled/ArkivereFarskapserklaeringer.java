@@ -56,10 +56,12 @@ public class ArkivereFarskapserklaeringer {
       log.debug("Oppdaterer tidspunkt for oversendelse til skatt for farskapserklæring med id {}", fe.getId());
       try {
         var tidspunktForOverfoering = skattConsumer.registrereFarskap(fe);
+
         fe.setSendtTilSkatt(tidspunktForOverfoering);
         persistenceService.oppdatereFarskapserklaering(fe);
         persistenceService.oppdatereMeldingslogg(fe.getSendtTilSkatt(), fe.getMeldingsidSkatt());
         log.debug("Meldingslogg oppdatert");
+
       } catch (SkattConsumerException sce) {
         var tidspunktNesteForsoek = LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000);
         log.error(
