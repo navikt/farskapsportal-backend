@@ -4,11 +4,13 @@ import static no.nav.farskapsportal.FarskapsportalApplicationLocal.PROFILE_TEST;
 import static no.nav.farskapsportal.TestUtils.FAR;
 import static no.nav.farskapsportal.TestUtils.MOR;
 import static no.nav.farskapsportal.TestUtils.henteBarnMedFnr;
+import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,10 +21,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.api.Feilkode;
+import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.consumer.joark.api.DokumentInfo;
 import no.nav.farskapsportal.consumer.joark.api.OpprettJournalpostResponse;
+import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
+import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.JournalpostApiConsumerException;
 import no.nav.farskapsportal.exception.SkattConsumerException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -313,6 +318,69 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isNotNull()
+      );
+    }
+
+    @Test
+    void skalIkkeSetteOverfoertTilSkattTidspunktDersomOverfoeringFeiler() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+      meldingsloggDao.deleteAll();
+
+      // given
+      var farskapserklaering1 = mapper.toEntity(henteFarskapserklaeringDto(MOR, FAR, henteBarnUtenFnr(3)));
+      farskapserklaering1.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
+      farskapserklaering1.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+
+      farskapserklaering1.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaering1.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+
+      farskapserklaering1.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      farskapserklaering1.setMeldingsidSkatt("123");
+      farskapserklaering1.setFarBorSammenMedMor(true);
+
+      var lagretSignertFarskapserklaering1 = persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
+
+      assert (lagretSignertFarskapserklaering1.getSendtTilSkatt() == null);
+
+      var enAnnenMor = ForelderDto.builder()
+          .foedselsdato(LocalDate.now().minusYears(24)).foedselsnummer("12345611211").forelderrolle(Forelderrolle.MOR)
+          .navn(NavnDto.builder().fornavn("Klara").etternavn("Ku").build())
+          .build();
+
+      var farskapserklaering2 = mapper.toEntity(henteFarskapserklaeringDto(enAnnenMor, FAR, henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111")));
+      farskapserklaering2.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
+      farskapserklaering2.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+
+      farskapserklaering2.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaering2.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+
+      farskapserklaering2.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      farskapserklaering2.setMeldingsidSkatt("123");
+      farskapserklaering2.setFarBorSammenMedMor(true);
+
+      var lagretSignertFarskapserklaering2 = persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
+
+      assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
+
+      doThrow(SkattConsumerException.class).when(skattConsumerMock).registrereFarskap(lagretSignertFarskapserklaering1);
+
+      // when
+      arkivereFarskapserklaeringer.vurdereArkivering();
+
+      // then
+      var oppdatertFarskapserklaering1 = farskapserklaeringDao.findById(lagretSignertFarskapserklaering1.getId());
+      var oppdatertFarskapserklaering2 = farskapserklaeringDao.findById(lagretSignertFarskapserklaering2.getId());
+
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering1).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering2).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering2.get().getSendtTilSkatt()).isNull()
       );
     }
   }
