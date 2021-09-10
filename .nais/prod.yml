@@ -4,6 +4,7 @@ gcp:
   secretmanager.host: secretmanager.googleapis.com
   sql-instances:
     name: fp-prod
+    diskSize: 500
     tier: db-custom-1-3840
     type: POSTGRES_12
     databases:
