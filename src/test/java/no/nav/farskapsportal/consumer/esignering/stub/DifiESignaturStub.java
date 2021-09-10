@@ -7,6 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -45,8 +46,8 @@ public class DifiESignaturStub {
                             "   <signature-job-id>1</signature-job-id>",
                             "   <signature-job-status>COMPLETED_SUCCESSFULLY</signature-job-status>",
                             "   <status-url>" + statusUrl + "</status-url>",
-                            "   <status signer=\"" + idSigner1 + "\" since=\"" + LocalDateTime.now().minusSeconds(10) + "\">SIGNED</status>",
-                            "   <status signer=\"" + idSigner2 + "\" since=\"" + LocalDateTime.now().minusSeconds(10) + "\">SIGNED</status>",
+                            "   <status signer=\"" + idSigner1 + "\" since=\"" + Instant.now().minusSeconds(10) + "\">SIGNED</status>",
+                            "   <status signer=\"" + idSigner2 + "\" since=\"" + Instant.now().minusSeconds(10) + "\">SIGNED</status>",
                             "   <confirmation-url>https://api.signering.posten.no/api/" + idSigner1
                                 + "/direct/signature-jobs/1/complete</confirmation-url>",
                             "   <xades-url signer=\"" + idSigner1 + "\">https://api.signering.posten.no/api/" + idSigner1

@@ -279,7 +279,7 @@ public class DifiESignaturConsumer {
 
   private SignaturDto mapTilDto(Signature signature) {
     signatureierErIkkeNull(signature);
-    var tidspunktForStatus = ZonedDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
+    var tidspunktForStatus = ZonedDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.systemDefault());
     var statusSignering = mapStatus(signature.getStatus());
     var harSignert = StatusSignering.SUKSESS.equals(statusSignering);
     return SignaturDto.builder()
