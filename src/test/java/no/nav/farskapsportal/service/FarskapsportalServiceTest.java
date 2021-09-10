@@ -65,7 +65,6 @@ import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
-import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.exception.EsigneringStatusFeiletException;
@@ -105,8 +104,6 @@ public class FarskapsportalServiceTest {
   DifiESignaturConsumer difiESignaturConsumer;
   @MockBean
   PersonopplysningService personopplysningService;
-  @MockBean
-  SkattConsumer skattConsumer;
   @MockBean
   BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   @Autowired

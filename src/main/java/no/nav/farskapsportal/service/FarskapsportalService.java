@@ -35,7 +35,6 @@ import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
-import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
@@ -64,7 +63,6 @@ public class FarskapsportalService {
   private final FarskapsportalEgenskaper farskapsportalEgenskaper;
   private final PdfGeneratorConsumer pdfGeneratorConsumer;
   private final DifiESignaturConsumer difiESignaturConsumer;
-  private final SkattConsumer skattConsumer;
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
   private final BrukernotifikasjonConsumer brukernotifikasjonConsumer;
