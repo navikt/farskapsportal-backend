@@ -130,7 +130,7 @@ spring:
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test, scheduled-test
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test, scheduled-test, remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -164,7 +164,7 @@ no.nav.security.jwt:
 
 ---
 spring:
-  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test
+  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test, remote-postgres
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
@@ -259,9 +259,9 @@ spring:
   config.activate.on-profile: remote-postgres
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
+    url: jdbc:postgresql://localhost:5432/fpdb-prod
     password: ${REMOTE_POSTGRES_PWD}
-    databaseName: farskapsportaldb-feature
+    databaseName: fpdb-prod
 
 ---
 spring.config.activate.on-profile: scheduled-test

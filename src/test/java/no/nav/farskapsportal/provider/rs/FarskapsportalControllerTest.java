@@ -28,6 +28,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1311,7 +1312,7 @@ public class FarskapsportalControllerTest {
                   SignaturDto.builder()
                       .signatureier(MOR.getFoedselsnummer())
                       .harSignert(true)
-                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
                       .xadeslenke(lageUrl("/xades"))
                       .build()))
               .build());
@@ -1380,7 +1381,7 @@ public class FarskapsportalControllerTest {
                   SignaturDto.builder()
                       .signatureier(FAR.getFoedselsnummer())
                       .harSignert(true)
-                      .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                      .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
                       .xadeslenke(lageUrl("/xades"))
                       .build())).build());
 
@@ -1451,7 +1452,7 @@ public class FarskapsportalControllerTest {
                   .signatureier(FAR.getFoedselsnummer())
                   .harSignert(true)
                   .xadeslenke(lageUrl("/xades"))
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
                   .build()))
               .build());
 
@@ -1513,7 +1514,7 @@ public class FarskapsportalControllerTest {
                   .signatureier(MOR.getFoedselsnummer())
                   .harSignert(false)
                   .xadeslenke(null)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
                   .build()))
               .build());
 
@@ -1573,7 +1574,7 @@ public class FarskapsportalControllerTest {
                   .signatureier(FAR.getFoedselsnummer())
                   .harSignert(false)
                   .xadeslenke(null)
-                  .tidspunktForStatus(LocalDateTime.now().minusSeconds(3))
+                  .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
                   .build()))
               .build());
 

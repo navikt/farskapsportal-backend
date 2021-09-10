@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -278,7 +279,7 @@ public class DifiESignaturConsumer {
 
   private SignaturDto mapTilDto(Signature signature) {
     signatureierErIkkeNull(signature);
-    var tidspunktForStatus = LocalDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
+    var tidspunktForStatus = ZonedDateTime.ofInstant(signature.getStatusDateTime(), ZoneOffset.UTC);
     var statusSignering = mapStatus(signature.getStatus());
     var harSignert = StatusSignering.SUKSESS.equals(statusSignering);
     return SignaturDto.builder()

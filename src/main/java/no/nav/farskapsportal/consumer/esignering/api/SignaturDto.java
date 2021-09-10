@@ -3,6 +3,7 @@ package no.nav.farskapsportal.consumer.esignering.api;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class SignaturDto {
   private URI xadeslenke;
 
   @Parameter(description = "Tidspunkt for siste statusendring")
-  private LocalDateTime tidspunktForStatus;
+  private ZonedDateTime tidspunktForStatus;
 
   @Parameter(description = "Status signering")
   private StatusSignering statusSignering;
