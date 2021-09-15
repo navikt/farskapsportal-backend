@@ -32,7 +32,6 @@ import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
 import no.nav.farskapsportal.consumer.pdl.api.VergeEllerFullmektigDto;
 import no.nav.farskapsportal.consumer.pdl.api.VergemaalEllerFremtidsfullmaktDto;
@@ -41,6 +40,7 @@ import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDt
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import org.junit.jupiter.api.DisplayName;
@@ -190,7 +190,7 @@ public class PersonopplysningServiceTest {
       var personnummer = "12345";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var navnDto = NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build();
+      var navnDto = no.nav.farskapsportal.consumer.pdl.api.NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build();
 
       when(pdlApiConsumerMock.hentNavnTilPerson(foedselsnummer)).thenReturn(navnDto);
 

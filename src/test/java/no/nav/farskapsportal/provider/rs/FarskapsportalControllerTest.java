@@ -58,7 +58,6 @@ import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
@@ -75,6 +74,7 @@ import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
@@ -1033,7 +1033,8 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR)
+              .opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -1172,7 +1173,8 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).opplysningerOmFar(
-              KontrollerePersonopplysningerRequest.builder().navn(FAR.getNavn().sammensattNavn()).foedselsnummer(FAR.getFoedselsnummer()).build()).build()),
+                  KontrollerePersonopplysningerRequest.builder().navn(FAR.getNavn().sammensattNavn()).foedselsnummer(FAR.getFoedselsnummer()).build())
+              .build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then
@@ -1241,7 +1243,8 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
-          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
+          initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(BARN_UTEN_FNR)
+              .opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
 
       // then

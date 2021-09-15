@@ -6,6 +6,7 @@ import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.exception.MappingException;
 import no.nav.farskapsportal.persistence.entity.Barn;
@@ -76,9 +77,13 @@ public class Mapper {
     return modelMapper.map(forelderDto, Forelder.class);
   }
 
+  public <T,V> T modelMapper(V v, Class<T> tClass) {
+    return modelMapper.map(v, tClass);
+  }
+
   public ForelderDto toDto(Forelder forelder) {
     var foedselsdato = personopplysningService.henteFoedselsdato(forelder.getFoedselsnummer());
-    var navnDto = personopplysningService.henteNavn(forelder.getFoedselsnummer());
+    var navnDto = modelMapper(personopplysningService.henteNavn(forelder.getFoedselsnummer()), NavnDto.class);
     var forelderDto = modelMapper.map(forelder, ForelderDto.class);
     forelderDto.setFoedselsdato(foedselsdato);
     forelderDto.setNavn(navnDto);

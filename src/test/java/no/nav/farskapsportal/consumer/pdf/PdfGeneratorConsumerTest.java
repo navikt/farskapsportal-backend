@@ -10,12 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.api.Skriftspraak;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.DisplayName;
@@ -79,7 +78,8 @@ public class PdfGeneratorConsumerTest {
 
     assertAll(
         () -> assertThat(dokumenttekst).doesNotContain("Place of birth"),
-        () -> assertThat(dokumenttekst).contains("Expected date of birth: " + UFOEDT_BARN.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+        () -> assertThat(dokumenttekst).contains(
+            "Expected date of birth: " + UFOEDT_BARN.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
     );
 
     validereInformasjonOmForeldrenePaaEngelsk(dokumenttekst, MOR, FAR);
@@ -130,7 +130,8 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).doesNotContain("Expected date of birth "),
         () -> assertThat(dokumenttekst).contains("Child"),
         () -> assertThat(dokumenttekst).contains("Social security number: " + NYFOEDT_BARN.getFoedselsnummer()),
-        () -> assertThat(dokumenttekst).contains("Date of birth: " + NYFOEDT_BARN.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains(
+            "Date of birth: " + NYFOEDT_BARN.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
         () -> assertThat(dokumenttekst).contains("Place of birth: " + NYFOEDT_BARN.getFoedested())
     );
 
@@ -198,7 +199,8 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).doesNotContain("Expected date of birth "),
         () -> assertThat(dokumenttekst).contains("Child"),
         () -> assertThat(dokumenttekst).contains("Social security number: " + NYFOEDT_BARN.getFoedselsnummer()),
-        () -> assertThat(dokumenttekst).contains("Date of birth: " + NYFOEDT_BARN.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains(
+            "Date of birth: " + NYFOEDT_BARN.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
         () -> assertThat(dokumenttekst).contains("Place of birth: " + NYFOEDT_BARN.getFoedested())
     );
 
@@ -213,7 +215,6 @@ public class PdfGeneratorConsumerTest {
       ioe.printStackTrace();
     }
   }
-
 
 
   private void validereInformasjonOmForeldrenePaaBokmaal(String dokumenttekst, ForelderDto mor, ForelderDto far) {

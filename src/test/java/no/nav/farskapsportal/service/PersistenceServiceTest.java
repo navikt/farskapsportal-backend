@@ -25,10 +25,10 @@ import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.InternFeilException;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
@@ -86,12 +86,7 @@ public class PersistenceServiceTest {
   private Mapper mapper;
   @Autowired
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
-
-  @Test
-  void skalSetteAntallFeiledeForseokTilEnDersomTidspunktForNullstillingErNaadd() {
-
-  }
-
+  
   private void standardPersonopplysningerMocks(ForelderDto far, ForelderDto mor) {
     when(personopplysningServiceMock.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
     when(personopplysningServiceMock.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FAR.getFoedselsdato());

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.ForelderDto;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;

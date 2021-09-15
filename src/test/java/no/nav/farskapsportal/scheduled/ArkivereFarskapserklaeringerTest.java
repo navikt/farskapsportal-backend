@@ -9,7 +9,6 @@ import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -25,9 +24,9 @@ import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.consumer.joark.api.DokumentInfo;
 import no.nav.farskapsportal.consumer.joark.api.OpprettJournalpostResponse;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.JournalpostApiConsumerException;
 import no.nav.farskapsportal.exception.SkattConsumerException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
@@ -303,7 +302,7 @@ public class ArkivereFarskapserklaeringerTest {
       farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(LocalDateTime.now());
       farskapserklaeringAlleredeOverfoert.setSendtTilJoark(LocalDateTime.now());
 
-      var lagretFarskapserklaeringAlleredeOverfoert= persistenceService.lagreNyFarskapserklaering(
+      var lagretFarskapserklaeringAlleredeOverfoert = persistenceService.lagreNyFarskapserklaering(
           farskapserklaeringAlleredeOverfoert);
 
       verify(skattConsumerMock, never()).registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);

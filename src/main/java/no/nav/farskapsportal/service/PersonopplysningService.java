@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.Feilkode;
@@ -24,9 +23,10 @@ import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
+import org.modelmapper.ModelMapper;
 import org.springframework.validation.annotation.Validated;
 
 @Builder
@@ -40,6 +40,8 @@ public class PersonopplysningService {
   private final PdlApiConsumer pdlApiConsumer;
 
   private final FarskapsportalEgenskaper farskapsportalEgenskaper;
+
+  private ModelMapper modelMapper;
 
   public Set<String> henteNyligFoedteBarnUtenRegistrertFar(String fnrMor) {
     Set<String> spedbarnUtenFar = new HashSet<>();
@@ -155,7 +157,7 @@ public class PersonopplysningService {
   }
 
   public NavnDto henteNavn(String foedselsnummer) {
-    return pdlApiConsumer.hentNavnTilPerson(foedselsnummer);
+    return modelMapper.map(pdlApiConsumer.hentNavnTilPerson(foedselsnummer), NavnDto.class);
   }
 
   public SivilstandDto henteSivilstand(String foedselsnummer) {
