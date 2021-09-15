@@ -1,25 +1,25 @@
 package no.nav.farskapsportal.consumer.pdl.api;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.Value;
 
-@Value
 @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class NavnDto implements PdlDto {
 
-  String fornavn;
-  String mellomnavn;
-  String etternavn;
-  String forkortetNavn;
-  PersonnavnDto originaltNavn;
-  FolkeregistermetadataDto folkeregistermetadata;
-  MetadataDto metadata;
+  private String fornavn;
+  private String mellomnavn;
+  private String etternavn;
+  private String forkortetNavn;
+  private PersonnavnDto originaltNavn;
+  private FolkeregistermetadataDto folkeregistermetadata;
+  private MetadataDto metadata;
 
-  public String sammensattNavn() {
-    return Stream.of(getFornavn(), getMellomnavn(), getEtternavn())
-        .filter(s -> s != null && !toString().isEmpty()).collect(
-            Collectors.joining(" "));
-  }
 }

@@ -22,7 +22,6 @@ import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import no.nav.farskapsportal.consumer.pdl.api.VergeEllerFullmektigDto;
 import no.nav.farskapsportal.consumer.pdl.api.VergemaalEllerFremtidsfullmaktDto;
 import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
@@ -40,6 +39,7 @@ import no.nav.farskapsportal.consumer.pdl.stub.HentPersonVergeEllerFremtidsfullm
 import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

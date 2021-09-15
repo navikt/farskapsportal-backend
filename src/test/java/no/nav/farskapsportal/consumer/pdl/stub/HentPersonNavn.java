@@ -2,14 +2,21 @@ package no.nav.farskapsportal.consumer.pdl.stub;
 
 import lombok.Getter;
 import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Getter
 public class HentPersonNavn implements HentPersonSubResponse {
 
+  private ModelMapper modelMapper;
+
   private String response;
 
-  public HentPersonNavn(NavnDto navn) {
-    buildResponse(navn, "sagga-dagga");
+
+  public HentPersonNavn(no.nav.farskapsportal.dto.NavnDto navn) {
+    this.modelMapper = new ModelMapper();
+    var pdlNavnDto = modelMapper.map(navn, NavnDto.class);
+    buildResponse(pdlNavnDto, "sagga-dagga");
   }
 
   private void buildResponse(NavnDto navnDto, String opplysningsId) {

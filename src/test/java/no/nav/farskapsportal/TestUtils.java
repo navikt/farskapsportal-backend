@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.api.Forelderrolle;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.DokumentDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;

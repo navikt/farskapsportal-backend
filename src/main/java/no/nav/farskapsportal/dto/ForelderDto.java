@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import no.nav.farskapsportal.api.Forelderrolle;
-import no.nav.farskapsportal.consumer.pdl.api.NavnDto;
 import org.springframework.validation.annotation.Validated;
 
 @Builder

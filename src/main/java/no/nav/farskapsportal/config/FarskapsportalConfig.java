@@ -170,9 +170,12 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PersonopplysningService personopplysningService(PdlApiConsumer pdlApiConsumer,
+  public PersonopplysningService personopplysningService(ModelMapper modelMapper, PdlApiConsumer pdlApiConsumer,
       FarskapsportalEgenskaper farskapsportalEgenskaper) {
-    return PersonopplysningService.builder().pdlApiConsumer(pdlApiConsumer).farskapsportalEgenskaper(farskapsportalEgenskaper).build();
+    return PersonopplysningService.builder()
+        .modelMapper(modelMapper)
+        .pdlApiConsumer(pdlApiConsumer)
+        .farskapsportalEgenskaper(farskapsportalEgenskaper).build();
   }
 
   @Bean
