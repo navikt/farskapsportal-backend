@@ -105,7 +105,7 @@ public class BrukernotifikasjonConfig {
   @Bean
   Oppgaveprodusent oppgaveprodusent(
       @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate) throws MalformedURLException {
-    return new Oppgaveprodusent(farskapsportalEgenskaper, toUrl(farskapsportalEgenskaper.getUrl()), kafkaTemplate);
+    return new Oppgaveprodusent(toUrl(farskapsportalEgenskaper.getUrl()), farskapsportalEgenskaper, kafkaTemplate);
   }
 
   @Bean
@@ -113,7 +113,7 @@ public class BrukernotifikasjonConfig {
     return new Ferdigprodusent(farskapsportalEgenskaper, kafkaTemplate);
   }
 
-  public URL toUrl(String url) throws MalformedURLException {
+  private URL toUrl(String url) throws MalformedURLException {
     return new URL(url);
   }
 }
