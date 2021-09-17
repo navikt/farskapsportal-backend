@@ -3,6 +3,8 @@ package no.nav.farskapsportal.consumer.brukernotifikasjon;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
@@ -36,12 +38,12 @@ public class Beskjedprodusent {
   private Beskjed oppretteBeskjed(String foedselsnummer, String meldingTilBruker, boolean medEksternVarsling, URL lenke) {
 
     return new BeskjedBuilder()
-        .withTidspunkt(LocalDateTime.now())
+        .withTidspunkt(LocalDateTime.now(ZoneId.of("UTC")))
         .withFodselsnummer(foedselsnummer)
         .withGrupperingsId(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withEksternVarsling(medEksternVarsling)
         .withSynligFremTil(
-            LocalDateTime.now().withHour(0).plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
+            LocalDateTime.now(ZoneId.of("UTC")).withHour(0).plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
         .withSikkerhetsnivaa(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed())
         .withLink(lenke)
         .withTekst(meldingTilBruker)

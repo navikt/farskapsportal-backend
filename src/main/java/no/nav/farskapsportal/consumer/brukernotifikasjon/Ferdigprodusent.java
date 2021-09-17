@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.consumer.brukernotifikasjon;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.brukernotifikasjon.schemas.Done;
@@ -26,7 +27,7 @@ public class Ferdigprodusent {
 
   private Done oppretteDone(String foedselsnummerFar) {
     return new DoneBuilder()
-        .withTidspunkt(LocalDateTime.now())
+        .withTidspunkt(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime())
         .withFodselsnummer(foedselsnummerFar)
         .withGrupperingsId(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .build();

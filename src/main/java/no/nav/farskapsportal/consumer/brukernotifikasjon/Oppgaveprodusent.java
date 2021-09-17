@@ -1,8 +1,9 @@
 package no.nav.farskapsportal.consumer.brukernotifikasjon;
 
 import java.net.URL;
-import java.time.LocalDateTime;
-import lombok.Value;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.brukernotifikasjon.schemas.Oppgave;
 import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
@@ -13,12 +14,12 @@ import no.nav.farskapsportal.exception.InternFeilException;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @Slf4j
-@Value
+@AllArgsConstructor
 public class Oppgaveprodusent {
 
-  FarskapsportalEgenskaper farskapsportalEgenskaper;
-  URL farskapsportalUrl;
-  KafkaTemplate kafkaTemplate;
+  private URL farskapsportalUrl;
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private KafkaTemplate kafkaTemplate;
 
   public void oppretteOppgaveForSigneringAvFarskapserklaering(String idFarskapserklaering, String foedselsnummerFar, String oppgavetekst,
       boolean medEksternVarsling) {
@@ -37,11 +38,11 @@ public class Oppgaveprodusent {
   private Oppgave oppretteOppgave(String foedselsnummer, String oppgavetekst, boolean medEksternVarsling) {
 
     return new OppgaveBuilder()
-        .withTidspunkt(LocalDateTime.now())
+        .withTidspunkt(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime())
         .withFodselsnummer(foedselsnummer)
         .withGrupperingsId(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withEksternVarsling(medEksternVarsling)
-        .withLink(getFarskapsportalUrl())
+        .withLink(farskapsportalUrl)
         .withSikkerhetsnivaa(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave())
         .withTekst(oppgavetekst).build();
   }
