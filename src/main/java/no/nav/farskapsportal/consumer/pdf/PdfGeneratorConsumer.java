@@ -7,6 +7,7 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder.PdfAConformance;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -80,10 +81,15 @@ public class PdfGeneratorConsumer {
         builder.useColorProfile(colorProfileBytes);
       }
 
+
+
       try (InputStream fontStream = PdfGeneratorConsumer.class.getResourceAsStream("/pdf-template/Arial.ttf")) {
-        byte[] fontBytes = IOUtils.toByteArray(fontStream);
-        FileUtils.writeByteArrayToFile(new File("Arial.ttf"), fontBytes);
-        builder.useFont(new File("Arial.ttf"), "ArialNormal");
+        final File midlertidigFil = File.createTempFile("Arial", "ttf");
+        midlertidigFil.deleteOnExit();
+        try (FileOutputStream ut = new FileOutputStream(midlertidigFil)) {
+          IOUtils.copy(fontStream, ut);
+        }
+        builder.useFont(midlertidigFil, "ArialNormal");
       }
 
       try {
