@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>farskapsportal-backend</artifactId>
+    <groupId>no.nav.farskapsportal.backend</groupId>
+    <version>0.9.138-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>apps</artifactId>
+  <name>farskapsportal-backend :: apps</name>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>farskapsportal-api</module>
+    <module>farskapsportal-asynkron</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.source>16</maven.compiler.source>
+    <maven.compiler.target>16</maven.compiler.target>
+  </properties>
+
+</project>
