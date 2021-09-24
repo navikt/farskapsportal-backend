@@ -4,17 +4,18 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>apps</artifactId>
-    <groupId>no.nav.farskapsportal.backend</groupId>
+    <groupId>no.nav.farskapsportal.backend.apps</groupId>
     <version>0.9.138-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>farskapsportal-asynkron</artifactId>
+  <artifactId>asynkron</artifactId>
   <name>farskapsportal-backend :: apps :: asynkron</name>
 
   <properties>
     <maven.compiler.source>16</maven.compiler.source>
     <maven.compiler.target>16</maven.compiler.target>
+    <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
   </properties>
 
   <dependencies>
@@ -24,6 +25,40 @@
       <groupId>no.nav.farskapsportal.backend.libs</groupId>
       <artifactId>felles</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+
+    <!-- test -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>no.nav.farskapsportal.backend.libs</groupId>
+      <artifactId>felles-test</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+      <version>${springframework-cloud.version}</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>

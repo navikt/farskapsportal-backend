@@ -1,10 +1,10 @@
 package farskapsportal.asynkron.scheduled;
 
-import static no.nav.farskapsportal.backend.asynkron.config.FarskapsportalAsynkronConfig.PROFILE_TEST;
-import static no.nav.farskapsportal.felles.TestUtils.FAR;
-import static no.nav.farskapsportal.felles.TestUtils.MOR;
-import static no.nav.farskapsportal.felles.TestUtils.henteBarnUtenFnr;
-import static no.nav.farskapsportal.backend.lib.felles.exception.Feilkode.FANT_IKKE_FARSKAPSERKLAERING;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.exception.Feilkode.FANT_IKKE_FARSKAPSERKLAERING;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FAR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.MOR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,13 +23,15 @@ import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.farskapsportal.backend.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.asynkron.scheduled.SletteOppgave;
-import no.nav.farskapsportal.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.backend.lib.felles.exception.RessursIkkeFunnetException;
-import no.nav.farskapsportal.backend.lib.felles.persistence.dao.FarskapserklaeringDao;
-import no.nav.farskapsportal.backend.lib.entity.Barn;
-import no.nav.farskapsportal.backend.lib.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.lib.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.lib.felles.service.PersistenceService;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
+import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
+import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("SletteOppgave")
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {FarskapsportalFellesConfig.class, TestUtils.class})
 @ActiveProfiles(PROFILE_TEST)
 public class SletteOppgaveTest {
 
@@ -109,7 +111,8 @@ public class SletteOppgaveTest {
     verify(ferdigkoe, times(1))
         .send(eq(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getTopicFerdig()), ferdignoekkelfanger.capture(), ferdigfanger.capture());
     verify(beskjedkoe, times(1))
-        .send(eq(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), beskjednoekkelfanger.capture(), beskjedfanger.capture());
+        .send(eq(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), beskjednoekkelfanger.capture(),
+            beskjedfanger.capture());
 
     var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
@@ -127,7 +130,8 @@ public class SletteOppgaveTest {
         () -> assertThat(beskjednoekkel.getSystembruker()).isEqualTo(farskapsportalAsynkronEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalAsynkronEgenskaper.getUrl()),
-        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(
+            farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
         () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
         () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
         () -> assertThat(beskjed.getEksternVarsling()).isTrue(),

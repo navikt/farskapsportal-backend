@@ -15,6 +15,24 @@
   <properties>
     <maven.compiler.source>16</maven.compiler.source>
     <maven.compiler.target>16</maven.compiler.target>
+    <javax.validation.version>2.0.1.Final</javax.validation.version>
+    <springdoc-openapi-ui.version>1.5.10</springdoc-openapi-ui.version>
+
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
+      <version>${springdoc-openapi-ui.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>${javax.validation.version}</version>
+    </dependency>
+
+  </dependencies>
 
 </project>

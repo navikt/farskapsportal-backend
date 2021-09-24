@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
-import no.nav.farskapsportal.backend.lib.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.backend.lib.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.lib.felles.service.PersistenceService;
+import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Builder

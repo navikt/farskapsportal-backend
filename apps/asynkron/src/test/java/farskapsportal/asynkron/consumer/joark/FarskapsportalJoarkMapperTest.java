@@ -16,20 +16,20 @@ import no.nav.farskapsportal.backend.asynkron.consumer.joark.api.AvsenderMottake
 import no.nav.farskapsportal.backend.asynkron.consumer.joark.api.BrukerIdType;
 import no.nav.farskapsportal.backend.asynkron.consumer.joark.api.JournalpostType;
 import no.nav.farskapsportal.backend.felles.api.Forelderrolle;
-import no.nav.farskapsportal.backend.lib.felles.config.RestTemplateConfig;
+import no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig;
 import no.nav.farskapsportal.felles.config.egenskaper.FarskapsportalEgenskaper;
-import no.nav.farskapsportal.backend.lib.felles.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.backend.lib.entity.Barn;
-import no.nav.farskapsportal.backend.lib.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.lib.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.lib.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles(PROFILE_TEST)
-@SpringBootTest(classes = {FarskapsportalAsynkronTestConfig.class, RestTemplateConfig.class, FarskapsportalJoarkMapper.class, FarskapsportalEgenskaper.class})
+@SpringBootTest(classes = {FarskapsportalAsynkronTestConfig.class, RestTemplateFellesConfig.class, FarskapsportalJoarkMapper.class, FarskapsportalEgenskaper.class})
 public class FarskapsportalJoarkMapperTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);

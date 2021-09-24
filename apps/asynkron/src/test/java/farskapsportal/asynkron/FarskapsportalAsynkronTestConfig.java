@@ -4,13 +4,13 @@ package farskapsportal.asynkron;
 import static no.nav.farskapsportal.backend.asynkron.FarskapsportalAsynkronApplication.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.asynkron.config.FarskapsportalAsynkronConfig.PROFILE_SKATT_SSL_TEST;
 import static no.nav.farskapsportal.backend.asynkron.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
-import static no.nav.farskapsportal.backend.lib.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 
 import java.security.KeyStore;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.asynkron.consumer.skatt.SkattConsumer;
-import no.nav.farskapsportal.backend.lib.felles.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;

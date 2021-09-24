@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.asynkron;
 
-import static no.nav.farskapsportal.backend.lib.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;

@@ -14,11 +14,11 @@ import no.nav.farskapsportal.backend.asynkron.consumer.joark.JournalpostApiConsu
 import no.nav.farskapsportal.backend.asynkron.consumer.joark.api.DokumentInfo;
 import no.nav.farskapsportal.backend.asynkron.consumer.joark.api.OpprettJournalpostResponse;
 import no.nav.farskapsportal.asynkron.consumer.joark.stub.JournalpostApiStub;
-import no.nav.farskapsportal.backend.lib.felles.consumer.pdl.PdlApiConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.felles.consumer.sts.stub.StsStub;
-import no.nav.farskapsportal.backend.lib.entity.Barn;
-import no.nav.farskapsportal.backend.lib.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.lib.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

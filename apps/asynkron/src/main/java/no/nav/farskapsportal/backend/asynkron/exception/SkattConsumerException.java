@@ -1,7 +1,7 @@
 package no.nav.farskapsportal.backend.asynkron.exception;
 
-import no.nav.farskapsportal.backend.lib.felles.exception.Feilkode;
-import no.nav.farskapsportal.backend.lib.felles.exception.InternFeilException;
+import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
+import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 
 public class SkattConsumerException extends InternFeilException {
 

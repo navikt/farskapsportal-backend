@@ -1,7 +1,7 @@
 package no.nav.farskapsportal.backend.asynkron.config;
 
-import static no.nav.farskapsportal.backend.lib.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
-import static no.nav.farskapsportal.backend.lib.felles.config.FarskapsportalFellesConfig.PROFILE_SCHEDULED_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_SCHEDULED_TEST;
 
 import no.nav.farskapsportal.backend.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.asynkron.consumer.joark.JournalpostApiConsumer;
@@ -9,7 +9,7 @@ import no.nav.farskapsportal.backend.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.asynkron.scheduled.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.asynkron.scheduled.SletteOppgave;
 import no.nav.farskapsportal.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.backend.lib.felles.service.PersistenceService;
+import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
