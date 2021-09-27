@@ -11,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, FarskapsportalApiApplication.PROFILE_INTEGRATION_TEST})
 @Configuration
 @AutoConfigureWireMock(port = 8096)
-public class FarskapsportalLocalConfig {
+public class FarskapsportalApiLocalConfig {
 
   public static final String PADES = "/pades";
   public static final String XADES = "/xades";

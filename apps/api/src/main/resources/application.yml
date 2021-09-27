@@ -163,7 +163,7 @@ INTEGRATION_TEST_CONTROLLER_PAA: true
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
-FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no/nb/"
+FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/nb/
 ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet

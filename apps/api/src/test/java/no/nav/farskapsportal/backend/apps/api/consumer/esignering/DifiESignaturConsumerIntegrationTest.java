@@ -10,7 +10,7 @@ import java.util.Set;
 import no.digipost.signature.client.direct.DirectClient;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalLocalConfig;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
 import no.nav.farskapsportal.backend.apps.api.TestUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
@@ -86,10 +86,10 @@ public class DifiESignaturConsumerIntegrationTest {
       ClassLoader classLoader = getClass().getClassLoader();
       var inputStream = classLoader.getResourceAsStream("src/test/resources/__files/Farskapsportal.pdf");
       var originaltInnhold = inputStream.readAllBytes();
-      difiESignaturStub.runGetSignedDocument(FarskapsportalLocalConfig.PADES);
+      difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUrl(FarskapsportalLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUrl(FarskapsportalApiLocalConfig.PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);

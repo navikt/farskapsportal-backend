@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.api.config.egenskaper")
-@ComponentScan("no.nav.farskapsportal.backend")
+@ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
 public class FarskapsportalApiApplication {
 
   public static final String ISSUER = "selvbetjening";

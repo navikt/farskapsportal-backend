@@ -20,7 +20,7 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectJob;
 import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalLocalConfig;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
 import no.nav.farskapsportal.backend.apps.api.TestUtils;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
@@ -62,7 +62,7 @@ public class DifiESignaturConsumerTest {
 
   private static final String STATUS_URL = "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/status";
   private static final String PADES_URL =
-      "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1" + FarskapsportalLocalConfig.PADES;
+      "http://localhost:8096/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1" + FarskapsportalApiLocalConfig.PADES;
 
   @Mock
   DirectClient directClientMock;
@@ -213,10 +213,10 @@ public class DifiESignaturConsumerTest {
       ClassLoader classLoader = getClass().getClassLoader();
       var inputStream = classLoader.getResourceAsStream("src/test/resources/__files/Farskapsportal.pdf");
       var originaltInnhold = inputStream.readAllBytes();
-      difiESignaturStub.runGetSignedDocument(FarskapsportalLocalConfig.PADES);
+      difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUrl(FarskapsportalLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUrl(FarskapsportalApiLocalConfig.PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);
@@ -230,10 +230,10 @@ public class DifiESignaturConsumerTest {
     void skalHenteXadesXml() {
 
       // given
-      difiESignaturStub.runGetXades(FarskapsportalLocalConfig.XADES);
+      difiESignaturStub.runGetXades(FarskapsportalApiLocalConfig.XADES);
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(TestUtils.lageUrl(FarskapsportalLocalConfig.XADES));
+      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(TestUtils.lageUrl(FarskapsportalApiLocalConfig.XADES));
 
       // then
       assertNotNull(dokumentStatusDto);

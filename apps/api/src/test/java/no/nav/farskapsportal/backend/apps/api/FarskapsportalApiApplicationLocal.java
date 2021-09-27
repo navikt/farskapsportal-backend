@@ -40,6 +40,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -48,7 +49,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@ComponentScan(excludeFilters = {
+@ComponentScan(value ={"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"}, excludeFilters = {
     @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = {FarskapsportalApiApplication.class, DifiEsigneringConfig.class})})
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"},
     topics = {"aapen-brukernotifikasjon-nyBeskjed-v1", "aapen-brukernotifikasjon-done-v1", "aapen-brukernotifikasjon-nyOppgave-v1"})
@@ -91,17 +92,6 @@ public class FarskapsportalApiApplicationLocal {
   @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, FarskapsportalApiApplication.PROFILE_SCHEDULED_TEST,
       PROFILE_SKATT_SSL_TEST})
   public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader) throws IOException {
-
-    log.info("XXX sti: " + FarskapsportalApiApplicationLocal.class.getResource("/").getPath());
-
-
-    Resource resource = resourceLoader.getResource("classpath:esigneringkeystore.jceks");
-    try (InputStream inputStream = resource.getInputStream()) {
-      inputStream.available();
-    } catch(IOException ioe) {
-      log.error(ioe.getMessage());
-    }
-
     var classLoader = getClass().getClassLoader();
     try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
       if (inputStream == null) {
