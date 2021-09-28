@@ -165,6 +165,7 @@ no.nav.security.jwt:
 ---
 spring:
   config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test, remote-postgres
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########

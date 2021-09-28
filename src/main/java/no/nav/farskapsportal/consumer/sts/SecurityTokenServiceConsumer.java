@@ -11,6 +11,8 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -31,6 +33,7 @@ public class SecurityTokenServiceConsumer {
         }
       };
 
+  @Retryable(value = Exception.class, backoff = @Backoff(delay = 500))
   public String hentIdTokenForServicebruker(String brukernavn, String passord) {
 
     Validate.isTrue(brukernavn != null);
