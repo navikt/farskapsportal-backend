@@ -33,8 +33,10 @@ import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.UnrecoverableException;
 import no.nav.farskapsportal.exception.ValideringException;
 import org.apache.commons.lang3.Validate;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -182,7 +184,7 @@ public class PdlApiConsumer {
     return kjoennFraPdlEllerFreg;
   }
 
-  @Retryable(maxAttempts = 10)
+  @Retryable(value = Exception.class, backoff = @Backoff(delay = 500))
   private GraphQLResponse hentePersondokument(String ident, String query, boolean inkludereHistorikk) {
     val graphQlRequest = GraphQLRequest.builder().query(query).variables(Map.of("historikk", inkludereHistorikk, "ident", ident)).build();
 
