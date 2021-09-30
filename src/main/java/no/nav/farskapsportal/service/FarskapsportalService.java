@@ -103,6 +103,10 @@ public class FarskapsportalService {
       // har mor noen nyfødte barn uten registrert far?
       nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrPaaloggetBruker);
 
+      if (nyligFoedteBarnSomManglerFar.size() > 1) {
+        log.info("Mor har mer enn én nyfødt uten registrert far. Antall nyfødte er {}", nyligFoedteBarnSomManglerFar.size());
+      }
+
       var morsAktiveErklaeringer = persistenceService.henteMorsEksisterendeErklaeringer(fnrPaaloggetBruker);
 
       // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
