@@ -244,6 +244,17 @@ public class PersonopplysningServiceTest {
       // when, then
       assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
     }
+
+    @Test
+    void skalHaandtereNorskeBokstaver() {
+      // given
+      var farsRegistrerteNavn = NavnDto.builder().fornavn("Dånald Øndræ").mellomnavn("Dængerås").etternavn(FAR.getNavn().getEtternavn())
+          .build();
+      var farsNavn = "Dånald Øndræ" + " Dængerås " + FAR.getNavn().getEtternavn();
+
+      // when, then
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+    }
   }
 
   @Nested

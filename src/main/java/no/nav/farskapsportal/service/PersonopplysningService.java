@@ -2,6 +2,8 @@ package no.nav.farskapsportal.service;
 
 import static no.nav.farskapsportal.service.FarskapsportalService.KODE_LAND_NORGE;
 
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -174,10 +176,12 @@ public class PersonopplysningService {
   }
 
   public void navnekontroll(String navn, NavnDto navnFraRegister) {
-
     var sammenslaattNavnFraRegister = navnFraRegister.getFornavn() + hentMellomnavnHvisFinnes(navnFraRegister) + navnFraRegister.getEtternavn();
 
-    boolean navnStemmer = normalisereNavn(sammenslaattNavnFraRegister).equalsIgnoreCase(normalisereNavn(navn));
+    var normalisertNavnFraRegister = Normalizer.normalize(sammenslaattNavnFraRegister, Form.NFD).replaceAll("\\p{M}", "") .replaceAll("\\s+", "");;
+    var normalisertOppgittNavn = Normalizer.normalize(navn, Form.NFD).replaceAll("\\p{M}", "") .replaceAll("\\s+", "");;
+
+    boolean navnStemmer = normalisertNavnFraRegister.equalsIgnoreCase(normalisertOppgittNavn);
 
     if (!navnStemmer) {
       log.error(
@@ -189,12 +193,6 @@ public class PersonopplysningService {
     log.info("Navnekontroll gjennomført uten feil");
   }
 
-  // Fjerner spesialtegn
-  private String normalisereNavn(String navn) {
-    return navn
-        .replaceAll("é", "e")
-        .replaceAll("\\s+", "");
-  }
 
   private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
 
