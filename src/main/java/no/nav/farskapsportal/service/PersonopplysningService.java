@@ -177,7 +177,7 @@ public class PersonopplysningService {
 
     var sammenslaattNavnFraRegister = navnFraRegister.getFornavn() + hentMellomnavnHvisFinnes(navnFraRegister) + navnFraRegister.getEtternavn();
 
-    boolean navnStemmer = sammenslaattNavnFraRegister.replaceAll("\\s+", "").equalsIgnoreCase(navn.replaceAll("\\s+", ""));
+    boolean navnStemmer = normalisereNavn(sammenslaattNavnFraRegister).equalsIgnoreCase(normalisereNavn(navn));
 
     if (!navnStemmer) {
       log.error(
@@ -187,6 +187,13 @@ public class PersonopplysningService {
     }
 
     log.info("Navnekontroll gjennomført uten feil");
+  }
+
+  // Fjerner spesialtegn
+  private String normalisereNavn(String navn) {
+    return navn
+        .replaceAll("é", "e")
+        .replaceAll("\\s+", "");
   }
 
   private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
