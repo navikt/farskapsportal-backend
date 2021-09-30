@@ -39,11 +39,10 @@
     <asm.version>9.1</asm.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google.api.gax.version>1.65.1</google.api.gax.version>
-    <javassist.version>3.28.0-GA</javassist.version>
     <jsoup.version>1.14.2</jsoup.version>
     <openhtml.version>1.0.9</openhtml.version>
-    <scala.version>2.13.5</scala.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
+    <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
 
     <!-- test -->
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
@@ -90,23 +89,12 @@
         <version>${google.api.gax.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.javassist</groupId>
-        <artifactId>javassist</artifactId>
-        <version>${javassist.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-library</artifactId>
-        <version>${scala.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-reflect</artifactId>
-        <version>${scala.version}</version>
+        <groupId>com.sun.istack</groupId>
+        <artifactId>istack-commons-runtime</artifactId>
+        <version>${sun.istack-commons.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <dependencies>
 
     <!-- spring -->
@@ -291,6 +279,13 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-contract-wiremock</artifactId>
       <version>${spring-cloud-contract-wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>${wiremock-standalone.version}</version>
       <scope>test</scope>
     </dependency>
 

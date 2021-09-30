@@ -22,9 +22,8 @@
     <maven.compiler.target>16</maven.compiler.target>
     <modelmapper.version>2.4.4</modelmapper.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
-    <google.api.gax.version>1.65.1</google.api.gax.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
-    <spring-cloud-gcp.version>2.0.4</spring-cloud-gcp.version>
+    <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
     <wiremock-standalone.version>2.19.0</wiremock-standalone.version>
   </properties>
@@ -80,7 +79,7 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
-      <version>${spring-cloud-gcp.version}</version>
+      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
     </dependency>
 
     <!-- internal -->

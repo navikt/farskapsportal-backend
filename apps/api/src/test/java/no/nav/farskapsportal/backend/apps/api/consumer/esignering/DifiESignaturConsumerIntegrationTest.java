@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -11,11 +12,11 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
-import no.nav.farskapsportal.backend.apps.api.TestUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
+import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -89,7 +90,7 @@ public class DifiESignaturConsumerIntegrationTest {
       difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUrl(FarskapsportalApiLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(FarskapsportalApiLocalConfig.PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);

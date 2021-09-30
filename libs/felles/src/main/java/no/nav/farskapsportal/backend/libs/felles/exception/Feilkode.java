@@ -16,6 +16,7 @@ public enum Feilkode {
   ESIGNERING_SIGNATUREIER_NULL("Signatureier er null i respons fra esigneringsløsningen!"),
   ESIGNERING_STATUS_FEILET("Signeringsoppdraget har status feilet hos Posten, og signering kan ikke gjennomføres."),
   ESIGNERING_REDIRECTURL_UKJENT("Redirecturl for ukjent part mottatt fra esigneringsløsningen!"),
+  ESIGNERING_REDIRECT_FEIL("En feil oppstod ved henting av redirecturl fra esigneringsløsningen."),
   FARSKAPSERKLAERING_MANGLER_DATA("Farskapserklæringen mangler påkrevde data"),
   FARSKAPSERKLAERING_MANGLER_SIGNATUR("Farskapserklæringen er ikke signert av begge foreldrene"),
   FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR("Mor har ikke signert farskapserklæringen"),

@@ -175,7 +175,7 @@ public class DifiESignaturConsumer {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    throw new InternFeilException(Feilkode.FEIL_ROLLE);
+    throw new InternFeilException(Feilkode.ESIGNERING_REDIRECT_FEIL);
   }
 
   public Optional<DokumentStatusDto> henteOppdatertStatusPaaSigneringsjobbHvisEndringer(int idFarskapserklaring, byte[] dokument,

@@ -21,7 +21,6 @@ import no.digipost.signature.client.direct.DirectJob;
 import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
-import no.nav.farskapsportal.backend.apps.api.TestUtils;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
@@ -32,6 +31,7 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -211,12 +211,12 @@ public class DifiESignaturConsumerTest {
 
       // given
       ClassLoader classLoader = getClass().getClassLoader();
-      var inputStream = classLoader.getResourceAsStream("src/test/resources/__files/Farskapsportal.pdf");
+      var inputStream = classLoader.getResourceAsStream("__files/Farskapsportal.pdf");
       var originaltInnhold = inputStream.readAllBytes();
       difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUrl(FarskapsportalApiLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUri(FarskapsportalApiLocalConfig.PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);
@@ -233,7 +233,7 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runGetXades(FarskapsportalApiLocalConfig.XADES);
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(TestUtils.lageUrl(FarskapsportalApiLocalConfig.XADES));
+      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(TestUtils.lageUri(FarskapsportalApiLocalConfig.XADES));
 
       // then
       assertNotNull(dokumentStatusDto);

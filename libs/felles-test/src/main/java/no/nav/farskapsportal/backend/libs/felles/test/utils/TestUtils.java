@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.test.utils;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -14,6 +16,7 @@ public class TestUtils {
 
   public static final LocalDate FOEDSELSDATO_FAR = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
   public static final LocalDate FOEDSELSDATO_MOR = FOEDSELSDATO_FAR.plusYears(4);
+  public static final LocalDate FOEDSELSDATO_NYFOEDT_BARN = LocalDate.now().minusMonths(2).minusDays(13);
   public static final Forelder FAR = henteForelder(Forelderrolle.FAR);
   public static final Forelder MOR = henteForelder(Forelderrolle.MOR);
   public static final NavnDto NAVN_FAR = NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build();
@@ -25,6 +28,22 @@ public class TestUtils {
 
   public static String lageUrl(String kontekst) {
     return "http://localhost:8096" + kontekst;
+  }
+
+  public static URI lageUri(String kontekst) {
+    try {
+      return new URI(lageUrl(kontekst));
+    } catch (URISyntaxException uriSyntaxException) {
+      throw new RuntimeException("Feil syntaks i test URI");
+    }
+  }
+
+  public static URI tilUri(String url) {
+    try {
+      return new URI(url);
+    } catch (URISyntaxException uriSyntaxException) {
+      throw new RuntimeException("Feil syntaks i test URI");
+    }
   }
 
   public static Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
@@ -44,7 +63,7 @@ public class TestUtils {
 
   public static Barn henteNyligFoedtBarn() {
     var personnummer = "12340";
-    var foedselsdato = LocalDate.now().minusMonths(2).minusDays(13);
+    var foedselsdato = FOEDSELSDATO_NYFOEDT_BARN;
     var fnrBarn = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
     return Barn.builder().foedselsnummer(fnrBarn).build();
   }

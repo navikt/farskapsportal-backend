@@ -169,7 +169,7 @@ ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
 KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
-NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/farskapsportal-api/src/test/resources/server-selfsigned.jks
+NAV_TRUSTSTORE_PATH: certs/server-selfsigned.jks
 NAV_TRUSTSTORE_PASSWORD: qwer1234
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
@@ -269,12 +269,12 @@ server:
   ssl:
     enabled: true
     client-auth: need
-    key-store: classpath:server-selfsigned.jks
+    key-store: classpath:certs/server-selfsigned.jks
     key-store-password: qwer1234
     key-alias: nt-ms
     key-store-type: JKS
     key-store-provider: SUN
-    trust-store: classpath:server-selfsigned.jks
+    trust-store: classpath:certs/server-selfsigned.jks
     trust-store-password: qwer1234
     turst-store-type: JKS
 

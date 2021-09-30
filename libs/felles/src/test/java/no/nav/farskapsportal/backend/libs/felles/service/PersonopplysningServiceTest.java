@@ -236,6 +236,17 @@ public class PersonopplysningServiceTest {
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
+
+
+    @Test
+    void skalLikestilleÈMedE() {
+      // given
+      var farsRegistrerteNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Donald Andre").mellomnavn("Dangerous").etternavn(NAVN_FAR.getEtternavn()).build();
+      var farsNavn = "Donald André" + " Dangerous " + NAVN_FAR.getEtternavn();
+
+      // when, then
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+    }
   }
 
   @Nested

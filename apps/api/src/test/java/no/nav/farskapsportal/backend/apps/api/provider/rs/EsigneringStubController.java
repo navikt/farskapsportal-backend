@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
+
 import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -16,7 +18,6 @@ import no.digipost.signature.api.xml.XMLDirectSignerStatusValue;
 import no.digipost.signature.api.xml.XMLSignerSpecificUrl;
 import no.digipost.signature.api.xml.XMLSignerStatus;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
-import no.nav.farskapsportal.backend.apps.api.TestUtils;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,15 +77,15 @@ public class EsigneringStubController {
     XMLDirectSignatureJobStatusResponse statusrespons = new XMLDirectSignatureJobStatusResponse();
     statusrespons.getStatuses().add(signerStatusMor);
     statusrespons.getStatuses().add(signerStatusFar);
-    statusrespons.setConfirmationUrl(TestUtils.lageUrl("/confirmation"));
+    statusrespons.setConfirmationUrl(lageUri("/confirmation"));
     statusrespons.setSignatureJobStatus(
         morHarSignert && farHarSignert ? XMLDirectSignatureJobStatus.COMPLETED_SUCCESSFULLY : XMLDirectSignatureJobStatus.IN_PROGRESS);
-    statusrespons.setPadesUrl(TestUtils.lageUrl("/pades"));
+    statusrespons.setPadesUrl(lageUri("/pades"));
     statusrespons.setSignatureJobId(1);
-    statusrespons.setDeleteDocumentsUrl(TestUtils.lageUrl("/delete-docs"));
+    statusrespons.setDeleteDocumentsUrl(lageUri("/delete-docs"));
 
-    statusrespons.getXadesUrls().add(morHarSignert ? new XMLSignerSpecificUrl(TestUtils.lageUrl("/" + FNR_MOR + "/xades"),FNR_MOR) : null);
-    statusrespons.getXadesUrls().add(morHarSignert && farHarSignert ? new XMLSignerSpecificUrl(TestUtils.lageUrl("/" + FNR_FAR + "/xades"),FNR_FAR) : null);
+    statusrespons.getXadesUrls().add(morHarSignert ? new XMLSignerSpecificUrl(lageUri("/" + FNR_MOR + "/xades"), FNR_MOR) : null);
+    statusrespons.getXadesUrls().add(morHarSignert && farHarSignert ? new XMLSignerSpecificUrl(lageUri("/" + FNR_FAR + "/xades"), FNR_FAR) : null);
 
     var sw = new StringWriter();
 
