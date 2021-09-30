@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
@@ -31,8 +32,8 @@ public class Beskjedprodusent {
   }
 
   private Nokkel oppretteNokkel() {
-    var unikEventid = (Long) Instant.now().toEpochMilli();
-    return new NokkelBuilder().withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).withEventId(Long.toString(unikEventid)).build();
+    var unikEventid = UUID.randomUUID().toString();
+    return new NokkelBuilder().withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).withEventId(unikEventid).build();
   }
 
   private Beskjed oppretteBeskjed(String foedselsnummer, String meldingTilBruker, boolean medEksternVarsling, URL lenke) {
