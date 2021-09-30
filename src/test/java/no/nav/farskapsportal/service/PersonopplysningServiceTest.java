@@ -233,6 +233,17 @@ public class PersonopplysningServiceTest {
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
+
+    @Test
+    void skalLikestilleÈMedE() {
+      // given
+      var farsRegistrerteNavn = NavnDto.builder().fornavn("Donald Andre").mellomnavn("Dangerous").etternavn(FAR.getNavn().getEtternavn())
+          .build();
+      var farsNavn = "Donald André" + " Dangerous " + FAR.getNavn().getEtternavn();
+
+      // when, then
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+    }
   }
 
   @Nested
