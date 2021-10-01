@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.service;
 
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -10,21 +12,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiException;
+import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
+import no.nav.farskapsportal.backend.libs.dto.Kjoenn;
+import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
+import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
+import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
-import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
-import no.nav.farskapsportal.backend.libs.dto.Kjoenn;
-import no.nav.farskapsportal.backend.libs.dto.NavnDto;
-import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import org.modelmapper.ModelMapper;
 import org.springframework.validation.annotation.Validated;
 
@@ -188,11 +190,11 @@ public class PersonopplysningService {
     log.info("Navnekontroll gjennomført uten feil");
   }
 
-  // Fjerner spesialtegn
   private String normalisereNavn(String navn) {
-    return navn
-        .replaceAll("é", "e")
-        .replaceAll("\\s+", "");
+    return Normalizer.normalize(navn, Form.NFD)
+        .replaceAll("\\p{M}", "")
+        .replaceAll("\\s+", "")
+        .replaceAll("ł", "l");
   }
 
   private KjoennDto hentFoedekjoenn(List<KjoennDto> kjoennshistorikk) {

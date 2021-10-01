@@ -45,7 +45,7 @@ public class FarskapsportalController {
   @Autowired
   private FarskapsportalApiConfig.OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
 
-  @GetMapping("/brukerinformasjon")
+  @GetMapping(value="/brukerinformasjon")
   @Operation(description = "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn",
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {

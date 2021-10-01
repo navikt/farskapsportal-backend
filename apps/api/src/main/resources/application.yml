@@ -118,6 +118,7 @@ spring:
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
 
 ---
 ### POSTGRES ###
@@ -185,6 +186,8 @@ farskapsportal-api.systembruker.passord: se-vault
 ---
 spring:
   config.activate.on-profile: test
+
+server.port: 8080
 
 BRUKERNOTIFIKASJON_PAA: true
 
@@ -256,32 +259,9 @@ spring:
     databaseName: fpdb-prod
 
 ---
+
 spring.config.activate.on-profile: scheduled-test
 farskapsportal.egenskaper.arkiveringsintervall: 60000
-
----
-spring.config.activate.on-profile: skatt-ssl-test
-
-# SSL-oppsett med selfsigned server og klient-sertifikat for SkattStubController.
-# Brukes av SkattConsumerSslTest.
-server:
-  port: 9002
-  ssl:
-    enabled: true
-    client-auth: need
-    key-store: classpath:certs/server-selfsigned.jks
-    key-store-password: qwer1234
-    key-alias: nt-ms
-    key-store-type: JKS
-    key-store-provider: SUN
-    trust-store: classpath:certs/server-selfsigned.jks
-    trust-store-password: qwer1234
-    turst-store-type: JKS
-
-sertifikat:
-  passord: qwer1234
-  keystore-type: jks
-  keystore-name: client-selfsigned.jks
 
 ---
 # Integrasjonstesting mot Posten og Skatt

@@ -19,6 +19,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselDto;
@@ -237,15 +238,45 @@ public class PersonopplysningServiceTest {
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
 
-
     @Test
     void skalLikestilleÈMedE() {
       // given
-      var farsRegistrerteNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Donald Andre").mellomnavn("Dangerous").etternavn(NAVN_FAR.getEtternavn()).build();
+      var farsRegistrerteNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Donald Andre").mellomnavn("Dangerous")
+          .etternavn(NAVN_FAR.getEtternavn())
+          .build();
       var farsNavn = "Donald André" + " Dangerous " + NAVN_FAR.getEtternavn();
 
       // when, then
       assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+    }
+
+    @Test
+    void skalHaandtereNorskeBokstaver() {
+      // given
+      var farsRegistrerteNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Dånald Øndræ").mellomnavn("Dængerås")
+          .etternavn(NAVN_FAR.getEtternavn())
+          .build();
+      var farsNavn = "Dånald Øndræ" + " Dængerås " + NAVN_FAR.getEtternavn();
+
+      // when, then
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+    }
+
+    @Test
+    void skalHaandtereSvenskeTilstander() {
+      // given
+      var farsRegistrerteNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Donald Andre").mellomnavn("Dengeraas")
+          .etternavn(NAVN_FAR.getEtternavn())
+          .build();
+      var oppgittNavnPaaFar = "Dönald André" + " Dengeraas " + NAVN_FAR.getEtternavn();
+
+      var t = UUID.randomUUID().toString();
+
+      var sn = farsRegistrerteNavn.sammensattNavn();
+      var test = sn.replace(oppgittNavnPaaFar, "");
+
+      // when, then
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(oppgittNavnPaaFar, farsRegistrerteNavn));
     }
   }
 

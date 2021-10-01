@@ -219,8 +219,6 @@ public class PdlApiConsumer {
       }
     }
 
-    log.info("Respons fra pdl-api: {}", response);
-
     return checkForPdlApiErrors(response);
   }
 

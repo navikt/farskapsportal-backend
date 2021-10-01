@@ -39,6 +39,7 @@
     <asm.version>9.1</asm.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google.api.gax.version>1.65.1</google.api.gax.version>
+    <jackson-core.version>2.12.5</jackson-core.version>
     <jsoup.version>1.14.2</jsoup.version>
     <openhtml.version>1.0.9</openhtml.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
@@ -47,7 +48,7 @@
     <!-- test -->
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
     <wiremock-standalone.version>2.19.0</wiremock-standalone.version>
-    <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
+    <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
 
   </properties>
 
@@ -187,6 +188,18 @@
       <groupId>no.digipost.signature</groupId>
       <artifactId>signature-api-client-java</artifactId>
       <version>${signature-api-client-java.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson-core.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-core.version}</version>
     </dependency>
 
     <dependency>

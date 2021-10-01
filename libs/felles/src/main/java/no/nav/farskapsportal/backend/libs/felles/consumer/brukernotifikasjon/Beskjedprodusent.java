@@ -1,9 +1,9 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
 import java.net.URL;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.UUID;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
@@ -26,13 +26,11 @@ public class Beskjedprodusent {
     var beskjed = oppretteBeskjed(brukersFoedselsnummer, meldingTilBruker, medEksternVarsling, lenke);
 
     kafkaTemplate.send(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed(), nokkel, beskjed);
-
   }
 
   private Nokkel oppretteNokkel() {
-    var unikEventid = (Long) Instant.now().toEpochMilli();
-    return new NokkelBuilder().withSystembruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()).withEventId(Long.toString(unikEventid))
-        .build();
+    var unikEventid = UUID.randomUUID().toString();
+    return new NokkelBuilder().withSystembruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()).withEventId(unikEventid).build();
   }
 
   private Beskjed oppretteBeskjed(String foedselsnummer, String meldingTilBruker, boolean medEksternVarsling, URL lenke) {

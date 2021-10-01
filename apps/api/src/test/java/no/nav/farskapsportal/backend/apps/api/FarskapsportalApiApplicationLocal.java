@@ -16,7 +16,6 @@ import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.farskapsportal.backend.apps.api.config.DifiEsigneringConfig;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
