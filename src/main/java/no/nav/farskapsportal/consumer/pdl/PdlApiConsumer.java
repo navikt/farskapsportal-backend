@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.consumer.ConsumerEndpoint;
@@ -36,10 +35,8 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Slf4j
 @Builder
 public class PdlApiConsumer {
 
@@ -174,7 +171,8 @@ public class PdlApiConsumer {
   }
 
   private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
+    var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
     var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (kjoennFraPdlEllerFreg.isEmpty()) {
@@ -204,8 +202,6 @@ public class PdlApiConsumer {
         throw e;
       }
     }
-
-    log.info("Respons fra pdl-api: {}", response);
 
     return checkForPdlApiErrors(response);
   }
