@@ -125,7 +125,6 @@ public class FarskapsportalService {
       avventerSigneringMotpart = morsAktiveErklaeringerDto.stream().filter(Objects::nonNull).filter(fe -> fe.getDokument().getSignertAvMor() != null)
           .filter(fe -> fe.getDokument().getSignertAvFar() == null).collect(Collectors.toSet());
       avventerSigneringMotpart.forEach(fe -> fe.setPaaloggetBrukersRolle(MOR));
-      // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
 
       // Mors erklaeringer som er signert av begge foreldrene
       avventerRegistreringSkatt = morsAktiveErklaeringerDto.stream().filter(Objects::nonNull)

@@ -17,8 +17,8 @@ public class SletteOppgave {
   private PersistenceService persistenceService;
   private FarskapsportalEgenskaper farskapsportalEgenskaper;
 
-  // Kjøres hver morgen kl 06:00
-  @Scheduled(cron = "0 00 6 * * ?")
+  // Kjøres hver morgen kl 04:00
+  @Scheduled(cron = "0 00 4 * * ?")
   public void sletteUtloepteSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
