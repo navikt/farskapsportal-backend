@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.service;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FAR;
@@ -47,7 +48,7 @@ import no.nav.farskapsportal.backend.apps.api.api.KontrollerePersonopplysningerR
 import no.nav.farskapsportal.backend.apps.api.api.OppdatereFarskapserklaeringRequest;
 import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringRequest;
 import no.nav.farskapsportal.backend.apps.api.api.StatusSignering;
-import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
@@ -90,7 +91,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("FarskapserklaeringService")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
-@ActiveProfiles(FarskapsportalApiApplicationLocal.PROFILE_TEST)
+@ActiveProfiles(PROFILE_TEST)
 public class FarskapsportalServiceTest {
 
   @MockBean
@@ -112,7 +113,7 @@ public class FarskapsportalServiceTest {
   @Autowired
   private FarskapsportalService farskapsportalService;
   @Autowired
-  private FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   @Autowired
   private Mapper mapper;
 
@@ -177,6 +178,8 @@ public class FarskapsportalServiceTest {
 
       var farskapserklaeringSomManglerMorsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
           henteBarnUtenFnr(5));
+
+      farskapserklaeringSomManglerMorsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
 
       assertAll(() -> assertNull(farskapserklaeringSomManglerMorsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
           () -> assertNull(farskapserklaeringSomManglerMorsSignatur.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
@@ -453,6 +456,8 @@ public class FarskapsportalServiceTest {
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
           henteBarnUtenFnr(5));
 
+      farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
+
       assertAll(() -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
           () -> assertNull(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
 
@@ -548,7 +553,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
+      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(foedselsdatoBarn);
       var registrertNavnMor = NAVN_MOR;
       var registrertNavnFar = NAVN_FAR;
@@ -616,7 +621,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
+      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = mapper.toDto(henteBarnMedFnr(foedselsdatoBarn));
       barnFoedtInnenforGyldigIntervall.setFoedested("Slottsplassen");
       barnFoedtInnenforGyldigIntervall.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
@@ -677,7 +682,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
+      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = mapper.toDto(henteBarnMedFnr(foedselsdatoBarn));
       barnFoedtInnenforGyldigIntervall.setFoedested("Fornebu");
       barnFoedtInnenforGyldigIntervall.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
@@ -892,7 +897,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       //given
-      var barnMedTermindatoForLangtFremITid = mapper.toDto(henteBarnUtenFnr(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 2));
+      var barnMedTermindatoForLangtFremITid = mapper.toDto(henteBarnUtenFnr(farskapsportalApiEgenskaper.getMaksAntallUkerTilTermindato() + 2));
       var registrertNavnMor = NAVN_MOR;
       var registrertNavnFar = NAVN_FAR;
       var opplysningerOmFar = KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer())
@@ -1045,7 +1050,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoNyfoedt = LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel());
+      var foedselsdatoNyfoedt = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel());
       var nyfoedt = mapper.toDto(henteBarnMedFnr(foedselsdatoNyfoedt));
       nyfoedt.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
       nyfoedt.setFoedested("Parken");
@@ -1105,10 +1110,9 @@ public class FarskapsportalServiceTest {
       var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
       var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
-      assertNull(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt());
-
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
@@ -1230,8 +1234,6 @@ public class FarskapsportalServiceTest {
       var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
       var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
-      assertNull(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt());
-
       var lagretDeaktivFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       lagretDeaktivFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       lagretDeaktivFarskapserklaering.setDeaktivert(LocalDateTime.now());
@@ -1240,6 +1242,7 @@ public class FarskapsportalServiceTest {
       var lagretAktivFarskapserklaering = persistenceService.lagreNyFarskapserklaering(
           henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5)));
       lagretAktivFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
+      lagretAktivFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
       persistenceService.oppdatereFarskapserklaering(lagretAktivFarskapserklaering);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
@@ -1429,10 +1432,9 @@ public class FarskapsportalServiceTest {
       var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
       var padesMor = lageUri("/padesMor");
 
-      assertNull(farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt());
-
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
+      lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
@@ -1557,6 +1559,7 @@ public class FarskapsportalServiceTest {
 
       // given
       var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
       var undertegnerUrlMor = lageUri("/signer-url-mor");
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setUndertegnerUrl(undertegnerUrlMor.toString());
 
@@ -1843,19 +1846,17 @@ public class FarskapsportalServiceTest {
       // then
       assertAll(
           () -> assertThat(feilNavnOppgittException.getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER),
-          () -> assertThat(feilNavnOppgittException.getOppgittNavn()).isEqualTo(oppgittNavnPaaFar),
-          () -> assertThat(feilNavnOppgittException.getNavnIRegister()).isEqualTo(registrertNavnFar.sammensattNavn()),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallFeiledeForsoek())
               .isEqualTo(1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek())
               .isEqualTo(
-                  farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
+                  farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isAfter(
-                  tidspunktTestStart.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
+                  tidspunktTestStart.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isBefore(
-                  tidspunktTestSlutt.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
+                  tidspunktTestSlutt.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
       );
 
       // rydde testdata
@@ -1955,19 +1956,17 @@ public class FarskapsportalServiceTest {
       // then
       assertAll(
           () -> assertThat(feilNavnOppgittException.getFeilkode()).isEqualTo(Feilkode.PDL_PERSON_IKKE_FUNNET),
-          () -> assertThat(feilNavnOppgittException.getOppgittNavn()).isEqualTo(oppgittNavnPaaFar),
-          () -> assertThat(feilNavnOppgittException.getNavnIRegister()).isEqualTo(registrertNavnFar),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallFeiledeForsoek())
               .isEqualTo(1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek())
               .isEqualTo(
-                  farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
+                  farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isAfter(
-                  tidspunktTestStart.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
+                  tidspunktTestStart.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isBefore(
-                  tidspunktTestSlutt.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
+                  tidspunktTestSlutt.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
       );
 
       // rydde testdata
@@ -2293,12 +2292,13 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
-      var farskapserklaering = persistenceService.lagreNyFarskapserklaering(
-          henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5)));
+      var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       // when
       var valideringException = assertThrows(ValideringException.class, () -> farskapsportalService
-          .henteDokumentinnhold(FAR.getFoedselsnummer(), farskapserklaering.getId()));
+          .henteDokumentinnhold(FAR.getFoedselsnummer(), lagretFarskapserklaering.getId()));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);

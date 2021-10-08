@@ -1,0 +1,83 @@
+server.shutdown: graceful
+
+url:
+  joark:
+    base-url: ${JOURNALPOSTAPI_URL}
+    opprette-journalpost: /rest/journalpostapi/v1/journalpost
+  farskapsportal:
+    url: ${FARSKAPSPORTAL_URL}
+  pdl-api:
+    base-url: ${APIGW_URL}
+    graphql: "/pdl-api/graphql"
+  sts:
+    base-url: ${APIGW_URL}
+    security-token-service: "/security-token-service/rest/v1/sts/token"
+  skatt:
+    base-url: ${SKATT_URL}
+    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
+
+farskapsportal.asynkron.egenskaper:
+  systembruker-brukernavn: srvfarskapsportal
+  systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
+  arkiveringsintervall: 3600000
+  brukernotifikasjon-synlighet-antall-dager: 30
+  joark:
+    maks-antall-forbindelser: 5
+    maks-antall-forbindelser-per-rute: 5
+    maks-ventetid-lesing: 10000
+    maks-ventetid-forbindelse: 10000
+  skatt:
+    maks-antall-forbindelser: 5
+    maks-antall-forbindelser-per-rute: 5
+    maks-ventetid-lesing: 10000
+    maks-ventetid-forbindelse: 10000
+
+---
+spring:
+  config.activate.on-profile: test, scheduled-test
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+
+SRVFARSKAPSPORTAL_PWD: top_hemmelig
+WIREMOCK_URL: http://localhost:8096
+
+url:
+  joark.base-url: ${WIREMOCK_URL}
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+  skatt.base-url: http://localhost
+
+---
+spring.config.activate.on-profile: skatt-ssl-test
+
+# SSL-oppsett med selfsigned server og klient-sertifikat for SkattStubController.
+# Brukes av SkattConsumerSslTest.
+server:
+  port: 9002
+  ssl:
+    enabled: true
+    client-auth: need
+    key-store: classpath:server-selfsigned.jks
+    key-store-password: qwer1234
+    key-alias: nt-ms
+    key-store-type: JKS
+    key-store-provider: SUN
+    trust-store: classpath:server-selfsigned.jks
+    trust-store-password: qwer1234
+    turst-store-type: JKS
+
+sertifikat:
+  passord: qwer1234
+  keystore-type: jks
+  keystore-name: client-selfsigned.jks
+
+---
+spring.config.activate.on-profile: scheduled-test
+
+farskapsportal.egenskaper.arkiveringsintervall: 60000
+
+

@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -9,14 +10,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 import no.digipost.signature.client.direct.DirectClient;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
-import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
-import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("DifiESignaturConsumer")
-@ActiveProfiles(FarskapsportalApiApplication.PROFILE_INTEGRATION_TEST)
+@ActiveProfiles(PROFILE_INTEGRATION_TEST)
 @SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
 public class DifiESignaturConsumerIntegrationTest {
 
@@ -42,7 +41,7 @@ public class DifiESignaturConsumerIntegrationTest {
   DirectClient directClientMock;
 
   @Autowired
-  FarskapsportalEgenskaper farskapsportalEgenskaper;
+  FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
 
   @Autowired
   private DifiESignaturConsumer difiESignaturConsumer;

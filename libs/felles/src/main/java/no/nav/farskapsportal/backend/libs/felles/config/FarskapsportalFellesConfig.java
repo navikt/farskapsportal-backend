@@ -46,9 +46,11 @@ import org.springframework.web.client.RestTemplate;
 public class FarskapsportalFellesConfig {
 
   public static final String PROFILE_LIVE = "live";
+  public static final String PROFILE_LOCAL = "local";
   public static final String PROFILE_INTEGRATION_TEST = "integration-test";
-  public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
   public static final String PROFILE_TEST = "test";
+  public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
+  public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
   public static String KODE_LAND_NORGE = "NOR";
 
   @Bean

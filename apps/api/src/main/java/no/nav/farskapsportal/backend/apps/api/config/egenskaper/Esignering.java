@@ -10,8 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "farskapsportal.esignering")
-@PropertySource(value = {"classpath:application.yml"}, factory = YamlPropertySourceFactory.class)
+@ConfigurationProperties(prefix = "esignering")
 public class Esignering {
 
   private boolean innhenteStatusVedPolling;

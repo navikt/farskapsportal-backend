@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
 
 import java.io.StringWriter;
@@ -17,7 +18,6 @@ import no.digipost.signature.api.xml.XMLDirectSignatureJobStatusResponse;
 import no.digipost.signature.api.xml.XMLDirectSignerStatusValue;
 import no.digipost.signature.api.xml.XMLSignerSpecificUrl;
 import no.digipost.signature.api.xml.XMLSignerStatus;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Setter
 @RequestMapping("/esignering")
 @Slf4j
-@ActiveProfiles(FarskapsportalApiApplicationLocal.PROFILE_TEST)
+@ActiveProfiles(PROFILE_TEST)
 public class EsigneringStubController {
 
   private final static String FNR_MOR = "12345678910";

@@ -22,7 +22,7 @@ import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringRequ
 import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.api.StatusSignering;
-import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
@@ -59,7 +59,7 @@ public class FarskapsportalService {
 
   public static final String FEIL_NAVN = "Oppgitt navn til person stemmer ikke med navn slik det er registreret i Folkeregisteret";
   public static String KODE_LAND_NORGE = "NOR";
-  private final FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private final FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   private final PdfGeneratorConsumer pdfGeneratorConsumer;
   private final DifiESignaturConsumer difiESignaturConsumer;
   private final PersistenceService persistenceService;
@@ -102,11 +102,6 @@ public class FarskapsportalService {
 
       var morsAktiveErklaeringer = persistenceService.henteMorsEksisterendeErklaeringer(fnrPaaloggetBruker);
 
-      // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
-      if (farskapsportalEgenskaper.isInnhenteStatusVedPolling()) {
-        morsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(morsAktiveErklaeringer);
-      }
-
       var morsAktiveErklaeringerDto = morsAktiveErklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
 
       // Erklæringer som mangler mors signatur
@@ -130,11 +125,6 @@ public class FarskapsportalService {
     if (Forelderrolle.FAR.equals(brukersForelderrolle) || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
       var farsAktiveErklaeringer = persistenceService.henteFarsErklaeringer(fnrPaaloggetBruker);
-
-      // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
-      if (farskapsportalEgenskaper.isInnhenteStatusVedPolling()) {
-        farsAktiveErklaeringer = oppdatereSigneringsstatusHvisEndret(farsAktiveErklaeringer);
-      }
 
       var farsAktiveErklaeringerDto = farsAktiveErklaeringer.stream().filter(Objects::nonNull).map(mapper::toDto).collect(Collectors.toSet());
 
@@ -368,7 +358,7 @@ public class FarskapsportalService {
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(xadesXml);
       aktuellFarskapserklaering.setMeldingsidSkatt(getUnikId(aktuellFarskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
-      if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
+      if (farskapsportalApiEgenskaper.isBrukernotifikasjonerPaa()) {
         // Slette fars oppgave for signering på DittNav
         brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(aktuellFarskapserklaering.getId(),
             aktuellFarskapserklaering.getFar().getFoedselsnummer());
@@ -402,27 +392,12 @@ public class FarskapsportalService {
       aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
       var xadesXml = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xadesXml);
-      if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
+      if (farskapsportalApiEgenskaper.isBrukernotifikasjonerPaa()) {
         brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(aktuellFarskapserklaering.getId(),
             aktuellFarskapserklaering.getFar().getFoedselsnummer());
       }
     }
     return null;
-  }
-
-  /**
-   * Verifiserer at riktig signeringsstatus er kjent. Oppdaterer status dersom status i lokal database avviker fra status hos Posten. Status vil
-   * normalt oppdateres etter brukers redirect fra esigneringsløsningen med på følgende kall til redirect-endepunktet til farskapsportal-api.
-   **/
-  private Set<Farskapserklaering> oppdatereSigneringsstatusHvisEndret(Set<Farskapserklaering> farskapserklaeringer) {
-
-    var prosesserteFarskapserklaeringer = new HashSet<Farskapserklaering>();
-
-    for (Farskapserklaering farskapserklaering : farskapserklaeringer) {
-      prosesserteFarskapserklaeringer.add(oppdatereFarskapserklaeringHvisAktuelt(farskapserklaering));
-    }
-
-    return prosesserteFarskapserklaeringer;
   }
 
   private void haandetereStatusFeilet(DokumentStatusDto dokumentStatusDto, Farskapserklaering farskapserklaering, Rolle rolle) {
@@ -432,7 +407,7 @@ public class FarskapsportalService {
 
       if (rolle.equals(Rolle.FAR)) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
-        if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
+        if (farskapsportalApiEgenskaper.isBrukernotifikasjonerPaa()) {
           brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer(),
               farskapserklaering.getFar().getFoedselsnummer());
           brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
@@ -442,38 +417,6 @@ public class FarskapsportalService {
       throw new EsigneringStatusFeiletException(Feilkode.ESIGNERING_STATUS_FEILET, farskapserklaering);
     }
   }
-
-  private Farskapserklaering oppdatereFarskapserklaeringHvisAktuelt(Farskapserklaering farskapserklaering) {
-
-    var morHarSignert = farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null;
-    var farHarSignert = farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null;
-
-    // Henter ikke oppdatert status dersom mor har signert og far ikke har forsøkt å signere, eller både mor og far har signert (implisitt dersom
-    // far har signert)
-    if (morHarSignert && farskapserklaering.getFarBorSammenMedMor() == null || farHarSignert) {
-      return farskapserklaering;
-    }
-
-    var oppdatertStatus = difiESignaturConsumer.henteOppdatertStatusPaaSigneringsjobbHvisEndringer(
-        farskapserklaering.getId(),
-        farskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
-        farskapserklaering.getMor().getFoedselsnummer(),
-        farskapserklaering.getFar().getFoedselsnummer());
-
-    if (oppdatertStatus.isPresent()) {
-      var dokumentStatusDto = oppdatertStatus.get();
-      var statusSignering = dokumentStatusDto.getStatusSignering();
-
-      if (StatusSignering.SUKSESS.equals(statusSignering)) {
-
-        var o = oppdatereSigneringsinfo(Optional.empty(), dokumentStatusDto, farskapserklaering);
-
-        return persistenceService.oppdatereFarskapserklaering(o);
-      }
-    }
-    return farskapserklaering;
-  }
-
 
   private void validereTilgangBasertPaaAlderOgForeldrerolle(String foedselsnummer, Forelderrolle forelderrolle) {
 
@@ -531,7 +474,7 @@ public class FarskapsportalService {
 
   private void antallsbegrensetKontrollAvNavnOgNummerPaaFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
     var statusKontrollereFar = persistenceService.henteStatusKontrollereFar(fnrMor);
-    if (statusKontrollereFar.isEmpty() || farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() > statusKontrollereFar.get()
+    if (statusKontrollereFar.isEmpty() || farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() > statusKontrollereFar.get()
         .getAntallFeiledeForsoek()) {
       kontrollereNavnOgNummerFar(fnrMor, request);
     } else {
@@ -549,10 +492,10 @@ public class FarskapsportalService {
 
   private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
     var statusKontrollereFarDto = mapper
-        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
-            farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek()));
+        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
+            farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek()));
     e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
-    var resterendeAntallForsoek = farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
+    var resterendeAntallForsoek = farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
     resterendeAntallForsoek = resterendeAntallForsoek < 0 ? 0 : resterendeAntallForsoek;
     statusKontrollereFarDto.setAntallResterendeForsoek(resterendeAntallForsoek);
     throw e;
@@ -574,11 +517,10 @@ public class FarskapsportalService {
       navnDtoFraFolkeregisteret = personopplysningService.henteNavn(foedselsnummerFar);
       // Validere input
       personopplysningService.navnekontroll(oppgittNavnPaaFar, navnDtoFraFolkeregisteret);
-    } catch (RessursIkkeFunnetException rife) {
-      throw new FeilNavnOppgittException(rife.getFeilkode(), oppgittNavnPaaFar,
-          navnDtoFraFolkeregisteret != null ? navnDtoFraFolkeregisteret.sammensattNavn() : "");
+    } catch (RessursIkkeFunnetException  rife) {
+      throw new FeilNavnOppgittException(rife.getFeilkode());
     } catch (ValideringException ve) {
-      throw new FeilNavnOppgittException(oppgittNavnPaaFar, navnDtoFraFolkeregisteret != null ? navnDtoFraFolkeregisteret.sammensattNavn() : "");
+      throw new FeilNavnOppgittException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
   }
 
@@ -682,7 +624,7 @@ public class FarskapsportalService {
 
   private void validereAlderNyfoedt(String fnrOppgittBarn) {
     var foedselsdato = personopplysningService.henteFoedselsdato(fnrOppgittBarn);
-    if (!LocalDate.now().minusMonths(farskapsportalEgenskaper.getMaksAntallMaanederEtterFoedsel()).isBefore(foedselsdato)) {
+    if (!LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).isBefore(foedselsdato)) {
       throw new ValideringException(Feilkode.NYFODT_ER_FOR_GAMMEL);
     }
   }
@@ -720,8 +662,8 @@ public class FarskapsportalService {
       log.info("Termindato er ikke oppgitt");
       return;
     } else {
-      var nedreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMinAntallUkerTilTermindato() - 1);
-      var oevreGrense = LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 1);
+      var nedreGrense = LocalDate.now().plusWeeks(farskapsportalApiEgenskaper.getMinAntallUkerTilTermindato() - 1);
+      var oevreGrense = LocalDate.now().plusWeeks(farskapsportalApiEgenskaper.getMaksAntallUkerTilTermindato() + 1);
       if (nedreGrense.isBefore(barnDto.getTermindato()) && oevreGrense.isAfter(barnDto.getTermindato())) {
         log.info("Termindato validert");
         return;

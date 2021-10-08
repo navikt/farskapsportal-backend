@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -22,7 +23,7 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
-import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
@@ -47,7 +48,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("DifiESignaturConsumer")
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles(FarskapsportalApiApplicationLocal.PROFILE_TEST)
+@ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(classes = {FarskapsportalApiApplicationLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 8096)
 public class DifiESignaturConsumerTest {
@@ -68,7 +69,7 @@ public class DifiESignaturConsumerTest {
   DirectClient directClientMock;
 
   @Autowired
-  private FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
 
   @Autowired
   private DifiESignaturConsumer difiESignaturConsumer;
@@ -161,9 +162,9 @@ public class DifiESignaturConsumerTest {
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       var exitUrls = ExitUrls
-          .of(URI.create(farskapsportalEgenskaper.getEsignering().getSuksessUrl()),
-              URI.create(farskapsportalEgenskaper.getEsignering().getAvbruttUrl()),
-              URI.create(farskapsportalEgenskaper.getEsignering().getFeiletUrl()));
+          .of(URI.create(farskapsportalApiEgenskaper.getEsignering().getSuksessUrl()),
+              URI.create(farskapsportalApiEgenskaper.getEsignering().getAvbruttUrl()),
+              URI.create(farskapsportalApiEgenskaper.getEsignering().getFeiletUrl()));
 
       var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(exitUrls, directClientMock, persistenceService);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);

@@ -12,7 +12,7 @@ import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.security.KeyStoreConfig;
-import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +25,11 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class DifiEsigneringConfig {
 
-  private final FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private final FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   private final String miljoe;
 
-  public DifiEsigneringConfig(@Autowired FarskapsportalEgenskaper farskapsportalEgenskaper, @Value("${NAIS_CLUSTER_NAME}") String navClusterName) {
-    this.farskapsportalEgenskaper = farskapsportalEgenskaper;
+  public DifiEsigneringConfig(@Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper, @Value("${NAIS_CLUSTER_NAME}") String navClusterName) {
+    this.farskapsportalApiEgenskaper = farskapsportalApiEgenskaper;
     this.miljoe = navClusterName.equals(NavClusterName.PROD.getClusterName()) ? NavClusterName.PROD.toString() : NavClusterName.TEST.toString();
   }
 
@@ -43,7 +43,7 @@ public class DifiEsigneringConfig {
     log.info("Kobler opp mot Postens {}-milljø for esignering med service-uri {}.", miljoe.toLowerCase(Locale.ROOT), serviceUrl);
 
     return ClientConfiguration.builder(keyStoreConfig).trustStore(certificates).serviceUri(serviceUrl)
-        .globalSender(new Sender(farskapsportalEgenskaper.getNavOrgnummer())).build();
+        .globalSender(new Sender(farskapsportalApiEgenskaper.getNavOrgnummer())).build();
   }
 
   @Bean
@@ -55,9 +55,9 @@ public class DifiEsigneringConfig {
   public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient, @Autowired PersistenceService persistenceService) {
 
     var exitUrls = ExitUrls
-        .of(URI.create(farskapsportalEgenskaper.getEsignering().getSuksessUrl()),
-            URI.create(farskapsportalEgenskaper.getEsignering().getAvbruttUrl()),
-            URI.create(farskapsportalEgenskaper.getEsignering().getFeiletUrl()));
+        .of(URI.create(farskapsportalApiEgenskaper.getEsignering().getSuksessUrl()),
+            URI.create(farskapsportalApiEgenskaper.getEsignering().getAvbruttUrl()),
+            URI.create(farskapsportalApiEgenskaper.getEsignering().getFeiletUrl()));
 
     return new DifiESignaturConsumer(exitUrls, directClient, persistenceService);
   }

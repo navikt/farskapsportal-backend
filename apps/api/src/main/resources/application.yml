@@ -1,6 +1,7 @@
+server.shutdown: graceful
+
 spring:
   devtools.add-properties: false
-  main.allow-bean-definition-overriding: true
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
@@ -30,9 +31,9 @@ virksomhetssertifikat:
     hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
 farskapsportal.egenskaper:
-  innhenteStatus-ved-polling: false
   systembruker-brukernavn: srvfarskapsportal
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
+  brukernotifikasjonerPaa: true
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21
   maks-antall-maaneder-etter-foedsel: 3
@@ -57,16 +58,6 @@ farskapsportal.egenskaper:
     suksess-url: ${ESIGNERING_SUKSESS_URL}
     avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
     feilet-url: ${ESIGNERING_FEILET_URL}
-  joark:
-    maks-antall-forbindelser: 5
-    maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 10000
-    maks-ventetid-forbindelse: 10000
-  skatt:
-    maks-antall-forbindelser: 5
-    maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 120000
-    maks-ventetid-forbindelse: 130000
 
 management:
   endpoints.web:
@@ -75,9 +66,6 @@ management:
   endpoint.health.show-details: always
 
 url:
-  joark:
-    base-url: ${JOURNALPOSTAPI_URL}
-    opprette-journalpost: /rest/journalpostapi/v1/journalpost
   farskapsportal:
     url: ${FARSKAPSPORTAL_URL}
   pdl-api:
@@ -86,9 +74,6 @@ url:
   sts:
     base-url: ${APIGW_URL}
     security-token-service: "/security-token-service/rest/v1/sts/token"
-  skatt:
-    base-url: ${SKATT_URL}
-    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
 
 farskapsportal-api:
   disable-esignering: false
@@ -112,7 +97,7 @@ no.nav:
 ---
 ### H2 ###
 spring:
-  config.activate.on-profile: test, local, skatt-ssl-test
+  config.activate.on-profile: test, local
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -123,7 +108,7 @@ spring:
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test, scheduled-test, remote-postgres
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test,  remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -147,7 +132,7 @@ spring:
 ---
 ### MOCK AZURE ###
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres
 
 no.nav.security.jwt:
   issuer.selvbetjening:
@@ -157,7 +142,8 @@ no.nav.security.jwt:
 
 ---
 spring:
-  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test, remote-postgres
+  config.activate.on-profile: test, local, local-postgres, integration-test, remote-postgres
+  main.allow-bean-definition-overriding: true
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
@@ -176,10 +162,8 @@ NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 url:
-  joark.base-url: ${WIREMOCK_URL}
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  skatt.base-url: http://localhost
 
 farskapsportal-api.systembruker.passord: se-vault
 
@@ -193,14 +177,14 @@ BRUKERNOTIFIKASJON_PAA: true
 
 ---
 spring:
-  config.activate.on-profile: local, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test, integration-test
+  config.activate.on-profile: local, local-postgres, remote-postgres, integration-test
   flyway.enabled: false
 
 BRUKERNOTIFIKASJON_PAA: false
 
 ---
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres
   flyway.enabled: false
 
 ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
@@ -240,7 +224,6 @@ NAIS_CLUSTER_NAME: dev-gcp
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  skatt.base-url: ${WIREMOCK_URL}
 
 farskapsportal-api:
   systembruker.passord: se-vault
@@ -259,19 +242,11 @@ spring:
     databaseName: fpdb-prod
 
 ---
-
-spring.config.activate.on-profile: scheduled-test
-farskapsportal.egenskaper.arkiveringsintervall: 60000
-
----
-# Integrasjonstesting mot Posten og Skatt
+# Integrasjonstesting mot Posten
 spring:
   config.activate.on-profile: integration-test
 
-farskapsportal.egenskaper.arkiveringsintervall: 3600000
-
 url:
-  skatt.base-url: https://folkeregisteret-api-ekstern.sits.no
   esignering: https://api.difitest.signering.posten.no/api
 
 virksomhetssertifikat:

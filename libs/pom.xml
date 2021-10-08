@@ -19,6 +19,7 @@
     <module>dtos</module>
     <module>felles-test</module>
     <module>entities</module>
+    <module>stubs</module>
   </modules>
 
   <properties>

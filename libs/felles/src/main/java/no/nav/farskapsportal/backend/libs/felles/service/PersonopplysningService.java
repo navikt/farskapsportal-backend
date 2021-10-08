@@ -181,10 +181,8 @@ public class PersonopplysningService {
     boolean navnStemmer = normalisereNavn(sammenslaattNavnFraRegister).equalsIgnoreCase(normalisereNavn(navn));
 
     if (!navnStemmer) {
-      log.error(
-          "Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn: {} er forskjellig fra navn i register: {}",
-          navn, sammenslaattNavnFraRegister);
-      throw new FeilNavnOppgittException(navn, sammenslaattNavnFraRegister);
+      log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn er forskjellig fra navn i register");
+      throw new FeilNavnOppgittException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
 
     log.info("Navnekontroll gjennomført uten feil");

@@ -1,5 +1,9 @@
 package no.nav.farskapsportal.backend.apps.api;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL_POSTGRES;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_REMOTE_POSTGRES;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import com.google.common.net.HttpHeaders;
@@ -7,23 +11,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.KeyStore;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.security.KeyStoreConfig;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
+import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.yaml.YamlPropertySourceFactory;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,14 +34,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @ComponentScan(excludeFilters = {
@@ -55,11 +50,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Slf4j
 public class FarskapsportalApiApplicationLocal {
 
-  public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
-  public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
-  public static final String PROFILE_LOCAL = "local";
-  public static final String PROFILE_TEST = "test";
-  public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
   private static final String NAV_ORGNR = "123456789";
 
   public static void main(String... args) {
@@ -86,11 +76,9 @@ public class FarskapsportalApiApplicationLocal {
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, FarskapsportalApiApplication.PROFILE_SCHEDULED_TEST,
-      PROFILE_SKATT_SSL_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader) throws IOException {
-    var classLoader = getClass().getClassLoader();
-    try (InputStream inputStream = classLoader.getResourceAsStream("esigneringkeystore.jceks")) {
+    try (InputStream inputStream = resourceLoader.getClassLoader().getResourceAsStream("esigneringkeystore.jceks")) {
       if (inputStream == null) {
         throw new IllegalArgumentException("Fant ikke esigneringkeystore.jceks");
       } else {
@@ -101,77 +89,11 @@ public class FarskapsportalApiApplicationLocal {
 
   @Bean
   @Primary
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, FarskapsportalApiApplication.PROFILE_SCHEDULED_TEST,
-      PROFILE_SKATT_SSL_TEST})
+  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))
         .globalSender(new Sender(NAV_ORGNR)).build();
-  }
-
-  @Lazy
-  @Configuration
-  @Profile({PROFILE_SKATT_SSL_TEST})
-  static class SkattStubSslConfiguration {
-
-    @Value("${server.port}")
-    private int localServerPort;
-
-    @Value("${sertifikat.passord}")
-    private String keystorePassword;
-
-    @Value("${sertifikat.keystore-type}")
-    private String keystoreType;
-
-    @Value("${sertifikat.keystore-name}")
-    private String keystoreName;
-
-    @Bean
-    @Qualifier(PROFILE_SKATT_SSL_TEST)
-    public HttpHeaderRestTemplate skattLocalIntegrationRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
-
-      KeyStore keyStore;
-      HttpComponentsClientHttpRequestFactory requestFactory;
-
-      try {
-        keyStore = KeyStore.getInstance(keystoreType);
-        var classPathResoure = new ClassPathResource(keystoreName);
-        var inputStream = classPathResoure.getInputStream();
-        keyStore.load(inputStream, keystorePassword.toCharArray());
-
-        var socketFactory = new SSLConnectionSocketFactory(new SSLContextBuilder()
-            .loadTrustMaterial(null, new TrustSelfSignedStrategy())
-            .loadKeyMaterial(keyStore, keystorePassword.toCharArray()).build(),
-            NoopHostnameVerifier.INSTANCE);
-
-        var httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory)
-            .setMaxConnTotal(5)
-            .setMaxConnPerRoute(5)
-            .build();
-
-        requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        requestFactory.setReadTimeout(10000);
-        requestFactory.setConnectTimeout(10000);
-
-        httpHeaderRestTemplate.setRequestFactory(requestFactory);
-
-      } catch (Exception exception) {
-        exception.printStackTrace();
-      }
-
-      return httpHeaderRestTemplate;
-    }
-  }
-
-  @Configuration
-  @EnableScheduling
-  @Profile(FarskapsportalApiApplication.PROFILE_SCHEDULED_TEST)
-  static class ScheduledTestConfig {
-
-    @Bean
-    public void loggings() {
-      log.info("Skedulering er skrudd på..");
-    }
   }
 
   @Configuration

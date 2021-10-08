@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "farskapsportal.brukernotifikasjon")
+@ConfigurationProperties(prefix = "brukernotifikasjon")
 @PropertySource(value = "classpath:felles-application.yml", factory = YamlPropertySourceFactory.class)
 public class Brukernotifikasjon {
 
@@ -19,7 +19,6 @@ public class Brukernotifikasjon {
   private String topicOppgave;
   private String grupperingsidFarskap;
   private int synlighetBeskjedAntallMaaneder;
-  private int synlighetOppgaveAntallDager;
   private int sikkerhetsnivaaBeskjed;
   private int sikkerhetsnivaaOppgave;
   private boolean skruddPaa;

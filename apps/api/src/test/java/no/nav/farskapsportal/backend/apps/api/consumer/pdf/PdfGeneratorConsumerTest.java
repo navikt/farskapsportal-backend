@@ -1,15 +1,21 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.pdf;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_FAR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_MOR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_NYFOEDT_BARN;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.NAVN_FAR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.NAVN_MOR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteNyligFoedtBarn;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.when;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
@@ -18,6 +24,8 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
+import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -25,11 +33,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PdfGeneratorConsumerTest")
-@SpringBootTest(classes = PdfGeneratorConsumer.class)
-@ActiveProfiles(FarskapsportalApiApplicationLocal.PROFILE_TEST)
+@SpringBootTest(classes =  FarskapsportalApiApplicationLocal.class)
+@ActiveProfiles(PROFILE_TEST)
 public class PdfGeneratorConsumerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
@@ -44,10 +53,18 @@ public class PdfGeneratorConsumerTest {
   @Autowired
   private Mapper mapper;
 
+  @MockBean
+  private PersonopplysningService personopplysningServiceMock;
+
   @Test
   void skalGenererePdfPaaBokmaalForUfoedt() throws IOException {
 
     // given
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
     var ufoedtBarn = mapper.toDto(UFOEDT_BARN);
     var mor = mapper.toDto(MOR);
     mor.setForelderrolle(Forelderrolle.MOR);
@@ -80,6 +97,11 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForUfoedt() throws IOException {
 
     // given
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
     var ufoedtBarn = mapper.toDto(UFOEDT_BARN);
     var mor = mapper.toDto(MOR);
     mor.setForelderrolle(Forelderrolle.MOR);
@@ -112,8 +134,15 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaBokmaalForNyfoedt() throws IOException {
 
     // given
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
     var nyfoedtBarn = mapper.toDto(NYFOEDT_BARN);
     nyfoedtBarn.setFoedested("Stange");
+    nyfoedtBarn.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
+
     var mor = mapper.toDto(MOR);
     mor.setForelderrolle(Forelderrolle.MOR);
 
@@ -147,8 +176,14 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForNyfoedt() throws IOException {
 
     // given
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
     var nyfoedtBarn = mapper.toDto(NYFOEDT_BARN);
     nyfoedtBarn.setFoedested("Stange");
+    nyfoedtBarn.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
     var mor = mapper.toDto(MOR);
     mor.setForelderrolle(Forelderrolle.MOR);
 
@@ -183,8 +218,14 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaBokmaalForForelderMedMellomnavn() throws IOException {
 
     // given
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
     var nyfoedtBarn = mapper.toDto(NYFOEDT_BARN);
     nyfoedtBarn.setFoedested("Ås");
+    nyfoedtBarn.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
     var mor = mapper.toDto(MOR);
     var farMedMellomnavn = mapper.toDto(henteForelder(Forelderrolle.FAR));
     var farsOpprinneligeNavn = NAVN_FAR;
@@ -218,8 +259,14 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForForelderMedMellomnavn() throws IOException {
 
     // given
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
     var nyfoedtBarn = mapper.toDto(NYFOEDT_BARN);
     nyfoedtBarn.setFoedested("Ås");
+    nyfoedtBarn.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
     var mor = mapper.toDto(MOR);
     var farMedMellomnavn = mapper.toDto(henteForelder(Forelderrolle.FAR));
     var farsOpprinneligeNavn = NAVN_FAR;

@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.springframework.boot.SpringApplication;
@@ -15,9 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
 public class FarskapsportalApiApplication {
 
   public static final String ISSUER = "selvbetjening";
-  public static final String PROFILE_LIVE = "live";
-  public static final String PROFILE_INTEGRATION_TEST = "integration-test";
-  public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
 
   public static void main(String[] args) {
 

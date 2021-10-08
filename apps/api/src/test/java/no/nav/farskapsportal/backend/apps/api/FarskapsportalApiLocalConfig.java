@@ -1,8 +1,9 @@
 package no.nav.farskapsportal.backend.apps.api;
 
-import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal.PROFILE_LOCAL;
-import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal.PROFILE_LOCAL_POSTGRES;
-import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal.PROFILE_REMOTE_POSTGRES;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL_POSTGRES;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_REMOTE_POSTGRES;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -14,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-@Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, FarskapsportalApiApplication.PROFILE_INTEGRATION_TEST})
+@Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_INTEGRATION_TEST})
 @Configuration
 @AutoConfigureWireMock(port = 8096)
 public class FarskapsportalApiLocalConfig {

@@ -226,9 +226,11 @@ public class PersistenceServiceTest {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
-      return farskapserklaeringDao.save(
-          TestUtils.henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR), TestUtils.henteForelder(Forelderrolle.FAR),
-              TestUtils.henteBarnUtenFnr(17)));
+
+      var farskapserklaering = TestUtils.henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR),
+          TestUtils.henteForelder(Forelderrolle.FAR),
+          TestUtils.henteBarnUtenFnr(17));
+      return farskapserklaeringDao.save(farskapserklaering);
     }
 
     void lagreFarskapserklaeringSignertAvMor() {
@@ -244,6 +246,8 @@ public class PersistenceServiceTest {
 
       // given
       var lagretFarskapserklaering = lagreFarskapserklaering();
+
+      lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
 
       assertAll(() -> assertNull(lagretFarskapserklaering.getDokument().getPadesUrl()),
           () -> assertNull(lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),

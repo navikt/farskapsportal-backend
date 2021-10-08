@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_FAR;
@@ -45,7 +46,7 @@ import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringResp
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.api.StatusSignering;
 import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig.OidcTokenSubjectExtractor;
-import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
@@ -108,7 +109,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @DisplayName("FarskapsportalController")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
-@ActiveProfiles(FarskapsportalApiApplicationLocal.PROFILE_TEST)
+@ActiveProfiles(PROFILE_TEST)
 @AutoConfigureWireMock(port = 8096)
 public class FarskapsportalControllerTest {
 
@@ -152,7 +153,7 @@ public class FarskapsportalControllerTest {
   @Autowired
   private StatusKontrollereFarDao statusKontrollereFarDao;
   @Autowired
-  private FarskapsportalEgenskaper farskapsportalEgenskaper;
+  private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   @Autowired
   private Mapper mapper;
 
@@ -984,7 +985,7 @@ public class FarskapsportalControllerTest {
               new HentPersonDoedsfall(null)), fnrFar);
 
       // when
-      for (int i = 1; i <= farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek(); i++) {
+      for (int i = 1; i <= farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek(); i++) {
         var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
             initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
             FarskapserklaeringFeilResponse.class);
@@ -995,7 +996,7 @@ public class FarskapsportalControllerTest {
         assertAll(
             () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
             () -> assertThat(respons.getBody().getAntallResterendeForsoek().get()).isEqualTo(
-                farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - finalI),
+                farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - finalI),
             () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER)
         );
       }
@@ -1012,7 +1013,7 @@ public class FarskapsportalControllerTest {
           () -> assertThat(resultatEtterOppbruktAntallForsoek.getBody().getAntallResterendeForsoek().get()).isEqualTo(0),
           () -> assertThat(resultatEtterOppbruktAntallForsoek.getBody().getFeilkode()).isEqualTo(Feilkode.MAKS_ANTALL_FORSOEK),
           () -> assertThat(resultatEtterOppbruktAntallForsoek.getBody().getTidspunktForNullstillingAvForsoek()).isBefore(
-              tidspunktSisteForsoek.plusDays(farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
+              tidspunktSisteForsoek.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
       );
     }
   }
@@ -1081,7 +1082,7 @@ public class FarskapsportalControllerTest {
       brukeStandardMocks(MOR.getFoedselsnummer());
 
       var barnMedTermindatoForLangtFremITid = BarnDto.builder()
-          .termindato(LocalDate.now().plusWeeks(farskapsportalEgenskaper.getMaksAntallUkerTilTermindato() + 1)).build();
+          .termindato(LocalDate.now().plusWeeks(farskapsportalApiEgenskaper.getMaksAntallUkerTilTermindato() + 1)).build();
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(

@@ -16,6 +16,7 @@
     <asm.version>9.1</asm.version>
     <bidrag-tilgangskontroll.version>1.9.20</bidrag-tilgangskontroll.version>
     <brukernotifikasjon-schemas.version>1.2021.01.18-11.12-b9c8c40b98d1</brukernotifikasjon-schemas.version>
+    <hikaricp.version>5.0.0</hikaricp.version>
     <javassist.version>3.28.0-GA</javassist.version>
     <kafka-avro-serializer.version>6.1.1</kafka-avro-serializer.version>
     <maven.compiler.source>16</maven.compiler.source>
@@ -25,7 +26,6 @@
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
-    <wiremock-standalone.version>2.19.0</wiremock-standalone.version>
   </properties>
 
   <dependencyManagement>
@@ -49,6 +49,11 @@
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
         <version>${javassist.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>no.nav.bidrag</groupId>
+        <artifactId>bidrag-commons</artifactId>
+        <version>0.5.15</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -117,8 +122,8 @@
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
+      <version>${hikaricp.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>

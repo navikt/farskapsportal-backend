@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,7 +16,7 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
-import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
@@ -44,8 +46,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan("no.nav.farskapsportal.backend")
 public class FarskapsportalApiConfig {
 
-  public static final String X_API_KEY = "x-nav-apiKey";
-
   @Bean
   public OpenAPI openAPI() {
     return new OpenAPI()
@@ -56,7 +56,7 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public FarskapsportalService farskapsportalService(BrukernotifikasjonConsumer brukernotifikasjonConsumer,
-      FarskapsportalEgenskaper farskapsportalEgenskaper,
+      FarskapsportalApiEgenskaper farskapsportalApiEgenskaper,
       DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer,
       PersistenceService persistenceService,
@@ -65,7 +65,7 @@ public class FarskapsportalApiConfig {
 
     return FarskapsportalService.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .farskapsportalEgenskaper(farskapsportalEgenskaper)
+        .farskapsportalApiEgenskaper(farskapsportalApiEgenskaper)
         .difiESignaturConsumer(difiESignaturConsumer)
         .pdfGeneratorConsumer(pdfGeneratorConsumer)
         .persistenceService(persistenceService)
@@ -109,7 +109,7 @@ public class FarskapsportalApiConfig {
   }
 
   @Configuration
-  @Profile({FarskapsportalApiApplication.PROFILE_LIVE})
+  @Profile(PROFILE_LIVE)
   public static class FlywayConfiguration {
 
     @Autowired
