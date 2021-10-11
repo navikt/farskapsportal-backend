@@ -126,12 +126,12 @@ public class PersistenceService {
   }
 
   @Transactional
-  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
+  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar, int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
     var muligStatusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
     var naa = LocalDateTime.now();
 
     if (muligStatusKontrollereFar.isEmpty()) {
-      return lagreNyStatusKontrollereFar(fnrMor, LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
+      return lagreNyStatusKontrollereFar(fnrMor, registrertNavnFar, oppgittNavnFar, LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
     } else {
       var statusKontrollereFar = muligStatusKontrollereFar.get();
       if (statusKontrollereFar.getTidspunktForNullstilling().isBefore(naa)) {
@@ -139,6 +139,8 @@ public class PersistenceService {
         statusKontrollereFar.setTidspunktForNullstilling(LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
       } else if (statusKontrollereFar.getAntallFeiledeForsoek() < maksAntallFeiledeForsoek) {
         var antallFeiledeForsoek = statusKontrollereFar.getAntallFeiledeForsoek();
+        statusKontrollereFar.setRegistrertNavnFar(registrertNavnFar);
+        statusKontrollereFar.setOppgittNavnFar(oppgittNavnFar);
         statusKontrollereFar.setAntallFeiledeForsoek(++antallFeiledeForsoek);
       }
       return statusKontrollereFar;
@@ -226,10 +228,15 @@ public class PersistenceService {
     return ForelderDto.builder().foedselsnummer(fnr).navn(navnDto).build();
   }
 
-  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, LocalDateTime tidspunktForNullstilling) {
+  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,  LocalDateTime tidspunktForNullstilling) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
     var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
-    var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(tidspunktForNullstilling).antallFeiledeForsoek(1)
+    var statusKontrollereFar = StatusKontrollereFar.builder()
+        .mor(mor)
+        .registrertNavnFar(registrertNavnFar)
+        .oppgittNavnFar(oppgittNavnFar)
+        .tidspunktForNullstilling(tidspunktForNullstilling)
+        .antallFeiledeForsoek(1)
         .build();
     return statusKontrollereFarDao.save(statusKontrollereFar);
   }

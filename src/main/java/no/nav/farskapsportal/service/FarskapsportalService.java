@@ -34,11 +34,11 @@ import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.dto.BarnDto;
 import no.nav.farskapsportal.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.exception.InternFeilException;
@@ -365,7 +365,8 @@ public class FarskapsportalService {
     aktuellFarskapserklaering.getDokument().setPadesUrl(dokumentStatusDto.getPadeslenke().toString());
 
     if (aktuellFarskapserklaering.getSendtTilSkatt() == null && signatur.isHarSignert()) {
-      aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(signatur.getTidspunktForStatus().toLocalDateTime());
+      aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar()
+          .setSigneringstidspunkt(signatur.getTidspunktForStatus().toLocalDateTime());
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesUrl(signatur.getXadeslenke().toString());
       var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
       aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
@@ -400,7 +401,8 @@ public class FarskapsportalService {
     aktuellFarskapserklaering.getDokument().setBekreftelsesUrl(dokumentStatusDto.getBekreftelseslenke().toString());
 
     if (signatur.isHarSignert() && aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null) {
-      aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signatur.getTidspunktForStatus().toLocalDateTime());
+      aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor()
+          .setSigneringstidspunkt(signatur.getTidspunktForStatus().toLocalDateTime());
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesUrl(signatur.getXadeslenke().toString());
       var signertDokument = difiESignaturConsumer.henteSignertDokument(dokumentStatusDto.getPadeslenke());
       aktuellFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(signertDokument).build());
@@ -553,7 +555,8 @@ public class FarskapsportalService {
 
   private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
     var statusKontrollereFarDto = mapper
-        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
+        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, e.getNavnIRegister(), e.getOppgittNavn(),
+            farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
             farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek()));
     e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
     var resterendeAntallForsoek = farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
