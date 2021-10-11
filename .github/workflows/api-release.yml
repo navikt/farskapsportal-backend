@@ -1,11 +1,13 @@
-name: release farskapsportal-api
+name: release farskapsportal-backend-api
 on:
   push:
     branches:
       - release
+    paths:
+      - 'apps/api/**'
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-backend-api:${{ github.sha }}
 
 jobs:
   verify:
@@ -46,7 +48,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker build --tag ${IMAGE} .
+          docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
   deploy:
@@ -62,8 +64,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: deploy/.nais/naiserator-prod.yml
-          VARS: deploy/.nais/prod.yml
+          RESOURCE: deploy/.nais/apps/api/naiserator-prod.yml
+          VARS: deploy/.nais/apps/api/prod.yml
 
   tag:
     runs-on: ubuntu-latest

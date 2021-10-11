@@ -1,4 +1,4 @@
-name: farskapsportal-api
+name: backend-asynkron
 ingress: https://farskapsportal-api.nav.no
 gcp:
   secretmanager.host: secretmanager.googleapis.com

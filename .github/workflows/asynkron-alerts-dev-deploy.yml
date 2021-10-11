@@ -1,10 +1,11 @@
-name: Deploy farskapsportal-api alerts to prod-gcp
+name: Deploy asynkron-alerts to dev-gcp
 on:
   push:
     branches:
-      - release
+      - '**'
+      - '!release'
     paths:
-      - '.nais/alerts-prod.yml'
+      - '.nais/apps/asynkron/alerts-dev.yml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
@@ -12,9 +13,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: deploy to prod-gcp
+      - name: deploy to dev
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: .nais/alerts-prod.yml
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/apps/asynkron/alerts-dev.yml

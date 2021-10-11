@@ -5,12 +5,10 @@ on:
       - '**'
       - '!release'
     paths:
-      - 'apps/asynkron/**'
-    paths-ignore:
-      - 'README.md'
+      - 'apps/api/**'
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-backend-asynkron:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-backend-api:${{ github.sha }}
 
 jobs:
   build:
@@ -21,7 +19,7 @@ jobs:
       - uses: navikt/bidrag-docker/exists@v1
         id: dockerimage
         with:
-          image_name: farskapsportal-backend-asynkron
+          image_name: farskapsportal-backend-api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
@@ -53,7 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/backend-asynkron/target/app.jar .
+          docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 
