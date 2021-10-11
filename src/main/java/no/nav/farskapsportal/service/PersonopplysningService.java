@@ -116,7 +116,8 @@ public class PersonopplysningService {
     return !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).stream()
         .filter(Objects::nonNull)
         .filter(verge ->
-            verge.getVergeEllerFullmektig().getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER) ||
+            verge.getVergeEllerFullmektig().getOmfang() != null ? verge.getVergeEllerFullmektig().getOmfang()
+                .equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER) : true ||
                 verge.getVergeEllerFullmektig().getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_INTERESSER))
         .collect(Collectors.toList()).isEmpty();
   }
@@ -178,8 +179,10 @@ public class PersonopplysningService {
   public void navnekontroll(String navn, NavnDto navnFraRegister) {
     var sammenslaattNavnFraRegister = navnFraRegister.getFornavn() + hentMellomnavnHvisFinnes(navnFraRegister) + navnFraRegister.getEtternavn();
 
-    var normalisertNavnFraRegister = Normalizer.normalize(sammenslaattNavnFraRegister, Form.NFD).replaceAll("\\p{M}", "") .replaceAll("\\s+", "");;
-    var normalisertOppgittNavn = Normalizer.normalize(navn, Form.NFD).replaceAll("\\p{M}", "") .replaceAll("\\s+", "");;
+    var normalisertNavnFraRegister = Normalizer.normalize(sammenslaattNavnFraRegister, Form.NFD).replaceAll("\\p{M}", "").replaceAll("\\s+", "");
+    ;
+    var normalisertOppgittNavn = Normalizer.normalize(navn, Form.NFD).replaceAll("\\p{M}", "").replaceAll("\\s+", "");
+    ;
 
     boolean navnStemmer = normalisertNavnFraRegister.equalsIgnoreCase(normalisertOppgittNavn);
 

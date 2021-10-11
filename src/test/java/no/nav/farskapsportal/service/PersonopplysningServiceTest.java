@@ -327,7 +327,23 @@ public class PersonopplysningServiceTest {
   class HarVerge {
 
     @Test
+    void skalReturnereSannDersomOmfangErNull() {
+
+      // given
+      when(pdlApiConsumerMock.henteVergeEllerFremtidsfullmakt(FAR.getFoedselsnummer())).thenReturn(List.of(
+          VergemaalEllerFremtidsfullmaktDto.builder().vergeEllerFullmektig(VergeEllerFullmektigDto.builder().omfang(null).build())
+              .build()));
+
+      // when
+      var farHarVerge = personopplysningService.harVerge(FAR.getFoedselsnummer());
+
+      // then
+      assertThat(farHarVerge).isTrue();
+    }
+
+    @Test
     void skalReturnereSannDersomPersonHarVergeMedOmfangPersonligeInteresser() {
+
       // given
       when(pdlApiConsumerMock.henteVergeEllerFremtidsfullmakt(FAR.getFoedselsnummer())).thenReturn(List.of(
           VergemaalEllerFremtidsfullmaktDto.builder().vergeEllerFullmektig(VergeEllerFullmektigDto.builder().omfang("personligeInteresser").build())
