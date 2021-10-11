@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
@@ -30,6 +31,7 @@ import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.util.Mapper;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 public class PersistenceService {
 
@@ -134,6 +136,7 @@ public class PersistenceService {
       return lagreNyStatusKontrollereFar(fnrMor, registrertNavnFar, oppgittNavnFar, LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
     } else {
       var statusKontrollereFar = muligStatusKontrollereFar.get();
+      log.warn("Mor  oppgav feil navn på far. Legger til nytt innslag i statusKontrollereFar-tabellen for id {}", statusKontrollereFar.getId());
       if (statusKontrollereFar.getTidspunktForNullstilling().isBefore(naa)) {
         statusKontrollereFar.setAntallFeiledeForsoek(1);
         statusKontrollereFar.setRegistrertNavnFar(registrertNavnFar);
@@ -233,6 +236,7 @@ public class PersistenceService {
   private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,  LocalDateTime tidspunktForNullstilling) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
     var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
+    log.warn("Mor med id {}, oppgav feil navn på far. Legger til nytt innslag i statusKontrollereFar-tabellen", mor.getId());
     var statusKontrollereFar = StatusKontrollereFar.builder()
         .mor(mor)
         .registrertNavnFar(registrertNavnFar)
