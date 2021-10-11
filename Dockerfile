@@ -4,8 +4,8 @@ FROM navikt/java:16
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
-#COPY --from=scuttle /scuttle /bin/scuttle
-COPY ./target/farskapsportal-api-*.jar app.jar
+ARG JAR_PATH
+ADD $JAR_PATH /app/app.jar
 EXPOSE 8080
 
 # Ref https://doc.nais.io/clusters/gcp/#starting-application-when-istio-proxy-is-ready

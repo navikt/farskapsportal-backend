@@ -10,7 +10,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>asynkron</artifactId>
-  <name>farskapsportal-backend :: apps :: asynkron</name>
+  <name>farskapsportal-backend :: apps :: backend-asynkron</name>
 
   <properties>
     <asm.version>9.1</asm.version>
@@ -161,11 +161,8 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>app</finalName>
     <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>

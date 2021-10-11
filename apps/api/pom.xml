@@ -10,7 +10,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>api</artifactId>
-  <name>farskapsportal-backend :: apps :: api</name>
+  <name>farskapsportal-backend :: apps :: backend-api</name>
 
   <properties>
     <!-- language -->
@@ -72,6 +72,7 @@
     </repository>
   </repositories>
   <build>
+    <finalName>app</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

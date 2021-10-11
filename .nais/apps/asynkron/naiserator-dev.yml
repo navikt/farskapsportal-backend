@@ -1,0 +1,47 @@
+apiVersion: "nais.io/v1alpha1"
+kind: Application
+metadata:
+  name: {{ name }}
+  namespace: farskapsportal
+  labels:
+    team: farskapsportal
+spec:
+  azure:
+    application:
+      enabled: false
+  image: {{ image }}
+  liveness:
+    path: /internal/actuator/health
+    initialDelay: 70
+    timeout: 1
+    periodSeconds: 5
+    failureThreshold: 10
+  readiness:
+    path: /internal/actuator/health
+    initialDelay: 70
+    timeout: 1
+  prometheus:
+    enabled: true
+    path: /internal/actuator/prometheus
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2048Mi
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+  ingresses:
+    - {{ ingress }}
+  env:
+  {{#each env}}
+    - name: {{this.name}}
+      value: "{{this.value}}"
+  {{/each}}
+  envFrom:
+    - secret: farskapsportal-api-secret
+  accessPolicy:
+    outbound:
+      external:
+        - host: folkeregisteret-api-ekstern.sits.no
+        - host: secretmanager.googleapis.com
+        - host: {{ kafka.schema-registry.host }}
