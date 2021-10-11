@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - release
-    paths:
-      - '.nais/apps/api/alerts-prod.yml'
+#    paths:
+#      - '.nais/apps/api/alerts-prod.yml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster

@@ -4,8 +4,8 @@ on:
     branches:
       - '**'
       - '!release'
-    paths:
-      - '.nais/apps/asynkron/alerts-dev.yml'
+#    paths:
+#     - '.nais/apps/asynkron/alerts-dev.yml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
