@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.api.Feilkode;
 import no.nav.farskapsportal.api.Forelderrolle;
 import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
@@ -30,6 +31,7 @@ import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.util.Mapper;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 public class PersistenceService {
 
@@ -126,19 +128,24 @@ public class PersistenceService {
   }
 
   @Transactional
-  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
+  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar, int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
     var muligStatusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
     var naa = LocalDateTime.now();
 
     if (muligStatusKontrollereFar.isEmpty()) {
-      return lagreNyStatusKontrollereFar(fnrMor, LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
+      return lagreNyStatusKontrollereFar(fnrMor, registrertNavnFar, oppgittNavnFar, LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
     } else {
       var statusKontrollereFar = muligStatusKontrollereFar.get();
+      log.warn("Mor  oppgav feil navn på far. Legger til nytt innslag i statusKontrollereFar-tabellen for id {}", statusKontrollereFar.getId());
       if (statusKontrollereFar.getTidspunktForNullstilling().isBefore(naa)) {
         statusKontrollereFar.setAntallFeiledeForsoek(1);
+        statusKontrollereFar.setRegistrertNavnFar(registrertNavnFar);
+        statusKontrollereFar.setOppgittNavnFar(oppgittNavnFar);
         statusKontrollereFar.setTidspunktForNullstilling(LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
       } else if (statusKontrollereFar.getAntallFeiledeForsoek() < maksAntallFeiledeForsoek) {
         var antallFeiledeForsoek = statusKontrollereFar.getAntallFeiledeForsoek();
+        statusKontrollereFar.setRegistrertNavnFar(registrertNavnFar);
+        statusKontrollereFar.setOppgittNavnFar(oppgittNavnFar);
         statusKontrollereFar.setAntallFeiledeForsoek(++antallFeiledeForsoek);
       }
       return statusKontrollereFar;
@@ -226,10 +233,16 @@ public class PersistenceService {
     return ForelderDto.builder().foedselsnummer(fnr).navn(navnDto).build();
   }
 
-  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, LocalDateTime tidspunktForNullstilling) {
+  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,  LocalDateTime tidspunktForNullstilling) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
     var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
-    var statusKontrollereFar = StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(tidspunktForNullstilling).antallFeiledeForsoek(1)
+    log.warn("Mor med id {}, oppgav feil navn på far. Legger til nytt innslag i statusKontrollereFar-tabellen", mor.getId());
+    var statusKontrollereFar = StatusKontrollereFar.builder()
+        .mor(mor)
+        .registrertNavnFar(registrertNavnFar)
+        .oppgittNavnFar(oppgittNavnFar)
+        .tidspunktForNullstilling(tidspunktForNullstilling)
+        .antallFeiledeForsoek(1)
         .build();
     return statusKontrollereFarDao.save(statusKontrollereFar);
   }
