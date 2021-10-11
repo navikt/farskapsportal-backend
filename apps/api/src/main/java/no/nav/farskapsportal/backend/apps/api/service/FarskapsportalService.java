@@ -492,7 +492,8 @@ public class FarskapsportalService {
 
   private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
     var statusKontrollereFarDto = mapper
-        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
+        .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, e.getNavnIRegister(), e.getOppgittNavn(),
+            farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
             farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek()));
     e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
     var resterendeAntallForsoek = farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
@@ -517,7 +518,7 @@ public class FarskapsportalService {
       navnDtoFraFolkeregisteret = personopplysningService.henteNavn(foedselsnummerFar);
       // Validere input
       personopplysningService.navnekontroll(oppgittNavnPaaFar, navnDtoFraFolkeregisteret);
-    } catch (RessursIkkeFunnetException  rife) {
+    } catch (RessursIkkeFunnetException rife) {
       throw new FeilNavnOppgittException(rife.getFeilkode());
     } catch (ValideringException ve) {
       throw new FeilNavnOppgittException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);

@@ -32,6 +32,10 @@ public class StatusKontrollereFar {
   @ManyToOne(cascade = CascadeType.PERSIST)
   private Forelder mor;
 
+  private String registrertNavnFar;
+
+  private String oppgittNavnFar;
+
   private int antallFeiledeForsoek;
 
   private LocalDateTime tidspunktForNullstilling;

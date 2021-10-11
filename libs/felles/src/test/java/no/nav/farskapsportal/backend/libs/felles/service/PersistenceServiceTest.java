@@ -201,7 +201,8 @@ public class PersistenceServiceTest {
       when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
 
       // when
-      var lagretStatusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullsettingAvForsoek,
+      var lagretStatusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+          "Ronald McDonald", antallDagerTilNullsettingAvForsoek,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       var hentetStatusKontrollereFar = statusKontrollereFarDao.findById(lagretStatusKontrollereFar.getId());
@@ -362,7 +363,8 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullsettingAvForsoek = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
-      persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullsettingAvForsoek,
+      persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(), NAVN_FAR.sammensattNavn(),
+          antallDagerTilNullsettingAvForsoek,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // when
@@ -470,7 +472,8 @@ public class PersistenceServiceTest {
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+          "Ronald McDonald", antallDagerTilNullstilling,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
@@ -492,7 +495,8 @@ public class PersistenceServiceTest {
       when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+          "Ronald McDonald", antallDagerTilNullstilling,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
@@ -515,7 +519,8 @@ public class PersistenceServiceTest {
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+          "Ronald McDonald", antallDagerTilNullstilling,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
@@ -539,7 +544,8 @@ public class PersistenceServiceTest {
 
       // when
       for (int i = 1; i <= farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek(); i++) {
-        var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+        var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+            "Ronald McDonald", antallDagerTilNullstilling,
             farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
         int finalI = i;
         assertAll(
@@ -548,7 +554,8 @@ public class PersistenceServiceTest {
         );
       }
 
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+          "Ronald McDonald", antallDagerTilNullstilling,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
@@ -572,7 +579,8 @@ public class PersistenceServiceTest {
           tidspunktForNullstilling);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+          "Ronald McDonald", antallDagerTilNullstilling,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
@@ -593,7 +601,8 @@ public class PersistenceServiceTest {
       lagreStatusKontrollereFarMedMor(farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek() - 1, tidspunktForNullstilling);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), antallDagerTilNullstilling,
+      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
+          "Ronald McDonald", antallDagerTilNullstilling,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then

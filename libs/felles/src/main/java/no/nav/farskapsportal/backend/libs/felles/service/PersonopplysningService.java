@@ -21,6 +21,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.VergeEllerFullmektigDto;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
@@ -114,10 +115,16 @@ public class PersonopplysningService {
   public boolean harVerge(String foedselsnummer) {
     return !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).stream()
         .filter(Objects::nonNull)
-        .filter(verge ->
-            verge.getVergeEllerFullmektig().getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER) ||
-                verge.getVergeEllerFullmektig().getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_INTERESSER))
+        .filter(verge -> harVerge(verge.getVergeEllerFullmektig()) == true)
         .collect(Collectors.toList()).isEmpty();
+  }
+
+  private boolean harVerge(VergeEllerFullmektigDto verge) {
+    if (verge.getOmfang() == null) {
+      return true;
+    }
+    return verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER) ||
+        verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_INTERESSER);
   }
 
   public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
