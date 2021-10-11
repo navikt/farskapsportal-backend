@@ -260,9 +260,9 @@ spring:
   config.activate.on-profile: remote-postgres
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://localhost:5432/fpdb-prod
+    url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
     password: ${REMOTE_POSTGRES_PWD}
-    databaseName: fpdb-prod
+    databaseName: farskapsportaldb-feature
 
 ---
 spring.config.activate.on-profile: scheduled-test

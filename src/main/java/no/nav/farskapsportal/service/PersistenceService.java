@@ -136,6 +136,8 @@ public class PersistenceService {
       var statusKontrollereFar = muligStatusKontrollereFar.get();
       if (statusKontrollereFar.getTidspunktForNullstilling().isBefore(naa)) {
         statusKontrollereFar.setAntallFeiledeForsoek(1);
+        statusKontrollereFar.setRegistrertNavnFar(registrertNavnFar);
+        statusKontrollereFar.setOppgittNavnFar(oppgittNavnFar);
         statusKontrollereFar.setTidspunktForNullstilling(LocalDateTime.now().plusDays(antallDagerTilForsoekNullstilles));
       } else if (statusKontrollereFar.getAntallFeiledeForsoek() < maksAntallFeiledeForsoek) {
         var antallFeiledeForsoek = statusKontrollereFar.getAntallFeiledeForsoek();
