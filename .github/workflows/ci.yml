@@ -27,7 +27,7 @@ jobs:
         if: env.NOT_FOUND == 'true'
         with:
           java-version: '16'
-      - uses: actions/cache@v1
+      - uses: actions/cache@v2.1.5
         if: env.NOT_FOUND == 'true'
         with:
           path: ~/.m2
@@ -86,7 +86,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v1
+      - uses: actions/cache@v2.1.5
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
