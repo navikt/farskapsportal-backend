@@ -5,7 +5,7 @@ LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
 ARG JAR_PATH
-ADD $JAR_PATH /app/app.jar
+COPY $JAR_PATH /app/app.jar
 EXPOSE 8080
 
 # Ref https://doc.nais.io/clusters/gcp/#starting-application-when-istio-proxy-is-ready
