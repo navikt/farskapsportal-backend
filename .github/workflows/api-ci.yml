@@ -68,16 +68,16 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/.nais/apps/asynkron/naiserator-dev.yml
-          VARS: deploy/.nais/apps/asynkron/main.yml
+          RESOURCE: deploy/.nais/apps/api/naiserator-dev.yml
+          VARS: deploy/.nais/apps/api/main.yml
       - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/.nais/apps/asynkron/naiserator-dev.yml
-          VARS: deploy/.nais/apps/asynkron/feature.yml
+          RESOURCE: deploy/.nais/apps/api/naiserator-dev.yml
+          VARS: deploy/.nais/apps/api/feature.yml
 
   bump_dev_version:
     runs-on: ubuntu-latest
