@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
+import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonSubResponse;
@@ -21,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PdlApiConsumer")
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
-@SpringBootTest(classes = {FarskapsportalFellesConfig.class, PdlApiStub.class,
+@SpringBootTest(classes = {FarskapsportalFellesTestConfig.class, PdlApiStub.class,
     StsStub.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 8096)
 public class PdlApiConsumerTest {

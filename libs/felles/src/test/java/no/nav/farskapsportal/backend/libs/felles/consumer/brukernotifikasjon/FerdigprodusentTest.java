@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
+import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("Ferdigprodusent")
-@SpringBootTest(classes = FarskapsportalFellesConfig.class)
+@SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(PROFILE_TEST)
 public class FerdigprodusentTest {
 

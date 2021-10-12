@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.TimeZone;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
+import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +29,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("Beskjedprodusent")
-@SpringBootTest(classes = FarskapsportalFellesConfig.class)
+@SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(PROFILE_TEST)
 public class BeskjedprodusentTest {
 
