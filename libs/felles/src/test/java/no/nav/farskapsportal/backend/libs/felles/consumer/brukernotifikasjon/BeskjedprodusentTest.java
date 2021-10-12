@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -17,7 +18,6 @@ import java.util.TimeZone;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
-import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,10 +81,9 @@ public class BeskjedprodusentTest {
         () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalUrl.toString()),
         () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
         () -> assertThat(beskjed.getTekst()).isEqualTo("Hei på deg"),
-        () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getSynligFremTil()),
-            ZoneId.of("UTC"))).isEqualTo(LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
-                TimeZone.getDefault().toZoneId()).plusMonths(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder())
-            .withHour(0)),
+        () -> assertThat(LocalDate.ofInstant(Instant.ofEpochMilli(beskjed.getSynligFremTil()),
+            ZoneId.of("UTC"))).isEqualTo(LocalDate.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
+            TimeZone.getDefault().toZoneId()).plusMonths(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder())),
         () -> assertThat(noekkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn())
     );
   }
