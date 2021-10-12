@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/service/PersonopplysningService.java
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.Kjoenn;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
@@ -29,23 +28,6 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
-=======
-import no.nav.farskapsportal.api.Feilkode;
-import no.nav.farskapsportal.api.Forelderrolle;
-import no.nav.farskapsportal.api.Kjoenn;
-import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
-import no.nav.farskapsportal.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.consumer.pdl.PdlApiException;
-import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
-import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennDto;
-import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
-import no.nav.farskapsportal.consumer.pdl.api.SivilstandDto;
-import no.nav.farskapsportal.consumer.pdl.api.VergeEllerFullmektigDto;
-import no.nav.farskapsportal.dto.NavnDto;
-import no.nav.farskapsportal.exception.FeilNavnOppgittException;
->>>>>>> main:src/main/java/no/nav/farskapsportal/service/PersonopplysningService.java
 import org.modelmapper.ModelMapper;
 import org.springframework.validation.annotation.Validated;
 
@@ -131,27 +113,10 @@ public class PersonopplysningService {
   }
 
   public boolean harVerge(String foedselsnummer) {
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/service/PersonopplysningService.java
     return !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).stream()
         .filter(Objects::nonNull)
         .filter(verge -> harVerge(verge.getVergeEllerFullmektig()) == true)
         .collect(Collectors.toList()).isEmpty();
-=======
-
-      var respons = !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).stream()
-          .filter(Objects::nonNull)
-          .filter(verge -> harVerge(verge.getVergeEllerFullmektig()) == true)
-          .collect(Collectors.toList()).isEmpty();
-      return respons;
-  }
-
-  private boolean harVerge(VergeEllerFullmektigDto verge) {
-    if (verge.getOmfang() == null) {
-      return true;
-    }
-    return verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER) ||
-        verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_INTERESSER);
->>>>>>> main:src/main/java/no/nav/farskapsportal/service/PersonopplysningService.java
   }
 
   private boolean harVerge(VergeEllerFullmektigDto verge) {
@@ -221,26 +186,16 @@ public class PersonopplysningService {
     var normalisertNavnFraRegister = Normalizer.normalize(sammenslaattNavnFraRegister, Form.NFD).replaceAll("\\p{M}", "").replaceAll("\\s+", "");
     var normalisertOppgittNavn = Normalizer.normalize(navn, Form.NFD).replaceAll("\\p{M}", "").replaceAll("\\s+", "");
 
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/service/PersonopplysningService.java
     boolean navnStemmer = normalisereNavn(sammenslaattNavnFraRegister).equalsIgnoreCase(normalisereNavn(navn));
 
     if (!navnStemmer) {
       log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn er forskjellig fra navn i register");
       throw new FeilNavnOppgittException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
-=======
-    boolean navnStemmer = normalisertNavnFraRegister.equalsIgnoreCase(normalisertOppgittNavn);
-
-    if (!navnStemmer) {
-      log.error(
-          "Navnekontroll feilet. Oppgitt navn stemmer ikke med navn registrert i folkeregisteret.");
-      throw new FeilNavnOppgittException(navn, sammenslaattNavnFraRegister);
->>>>>>> main:src/main/java/no/nav/farskapsportal/service/PersonopplysningService.java
     }
 
     log.info("Navnekontroll gjennomført uten feil");
   }
-
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/service/PersonopplysningService.java
+  
   private String normalisereNavn(String navn) {
     return Normalizer.normalize(navn, Form.NFD)
         .replaceAll("\\p{M}", "")
@@ -249,10 +204,6 @@ public class PersonopplysningService {
   }
 
   private KjoennDto hentFoedekjoenn(List<KjoennDto> kjoennshistorikk) {
-=======
-
-  private no.nav.farskapsportal.consumer.pdl.api.KjoennDto hentFoedekjoenn(List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> kjoennshistorikk) {
->>>>>>> main:src/main/java/no/nav/farskapsportal/service/PersonopplysningService.java
 
     if (kjoennshistorikk.size() == 1) {
       return kjoennshistorikk.get(0);

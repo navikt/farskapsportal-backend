@@ -104,11 +104,7 @@ public class BrukernotifikasjonConfig {
   @Bean
   Oppgaveprodusent oppgaveprodusent(
       @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate) throws MalformedURLException {
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/config/BrukernotifikasjonConfig.java
     return new Oppgaveprodusent(toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper, kafkaTemplate);
-=======
-    return new Oppgaveprodusent(toUrl(farskapsportalEgenskaper.getUrl()), farskapsportalEgenskaper, kafkaTemplate);
->>>>>>> main:src/main/java/no/nav/farskapsportal/config/BrukernotifikasjonConfig.java
   }
 
   @Bean

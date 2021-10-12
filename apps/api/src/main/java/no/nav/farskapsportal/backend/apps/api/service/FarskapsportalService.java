@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-<<<<<<< HEAD:apps/api/src/main/java/no/nav/farskapsportal/backend/apps/api/service/FarskapsportalService.java
 import no.nav.farskapsportal.backend.apps.api.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.backend.apps.api.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.backend.apps.api.api.OppdatereFarskapserklaeringRequest;
@@ -48,40 +47,6 @@ import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
-=======
-import no.nav.farskapsportal.api.BrukerinformasjonResponse;
-import no.nav.farskapsportal.api.Feilkode;
-import no.nav.farskapsportal.api.Forelderrolle;
-import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
-import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
-import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
-import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
-import no.nav.farskapsportal.api.Rolle;
-import no.nav.farskapsportal.api.Skriftspraak;
-import no.nav.farskapsportal.api.StatusSignering;
-import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
-import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
-import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
-import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
-import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
-import no.nav.farskapsportal.dto.BarnDto;
-import no.nav.farskapsportal.dto.FarskapserklaeringDto;
-import no.nav.farskapsportal.dto.ForelderDto;
-import no.nav.farskapsportal.dto.NavnDto;
-import no.nav.farskapsportal.exception.EsigneringStatusFeiletException;
-import no.nav.farskapsportal.exception.FeilNavnOppgittException;
-import no.nav.farskapsportal.exception.InternFeilException;
-import no.nav.farskapsportal.exception.MappingException;
-import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
-import no.nav.farskapsportal.exception.ValideringException;
-import no.nav.farskapsportal.persistence.entity.Dokument;
-import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
-import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
-import no.nav.farskapsportal.util.Mapper;
->>>>>>> main:src/main/java/no/nav/farskapsportal/service/FarskapsportalService.java
 import org.apache.commons.lang3.Validate;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,12 +116,7 @@ public class FarskapsportalService {
       // Hente mors erklæringer som bare mangler fars signatur
       avventerSigneringMotpart = morsAktiveErklaeringerDto.stream().filter(Objects::nonNull).filter(fe -> fe.getDokument().getSignertAvMor() != null)
           .filter(fe -> fe.getDokument().getSignertAvFar() == null).collect(Collectors.toSet());
-<<<<<<< HEAD:apps/api/src/main/java/no/nav/farskapsportal/backend/apps/api/service/FarskapsportalService.java
       avventerSigneringMotpart.forEach(fe -> fe.setPaaloggetBrukersRolle(Rolle.MOR));
-      // Oppdatere esigneringsstatus dersom forrige statusendring ikke er registrert
-=======
-      avventerSigneringMotpart.forEach(fe -> fe.setPaaloggetBrukersRolle(MOR));
->>>>>>> main:src/main/java/no/nav/farskapsportal/service/FarskapsportalService.java
 
       // Mors erklaeringer som er signert av begge foreldrene
       avventerRegistreringSkatt = morsAktiveErklaeringerDto.stream().filter(Objects::nonNull)
@@ -536,13 +496,8 @@ public class FarskapsportalService {
   private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
     var statusKontrollereFarDto = mapper
         .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, e.getNavnIRegister(), e.getOppgittNavn(),
-<<<<<<< HEAD:apps/api/src/main/java/no/nav/farskapsportal/backend/apps/api/service/FarskapsportalService.java
             farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
             farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek()));
-=======
-            farskapsportalEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
-            farskapsportalEgenskaper.getKontrollFarMaksAntallForsoek()));
->>>>>>> main:src/main/java/no/nav/farskapsportal/service/FarskapsportalService.java
     e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
     var resterendeAntallForsoek = farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
     resterendeAntallForsoek = resterendeAntallForsoek < 0 ? 0 : resterendeAntallForsoek;

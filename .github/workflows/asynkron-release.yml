@@ -1,4 +1,4 @@
-name: release farskapsportal-backend-asynkron
+name: release farskapsportal-asynkron
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
       - 'apps/asynkron/**'
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-backend-asynkron:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-sasynkron:${{ github.sha }}
 
 jobs:
   verify:
@@ -43,7 +43,7 @@ jobs:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: mvn install -B -e -DskipTests
+      - run: mvn install -B -e
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

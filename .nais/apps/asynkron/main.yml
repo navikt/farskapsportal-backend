@@ -1,4 +1,4 @@
-name: farskapsportal-asynkron
+name: asynkron
 ingress: https://farskapsportal-asynkron.dev.nav.no
 gcp:
   secretmanager:

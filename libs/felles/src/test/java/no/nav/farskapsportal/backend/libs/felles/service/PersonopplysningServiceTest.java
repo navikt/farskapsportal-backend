@@ -242,16 +242,10 @@ public class PersonopplysningServiceTest {
     @Test
     void skalLikestilleÈMedE() {
       // given
-<<<<<<< HEAD:libs/felles/src/test/java/no/nav/farskapsportal/backend/libs/felles/service/PersonopplysningServiceTest.java
       var farsRegistrerteNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Donald Andre").mellomnavn("Dangerous")
           .etternavn(NAVN_FAR.getEtternavn())
           .build();
       var farsNavn = "Donald André" + " Dangerous " + NAVN_FAR.getEtternavn();
-=======
-      var farsRegistrerteNavn = NavnDto.builder().fornavn("Donald Andre").mellomnavn("Dangerous").etternavn(FAR.getNavn().getEtternavn())
-          .build();
-      var farsNavn = "Donald André" + " Dangerous " + FAR.getNavn().getEtternavn();
->>>>>>> main:src/test/java/no/nav/farskapsportal/service/PersonopplysningServiceTest.java
 
       // when, then
       assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
@@ -260,21 +254,14 @@ public class PersonopplysningServiceTest {
     @Test
     void skalHaandtereNorskeBokstaver() {
       // given
-<<<<<<< HEAD:libs/felles/src/test/java/no/nav/farskapsportal/backend/libs/felles/service/PersonopplysningServiceTest.java
       var farsRegistrerteNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Dånald Øndræ").mellomnavn("Dængerås")
           .etternavn(NAVN_FAR.getEtternavn())
           .build();
       var farsNavn = "Dånald Øndræ" + " Dængerås " + NAVN_FAR.getEtternavn();
-=======
-      var farsRegistrerteNavn = NavnDto.builder().fornavn("Dånald Øndræ").mellomnavn("Dængerås").etternavn(FAR.getNavn().getEtternavn())
-          .build();
-      var farsNavn = "Dånald Øndræ" + " Dængerås " + FAR.getNavn().getEtternavn();
->>>>>>> main:src/test/java/no/nav/farskapsportal/service/PersonopplysningServiceTest.java
 
       // when, then
       assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
     }
-<<<<<<< HEAD:libs/felles/src/test/java/no/nav/farskapsportal/backend/libs/felles/service/PersonopplysningServiceTest.java
 
     @Test
     void skalHaandtereSvenskeTilstander() {
@@ -292,8 +279,6 @@ public class PersonopplysningServiceTest {
       // when, then
       assertDoesNotThrow(() -> personopplysningService.navnekontroll(oppgittNavnPaaFar, farsRegistrerteNavn));
     }
-=======
->>>>>>> main:src/test/java/no/nav/farskapsportal/service/PersonopplysningServiceTest.java
   }
 
   @Nested

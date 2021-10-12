@@ -84,7 +84,7 @@ public class DifiESignaturConsumerIntegrationTest {
 
       // given
       ClassLoader classLoader = getClass().getClassLoader();
-      var inputStream = classLoader.getResourceAsStream("src/test/resources/__files/Farskapsportal.pdf");
+      var inputStream = classLoader.getResourceAsStream("src/test/resources/__files/farskapserklaering.pdf");
       var originaltInnhold = inputStream.readAllBytes();
       difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 

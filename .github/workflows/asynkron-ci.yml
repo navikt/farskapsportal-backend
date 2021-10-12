@@ -1,4 +1,4 @@
-name: continuous integration farskapsportal-backend-asynkron
+name: continuous integration farskapsportal-asynkron
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - 'apps/asynkron/**'
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-backend-asynkron:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-asynkron:${{ github.sha }}
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
       - uses: navikt/bidrag-docker/exists@v1
         id: dockerimage
         with:
-          image_name: farskapsportal-backend-asynkron
+          image_name: farskapsportal-asynkron
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
@@ -42,7 +42,7 @@ jobs:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: mvn install -B -e -DskipTests
+      - run: mvn install -B -e
         if: env.NOT_FOUND == 'true'
       - name: Build and publish Docker image
         if: env.NOT_FOUND == 'true'

@@ -8,7 +8,7 @@ metadata:
 spec:
   azure:
     application:
-      enabled: false
+      enabled: true
   image: {{ image }}
   liveness:
     path: /internal/actuator/health

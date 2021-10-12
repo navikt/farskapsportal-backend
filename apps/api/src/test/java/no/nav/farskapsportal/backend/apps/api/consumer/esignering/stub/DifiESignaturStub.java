@@ -76,7 +76,7 @@ public class DifiESignaturStub {
                 aResponse()
                     .withHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
                     .withStatus(200)
-                    .withBodyFile("Farskapsportal.pdf")));
+                    .withBodyFile("Farskapserklæring.pdf")));
   }
 
   public void runGetXades(String xadesPath) {

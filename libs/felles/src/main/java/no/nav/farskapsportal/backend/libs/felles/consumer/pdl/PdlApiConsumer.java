@@ -184,11 +184,7 @@ public class PdlApiConsumer {
     }
   }
 
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/consumer/pdl/PdlApiConsumer.java
   private List<KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
-=======
-  private List<no.nav.farskapsportal.consumer.pdl.api.KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {
->>>>>>> main:src/main/java/no/nav/farskapsportal/consumer/pdl/PdlApiConsumer.java
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_KJOENN, inkludereHistorikk);
     var kjoennDtos = respons.getData().getHentPerson().getKjoenn();
     var kjoennFraPdlEllerFreg = kjoennDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
