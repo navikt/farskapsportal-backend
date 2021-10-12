@@ -3,7 +3,7 @@ ingress: https://farskapsportal-api.nav.no
 gcp:
   secretmanager.host: secretmanager.googleapis.com
   sql-instances:
-    diskSize: 500
+    diskSize: 505
     name: fp-prod
     tier: db-custom-1-3840
     type: POSTGRES_12
