@@ -212,7 +212,7 @@ public class DifiESignaturConsumerTest {
 
       // given
       ClassLoader classLoader = getClass().getClassLoader();
-      var inputStream = classLoader.getResourceAsStream("__files/farskapserklæring.pdf");
+      var inputStream = classLoader.getResourceAsStream("__files/farskapserklaering.pdf");
       var originaltInnhold = inputStream.readAllBytes();
       difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 
