@@ -1,4 +1,5 @@
-name: backend-asynkron
+name: farskapsportal-asynkron
+ingress: https://farskapsportal-asynkron.dev.nav.no
 gcp:
   secretmanager.host: secretmanager.googleapis.com
   sql-instances:

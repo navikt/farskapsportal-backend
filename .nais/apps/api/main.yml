@@ -1,4 +1,4 @@
-name: backend-api
+name: farskapsportal-api
 ingress: https://farskapsportal-api.dev.nav.no
 gcp:
   secretmanager:

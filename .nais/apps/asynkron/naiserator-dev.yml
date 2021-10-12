@@ -8,7 +8,7 @@ metadata:
 spec:
   azure:
     application:
-      enabled: false
+      enabled: true
   image: {{ image }}
   liveness:
     path: /internal/actuator/health
@@ -23,6 +23,9 @@ spec:
   prometheus:
     enabled: true
     path: /internal/actuator/prometheus
+  replicas:
+    max: 1
+    min: 1
   resources:
     limits:
       cpu: 1000m
