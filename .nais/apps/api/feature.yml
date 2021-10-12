@@ -1,4 +1,4 @@
-name: backend-api-feature1
+name: backend-api-feature
 ingress: https://farskapsportal-backend-api-feature.dev.nav.no
 gcp:
   sql-instances:
