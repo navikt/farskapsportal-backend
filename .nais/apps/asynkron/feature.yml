@@ -1,5 +1,4 @@
 name: backend-asynkron-feature
-ingress: https://farskapsportal-api-feature.dev.nav.no
 gcp:
   sql-instances:
     name: farskapsportal-feature
