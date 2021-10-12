@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - release
-#    paths:
-#      - 'apps/asynkron/**'
+    paths:
+      - 'apps/asynkron/**'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-backend-asynkron:${{ github.sha }}
