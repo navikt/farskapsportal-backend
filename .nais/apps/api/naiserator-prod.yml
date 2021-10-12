@@ -42,7 +42,8 @@ spec:
     - configmap: loginservice-idporten
   gcp:
     sqlInstances:
-      - name: {{ gcp.sql-instances.name }}
+      - diskSize: {{ gcp.sql-instances.diskSize }}
+        name: {{ gcp.sql-instances.name }}
         tier: {{ gcp.sql-instances.tier }}
         type: {{ gcp.sql-instances.type }}
         databases:

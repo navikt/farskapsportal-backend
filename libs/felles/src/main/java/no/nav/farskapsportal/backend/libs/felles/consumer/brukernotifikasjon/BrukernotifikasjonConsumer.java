@@ -13,6 +13,10 @@ public class BrukernotifikasjonConsumer {
   private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
+<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/consumer/brukernotifikasjon/BrukernotifikasjonConsumer.java
+=======
+
+>>>>>>> main:src/main/java/no/nav/farskapsportal/consumer/brukernotifikasjon/BrukernotifikasjonConsumer.java
 
   private final URL farskapsportalUrl;
   private final Beskjedprodusent beskjedprodusent;

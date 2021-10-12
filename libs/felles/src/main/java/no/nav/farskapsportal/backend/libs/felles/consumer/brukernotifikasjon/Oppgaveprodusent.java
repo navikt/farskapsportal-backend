@@ -18,7 +18,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class Oppgaveprodusent {
 
   private URL farskapsportalUrl;
+<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/consumer/brukernotifikasjon/Oppgaveprodusent.java
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+=======
+  private FarskapsportalEgenskaper farskapsportalEgenskaper;
+>>>>>>> main:src/main/java/no/nav/farskapsportal/consumer/brukernotifikasjon/Oppgaveprodusent.java
   private KafkaTemplate kafkaTemplate;
 
   public void oppretteOppgaveForSigneringAvFarskapserklaering(String idFarskapserklaering, String foedselsnummerFar, String oppgavetekst,
@@ -44,7 +48,11 @@ public class Oppgaveprodusent {
         .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withEksternVarsling(medEksternVarsling)
         .withLink(farskapsportalUrl)
+<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/consumer/brukernotifikasjon/Oppgaveprodusent.java
         .withSikkerhetsnivaa(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave())
+=======
+        .withSikkerhetsnivaa(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave())
+>>>>>>> main:src/main/java/no/nav/farskapsportal/consumer/brukernotifikasjon/Oppgaveprodusent.java
         .withTekst(oppgavetekst).build();
   }
 }

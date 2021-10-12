@@ -36,7 +36,7 @@ farskapsportal.egenskaper:
   brukernotifikasjonerPaa: true
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21
-  maks-antall-maaneder-etter-foedsel: 3
+  maks-antall-maaneder-etter-foedsel: 6
   nav-orgnummer: 889640782
   url: ${FARSKAPSPORTAL_URL}
   kontroll-far-forsoek-fornyes-etter-antall-dager: 1
@@ -142,8 +142,13 @@ no.nav.security.jwt:
 
 ---
 spring:
+<<<<<<< HEAD:apps/api/src/main/resources/application.yml
   config.activate.on-profile: test, local, local-postgres, integration-test, remote-postgres
   main.allow-bean-definition-overriding: true
+=======
+  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test, remote-postgres
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+>>>>>>> main:src/main/resources/application.yml
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
@@ -237,9 +242,9 @@ spring:
   config.activate.on-profile: remote-postgres
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://localhost:5432/fpdb-prod
+    url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
     password: ${REMOTE_POSTGRES_PWD}
-    databaseName: fpdb-prod
+    databaseName: farskapsportaldb-feature
 
 ---
 # Integrasjonstesting mot Posten

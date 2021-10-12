@@ -78,6 +78,8 @@ public class PdfGeneratorConsumer {
         builder.useColorProfile(colorProfileBytes);
       }
 
+
+
       try (InputStream fontStream = PdfGeneratorConsumer.class.getResourceAsStream("/pdf-template/Arial.ttf")) {
         final File midlertidigFil = File.createTempFile("Arial", "ttf");
         midlertidigFil.deleteOnExit();

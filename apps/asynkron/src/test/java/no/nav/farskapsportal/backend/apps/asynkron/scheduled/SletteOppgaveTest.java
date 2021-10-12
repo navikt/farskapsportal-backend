@@ -48,6 +48,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class SletteOppgaveTest {
 
+<<<<<<< HEAD:apps/asynkron/src/test/java/no/nav/farskapsportal/backend/apps/asynkron/scheduled/SletteOppgaveTest.java
   private static final int BRUKERNOTIFIKASJON_BESKJED_MND_SYNLIG = 1;
   private static final int BRUKERNOTIFIKASJON_SIKKERHETSNIVAA_BESKJED = 3;
   private static final String BRUKERNOTIFIKASJON_TOPIC_BESKJED = "aapen-brukernotifikasjon-nyBeskjed-v1";
@@ -55,6 +56,13 @@ public class SletteOppgaveTest {
   private static final String GRUPPERINGSID_FARSKAP = "farskap";
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String URL_FARSKAPSPORTAL = "https://farskapsportal.dev.nav.no/nb/";
+=======
+  private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
+
+  private static final ForelderDto MOR = henteForelder(Forelderrolle.MOR);
+  private static final ForelderDto FAR = henteForelder(Forelderrolle.FAR);
+  private static final BarnDto BARN = henteBarnUtenFnr(5);
+>>>>>>> main:src/test/java/no/nav/farskapsportal/scheduled/SletteOppgaveTest.java
 
   @Autowired
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
@@ -91,7 +99,10 @@ public class SletteOppgaveTest {
   void skalSletteUtloeptOppgaveOgVarsleMorDersomFarIkkeSignererInnenFristen() {
 
     // given
+<<<<<<< HEAD:apps/asynkron/src/test/java/no/nav/farskapsportal/backend/apps/asynkron/scheduled/SletteOppgaveTest.java
     var tidspunktFoerTestIEpochMillis = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(5).toInstant().toEpochMilli();
+=======
+>>>>>>> main:src/test/java/no/nav/farskapsportal/scheduled/SletteOppgaveTest.java
     farskapserklaeringDao.deleteAll();
     var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
@@ -131,11 +142,19 @@ public class SletteOppgaveTest {
         () -> assertThat(ferdignokkel.getSystembruker()).isEqualTo(farskapsportalAsynkronEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(ferdig.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
         () -> assertThat(ferdig.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+<<<<<<< HEAD:apps/asynkron/src/test/java/no/nav/farskapsportal/backend/apps/asynkron/scheduled/SletteOppgaveTest.java
         () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
         () -> assertThat(beskjednoekkel.getSystembruker()).isEqualTo(farskapsportalAsynkronEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
         () -> assertThat(beskjed.getLink()).isEqualTo(URL_FARSKAPSPORTAL),
         () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(BRUKERNOTIFIKASJON_SIKKERHETSNIVAA_BESKJED),
+=======
+        () -> assertThat(ferdig.getTidspunkt()).isGreaterThan(Instant.now().minusSeconds(10).toEpochMilli()),
+        () -> assertThat(beskjednoekkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalEgenskaper.getUrl()),
+        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+>>>>>>> main:src/test/java/no/nav/farskapsportal/scheduled/SletteOppgaveTest.java
         () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
         () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
         () -> assertThat(beskjed.getEksternVarsling()).isTrue(),

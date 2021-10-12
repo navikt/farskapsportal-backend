@@ -151,8 +151,13 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(nokkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
         () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+<<<<<<< HEAD:libs/felles/src/test/java/no/nav/farskapsportal/backend/libs/felles/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+=======
+        () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+>>>>>>> main:src/test/java/no/nav/farskapsportal/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(beskjed.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
         () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
         () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
@@ -185,10 +190,15 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(noekkelTilMor.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(beskjedTilMor.getEksternVarsling()).isTrue(),
         () -> assertThat(beskjedTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+<<<<<<< HEAD:libs/felles/src/test/java/no/nav/farskapsportal/backend/libs/felles/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(beskjedTilMor.getGrupperingsId()).isEqualTo(
             farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(beskjedTilMor.getSikkerhetsnivaa()).isEqualTo(
             farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+=======
+        () -> assertThat(beskjedTilMor.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilMor.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+>>>>>>> main:src/test/java/no/nav/farskapsportal/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(beskjedTilMor.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
         () -> assertThat(beskjedTilMor.getTekst()).isEqualTo(MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING),
         () -> assertThat(beskjedTilMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
@@ -198,10 +208,15 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(noekkelTilFar.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(beskjedTilFar.getEksternVarsling()).isTrue(),
         () -> assertThat(beskjedTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+<<<<<<< HEAD:libs/felles/src/test/java/no/nav/farskapsportal/backend/libs/felles/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(beskjedTilFar.getGrupperingsId()).isEqualTo(
             farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(beskjedTilFar.getSikkerhetsnivaa()).isEqualTo(
             farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+=======
+        () -> assertThat(beskjedTilFar.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilFar.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+>>>>>>> main:src/test/java/no/nav/farskapsportal/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(beskjedTilFar.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
         () -> assertThat(beskjedTilFar.getTekst()).isEqualTo(MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING),
         () -> assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
@@ -236,8 +251,13 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(nokkel.getEventId()).isEqualTo(Integer.toString(farskapserklaering.getId())),
         () -> assertThat(oppgave.getEksternVarsling()).isTrue(),
         () -> assertThat(oppgave.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+<<<<<<< HEAD:libs/felles/src/test/java/no/nav/farskapsportal/backend/libs/felles/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(oppgave.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(oppgave.getSikkerhetsnivaa()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave()),
+=======
+        () -> assertThat(oppgave.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(oppgave.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave()),
+>>>>>>> main:src/test/java/no/nav/farskapsportal/consumer/brukernotifikasjon/BrukernotifikasjonConsumerTest.java
         () -> assertThat(oppgave.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
         () -> assertThat(oppgave.getTekst()).isEqualTo(MELDING_OM_VENTENDE_FARSKAPSERKLAERING),
         () -> assertThat(oppgave.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
