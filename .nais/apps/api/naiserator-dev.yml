@@ -53,8 +53,6 @@ spec:
         databases:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
-            users:
-            - name: fp-asynkron
   accessPolicy:
     outbound:
       external:
