@@ -44,6 +44,7 @@
     <openhtml.version>1.0.9</openhtml.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
+    <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
 
     <!-- test -->
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
@@ -141,6 +142,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
+      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
     </dependency>
 
     <dependency>

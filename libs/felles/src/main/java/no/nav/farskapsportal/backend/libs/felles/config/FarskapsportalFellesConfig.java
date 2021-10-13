@@ -54,37 +54,6 @@ public class FarskapsportalFellesConfig {
   public static String KODE_LAND_NORGE = "NOR";
 
   @Bean
-  @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
-  public KeyStoreConfig keyStoreConfig(
-      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
-      @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
-      @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
-      @Value("${virksomhetssertifikat.passord.prosjektid}") String virksomhetssertifikatPassordProsjektid,
-      @Value("${virksomhetssertifikat.passord.hemmelighetnavn}") String virksomhetssertifikatPassordHemmelighetNavn,
-      @Value("${virksomhetssertifikat.passord.hemmelighetversjon}") String virksomhetssertifikatPassordHemmelighetVersjon,
-      @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
-
-    var sertifikatpassord = accessSecretVersion
-        .accessSecretVersion(virksomhetssertifikatPassordProsjektid, virksomhetssertifikatPassordHemmelighetNavn,
-            virksomhetssertifikatPassordHemmelighetVersjon).getData().toStringUtf8();
-
-    var objectMapper = new ObjectMapper();
-    var farskapKeystoreCredentials = objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
-
-    log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
-
-    var secretPayload = accessSecretVersion
-        .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
-
-    log.info("lengde sertifikat: {}", secretPayload.getData().size());
-    var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
-
-    return KeyStoreConfig
-        .fromJavaKeyStore(inputStream, farskapKeystoreCredentials.getAlias(), farskapKeystoreCredentials.getPassword(),
-            farskapKeystoreCredentials.getPassword());
-  }
-
-  @Bean
   public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
       @Value("${url.pdl-api.base-url}") String baseUrl,
       @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,

@@ -1,7 +1,11 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
@@ -11,10 +15,11 @@ import no.digipost.signature.client.ServiceUri;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.ExitUrls;
+import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
-import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
-import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
+import no.nav.farskapsportal.backend.libs.felles.gcp.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.backend.libs.felles.gcp.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,17 +46,46 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
+  @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
+  public KeyStoreConfig keyStoreConfig(
+      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
+      @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
+      @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
+      @Value("${virksomhetssertifikat.passord.prosjektid}") String virksomhetssertifikatPassordProsjektid,
+      @Value("${virksomhetssertifikat.passord.hemmelighetnavn}") String virksomhetssertifikatPassordHemmelighetNavn,
+      @Value("${virksomhetssertifikat.passord.hemmelighetversjon}") String virksomhetssertifikatPassordHemmelighetVersjon,
+      @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
+
+    var sertifikatpassord = accessSecretVersion
+        .accessSecretVersion(virksomhetssertifikatPassordProsjektid, virksomhetssertifikatPassordHemmelighetNavn,
+            virksomhetssertifikatPassordHemmelighetVersjon).getData().toStringUtf8();
+
+    var objectMapper = new ObjectMapper();
+    var farskapKeystoreCredentials = objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
+
+    log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
+
+    var secretPayload = accessSecretVersion
+        .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
+
+    log.info("lengde sertifikat: {}", secretPayload.getData().size());
+    var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
+
+    return KeyStoreConfig
+        .fromJavaKeyStore(inputStream, farskapKeystoreCredentials.getAlias(), farskapKeystoreCredentials.getPassword(),
+            farskapKeystoreCredentials.getPassword());
+  }
+
+  @Bean
   @Profile(PROFILE_LIVE)
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
-
-    var digdirKeyStoreConfig = mapper.modelMapper(keyStoreConfig, no.digipost.signature.client.security.KeyStoreConfig.class);
 
     var certificates = miljoe.equals(NavClusterName.TEST.toString()) ? Certificates.TEST : Certificates.PRODUCTION;
     var serviceUrl = miljoe.equals(NavClusterName.TEST.toString()) ? ServiceUri.DIFI_TEST : ServiceUri.PRODUCTION;
 
     log.info("Kobler opp mot Postens {}-milljø for esignering med service-uri {}.", miljoe.toLowerCase(Locale.ROOT), serviceUrl);
 
-    return ClientConfiguration.builder(digdirKeyStoreConfig).trustStore(certificates).serviceUri(serviceUrl)
+    return ClientConfiguration.builder(keyStoreConfig).trustStore(certificates).serviceUri(serviceUrl)
         .globalSender(new Sender(farskapsportalApiEgenskaper.getNavOrgnummer())).build();
   }
 
