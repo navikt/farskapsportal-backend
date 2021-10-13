@@ -5,6 +5,7 @@ LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
 ARG JAR_PATH
+ENV JAVA_OPTS=$JAVA_OPTS
 COPY $JAR_PATH /app/app.jar
 EXPOSE 8080
 

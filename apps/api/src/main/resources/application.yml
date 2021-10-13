@@ -142,7 +142,7 @@ spring:
 ---
 ### MOCK AZURE ###
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test
 
 no.nav.security.jwt:
   issuer.selvbetjening:
@@ -274,7 +274,7 @@ wiremock.server:
 
 ---
 
-spring.config.activate.on-profile: integration-test
+spring.config.activate.on-profile: integration-test2
 
 no.nav:
   security.jwt.issuer.selvbetjening:
