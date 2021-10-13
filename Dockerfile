@@ -5,6 +5,7 @@ LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
 ARG JAR_PATH
+RUN echo "JAR_PATH: "$JAR_PATH
 COPY $JAR_PATH /app/app.jar
 EXPOSE 8080
 
