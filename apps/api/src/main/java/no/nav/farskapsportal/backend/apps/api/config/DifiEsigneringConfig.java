@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Profile;
 
 @Slf4j
 @Configuration
-@ComponentScan(basePackageClasses = FarskapsportalFellesConfig.class)
+@ComponentScan("no.nav.farskapsportal.backend.libs.felles")
 public class DifiEsigneringConfig {
 
   private final FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
