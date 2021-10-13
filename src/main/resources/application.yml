@@ -151,6 +151,7 @@ spring:
   jpa:
     hibernate:
       connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 ---
 ### MOCK AZURE ###
 spring:
@@ -164,7 +165,7 @@ no.nav.security.jwt:
 
 ---
 spring:
-  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, integration-test, remote-postgres
+  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, remote-postgres
   jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
