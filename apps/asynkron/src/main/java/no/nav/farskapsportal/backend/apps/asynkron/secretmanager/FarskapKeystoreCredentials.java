@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.gcp.secretmanager;
+package no.nav.farskapsportal.backend.apps.asynkron.secretmanager;
 
 import lombok.Value;
 

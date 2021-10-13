@@ -38,7 +38,6 @@
     <asm.version>9.1</asm.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google.api.gax.version>2.5.0</google.api.gax.version>
-    <google-cloud-storage.version>2.1.7</google-cloud-storage.version>
     <jackson-core.version>2.12.5</jackson-core.version>
     <jsoup.version>1.14.2</jsoup.version>
     <openhtml.version>1.0.9</openhtml.version>
@@ -148,12 +147,6 @@
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
       <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-storage</artifactId>
-      <version>${google-cloud-storage.version}</version>
     </dependency>
 
     <!-- navikt -->

@@ -26,6 +26,7 @@
     <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
+    <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
   </properties>
 
   <dependencyManagement>
@@ -106,6 +107,13 @@
       <groupId>no.nav.farskapsportal.backend.libs</groupId>
       <artifactId>dtos</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <!-- other -->
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
+      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
     </dependency>
 
     <!-- test -->

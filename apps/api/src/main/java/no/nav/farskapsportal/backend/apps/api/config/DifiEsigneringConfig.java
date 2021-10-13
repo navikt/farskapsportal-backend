@@ -18,8 +18,8 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
-import no.nav.farskapsportal.backend.libs.felles.gcp.secretmanager.AccessSecretVersion;
-import no.nav.farskapsportal.backend.libs.felles.gcp.secretmanager.FarskapKeystoreCredentials;
+import no.nav.farskapsportal.backend.apps.api.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.backend.apps.api.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +36,11 @@ public class DifiEsigneringConfig {
 
   private final FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   private final String miljoe;
-  private final Mapper mapper;
 
   public DifiEsigneringConfig(@Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper,
-      @Value("${NAIS_CLUSTER_NAME}") String navClusterName, @Autowired Mapper mapper) {
+      @Value("${NAIS_CLUSTER_NAME}") String navClusterName) {
     this.farskapsportalApiEgenskaper = farskapsportalApiEgenskaper;
     this.miljoe = navClusterName.equals(NavClusterName.PROD.getClusterName()) ? NavClusterName.PROD.toString() : NavClusterName.TEST.toString();
-    this.mapper = mapper;
   }
 
   @Bean
