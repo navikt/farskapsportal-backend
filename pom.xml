@@ -90,9 +90,8 @@
   <!-- build -->
   <build>
     <plugins>
-      <!-- Nice to have, fails the build if multiple versions of same framework is found
+      <!-- Nice to have, fails the build if multiple versions of same framework is found-->
       <plugin>
-
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
@@ -107,7 +106,6 @@
           </execution>
         </executions>
       </plugin>
-      -->
     </plugins>
   </build>
 
