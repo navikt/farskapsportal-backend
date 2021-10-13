@@ -11,10 +11,10 @@ import no.digipost.signature.client.ServiceUri;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.ExitUrls;
-import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
+import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class DifiEsigneringConfig {
   @Profile(PROFILE_LIVE)
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
 
-    var digdirKeyStoreConfig = mapper.modelMapper(keyStoreConfig, KeyStoreConfig.class);
+    var digdirKeyStoreConfig = mapper.modelMapper(keyStoreConfig, no.digipost.signature.client.security.KeyStoreConfig.class);
 
     var certificates = miljoe.equals(NavClusterName.TEST.toString()) ? Certificates.TEST : Certificates.PRODUCTION;
     var serviceUrl = miljoe.equals(NavClusterName.TEST.toString()) ? ServiceUri.DIFI_TEST : ServiceUri.PRODUCTION;
