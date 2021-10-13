@@ -38,12 +38,12 @@
     <asm.version>9.1</asm.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google.api.gax.version>2.5.0</google.api.gax.version>
+    <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
     <jackson-core.version>2.12.5</jackson-core.version>
     <jsoup.version>1.14.2</jsoup.version>
     <openhtml.version>1.0.9</openhtml.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
-    <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
 
     <!-- test -->
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
@@ -78,6 +78,16 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+          <nonFilteredFileExtensions>
+            <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+            <nonFilteredFileExtension>ICC</nonFilteredFileExtension>
+          </nonFilteredFileExtensions>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.flywaydb</groupId>
@@ -136,6 +146,13 @@
         <version>${google.errorprone.annotations.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>libraries-bom</artifactId>
+        <version>${google-cloud-libraries-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>com.google.api</groupId>
         <artifactId>gax</artifactId>
         <version>${google.api.gax.version}</version>
@@ -177,7 +194,6 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
-      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
     </dependency>
 
     <!-- navikt -->
