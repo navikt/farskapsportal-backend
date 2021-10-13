@@ -16,6 +16,7 @@ import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAp
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,22 +31,27 @@ public class DifiEsigneringConfig {
 
   private final FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   private final String miljoe;
+  private final Mapper mapper;
 
-  public DifiEsigneringConfig(@Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper, @Value("${NAIS_CLUSTER_NAME}") String navClusterName) {
+  public DifiEsigneringConfig(@Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper,
+      @Value("${NAIS_CLUSTER_NAME}") String navClusterName, @Autowired Mapper mapper) {
     this.farskapsportalApiEgenskaper = farskapsportalApiEgenskaper;
     this.miljoe = navClusterName.equals(NavClusterName.PROD.getClusterName()) ? NavClusterName.PROD.toString() : NavClusterName.TEST.toString();
+    this.mapper = mapper;
   }
 
   @Bean
   @Profile(PROFILE_LIVE)
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
 
+    var digdirKeyStoreConfig = mapper.modelMapper(keyStoreConfig, KeyStoreConfig.class);
+
     var certificates = miljoe.equals(NavClusterName.TEST.toString()) ? Certificates.TEST : Certificates.PRODUCTION;
     var serviceUrl = miljoe.equals(NavClusterName.TEST.toString()) ? ServiceUri.DIFI_TEST : ServiceUri.PRODUCTION;
 
     log.info("Kobler opp mot Postens {}-milljø for esignering med service-uri {}.", miljoe.toLowerCase(Locale.ROOT), serviceUrl);
 
-    return ClientConfiguration.builder(keyStoreConfig).trustStore(certificates).serviceUri(serviceUrl)
+    return ClientConfiguration.builder(digdirKeyStoreConfig).trustStore(certificates).serviceUri(serviceUrl)
         .globalSender(new Sender(farskapsportalApiEgenskaper.getNavOrgnummer())).build();
   }
 
