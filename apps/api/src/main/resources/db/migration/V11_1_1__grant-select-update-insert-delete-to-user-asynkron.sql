@@ -3,7 +3,7 @@
 /*
 REVOKE SELECT, INSERT, UPDATE, DELETE
     ON ALL TABLES IN SCHEMA public
-    FROM ${user.asynkron};
+    FROM ${user_asynkron};
  */
 
 GRANT SELECT, INSERT, UPDATE, DELETE
