@@ -26,7 +26,7 @@ env:
   - name: AUD_FP
     value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
   - name: FLYWAY_PLACEHOLDERS_USER_ASYNKRON
-    value: asynkron-feature
+    value: asynkron_feature
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN

@@ -8,4 +8,4 @@ REVOKE SELECT, INSERT, UPDATE, DELETE
 
 GRANT SELECT, INSERT, UPDATE, DELETE
     ON ALL TABLES IN SCHEMA public
-    TO ${user.asynkron};
+    TO ${user_asynkron};
