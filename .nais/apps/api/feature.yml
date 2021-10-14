@@ -8,6 +8,9 @@ gcp:
     databases:
       name: farskapsportaldb-feature
       env-var-prefix: DB
+      users:
+        asynkron:
+          name: asynkron_feature
 kafka:
   brokers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
   schema-registry:

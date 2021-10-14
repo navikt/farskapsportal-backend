@@ -10,6 +10,9 @@ gcp:
     databases:
       name: fpdb-main
       env-var-prefix: DB
+      users:
+        asynkron:
+          name: asynkron_main
 kafka:
   brokers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
   schema-registry:
