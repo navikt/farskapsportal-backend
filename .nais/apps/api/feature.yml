@@ -25,7 +25,7 @@ env:
     value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
   - name: AUD_FP
     value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
-  - name: FLYWAY_PLACEHOLDERS_USER_ASYNKRON
+  - name: FLYWAY_PLACEHOLDERS_USER
     value: asynkron_feature
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
