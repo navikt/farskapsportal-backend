@@ -203,7 +203,13 @@ public class FarskapsportalService {
   public void kontrollereFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
     validereAtMorOgFarIkkeDelerFoedselsnummer(fnrMor, request.getFoedselsnummer());
     antallsbegrensetKontrollAvNavnOgNummerPaaFar(fnrMor, request);
-    validereFar(request.getFoedselsnummer());
+    try {
+      validereFar(request.getFoedselsnummer());
+    } catch (ValideringException valideringException) {
+      log.warn("Kontroll av far feilet med kode {}", valideringException.getFeilkode());
+      // Maskerer feil i respons
+      throw new ValideringException(Feilkode.UGYLDIG_FAR);
+    }
   }
 
   public void validereMor(String fnrMor) {

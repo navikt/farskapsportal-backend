@@ -15,6 +15,7 @@ import static no.nav.farskapsportal.api.Feilkode.IKKE_MYNDIG;
 import static no.nav.farskapsportal.api.Feilkode.MOR_IKKE_NORSK_BOSTEDSADRESSE;
 import static no.nav.farskapsportal.api.Feilkode.MOR_OG_FAR_SAMME_PERSON;
 import static no.nav.farskapsportal.api.Feilkode.PERSON_ER_DOED;
+import static no.nav.farskapsportal.api.Feilkode.UGYLDIG_FAR;
 import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.service.FarskapsportalService.KODE_LAND_NORGE;
@@ -1696,7 +1697,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(FEIL_ROLLE_FAR);
+      assertThat(valideringException.getFeilkode()).isEqualTo(UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1723,7 +1724,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(IKKE_MYNDIG);
+      assertThat(valideringException.getFeilkode()).isEqualTo(UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1750,7 +1751,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(FORELDER_HAR_VERGE);
+      assertThat(valideringException.getFeilkode()).isEqualTo(UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1780,7 +1781,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FAR_HAR_IKKE_FNUMMER);
+      assertThat(valideringException.getFeilkode()).isEqualTo(UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1957,7 +1958,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(PERSON_ER_DOED);
+      assertThat(valideringException.getFeilkode()).isEqualTo(UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
