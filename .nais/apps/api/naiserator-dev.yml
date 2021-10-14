@@ -54,7 +54,7 @@ spec:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
             users:
-              - name: asynkron-feature
+              - name: {{ gcp.sql-instances.databases.users.asynkron.name }}
   accessPolicy:
     outbound:
       external:
