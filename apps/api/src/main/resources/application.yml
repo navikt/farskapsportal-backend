@@ -15,6 +15,10 @@ spring:
         truststore:
           location: ${NAV_TRUSTSTORE_PATH}
           password: ${NAV_TRUSTSTORE_PASSWORD}
+  flyway:
+    placeholders:
+      user:
+        asynkron: ${FLYWAY_PLACEHOLDERS_USER_ASYNKRON}
 
 springdoc:
   packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }

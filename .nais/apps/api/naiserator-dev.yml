@@ -45,7 +45,7 @@ spec:
       - resource:
           apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta
           kind: Project
-          role: roles/cloudsql.client
+        role: roles/cloudsql.client
     sqlInstances:
       - name: {{ gcp.sql-instances.name }}
         tier: {{ gcp.sql-instances.tier }}
@@ -53,6 +53,8 @@ spec:
         databases:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
+            users:
+              - name: {{ gcp.sql-instances.databases.users.asynkron.name }}
   accessPolicy:
     outbound:
       external:

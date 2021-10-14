@@ -24,6 +24,8 @@ env:
     value: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
   - name: AUD_FP
     value: f45035f2-9a27-46f7-917c-0569a03285cd
+  - name: FLYWAY_PLACEHOLDERS_USER_ASYNKRON
+    value: asynkron-prod
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "642182003125"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN

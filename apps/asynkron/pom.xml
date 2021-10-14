@@ -27,6 +27,7 @@
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
+    <postgres-socket-factory.version>1.3.4</postgres-socket-factory.version>
   </properties>
 
   <dependencyManagement>
@@ -90,6 +91,12 @@
         <artifactId>javax.servlet-api</artifactId>
         <version>${javax.servlet-api.version}</version>
         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.cloud.sql</groupId>
+        <artifactId>postgres-socket-factory</artifactId>
+        <version>${postgres-socket-factory.version}</version>
       </dependency>
 
     </dependencies>
