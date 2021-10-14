@@ -1,4 +1,4 @@
--- Lese og skrivetilgang til alle tabeller i public-skjema for ${user.asynkron}
+-- Lese og skrivetilgang til alle tabeller i public-skjema for user_asynkron
 
 /*
 REVOKE SELECT, INSERT, UPDATE, DELETE
