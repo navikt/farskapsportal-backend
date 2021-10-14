@@ -17,7 +17,7 @@ spring:
           password: ${NAV_TRUSTSTORE_PASSWORD}
   flyway:
     placeholders:
-      user: ${FLYWAY_PLACEHOLDERS_USER_ASYNKRON}
+      user: ${DB_USER_ASYNKRON}
 
 springdoc:
   packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }

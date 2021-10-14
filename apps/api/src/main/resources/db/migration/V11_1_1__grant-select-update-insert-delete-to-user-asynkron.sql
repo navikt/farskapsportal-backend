@@ -1,11 +1,11 @@
--- Lese og skrivetilgang til alle tabeller i public-skjema for user
+-- Lese og skrivetilgang til alle tabeller i public-skjema for user_asynkron
 
 /*
 REVOKE SELECT, INSERT, UPDATE, DELETE
     ON ALL TABLES IN SCHEMA public
-    FROM user
+    FROM user_asynkron
  */
 
 GRANT SELECT, INSERT, UPDATE, DELETE
     ON ALL TABLES IN SCHEMA public
-    TO ${FLYWAY_PLACEHOLDERS_USER};
+    TO ${user_asynkron};
