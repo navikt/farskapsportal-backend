@@ -41,9 +41,9 @@ spec:
     - secret: farskapsportal-api-secret
     - configmap: loginservice-idporten
   gcp:
-    permission:
+    permissions:
       - resource:
-          apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta
+          apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
           kind: Project
         role: roles/cloudsql.client
     sqlInstances:
