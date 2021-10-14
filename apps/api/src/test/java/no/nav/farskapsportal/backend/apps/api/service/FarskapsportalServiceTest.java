@@ -1726,7 +1726,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FEIL_ROLLE_FAR);
+      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1753,7 +1753,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.IKKE_MYNDIG);
+      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1780,7 +1780,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FORELDER_HAR_VERGE);
+      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1810,7 +1810,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FAR_HAR_IKKE_FNUMMER);
+      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
@@ -1995,7 +1995,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.PERSON_ER_DOED);
+      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.UGYLDIG_FAR);
 
       // rydde testdata
       statusKontrollereFarDao.deleteAll();
