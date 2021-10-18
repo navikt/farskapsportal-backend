@@ -6,12 +6,12 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.5.5</version>
-    <relativePath/>
+    <relativePath />
   </parent>
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.165-SNAPSHOT</version>
+  <version>0.0.166-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
