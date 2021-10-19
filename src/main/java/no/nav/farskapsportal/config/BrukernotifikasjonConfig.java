@@ -14,8 +14,8 @@ import no.nav.farskapsportal.consumer.brukernotifikasjon.Beskjedprodusent;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.Ferdigprodusent;
 import no.nav.farskapsportal.consumer.brukernotifikasjon.Oppgaveprodusent;
+import no.nav.farskapsportal.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.service.PersistenceService;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -109,7 +109,8 @@ public class BrukernotifikasjonConfig {
   }
 
   @Bean
-  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<Nokkel, Done> kafkaTemplate, PersistenceService persistenceService) {
-    return new Ferdigprodusent(farskapsportalEgenskaper, kafkaTemplate, persistenceService);
+  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<Nokkel, Done> kafkaTemplate, PersistenceService persistenceService,
+      OppgavebestillingDao oppgavebestillingDao) {
+    return new Ferdigprodusent(farskapsportalEgenskaper, kafkaTemplate, persistenceService, oppgavebestillingDao);
   }
 }

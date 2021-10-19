@@ -386,7 +386,7 @@ public class FarskapsportalService {
         var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(aktuellFarskapserklaering.getId(),
             aktuellFarskapserklaering.getFar());
         for (Oppgavebestilling oppgave : aktiveOppgaver) {
-          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), aktuellFarskapserklaering.getFar().getFoedselsnummer());
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), aktuellFarskapserklaering.getFar());
         }
         // Informere foreldrene om gjennomført signering og tilgjengelig farskapserklæring
         brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getMor(),
@@ -455,7 +455,7 @@ public class FarskapsportalService {
           log.info("Fant {} aktiv signeringsoppgave til knyttet til far med id {}", farsAktiveSigneringsoppgaver.size(),
               farskapserklaering.getFar().getId());
           for (Oppgavebestilling oppgave : farsAktiveSigneringsoppgaver) {
-            brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.getFar().getFoedselsnummer());
+            brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.getFar());
           }
         }
       }

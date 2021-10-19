@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -39,6 +41,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -1124,7 +1127,6 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
@@ -1147,9 +1149,10 @@ public class FarskapsportalServiceTest {
       // when
       farskapsportalService.oppdatereStatusSigneringsjobb(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken");
 
+      // then
+      verify(brukernotifikasjonConsumer, times(1)).oppretteOppgaveTilFarOmSignering(anyInt(), any(Forelder.class));
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
-      // then
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
@@ -1188,7 +1191,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, mapper.toEntity(FAR));
       doNothing().when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
@@ -1256,7 +1259,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, mapper.toEntity(FAR));
       doNothing().when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
@@ -1323,7 +1326,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
       doNothing().when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
@@ -1349,7 +1352,7 @@ public class FarskapsportalServiceTest {
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
       // then
-      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
+      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
 
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
@@ -1380,8 +1383,9 @@ public class FarskapsportalServiceTest {
       lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
-      var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder().eventId(UUID.randomUUID().toString()).forelder(lagretFarskapserklaering.getFar())
-          .farskapserklaering(lagretFarskapserklaering).opprettet(LocalDateTime.now()).build());
+      var lagretOppgavebestilling = oppgavebestillingDao.save(
+          Oppgavebestilling.builder().eventId(UUID.randomUUID().toString()).forelder(lagretFarskapserklaering.getFar())
+              .farskapserklaering(lagretFarskapserklaering).opprettet(LocalDateTime.now()).build());
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
@@ -1418,7 +1422,73 @@ public class FarskapsportalServiceTest {
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
       // then
-      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
+      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
+
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getStatusSignering()).isEqualTo("FEILET"),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDeaktivert()).isNotNull(),
+          () -> assertThat(esigneringStatusFeiletException.getFeilkode()).isEqualTo(Feilkode.ESIGNERING_STATUS_FEILET)
+      );
+    }
+
+    @Test
+    void skalIkkeBestilleFerdigstillingAvOppgaveDersomFarIkkeHarAktiveOppgaver() {
+
+      // given
+      oppgavebestillingDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+
+      var statuslenke = lageUrl("/status");
+      var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
+      var padesFar = lageUrl("/padesFar");
+      farskapserklaering.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(3));
+      var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+      var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+
+      assertNull(farskapserklaering.getDokument().getSignertAvFar());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+      when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.MANN).build());
+
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(MOR.getNavn());
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+
+      doNothing().when(brukernotifikasjonConsumer)
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
+
+      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUrl("/confirmation"))
+              .statuslenke(statuslenke)
+              .statusSignering(StatusSignering.FEILET)
+              .padeslenke(padesFar).signaturer(List.of(
+                  SignaturDto.builder()
+                      .signatureier(FAR.getFoedselsnummer())
+                      .harSignert(false)
+                      .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
+                      .xadeslenke(null)
+                      .build())).build());
+
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+
+      // when
+      var esigneringStatusFeiletException = assertThrows(EsigneringStatusFeiletException.class,
+          () -> farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
+
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      // then
+      verify(brukernotifikasjonConsumer, times(0)).sletteFarsSigneringsoppgave(anyString(), any(Forelder.class));
 
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),

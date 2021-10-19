@@ -7,6 +7,8 @@ import static no.nav.farskapsportal.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,7 +23,9 @@ import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.OppgavebestillingDao;
+import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.Mapper;
@@ -50,12 +54,17 @@ public class FerdigprodusentTest {
   @Autowired
   private PersistenceService persistenceService;
   @Autowired
+  private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired
   private OppgavebestillingDao oppgavebestillingDao;
 
   @Test
   void skalFerdigstilleFarsSigneringsoppgave() {
 
     // given
+    oppgavebestillingDao.deleteAll();
+    farskapserklaeringDao.deleteAll();
+
     var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
     var ferdigfanger = ArgumentCaptor.forClass(Done.class);
 
@@ -69,7 +78,7 @@ public class FerdigprodusentTest {
         .opprettet(LocalDateTime.now()).eventId(UUID.randomUUID().toString()).forelder(farskapserklaering.getFar()).build());
 
     // when
-    ferdigprodusent.ferdigstilleFarsSigneringsoppgave(fnrFar,
+    ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
         new NokkelBuilder().withSystembruker("srvfarskapsportal").withEventId(oppgavebestilling.getEventId()).build());
 
     //then
@@ -95,8 +104,28 @@ public class FerdigprodusentTest {
     );
   }
 
-  private Nokkel oppretteNokkel() {
-    var unikEventid = UUID.randomUUID().toString();
-    return new NokkelBuilder().withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).withEventId(unikEventid).build();
+  @Test
+  void skalIkkeFerdigstilleOppgaveSomIkkeErAktiv() {
+
+    // given
+    oppgavebestillingDao.deleteAll();
+    farskapserklaeringDao.deleteAll();
+
+    var fnrFar = "11111122222";
+
+    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, henteBarnUtenFnr(6));
+    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now().minusMinutes(3));
+    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaeringSomVenterPaaFarsSignatur));
+
+    var oppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
+        .opprettet(LocalDateTime.now()).eventId(UUID.randomUUID().toString()).forelder(farskapserklaering.getFar()).ferdigstilt(LocalDateTime.now())
+        .build());
+
+    // when
+    ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
+        new NokkelBuilder().withSystembruker("srvfarskapsportal").withEventId(oppgavebestilling.getEventId()).build());
+
+    //then
+    verify(ferdigkoe, times(0)).send(anyString(), any(Nokkel.class), any(Done.class));
   }
 }

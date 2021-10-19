@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.brukernotifikasjon.schemas.Nokkel;
 import no.nav.brukernotifikasjon.schemas.Oppgave;
 import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
 import no.nav.brukernotifikasjon.schemas.builders.OppgaveBuilder;
@@ -31,16 +32,23 @@ public class Oppgaveprodusent {
         .build();
     var melding = oppretteOppgave(far.getFoedselsnummer(), oppgavetekst, medEksternVarsling, farskapsportalUrl);
 
+    var farsAktiveSigneringsoppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(idFarskapserklaering, far);
+
+    if (farsAktiveSigneringsoppgaver.isEmpty()) {
+      log.info("Oppretter oppgave om signering til far i farskapserklæring med id {}", idFarskapserklaering);
+      oppretteOppgave(nokkel, melding);
+      log.info("Signeringsppgave opprettet for far med id {}.", far.getId());
+      persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, nokkel.getEventId());
+    }
+  }
+
+  private void oppretteOppgave(Nokkel nokkel, Oppgave melding) {
     try {
       kafkaTemplate.send(farskapsportalEgenskaper.getBrukernotifikasjon().getTopicOppgave(), nokkel, melding);
     } catch (Exception e) {
-      log.error("Opprettelse av oppgave feilet!");
       e.printStackTrace();
       throw new InternFeilException(Feilkode.BRUKERNOTIFIKASJON_OPPRETTE_OPPGAVE, e);
     }
-
-    log.info("Signeringsppgave opprettet for far med id {}.", far.getId());
-    persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, nokkel.getEventId());
   }
 
   private Oppgave oppretteOppgave(String foedselsnummer, String oppgavetekst, boolean medEksternVarsling, URL farskapsportalUrl) {

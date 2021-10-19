@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -228,12 +227,12 @@ public class PersistenceService {
   }
 
   public Set<Oppgavebestilling> henteAktiveOppgaverTilForelderIFarskapserklaering(int idFarskapserklaering, Forelder forelder) {
-    return oppgavebestillingDao.henteAktiveOppgaverIFarskapserklaering(idFarskapserklaering, forelder.getFoedselsnummer());
+    return oppgavebestillingDao.henteAktiveOppgaver(idFarskapserklaering, forelder.getFoedselsnummer());
   }
 
   @Transactional
   public void setteOppgaveTilFerdigstilt(String eventId) {
-    var aktiveOppgaver = oppgavebestillingDao.henteOppgave(eventId);
+    var aktiveOppgaver = oppgavebestillingDao.henteOppgavebestilling(eventId);
 
     if (aktiveOppgaver.isPresent()) {
       aktiveOppgaver.get().setFerdigstilt(LocalDateTime.now());

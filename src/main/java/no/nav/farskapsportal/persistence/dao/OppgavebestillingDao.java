@@ -11,9 +11,9 @@ import org.springframework.stereotype.Repository;
 public interface OppgavebestillingDao extends CrudRepository<Oppgavebestilling, Integer> {
 
   @Query("select o from Oppgavebestilling o where o.farskapserklaering.id = :idFarskapserklaering and o.forelder.foedselsnummer = :fnr and o.eventId is not null and o.ferdigstilt is null")
-  Set<Oppgavebestilling> henteAktiveOppgaverIFarskapserklaering(int idFarskapserklaering, String fnr);
+  Set<Oppgavebestilling> henteAktiveOppgaver(int idFarskapserklaering, String fnr);
 
   @Query("select o from Oppgavebestilling o where o.eventId = :eventId")
-  Optional<Oppgavebestilling> henteOppgave(String eventId);
+  Optional<Oppgavebestilling> henteOppgavebestilling(String eventId);
 
 }

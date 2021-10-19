@@ -53,7 +53,6 @@ public class BrukernotifikasjonConsumer {
   }
 
   public void oppretteOppgaveTilFarOmSignering(int idFarskapserklaering, Forelder far) {
-    log.info("Oppretter oppgave om signering til far i farskapserklæring med id {}", idFarskapserklaering);
     try {
       oppgaveprodusent
           .oppretteOppgaveForSigneringAvFarskapserklaering(idFarskapserklaering, far,
@@ -63,10 +62,10 @@ public class BrukernotifikasjonConsumer {
     }
   }
 
-  public void sletteFarsSigneringsoppgave(String eventId, String foedselsnummerFar) {
+  public void sletteFarsSigneringsoppgave(String eventId, Forelder far) {
     log.info("Sletter signeringsoppgave med eventId {}", eventId);
     try {
-      ferdigprodusent.ferdigstilleFarsSigneringsoppgave(foedselsnummerFar, oppretteNokkel(eventId));
+      ferdigprodusent.ferdigstilleFarsSigneringsoppgave(far, oppretteNokkel(eventId));
     } catch (InternFeilException internFeilException) {
       log.error("En feil oppstod ved sending av ferdigmelding for oppgave med eventId {}.");
     }

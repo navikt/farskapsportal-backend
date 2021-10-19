@@ -1442,7 +1442,7 @@ public class FarskapsportalControllerTest {
       var registrertNavnFar = FAR.getNavn();
       var registrertNavnMor = MOR.getNavn();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
       doNothing().when(brukernotifikasjonConsumer).informereForeldreOmTilgjengeligFarskapserklaering(mapper.toEntity(FAR), mapper.toEntity(MOR));
       stsStub.runSecurityTokenServiceStub("jalla");
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
@@ -1683,7 +1683,7 @@ public class FarskapsportalControllerTest {
       var registrertNavnFar = FAR.getNavn();
       var registrertNavnMor = MOR.getNavn();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
       doNothing().when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(mapper.toEntity(FAR), mapper.toEntity(MOR));
       stsStub.runSecurityTokenServiceStub("jalla");
