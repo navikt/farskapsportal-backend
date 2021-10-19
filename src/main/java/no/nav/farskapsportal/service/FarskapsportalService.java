@@ -48,6 +48,7 @@ import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
 import no.nav.farskapsportal.util.Mapper;
 import org.apache.commons.lang3.Validate;
 import org.springframework.lang.Nullable;
@@ -382,11 +383,14 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
       if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
         // Slette fars oppgave for signering på DittNav
-        brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(aktuellFarskapserklaering.getId(),
-            aktuellFarskapserklaering.getFar().getFoedselsnummer());
+        var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(aktuellFarskapserklaering.getId(),
+            aktuellFarskapserklaering.getFar());
+        for (Oppgavebestilling oppgave : aktiveOppgaver) {
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), aktuellFarskapserklaering.getFar().getFoedselsnummer());
+        }
         // Informere foreldrene om gjennomført signering og tilgjengelig farskapserklæring
-        brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getFar().getFoedselsnummer(),
-            aktuellFarskapserklaering.getMor().getFoedselsnummer());
+        brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getMor(),
+            aktuellFarskapserklaering.getFar());
       }
     }
     return null;
@@ -416,7 +420,7 @@ public class FarskapsportalService {
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xadesXml);
       if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
         brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(aktuellFarskapserklaering.getId(),
-            aktuellFarskapserklaering.getFar().getFoedselsnummer());
+            aktuellFarskapserklaering.getFar());
       }
     }
     return null;
@@ -445,9 +449,14 @@ public class FarskapsportalService {
       if (rolle.equals(FAR)) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
         if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
-          brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer(),
-              farskapserklaering.getFar().getFoedselsnummer());
-          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
+          brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor(), farskapserklaering.getFar());
+          var farsAktiveSigneringsoppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaering.getId(),
+              farskapserklaering.getFar());
+          log.info("Fant {} aktiv signeringsoppgave til knyttet til far med id {}", farsAktiveSigneringsoppgaver.size(),
+              farskapserklaering.getFar().getId());
+          for (Oppgavebestilling oppgave : farsAktiveSigneringsoppgaver) {
+            brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.getFar().getFoedselsnummer());
+          }
         }
       }
 

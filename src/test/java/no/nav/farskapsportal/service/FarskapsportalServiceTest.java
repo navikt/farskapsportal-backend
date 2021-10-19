@@ -9,12 +9,9 @@ import static no.nav.farskapsportal.TestUtils.henteFarskapserklaeringDto;
 import static no.nav.farskapsportal.TestUtils.henteForelder;
 import static no.nav.farskapsportal.TestUtils.henteNyligFoedtBarn;
 import static no.nav.farskapsportal.TestUtils.lageUrl;
-import static no.nav.farskapsportal.api.Feilkode.FEIL_ROLLE_FAR;
-import static no.nav.farskapsportal.api.Feilkode.FORELDER_HAR_VERGE;
 import static no.nav.farskapsportal.api.Feilkode.IKKE_MYNDIG;
 import static no.nav.farskapsportal.api.Feilkode.MOR_IKKE_NORSK_BOSTEDSADRESSE;
 import static no.nav.farskapsportal.api.Feilkode.MOR_OG_FAR_SAMME_PERSON;
-import static no.nav.farskapsportal.api.Feilkode.PERSON_ER_DOED;
 import static no.nav.farskapsportal.api.Feilkode.UGYLDIG_FAR;
 import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
@@ -28,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -44,6 +40,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
@@ -75,9 +72,12 @@ import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.exception.ValideringException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
+import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
@@ -112,6 +112,8 @@ public class FarskapsportalServiceTest {
   @Autowired
   private PersistenceService persistenceService;
   @Autowired
+  private OppgavebestillingDao oppgavebestillingDao;
+  @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
   @Autowired
   private ForelderDao forelderDao;
@@ -133,6 +135,7 @@ public class FarskapsportalServiceTest {
     void morSkalSeSinePaabegynteOgFarsVentedeFarskapserklaeringerOgListeOverNyfoedteUtenFar() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var foedselsdatoSpedbarn = LocalDate.now().minusMonths(2).minusDays(21);
@@ -179,6 +182,7 @@ public class FarskapsportalServiceTest {
     void morSkalSeSinePaabegynteFarskapserklaeringer() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var farskapserklaeringSomManglerMorsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
@@ -219,6 +223,7 @@ public class FarskapsportalServiceTest {
     void morSkalSeFarskapserklaeringerSomVenterPaaFar() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
       farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now());
@@ -257,6 +262,7 @@ public class FarskapsportalServiceTest {
     void skalIkkeKasteValideringExceptionDersomMorErSeparert() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
@@ -292,6 +298,7 @@ public class FarskapsportalServiceTest {
     void skalKasteValideringExceptionDersomMorErGift() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
@@ -322,6 +329,7 @@ public class FarskapsportalServiceTest {
     void skalKasteValideringExceptionDersomMorHarUkjentSivilstand() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
@@ -355,6 +363,7 @@ public class FarskapsportalServiceTest {
     void skalKasteValideringExceptiondersomMorErRegistrertPartner() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
@@ -409,6 +418,7 @@ public class FarskapsportalServiceTest {
     void farSkalSeSineVentendeFarskapserklaeringer() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
       farskapserklaeringSomVenterPaaFarsSignatur.getDokument().setSignertAvMor(LocalDateTime.now());
@@ -446,6 +456,7 @@ public class FarskapsportalServiceTest {
     void farSkalIkkeSeFarskapserklaeringerSomMorIkkeHarSignert() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaeringDto(MOR, FAR, BARN);
 
@@ -481,6 +492,7 @@ public class FarskapsportalServiceTest {
     void skalOppretteFarskapserklaeringForBarnMedTermindato() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -541,6 +553,7 @@ public class FarskapsportalServiceTest {
     void skalOppretteFarskapserklaeringForNyligFoedtBarnFoedtINorge() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -607,6 +620,7 @@ public class FarskapsportalServiceTest {
     void skalKasteValideringExceptionDersomBarnErFoedtIUtlandet() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -666,6 +680,7 @@ public class FarskapsportalServiceTest {
     void morSkalKunneOppretteFarskapserklaeringForNyfoedtSelvOmHunHarEnAapenErklaeringForUfoedt() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -739,6 +754,7 @@ public class FarskapsportalServiceTest {
     void morSkalIkkeKunneOppretteFarskapserklaeringForUfoedtBarnDersomHunHarEnPaagaaendeFarskapserklaering() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -775,6 +791,7 @@ public class FarskapsportalServiceTest {
     void skalKasteValideringExceptionDersomMorHarAapenErklaeringMedAnnenFarForNyfoedteBarn() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -874,6 +891,7 @@ public class FarskapsportalServiceTest {
     void skalKasteValideringExceptionDersomTermindatoErUgyldig() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       //given
@@ -913,6 +931,7 @@ public class FarskapsportalServiceTest {
     void skalKasteManglerRelasjonExceptionDersomBarnOppgittMedFoedselsnummerManglerRelasjonTilMor() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -976,6 +995,7 @@ public class FarskapsportalServiceTest {
     void skalKasteValideringExceptionDersomMorOppgirBarnMedFoedselsnummerMenHarIngenNyfoedteBarnUtenFarKnyttetTilSeg() {
 
       // rydde testdata
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // given
@@ -1079,8 +1099,10 @@ public class FarskapsportalServiceTest {
     void skalOppdatereSigneringsinformasjonForMorEtterRedirectDersomStatusQueryTokenErGyldig() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
+      var unikEventid = UUID.randomUUID().toString();
       var statuslenke = lageUrl("/status");
       var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
       var padesMor = lageUrl("/padesMor");
@@ -1102,9 +1124,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -1143,6 +1165,7 @@ public class FarskapsportalServiceTest {
       // given
       farskapserklaeringDao.deleteAll();
 
+      var unikEventid = UUID.randomUUID().toString();
       var statuslenke = lageUrl("/status");
       var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
       var padesFar = lageUrl("/padesFar");
@@ -1165,9 +1188,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -1206,6 +1229,7 @@ public class FarskapsportalServiceTest {
       // given
       farskapserklaeringDao.deleteAll();
 
+      var unikEventid = UUID.randomUUID().toString();
       var statuslenke = lageUrl("/status");
       var farskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN);
       var padesMor = lageUrl("/padesMor");
@@ -1232,9 +1256,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretAktivFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(unikEventid, FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -1286,6 +1310,10 @@ public class FarskapsportalServiceTest {
       lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
+      var lagretOppgavebestilling = oppgavebestillingDao.save(
+          Oppgavebestilling.builder().farskapserklaering(lagretFarskapserklaering).forelder(lagretFarskapserklaering.getFar())
+              .eventId(UUID.randomUUID().toString()).opprettet(LocalDateTime.now()).build());
+
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
@@ -1295,9 +1323,9 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(MOR.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
       doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -1321,7 +1349,7 @@ public class FarskapsportalServiceTest {
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
       // then
-      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
 
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
@@ -1336,6 +1364,7 @@ public class FarskapsportalServiceTest {
     void skalSletteSigneringsoppgaveDersomFarAvbryterSignering() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var statuslenke = lageUrl("/status");
@@ -1349,8 +1378,10 @@ public class FarskapsportalServiceTest {
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(mapper.toEntity(farskapserklaering));
       lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
-
       farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder().eventId(UUID.randomUUID().toString()).forelder(lagretFarskapserklaering.getFar())
+          .farskapserklaering(lagretFarskapserklaering).opprettet(LocalDateTime.now()).build());
 
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(FAR.getNavn());
@@ -1362,7 +1393,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
 
       doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.modelMapper(MOR, Forelder.class), mapper.modelMapper(FAR, Forelder.class));
 
       when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
           DokumentStatusDto.builder()
@@ -1387,7 +1418,7 @@ public class FarskapsportalServiceTest {
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
       // then
-      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretFarskapserklaering.getId(), FAR.getFoedselsnummer());
+      verify(brukernotifikasjonConsumer, times(1)).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), FAR.getFoedselsnummer());
 
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
@@ -1402,6 +1433,7 @@ public class FarskapsportalServiceTest {
     void dersomMorAvbryterSigneringSkalAktuellFarskapserklaeringDeaktiveres() {
 
       // given
+      oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       var statuslenke = lageUrl("/status");
@@ -1438,7 +1470,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.oppdatereStatusSigneringsjobb(MOR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
 
       // then
-      verify(brukernotifikasjonConsumer, times(0)).varsleOmAvbruttSignering(eq(MOR.getFoedselsnummer()), eq(FAR.getFoedselsnummer()));
+      verify(brukernotifikasjonConsumer, times(0)).varsleOmAvbruttSignering(any(Forelder.class), any(Forelder.class));
 
       assertThat(esigneringStatusFeiletException.getFarskapserklaering().isPresent());
       var farskapserklaeringReturnertFraException = esigneringStatusFeiletException.getFarskapserklaering().get();
@@ -1496,7 +1528,7 @@ public class FarskapsportalServiceTest {
           () -> farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), "etGyldigStatusQueryToken"));
 
       // then
-      verify(brukernotifikasjonConsumer, times(1)).varsleOmAvbruttSignering(eq(MOR.getFoedselsnummer()), eq(FAR.getFoedselsnummer()));
+      verify(brukernotifikasjonConsumer, times(1)).varsleOmAvbruttSignering(any(Forelder.class), any(Forelder.class));
 
       assertAll(
           () -> assertThat(esigneringStatusFeiletException.getFarskapserklaering().isPresent())

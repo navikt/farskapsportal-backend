@@ -41,6 +41,7 @@ import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
+import no.nav.farskapsportal.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.service.FarskapsportalService;
 import no.nav.farskapsportal.service.PersistenceService;
@@ -158,14 +159,15 @@ public class FarskapsportalConfig {
   }
 
   @Bean
-  public PersistenceService persistenceService(PersonopplysningService personopplysningService,
+  public PersistenceService persistenceService(OppgavebestillingDao oppgavebestillingDao,
+      PersonopplysningService personopplysningService,
       FarskapserklaeringDao farskapserklaeringDao,
       Mapper mapper,
       BarnDao barnDao,
       ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao,
       MeldingsloggDao meldingsloggDao) {
-    return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
+    return new PersistenceService(oppgavebestillingDao, personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
         meldingsloggDao, mapper);
   }
 

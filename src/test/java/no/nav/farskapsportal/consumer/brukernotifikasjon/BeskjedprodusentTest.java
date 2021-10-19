@@ -8,19 +8,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
+import java.util.UUID;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
-import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
+import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
 import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.persistence.entity.Forelder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -52,13 +52,12 @@ public class BeskjedprodusentTest {
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
     var eksternVarsling = true;
 
-    var fnrFar = "11111122222";
-    var idFarskapserklaering = "1";
+    var far = Forelder.builder().foedselsnummer("11111122222").build();
 
- var farskapsportalUrl = new URL(farskapsportalEgenskaper.getUrl());
+    var farskapsportalUrl = new URL(farskapsportalEgenskaper.getUrl());
 
     // when
-    beskjedprodusent.oppretteBeskjedTilBruker(fnrFar, "Hei på deg", eksternVarsling, farskapsportalUrl);
+    beskjedprodusent.oppretteBeskjedTilBruker(far, "Hei på deg", eksternVarsling, farskapsportalUrl, oppretteNokkel());
 
     //then
     verify(ferdigkoe, times(1))
@@ -75,19 +74,25 @@ public class BeskjedprodusentTest {
     var beskjed = beskjeder.get(0);
 
     assertAll(
-        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(fnrFar),
+        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(far.getFoedselsnummer()),
         () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
-            ZoneId.of("UTC"))).isBetween(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2), ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime()),
+            ZoneId.of("UTC"))).isBetween(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2),
+            ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime()),
         () -> assertThat(beskjed.getEksternVarsling()).isEqualTo(eksternVarsling),
         () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalUrl.toString()),
         () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(farskapsportalEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
         () -> assertThat(beskjed.getTekst()).isEqualTo("Hei på deg"),
         () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getSynligFremTil()),
-            ZoneId.of("UTC"))).isEqualTo( LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
-            TimeZone.getDefault().toZoneId()).plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()).withHour(0)),
+            ZoneId.of("UTC"))).isEqualTo(LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
+                TimeZone.getDefault().toZoneId()).plusMonths(farskapsportalEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder())
+            .withHour(0)),
         () -> assertThat(noekkel.getSystembruker()).isEqualTo(farskapsportalEgenskaper.getSystembrukerBrukernavn())
     );
   }
 
+  private Nokkel oppretteNokkel() {
+    var unikEventid = UUID.randomUUID().toString();
+    return new NokkelBuilder().withSystembruker(farskapsportalEgenskaper.getSystembrukerBrukernavn()).withEventId(unikEventid).build();
+  }
 }
