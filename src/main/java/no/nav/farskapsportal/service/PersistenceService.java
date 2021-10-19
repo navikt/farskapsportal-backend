@@ -22,10 +22,12 @@ import no.nav.farskapsportal.persistence.dao.BarnDao;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
+import no.nav.farskapsportal.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
 import no.nav.farskapsportal.persistence.entity.Forelder;
 import no.nav.farskapsportal.persistence.entity.Meldingslogg;
+import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
 import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.util.Mapper;
@@ -34,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class PersistenceService {
+
+  private final OppgavebestillingDao oppgavebestillingDao;
 
   private final PersonopplysningService personopplysningService;
 
@@ -128,7 +132,8 @@ public class PersistenceService {
   }
 
   @Transactional
-  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar, int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
+  public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,
+      int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
     var muligStatusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
     var naa = LocalDateTime.now();
 
@@ -210,6 +215,32 @@ public class PersistenceService {
     }
   }
 
+  public Oppgavebestilling lagreNyOppgavebestilling(int idFarskapserklaering, String eventId) {
+    var farskapserklaering = henteFarskapserklaeringForId(idFarskapserklaering);
+
+    var oppgavebestilling = Oppgavebestilling.builder()
+        .farskapserklaering(farskapserklaering)
+        .forelder(farskapserklaering.getFar())
+        .eventId(eventId)
+        .opprettet(LocalDateTime.now()).build();
+    return oppgavebestillingDao.save(oppgavebestilling);
+  }
+
+  public Set<Oppgavebestilling> henteAktiveOppgaverTilForelderIFarskapserklaering(int idFarskapserklaering, Forelder forelder) {
+    return oppgavebestillingDao.henteAktiveOppgaver(idFarskapserklaering, forelder.getFoedselsnummer());
+  }
+
+  @Transactional
+  public void setteOppgaveTilFerdigstilt(String eventId) {
+    var aktiveOppgaver = oppgavebestillingDao.henteOppgavebestilling(eventId);
+
+    if (aktiveOppgaver.isPresent()) {
+      aktiveOppgaver.get().setFerdigstilt(LocalDateTime.now());
+    } else {
+      log.warn("Fant ingen oppgavebestilling med eventId {}, ferdigstiltstatus ble ikke satt!", eventId);
+    }
+  }
+
   public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {
     var nyttInnslag = Meldingslogg.builder().tidspunktForOversendelse(tidspunktForOverfoering).meldingsidSkatt(meldingsidSkatt).build();
     meldingsloggDao.save(nyttInnslag);
@@ -233,7 +264,8 @@ public class PersistenceService {
     return ForelderDto.builder().foedselsnummer(fnr).navn(navnDto).build();
   }
 
-  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,  LocalDateTime tidspunktForNullstilling) {
+  private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,
+      LocalDateTime tidspunktForNullstilling) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
     var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
     log.warn("Mor med id {}, oppgav feil navn på far. Legger til nytt innslag i statusKontrollereFar-tabellen", mor.getId());

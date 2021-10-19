@@ -32,6 +32,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.FarskapsportalApplicationLocal;
@@ -78,9 +79,11 @@ import no.nav.farskapsportal.dto.NavnDto;
 import no.nav.farskapsportal.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.persistence.entity.Dokument;
 import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
+import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
 import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.service.PersistenceService;
 import no.nav.farskapsportal.util.Mapper;
@@ -140,6 +143,8 @@ public class FarskapsportalControllerTest {
   private DifiESignaturConsumer difiESignaturConsumer;
   @Autowired
   private PersistenceService persistenceService;
+  @Autowired
+  private OppgavebestillingDao oppgavebestillingDao;
   @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
   @Autowired
@@ -257,6 +262,7 @@ public class FarskapsportalControllerTest {
 
   @AfterEach
   void ryddeTestdata() {
+    oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
     statusKontrollereFarDao.deleteAll();
     forelderDao.deleteAll();
@@ -1417,6 +1423,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var oppdatertPades = lageUrl("/pades-opppdatert");
@@ -1428,12 +1435,15 @@ public class FarskapsportalControllerTest {
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
+      var lagretOppgavebestilling = oppgavebestillingDao.save(
+          Oppgavebestilling.builder().farskapserklaering(lagretFarskapserklaeringSignertAvMor).eventId(UUID.randomUUID().toString())
+              .opprettet(LocalDateTime.now()).build());
+
       var registrertNavnFar = FAR.getNavn();
       var registrertNavnMor = MOR.getNavn();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
+      doNothing().when(brukernotifikasjonConsumer).informereForeldreOmTilgjengeligFarskapserklaering(mapper.toEntity(FAR), mapper.toEntity(MOR));
       stsStub.runSecurityTokenServiceStub("jalla");
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
@@ -1486,9 +1496,9 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
-      var oppdatertPades = lageUrl("/pades-opppdatert");
       var bestillingAvNyFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
       var nyopprettetFarskapserklaering = farskapserklaeringDao.save(mapper.toEntity(bestillingAvNyFarskapserklaering));
       nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status").toString());
@@ -1546,6 +1556,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var bestillingAvNyFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
@@ -1606,6 +1617,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var bestillingAvNyFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
@@ -1653,6 +1665,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var farskapserklaeringSignertAvMor = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
@@ -1663,12 +1676,16 @@ public class FarskapsportalControllerTest {
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
+      var lagretOppgavebestilling = oppgavebestillingDao.save(
+          Oppgavebestilling.builder().farskapserklaering(lagretFarskapserklaeringSignertAvMor).eventId(UUID.randomUUID().toString())
+              .opprettet(LocalDateTime.now()).build());
+
       var registrertNavnFar = FAR.getNavn();
       var registrertNavnMor = MOR.getNavn();
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
       doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.toEntity(FAR), mapper.toEntity(MOR));
       stsStub.runSecurityTokenServiceStub("jalla");
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
