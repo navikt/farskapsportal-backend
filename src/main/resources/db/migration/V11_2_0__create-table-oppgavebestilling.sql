@@ -11,7 +11,7 @@ CREATE TABLE oppgavebestilling
     opprettet timestamp without time zone,
     ferdigstilt timestamp without time zone,
     CONSTRAINT oppgavebestilling_pkey PRIMARY KEY (id),
-    CONSTRAINT uk_barn_foedselsnummer UNIQUE (event_id)
+    CONSTRAINT uk_oppgavebestilling_event_id UNIQUE (event_id)
 )
 
 TABLESPACE pg_default;
