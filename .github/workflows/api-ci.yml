@@ -4,8 +4,8 @@ on:
     branches:
       - '**'
       - '!release'
-#    paths:
-#      - 'apps/api/**'
+    paths:
+      - 'apps/api/**'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}

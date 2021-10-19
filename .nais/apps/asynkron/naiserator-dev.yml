@@ -42,6 +42,7 @@ spec:
   {{/each}}
   envFrom:
     - secret: farskapsportal-api-secret
+    - secret: postgres-user-asynkron-feature-password
   accessPolicy:
     outbound:
       external:

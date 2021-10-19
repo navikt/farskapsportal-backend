@@ -2,13 +2,6 @@ name: asynkron
 ingress: https://farskapsportal-asynkron.dev.nav.no
 gcp:
   secretmanager.host: secretmanager.googleapis.com
-  sql-instances:
-    name: fp-prod
-    tier: db-custom-1-3840
-    type: POSTGRES_12
-    databases:
-      name: fpdb-prod
-      env-var-prefix: DB
 kafka:
   brokers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
   schema-registry:
@@ -35,12 +28,6 @@ env:
     value: farskap-keystore-credentials-json
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
     value: "3"
-  - name: ESIGNERING_SUKSESS_URL
-    value: https://farskapsportal.nav.no/suksess
-  - name: ESIGNERING_AVBRUTT_URL
-    value: https://farskapsportal.nav.no/avbrutt
-  - name: ESIGNERING_FEILET_URL
-    value: https://farskapsportal.nav.no/avbrutt
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal.nav.no
   - name: INTEGRATION_TEST_CONTROLLER_PAA
