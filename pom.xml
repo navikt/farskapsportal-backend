@@ -11,7 +11,7 @@
 
   <groupId>no.nav.farskap</groupId>
   <artifactId>farskapsportal-api</artifactId>
-  <version>0.0.164-SNAPSHOT</version>
+  <version>0.0.166-SNAPSHOT</version>
   <name>farskapsportal-api</name>
   <description>API for farskapsportal</description>
 
@@ -54,7 +54,7 @@
     <spring-cloud-gcp.version>2.0.4</spring-cloud-gcp.version>
     <springframework-retry.version>1.3.1</springframework-retry.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
-    <nimbus-jose-jwt.version>8.22.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>8.23</nimbus-jose-jwt.version>
     <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
     <springdoc-openapi-ui.version>1.5.10</springdoc-openapi-ui.version>
 
