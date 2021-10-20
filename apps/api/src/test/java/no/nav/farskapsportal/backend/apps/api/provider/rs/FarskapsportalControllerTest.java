@@ -33,8 +33,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
+<<<<<<< HEAD:apps/api/src/test/java/no/nav/farskapsportal/backend/apps/api/provider/rs/FarskapsportalControllerTest.java
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.backend.apps.api.api.FarskapserklaeringFeilResponse;
@@ -87,6 +89,60 @@ import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.Pdl
 import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.assertj.core.api.AssertionsForClassTypes;
+=======
+import no.nav.farskapsportal.FarskapsportalApplicationLocal;
+import no.nav.farskapsportal.api.BrukerinformasjonResponse;
+import no.nav.farskapsportal.api.FarskapserklaeringFeilResponse;
+import no.nav.farskapsportal.api.Feilkode;
+import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.Sivilstandtype;
+import no.nav.farskapsportal.api.Skriftspraak;
+import no.nav.farskapsportal.api.StatusSignering;
+import no.nav.farskapsportal.config.FarskapsportalConfig.OidcTokenSubjectExtractor;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
+import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
+import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.consumer.pdl.api.FolkeregisteridentifikatorDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonDto;
+import no.nav.farskapsportal.consumer.pdl.api.ForelderBarnRelasjonRolle;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.BostedsadresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.UtenlandskAdresseDto;
+import no.nav.farskapsportal.consumer.pdl.api.bostedsadresse.VegadresseDto;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonBostedsadresse;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonDoedsfall;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFoedsel;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonKjoenn;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonNavn;
+import no.nav.farskapsportal.consumer.pdl.stub.HentPersonSivilstand;
+import no.nav.farskapsportal.consumer.pdl.stub.PdlApiStub;
+import no.nav.farskapsportal.consumer.sts.stub.StsStub;
+import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.dto.FarskapserklaeringDto;
+import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
+import no.nav.farskapsportal.exception.EsigneringConsumerException;
+import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
+import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.OppgavebestillingDao;
+import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
+import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
+import no.nav.farskapsportal.persistence.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.service.PersistenceService;
+import no.nav.farskapsportal.util.Mapper;
+>>>>>>> main:src/test/java/no/nav/farskapsportal/provider/rs/FarskapsportalControllerTest.java
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -146,6 +202,8 @@ public class FarskapsportalControllerTest {
   private DifiESignaturConsumer difiESignaturConsumer;
   @Autowired
   private PersistenceService persistenceService;
+  @Autowired
+  private OppgavebestillingDao oppgavebestillingDao;
   @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
   @Autowired
@@ -263,6 +321,7 @@ public class FarskapsportalControllerTest {
 
   @AfterEach
   void ryddeTestdata() {
+    oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
     statusKontrollereFarDao.deleteAll();
     forelderDao.deleteAll();
@@ -1437,6 +1496,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var oppdatertPades = lageUri("/pades-opppdatert");
@@ -1448,12 +1508,20 @@ public class FarskapsportalControllerTest {
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
+<<<<<<< HEAD:apps/api/src/test/java/no/nav/farskapsportal/backend/apps/api/provider/rs/FarskapsportalControllerTest.java
       var registrertNavnFar = NAVN_FAR;
       var registrertNavnMor = NAVN_MOR;
+=======
+      var lagretOppgavebestilling = oppgavebestillingDao.save(
+          Oppgavebestilling.builder().farskapserklaering(lagretFarskapserklaeringSignertAvMor).eventId(UUID.randomUUID().toString())
+              .opprettet(LocalDateTime.now()).build());
+
+      var registrertNavnFar = FAR.getNavn();
+      var registrertNavnMor = MOR.getNavn();
+>>>>>>> main:src/test/java/no/nav/farskapsportal/provider/rs/FarskapsportalControllerTest.java
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
+      doNothing().when(brukernotifikasjonConsumer).informereForeldreOmTilgjengeligFarskapserklaering(mapper.toEntity(FAR), mapper.toEntity(MOR));
       stsStub.runSecurityTokenServiceStub("jalla");
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 
@@ -1510,13 +1578,20 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
+<<<<<<< HEAD:apps/api/src/test/java/no/nav/farskapsportal/backend/apps/api/provider/rs/FarskapsportalControllerTest.java
       var bestillingAvNyFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
           henteBarnUtenFnr(5));
       bestillingAvNyFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
       var nyopprettetFarskapserklaering = farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
       nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status"));
+=======
+      var bestillingAvNyFarskapserklaering = henteFarskapserklaeringDto(MOR, FAR, BARN_UTEN_FNR);
+      var nyopprettetFarskapserklaering = farskapserklaeringDao.save(mapper.toEntity(bestillingAvNyFarskapserklaering));
+      nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status").toString());
+>>>>>>> main:src/test/java/no/nav/farskapsportal/provider/rs/FarskapsportalControllerTest.java
       nyopprettetFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(nyopprettetFarskapserklaering);
@@ -1573,6 +1648,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var bestillingAvNyFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
@@ -1635,6 +1711,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var bestillingAvNyFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
@@ -1684,6 +1761,7 @@ public class FarskapsportalControllerTest {
       // rydde testdata
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+      oppgavebestillingDao.deleteAll();
 
       // given
       var farskapserklaeringSignertAvMor = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
@@ -1694,12 +1772,21 @@ public class FarskapsportalControllerTest {
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
+<<<<<<< HEAD:apps/api/src/test/java/no/nav/farskapsportal/backend/apps/api/provider/rs/FarskapsportalControllerTest.java
       var registrertNavnFar = NAVN_FAR;
       var registrertNavnMor = NAVN_MOR;
+=======
+      var lagretOppgavebestilling = oppgavebestillingDao.save(
+          Oppgavebestilling.builder().farskapserklaering(lagretFarskapserklaeringSignertAvMor).eventId(UUID.randomUUID().toString())
+              .opprettet(LocalDateTime.now()).build());
+
+      var registrertNavnFar = FAR.getNavn();
+      var registrertNavnMor = MOR.getNavn();
+>>>>>>> main:src/test/java/no/nav/farskapsportal/provider/rs/FarskapsportalControllerTest.java
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
-      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretFarskapserklaeringSignertAvMor.getId(), FAR.getFoedselsnummer());
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(lagretOppgavebestilling.getEventId(), mapper.toEntity(FAR));
       doNothing().when(brukernotifikasjonConsumer)
-          .informereForeldreOmTilgjengeligFarskapserklaering(FAR.getFoedselsnummer(), MOR.getFoedselsnummer());
+          .informereForeldreOmTilgjengeligFarskapserklaering(mapper.toEntity(FAR), mapper.toEntity(MOR));
       stsStub.runSecurityTokenServiceStub("jalla");
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
 

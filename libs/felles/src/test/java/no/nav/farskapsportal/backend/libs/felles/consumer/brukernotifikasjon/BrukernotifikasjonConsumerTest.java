@@ -8,6 +8,8 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +18,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.UUID;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
@@ -24,14 +27,16 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig;
-import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
+import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -51,27 +56,24 @@ public class BrukernotifikasjonConsumerTest {
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
-
   private static final Barn BARN = TestUtils.henteBarnUtenFnr(5);
 
   @Autowired
-  BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-
+  Mapper mapper;
   @Autowired
-  PersistenceService persistenceService;
-
+  private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   @Autowired
-  FarskapserklaeringDao farskapserklaeringDao;
-
+  private PersistenceService persistenceService;
+  @Autowired
+  private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired
+  private OppgavebestillingDao oppgavebestillingDao;
   @MockBean
   private KafkaTemplate<Nokkel, Beskjed> beskjedkoe;
-
   @MockBean
   private KafkaTemplate<Nokkel, Done> ferdigkoe;
-
   @MockBean
   private KafkaTemplate<Nokkel, Oppgave> oppgavekoe;
-
   @Autowired
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
@@ -83,7 +85,7 @@ public class BrukernotifikasjonConsumerTest {
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
 
     // when
-    brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+    brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(MOR, FAR);
 
     // then
     verify(beskjedkoe, times(2))
@@ -132,13 +134,14 @@ public class BrukernotifikasjonConsumerTest {
   void skalVarsleMorOmUtloeptOppgaveForSignering() {
 
     // given
+    oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
     var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
 
     // when
-    brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(MOR.getFoedselsnummer());
+    brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(MOR);
 
     // then
     verify(beskjedkoe, times(1))
@@ -167,7 +170,7 @@ public class BrukernotifikasjonConsumerTest {
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
 
     // when
-    brukernotifikasjonConsumer.varsleOmAvbruttSignering(MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+    brukernotifikasjonConsumer.varsleOmAvbruttSignering(MOR, FAR);
 
     // then
     verify(beskjedkoe, times(2))
@@ -212,7 +215,9 @@ public class BrukernotifikasjonConsumerTest {
   void skalOppretteOppgaveTilFarOmSignering() {
 
     // given
+    oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
+
     var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(MOR).far(FAR).barn(BARN).dokument(DOKUMENT).build();
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
         .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
@@ -222,7 +227,7 @@ public class BrukernotifikasjonConsumerTest {
     var oppgavefanger = ArgumentCaptor.forClass(Oppgave.class);
 
     // when
-    brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(farskapserklaering.getId(), FAR.getFoedselsnummer());
+    brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(farskapserklaering.getId(), FAR);
 
     // then
     verify(oppgavekoe, times(1))
@@ -231,9 +236,17 @@ public class BrukernotifikasjonConsumerTest {
     var nokkel = noekkelfanger.getValue();
     var oppgave = oppgavefanger.getValue();
 
+    var oppgavebestillinger = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaering.getId(),
+        farskapserklaering.getFar());
+    var oppgavebestilling = oppgavebestillinger.stream().findFirst();
+
     assertAll(
         () -> assertThat(nokkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
-        () -> assertThat(nokkel.getEventId()).isEqualTo(Integer.toString(farskapserklaering.getId())),
+        () -> assertThat(oppgavebestilling).isPresent(),
+        () -> assertThat(oppgavebestilling.get().getFerdigstilt()).isNull(),
+        () -> assertThat(oppgavebestilling.get().getOpprettet()).isNotNull(),
+        () -> assertThat(nokkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(nokkel.getEventId()).isEqualTo(oppgavebestilling.get().getEventId()),
         () -> assertThat(oppgave.getEksternVarsling()).isTrue(),
         () -> assertThat(oppgave.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
         () -> assertThat(oppgave.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
@@ -245,9 +258,43 @@ public class BrukernotifikasjonConsumerTest {
   }
 
   @Test
+  void skalIkkeOppretteSigneringsoppgaveDersomEnAlleredeEksistererForFarIFarskapserklaering() {
+
+    // given
+    oppgavebestillingDao.deleteAll();
+    farskapserklaeringDao.deleteAll();
+
+    var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(MOR).far(FAR).barn(BARN).dokument(DOKUMENT).build();
+    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
+        .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
+    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+    oppgavebestillingDao.save(Oppgavebestilling.builder()
+        .forelder(farskapserklaering.getFar()).farskapserklaering(farskapserklaering).opprettet(LocalDateTime.now())
+        .eventId(UUID.randomUUID().toString()).build());
+
+    // when
+    brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(farskapserklaering.getId(), FAR);
+
+    // then
+    verify(oppgavekoe, times(0))
+        .send(anyString(), any(Nokkel.class), any(Oppgave.class));
+    var oppgavebestillinger = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaering.getId(),
+        farskapserklaering.getFar());
+    var oppgavebestilling = oppgavebestillinger.stream().findFirst();
+
+    assertAll(
+        () -> assertThat(oppgavebestilling).isPresent(),
+        () -> assertThat(oppgavebestilling.get().getFerdigstilt()).isNull(),
+        () -> assertThat(oppgavebestilling.get().getOpprettet()).isNotNull()
+    );
+  }
+
+  @Test
   void skalSletteFarsSigneringsoppgave() {
 
     // given
+    oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")
@@ -264,8 +311,10 @@ public class BrukernotifikasjonConsumerTest {
     var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
     var ferdigfanger = ArgumentCaptor.forClass(Done.class);
 
+    var eksisterendeOppgavebestilling = persistenceService.lagreNyOppgavebestilling(farskapserklaering.getId(), UUID.randomUUID().toString());
+
     // when
-    brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(farskapserklaering.getId(), FAR.getFoedselsnummer());
+    brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(eksisterendeOppgavebestilling.getEventId(), FAR);
 
     // then
     verify(ferdigkoe, times(1))

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/service/PersistenceService.java
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -14,6 +15,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Meldingslogg;
+import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -28,11 +30,37 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrolle
 import no.nav.farskapsportal.backend.libs.felles.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import no.nav.farskapsportal.backend.libs.felles.util.Utils;
+=======
+import no.nav.farskapsportal.api.Feilkode;
+import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.consumer.pdl.api.KjoennType;
+import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.exception.FeilIDatagrunnlagException;
+import no.nav.farskapsportal.exception.InternFeilException;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
+import no.nav.farskapsportal.exception.ValideringException;
+import no.nav.farskapsportal.persistence.dao.BarnDao;
+import no.nav.farskapsportal.persistence.dao.FarskapserklaeringDao;
+import no.nav.farskapsportal.persistence.dao.ForelderDao;
+import no.nav.farskapsportal.persistence.dao.MeldingsloggDao;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
+import no.nav.farskapsportal.persistence.dao.StatusKontrollereFarDao;
+import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.persistence.entity.Forelder;
+import no.nav.farskapsportal.persistence.entity.Meldingslogg;
+import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
+import no.nav.farskapsportal.persistence.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.persistence.exception.FantIkkeEntititetException;
+import no.nav.farskapsportal.util.Mapper;
+>>>>>>> main:src/main/java/no/nav/farskapsportal/service/PersistenceService.java
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RequiredArgsConstructor
 public class PersistenceService {
+
+  private final OppgavebestillingDao oppgavebestillingDao;
 
   private final PersonopplysningService personopplysningService;
 
@@ -209,6 +237,32 @@ public class PersistenceService {
       farskapserklaering.get().setDeaktivert(LocalDateTime.now());
     } else {
       throw new InternFeilException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+    }
+  }
+
+  public Oppgavebestilling lagreNyOppgavebestilling(int idFarskapserklaering, String eventId) {
+    var farskapserklaering = henteFarskapserklaeringForId(idFarskapserklaering);
+
+    var oppgavebestilling = Oppgavebestilling.builder()
+        .farskapserklaering(farskapserklaering)
+        .forelder(farskapserklaering.getFar())
+        .eventId(eventId)
+        .opprettet(LocalDateTime.now()).build();
+    return oppgavebestillingDao.save(oppgavebestilling);
+  }
+
+  public Set<Oppgavebestilling> henteAktiveOppgaverTilForelderIFarskapserklaering(int idFarskapserklaering, Forelder forelder) {
+    return oppgavebestillingDao.henteAktiveOppgaver(idFarskapserklaering, forelder.getFoedselsnummer());
+  }
+
+  @Transactional
+  public void setteOppgaveTilFerdigstilt(String eventId) {
+    var aktiveOppgaver = oppgavebestillingDao.henteOppgavebestilling(eventId);
+
+    if (aktiveOppgaver.isPresent()) {
+      aktiveOppgaver.get().setFerdigstilt(LocalDateTime.now());
+    } else {
+      log.warn("Fant ingen oppgavebestilling med eventId {}, ferdigstiltstatus ble ikke satt!", eventId);
     }
   }
 

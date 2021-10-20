@@ -11,7 +11,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Done;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
@@ -27,17 +30,21 @@ import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApp
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -68,6 +75,9 @@ public class SletteOppgaveTest {
   @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
 
+  @Autowired
+  private OppgavebestillingDao oppgavebestillingDao;
+
   @MockBean
   private KafkaTemplate<Nokkel, Beskjed> beskjedkoe;
 
@@ -76,8 +86,11 @@ public class SletteOppgaveTest {
 
   private SletteOppgave sletteOppgave;
 
+
   @BeforeEach
   void setup() {
+
+    MockitoAnnotations.openMocks(this); //without this you will get NPE
 
     // Bønnen sletteOppgave er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
     sletteOppgave = SletteOppgave.builder()
@@ -91,19 +104,28 @@ public class SletteOppgaveTest {
   void skalSletteUtloeptOppgaveOgVarsleMorDersomFarIkkeSignererInnenFristen() {
 
     // given
-    var tidspunktFoerTestIEpochMillis = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(5).toInstant().toEpochMilli();
+    oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
+
+    var tidspunktFoerTestIEpochMillis = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(5).toInstant().toEpochMilli();
+
     var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-
     // Setter signeringstidspunkt til utenfor levetiden til oppgaven
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
         LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
-
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+    var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
+        .eventId(UUID.randomUUID().toString())
+        .forelder(farskapserklaeringSomVenterPaaFarsSignatur.getFar())
+        .farskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur)
+        .opprettet(LocalDateTime.now())
+        .build());
+
     var ferdignoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
     var ferdigfanger = ArgumentCaptor.forClass(Done.class);
     var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
@@ -127,6 +149,8 @@ public class SletteOppgaveTest {
 
     var beskjedMorSynligFremTilDato = Instant.ofEpochMilli(beskjed.getSynligFremTil()).atZone(ZoneId.systemDefault()).toLocalDate();
 
+    var oppdatertOppgavebestilling = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
+
     assertAll(
         () -> assertThat(ferdignokkel.getSystembruker()).isEqualTo(farskapsportalAsynkronEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(ferdig.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
@@ -139,7 +163,8 @@ public class SletteOppgaveTest {
         () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
         () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
         () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
-        () -> assertThat(beskjedMorSynligFremTilDato).isEqualTo(LocalDate.now().plusMonths(BRUKERNOTIFIKASJON_BESKJED_MND_SYNLIG))
+        () -> assertThat(beskjedMorSynligFremTilDato).isEqualTo(LocalDate.now().plusMonths(BRUKERNOTIFIKASJON_BESKJED_MND_SYNLIG)),
+        () -> assertThat(oppdatertOppgavebestilling.get().getFerdigstilt()).isNotNull()
     );
 
     var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class,
@@ -160,6 +185,7 @@ public class SletteOppgaveTest {
   void skalIkkeSletteOppgaveSomIkkeErUtloept() {
 
     // given
+    oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
     var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
@@ -170,11 +196,58 @@ public class SletteOppgaveTest {
 
     persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
+    var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
+        .eventId(UUID.randomUUID().toString())
+        .forelder(farskapserklaeringSomVenterPaaFarsSignatur.getFar())
+        .farskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur)
+        .opprettet(LocalDateTime.now())
+        .build());
+
     // when
     sletteOppgave.sletteUtloepteSigneringsoppgaver();
 
     // then
-    verify(ferdigkoe, times(0))
-        .send(eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG), any(), any());
+    verify(ferdigkoe, times(0)).send(eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG), any(), any());
+
+    var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
+
+    assertThat(oppgavebestillingEtterSlettforsoek.get().getFerdigstilt()).isNull();
+  }
+
+  @Test
+  void skalIkkeOppdatereOppgavebestillingDersomFerdigkallFeiler() {
+
+    // given
+    oppgavebestillingDao.deleteAll();
+    farskapserklaeringDao.deleteAll();
+
+    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
+        henteBarnUtenFnr(5));
+    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaeringSomVenterPaaFarsSignatur.getDokument()
+        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+
+    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+
+    var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
+        .eventId(UUID.randomUUID().toString())
+        .forelder(farskapserklaering.getFar())
+        .farskapserklaering(farskapserklaering)
+        .opprettet(LocalDateTime.now())
+        .build());
+
+    // Setter signeringstidspunkt til innenfor levetiden til oppgaven
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
+        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager() + 5));
+    persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+
+    doThrow(KafkaException.class).when(ferdigkoe).send(anyString(), any(Nokkel.class), any(Done.class));
+
+    // when
+    sletteOppgave.sletteUtloepteSigneringsoppgaver();
+
+    // then
+    var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
+    assertThat(oppgavebestillingEtterSlettforsoek.get().getFerdigstilt()).isNull();
   }
 }

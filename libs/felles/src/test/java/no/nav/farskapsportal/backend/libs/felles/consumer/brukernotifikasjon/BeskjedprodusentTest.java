@@ -15,8 +15,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
+import java.util.UUID;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Nokkel;
+import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import org.junit.jupiter.api.DisplayName;
@@ -50,12 +53,11 @@ public class BeskjedprodusentTest {
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
     var eksternVarsling = true;
 
-    var fnrFar = "11111122222";
-
+    var far = Forelder.builder().foedselsnummer("11111122222").build();
     var farskapsportalUrl = new URL(farskapsportalFellesEgenskaper.getUrl());
 
     // when
-    beskjedprodusent.oppretteBeskjedTilBruker(fnrFar, "Hei på deg", eksternVarsling, farskapsportalUrl);
+    beskjedprodusent.oppretteBeskjedTilBruker(far, "Hei på deg", eksternVarsling, oppretteNokkel());
 
     //then
     verify(ferdigkoe, times(1))
@@ -72,7 +74,7 @@ public class BeskjedprodusentTest {
     var beskjed = beskjeder.get(0);
 
     assertAll(
-        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(fnrFar),
+        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(far.getFoedselsnummer()),
         () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
             ZoneId.of("UTC"))).isBetween(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2),
@@ -88,4 +90,8 @@ public class BeskjedprodusentTest {
     );
   }
 
+  private Nokkel oppretteNokkel() {
+    var unikEventid = UUID.randomUUID().toString();
+    return new NokkelBuilder().withSystembruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()).withEventId(unikEventid).build();
+  }
 }

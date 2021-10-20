@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+<<<<<<< HEAD:apps/api/src/main/java/no/nav/farskapsportal/backend/apps/api/service/FarskapsportalService.java
 import no.nav.farskapsportal.backend.apps.api.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.backend.apps.api.api.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.backend.apps.api.api.OppdatereFarskapserklaeringRequest;
@@ -47,6 +48,41 @@ import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
+=======
+import no.nav.farskapsportal.api.BrukerinformasjonResponse;
+import no.nav.farskapsportal.api.Feilkode;
+import no.nav.farskapsportal.api.Forelderrolle;
+import no.nav.farskapsportal.api.KontrollerePersonopplysningerRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppdatereFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringRequest;
+import no.nav.farskapsportal.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.api.Rolle;
+import no.nav.farskapsportal.api.Skriftspraak;
+import no.nav.farskapsportal.api.StatusSignering;
+import no.nav.farskapsportal.config.egenskaper.FarskapsportalEgenskaper;
+import no.nav.farskapsportal.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.consumer.esignering.api.DokumentStatusDto;
+import no.nav.farskapsportal.consumer.esignering.api.SignaturDto;
+import no.nav.farskapsportal.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.consumer.skatt.SkattConsumer;
+import no.nav.farskapsportal.dto.BarnDto;
+import no.nav.farskapsportal.dto.FarskapserklaeringDto;
+import no.nav.farskapsportal.dto.ForelderDto;
+import no.nav.farskapsportal.dto.NavnDto;
+import no.nav.farskapsportal.exception.EsigneringStatusFeiletException;
+import no.nav.farskapsportal.exception.FeilNavnOppgittException;
+import no.nav.farskapsportal.exception.InternFeilException;
+import no.nav.farskapsportal.exception.MappingException;
+import no.nav.farskapsportal.exception.RessursIkkeFunnetException;
+import no.nav.farskapsportal.exception.ValideringException;
+import no.nav.farskapsportal.persistence.entity.Dokument;
+import no.nav.farskapsportal.persistence.entity.Dokumentinnhold;
+import no.nav.farskapsportal.persistence.entity.Farskapserklaering;
+import no.nav.farskapsportal.persistence.entity.Oppgavebestilling;
+import no.nav.farskapsportal.util.Mapper;
+>>>>>>> main:src/main/java/no/nav/farskapsportal/service/FarskapsportalService.java
 import org.apache.commons.lang3.Validate;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
@@ -369,11 +405,14 @@ public class FarskapsportalService {
           aktuellFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
       if (farskapsportalApiEgenskaper.isBrukernotifikasjonerPaa()) {
         // Slette fars oppgave for signering på DittNav
-        brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(aktuellFarskapserklaering.getId(),
-            aktuellFarskapserklaering.getFar().getFoedselsnummer());
+        var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(aktuellFarskapserklaering.getId(),
+            aktuellFarskapserklaering.getFar());
+        for (Oppgavebestilling oppgave : aktiveOppgaver) {
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), aktuellFarskapserklaering.getFar());
+        }
         // Informere foreldrene om gjennomført signering og tilgjengelig farskapserklæring
-        brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getFar().getFoedselsnummer(),
-            aktuellFarskapserklaering.getMor().getFoedselsnummer());
+        brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(aktuellFarskapserklaering.getMor(),
+            aktuellFarskapserklaering.getFar());
       }
     }
     return null;
@@ -403,7 +442,7 @@ public class FarskapsportalService {
       aktuellFarskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xadesXml);
       if (farskapsportalApiEgenskaper.isBrukernotifikasjonerPaa()) {
         brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(aktuellFarskapserklaering.getId(),
-            aktuellFarskapserklaering.getFar().getFoedselsnummer());
+            aktuellFarskapserklaering.getFar());
       }
     }
     return null;
@@ -416,10 +455,22 @@ public class FarskapsportalService {
 
       if (rolle.equals(Rolle.FAR)) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
+<<<<<<< HEAD:apps/api/src/main/java/no/nav/farskapsportal/backend/apps/api/service/FarskapsportalService.java
         if (farskapsportalApiEgenskaper.isBrukernotifikasjonerPaa()) {
           brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor().getFoedselsnummer(),
               farskapserklaering.getFar().getFoedselsnummer());
           brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
+=======
+        if (farskapsportalEgenskaper.getBrukernotifikasjon().isSkruddPaa()) {
+          brukernotifikasjonConsumer.varsleOmAvbruttSignering(farskapserklaering.getMor(), farskapserklaering.getFar());
+          var farsAktiveSigneringsoppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaering.getId(),
+              farskapserklaering.getFar());
+          log.info("Fant {} aktiv signeringsoppgave til knyttet til far med id {}", farsAktiveSigneringsoppgaver.size(),
+              farskapserklaering.getFar().getId());
+          for (Oppgavebestilling oppgave : farsAktiveSigneringsoppgaver) {
+            brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.getFar());
+          }
+>>>>>>> main:src/main/java/no/nav/farskapsportal/service/FarskapsportalService.java
         }
       }
 

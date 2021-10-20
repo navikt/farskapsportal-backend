@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
+import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -25,11 +26,19 @@ public class SletteOppgave {
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
       if (farskapserklaering.getDokument().getSigneringsinformasjonMor()
           .getSigneringstidspunkt().toLocalDate()
-          .isBefore(LocalDate.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()- 1))) {
-        log.info("Sletter utgått signeringsoppgave for farskapserklæring med id {}", farskapserklaering.getId());
-        brukernotifikasjonConsumer
-            .sletteFarsSigneringsoppgave(farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
-        sletteFarskapserklaeringOgsendeMeldingTilMorDersomFarIkkeHarSignert(farskapserklaering);
+          .isBefore(LocalDate.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager() - 1))) {
+
+        var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaering.getId(),
+            farskapserklaering.getFar());
+
+        for (Oppgavebestilling oppgave : aktiveOppgaver) {
+
+          log.info("Sletter utgått signeringsoppgave for far (id {}) i farskapserklæring (id {})", farskapserklaering.getFar().getId(),
+              farskapserklaering.getId());
+
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.getFar());
+          sletteFarskapserklaeringOgsendeMeldingTilMorDersomFarIkkeHarSignert(farskapserklaering);
+        }
       }
     }
   }
@@ -39,7 +48,7 @@ public class SletteOppgave {
         || farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() == null) {
       persistenceService.deaktivereFarskapserklaering(farskapserklaering.getId());
       log.info("Farskapserklæring med id {} ble slettet fra databasen.", farskapserklaering.getId());
-      brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(farskapserklaering.getMor().getFoedselsnummer());
+      brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(farskapserklaering.getMor());
       log.info("Varsel sendt til mor om at fars oppgave for signering er utgått, og at ny farskapserklæring må opprettes.");
     }
   }

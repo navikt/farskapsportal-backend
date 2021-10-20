@@ -155,8 +155,13 @@ no.nav.security.jwt:
 
 ---
 spring:
+<<<<<<< HEAD:apps/api/src/main/resources/application.yml
   config.activate.on-profile: test, local, local-postgres, integration-test, remote-postgres
   main.allow-bean-definition-overriding: true
+=======
+  config.activate.on-profile: test, local, local-postgres, scheduled-test, skatt-ssl-test, remote-postgres
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+>>>>>>> main:src/main/resources/application.yml
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
@@ -169,7 +174,11 @@ ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
 KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
+<<<<<<< HEAD:apps/api/src/main/resources/application.yml
 NAV_TRUSTSTORE_PATH: certs/server-selfsigned.jks
+=======
+NAV_TRUSTSTORE_PATH: /Users/jkskaar/workspaces/github/navikt/temp/farskapsportal-api/src/test/resources/server-selfsigned.jks
+>>>>>>> main:src/main/resources/application.yml
 NAV_TRUSTSTORE_PASSWORD: qwer1234
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
