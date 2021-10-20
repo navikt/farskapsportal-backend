@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.Certificates;
@@ -101,9 +102,12 @@ public class FarskapsportalApiApplicationLocal {
   static class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
-      Flyway.configure().ignoreMissingMigrations(true).baselineOnMigrate(true).dataSource(dataSource).load().migrate();
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron) {
+
+      var placeholders = new HashMap<String, String>();
+      placeholders.put("user_asynkron", dbUserAsynkron);
+
+      Flyway.configure().ignoreMissingMigrations(true).baselineOnMigrate(true).dataSource(dataSource).placeholders(placeholders).load().migrate();
     }
   }
-
 }
