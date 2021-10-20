@@ -195,7 +195,7 @@ public class PersonopplysningService {
 
     log.info("Navnekontroll gjennomført uten feil");
   }
-  
+
   private String normalisereNavn(String navn) {
     return Normalizer.normalize(navn, Form.NFD)
         .replaceAll("\\p{M}", "")

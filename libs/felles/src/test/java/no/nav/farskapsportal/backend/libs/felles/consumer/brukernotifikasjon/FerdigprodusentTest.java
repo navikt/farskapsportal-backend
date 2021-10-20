@@ -102,7 +102,6 @@ public class FerdigprodusentTest {
         () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(ferdigmelding.getTidspunkt()), ZoneId.of("UTC")))
             .isBetween(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2), ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime()),
         () -> assertThat(noekkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
-        () -> assertThat(noekkel.getEventId()).isEqualTo(farskapserklaering.getId()),
         () -> assertThat(noekkel.getEventId()).isEqualTo(oppgavebestilling.getEventId())
     );
   }

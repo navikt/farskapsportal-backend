@@ -49,11 +49,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-<<<<<<< HEAD:.github/workflows/api-ci.yml
           docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar --build-arg JAVA_OPTS=-Djavax.net.debug=handshake .
-=======
-          docker build --tag ${IMAGE} --build-arg JAVA_OPTS=-Djavax.net.debug=handshake .
->>>>>>> main:.github/workflows/ci.yml
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 

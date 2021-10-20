@@ -1,9 +1,9 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.DOKUMENT;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FAR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.MOR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -218,7 +218,12 @@ public class BrukernotifikasjonConsumerTest {
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(MOR).far(FAR).barn(BARN).dokument(DOKUMENT).build();
+    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
+        .build();
+
+    var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(MOR).far(FAR).barn(BARN).dokument(dokument).build();
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
         .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
@@ -264,7 +269,13 @@ public class BrukernotifikasjonConsumerTest {
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(MOR).far(FAR).barn(BARN).dokument(DOKUMENT).build();
+    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
+        .build();
+
+    var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(henteForelder(Forelderrolle.MOR))
+        .far(henteForelder(Forelderrolle.FAR)).barn(henteBarnUtenFnr(4)).dokument(dokument).build();
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
         .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);

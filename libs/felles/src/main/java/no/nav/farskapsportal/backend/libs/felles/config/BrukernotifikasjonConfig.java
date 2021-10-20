@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.libs.felles.config;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
@@ -14,6 +15,8 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Bes
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Ferdigprodusent;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Oppgaveprodusent;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
+import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -91,43 +94,29 @@ public class BrukernotifikasjonConfig {
 
   @Bean
   BrukernotifikasjonConsumer brukernotifikasjonConsumer(Beskjedprodusent beskjedprodusent, Ferdigprodusent ferdigprodusent,
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/config/BrukernotifikasjonConfig.java
-      Oppgaveprodusent oppgaveprodusent) throws MalformedURLException {
-    return new BrukernotifikasjonConsumer(toUrl(farskapsportalFellesEgenskaper.getUrl()), beskjedprodusent, ferdigprodusent, oppgaveprodusent);
-=======
-      Oppgaveprodusent oppgaveprodusent, FarskapsportalEgenskaper farskapsportalEgenskaper) throws MalformedURLException {
-    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent, farskapsportalEgenskaper);
->>>>>>> main:src/main/java/no/nav/farskapsportal/config/BrukernotifikasjonConfig.java
+      Oppgaveprodusent oppgaveprodusent, FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) throws MalformedURLException {
+    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent, toUrl(farskapsportalFellesEgenskaper.getUrl()),
+        farskapsportalFellesEgenskaper.getSystembrukerBrukernavn());
   }
 
   @Bean
-  Beskjedprodusent beskjedprodusent(@Qualifier("beskjed") KafkaTemplate<Nokkel, Beskjed> kafkaTemplate) {
-    return new Beskjedprodusent(farskapsportalFellesEgenskaper, kafkaTemplate);
+  Beskjedprodusent beskjedprodusent(@Qualifier("beskjed") KafkaTemplate<Nokkel, Beskjed> kafkaTemplate) throws MalformedURLException {
+    return new Beskjedprodusent(kafkaTemplate, toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper);
   }
 
   @Bean
   Oppgaveprodusent oppgaveprodusent(
-<<<<<<< HEAD:libs/felles/src/main/java/no/nav/farskapsportal/backend/libs/felles/config/BrukernotifikasjonConfig.java
-      @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate) throws MalformedURLException {
-    return new Oppgaveprodusent(toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper, kafkaTemplate);
-  }
+    @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate, PersistenceService persistenceService) throws MalformedURLException {
+      return new Oppgaveprodusent(kafkaTemplate, persistenceService, toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper);
+    }
 
-  @Bean
-  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<Nokkel, Done> kafkaTemplate) {
-    return new Ferdigprodusent(farskapsportalFellesEgenskaper, kafkaTemplate);
-  }
+    @Bean
+    Ferdigprodusent ferdigprodusent (@Qualifier("ferdig") KafkaTemplate < Nokkel, Done > kafkaTemplate, PersistenceService persistenceService,
+        OppgavebestillingDao oppgavebestillingDao){
+      return new Ferdigprodusent(kafkaTemplate, persistenceService, oppgavebestillingDao, farskapsportalFellesEgenskaper);
+    }
 
-  private URL toUrl(String url) throws MalformedURLException {
-    return new URL(url);
-=======
-      @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate, PersistenceService persistenceService) {
-    return new Oppgaveprodusent(farskapsportalEgenskaper, kafkaTemplate, persistenceService);
+    private URL toUrl (String url) throws MalformedURLException {
+      return new URL(url);
+    }
   }
-
-  @Bean
-  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<Nokkel, Done> kafkaTemplate, PersistenceService persistenceService,
-      OppgavebestillingDao oppgavebestillingDao) {
-    return new Ferdigprodusent(farskapsportalEgenskaper, kafkaTemplate, persistenceService, oppgavebestillingDao);
->>>>>>> main:src/main/java/no/nav/farskapsportal/config/BrukernotifikasjonConfig.java
-  }
-}

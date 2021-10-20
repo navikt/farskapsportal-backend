@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.persistence.dao;
+package no.nav.farskapsportal.backend.libs.felles.persistence.dao;
 
 import java.util.Optional;
 import java.util.Set;

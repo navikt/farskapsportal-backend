@@ -22,10 +22,6 @@ public class TestUtils {
   public static final LocalDate FOEDSELSDATO_NYFOEDT_BARN = LocalDate.now().minusMonths(2).minusDays(13);
   public static final NavnDto NAVN_FAR = NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build();
   public static final NavnDto NAVN_MOR = NavnDto.builder().fornavn("Ronaldina").etternavn("McDonald").build();
-  public static final Dokument DOKUMENT = Dokument.builder().navn("farskapserklaering.pdf")
-      .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).build())
-      .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
-      .build();
 
   public static String lageUrl(String kontekst) {
     return "http://localhost:8096" + kontekst;

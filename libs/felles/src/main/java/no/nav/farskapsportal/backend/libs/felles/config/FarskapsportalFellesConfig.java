@@ -11,6 +11,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.BarnDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
@@ -69,14 +70,16 @@ public class FarskapsportalFellesConfig {
   }
 
   @Bean
-  public PersistenceService persistenceService(PersonopplysningService personopplysningService,
+  public PersistenceService persistenceService(
+      OppgavebestillingDao oppgavebestillingDao,
+      PersonopplysningService personopplysningService,
       FarskapserklaeringDao farskapserklaeringDao,
       Mapper mapper,
       BarnDao barnDao,
       ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao,
       MeldingsloggDao meldingsloggDao) {
-    return new PersistenceService(personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
+    return new PersistenceService(oppgavebestillingDao, personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
         meldingsloggDao, mapper);
   }
 

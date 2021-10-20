@@ -35,26 +35,26 @@ public class BrukernotifikasjonConsumer {
 
   public void informereForeldreOmTilgjengeligFarskapserklaering(Forelder mor, Forelder far) {
     log.info("Informerer foreldre (mor: {}, far: {}) om ferdigstilt farskapserklæring.", mor.getId(), far.getId());
-    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, farskapsportalUrl, oppretteNokkel());
-    beskjedprodusent.oppretteBeskjedTilBruker(far, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, farskapsportalUrl, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(far, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, oppretteNokkel());
   }
 
   public void varsleMorOmUtgaattOppgaveForSignering(Forelder mor) {
     log.info("Sender varsel til mor om utgått signeringsoppgave");
-    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, farskapsportalUrl, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, oppretteNokkel());
   }
 
   public void varsleOmAvbruttSignering(Forelder mor, Forelder far) {
     log.info("Varsler brukere om avbrutt signering");
-    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING, true, farskapsportalUrl, oppretteNokkel());
-    beskjedprodusent.oppretteBeskjedTilBruker(far, MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING, true, farskapsportalUrl, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING, true, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(far, MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING, true, oppretteNokkel());
   }
 
   public void oppretteOppgaveTilFarOmSignering(int idFarskapserklaering, Forelder far) {
     try {
       oppgaveprodusent
           .oppretteOppgaveForSigneringAvFarskapserklaering(idFarskapserklaering, far,
-              MELDING_OM_VENTENDE_FARSKAPSERKLAERING, true, farskapsportalUrl);
+              MELDING_OM_VENTENDE_FARSKAPSERKLAERING, true);
     } catch (InternFeilException internFeilException) {
       log.error("En feil inntraff ved opprettelse av oppgave til far for farskapserklæring med id {}", idFarskapserklaering);
     }
