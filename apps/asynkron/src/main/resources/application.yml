@@ -32,12 +32,22 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-lesing: 10000
     maks-ventetid-forbindelse: 10000
 
+
+spring:
+  cloud:
+    gcp:
+      sql:
+        database-name: postgres
 ---
 spring:
   config.activate.on-profile: live
+  cloud.gcp.sql.database-name: ${DB_NAME}
+  cloud.gcp.sql.instance-connection-name: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
   datasource:
+    username: ${POSTGRES_USER_NAME}
+    password:  ${POSTGRES_USER_PASSWORD}
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql:///${DB_DATABASE}?cloudSqlInstance=${POSTGRES_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.postgres.SocketFactory&user=${POSTGRES_USER_NAME}&password=${ASYNKRON_FEATURE_PASSWORD}
+    url: jdbc:postgresql:///${DB_DATABASE}?cloudSqlInstance=${POSTGRES_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.postgres.SocketFactory&user=${POSTGRES_USER_NAME}&password=${POSTGRES_USER_PASSWORD}
     hikari:
       idle-timeout: 10001
       max-lifetime: 30001

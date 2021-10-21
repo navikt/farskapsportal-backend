@@ -123,6 +123,12 @@
       <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
+      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>javax.servlet</groupId>

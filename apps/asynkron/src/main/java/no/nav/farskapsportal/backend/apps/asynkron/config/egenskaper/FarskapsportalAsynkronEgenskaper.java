@@ -11,7 +11,7 @@ import org.springframework.context.annotation.PropertySource;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "farskapsportal.asynkron.egenskaper")
-@PropertySource(value = "classpath:asynkron-application.yml", factory = YamlPropertySourceFactory.class)
+@PropertySource(value = "classpath:application.yml", factory = YamlPropertySourceFactory.class)
 public class FarskapsportalAsynkronEgenskaper {
 
   private int arkiveringsintervall;
