@@ -31,11 +31,11 @@ env:
   - name: AUD_FP
     value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
-    value: "719909854975"
+    value: "627047445397"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
-    value: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
+    value: virksomhetssertifikat-test
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
-    value: "3"
+    value: "2"
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID
     value: "627047445397"
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN
