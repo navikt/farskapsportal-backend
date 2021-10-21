@@ -1,12 +1,22 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
+import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
+import no.nav.farskapsportal.backend.apps.api.config.DifiEsigneringConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.backend.apps.api.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.backend.apps.api.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -15,7 +25,11 @@ import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +53,9 @@ public class IntegrationTestManagementController {
 
   @Autowired
   private PersistenceService persistenceService;
+
+  @Autowired
+  private TempData tempData;
 
   @PostMapping("/testdata/deaktivere")
   @Operation(description = "Deaktiverer farskapserklæringer. Tilgjengelig kun i DEV.")
@@ -121,4 +138,10 @@ public class IntegrationTestManagementController {
 
     return new ResponseEntity<>(pdf, HttpStatus.OK);
   }
+
+  @GetMapping("/hente/data")
+  public ResponseEntity<byte[]> henteData() {
+    return new ResponseEntity<>(tempData.getBytes(), HttpStatus.OK);
+  }
+
 }
