@@ -1,6 +1,21 @@
 server.shutdown: graceful
 
 spring:
+  cloud.gcp.sql.database-name: ${DB_NAME}
+  cloud.gcp.sql.instance-connection-name: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
+  datasource:
+    username: ${POSTGRES_USER_NAME}
+    password: ${POSTGRES_USER_PASSWORD}
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  jpa.hibernate:
+    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   devtools.add-properties: false
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
@@ -15,7 +30,6 @@ spring:
         truststore:
           location: ${NAV_TRUSTSTORE_PATH}
           password: ${NAV_TRUSTSTORE_PASSWORD}
-
 url:
   joark:
     base-url: ${JOURNALPOSTAPI_URL}
@@ -58,34 +72,13 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-forbindelse: 10000
 
 ---
+spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
 spring:
-  config.activate.on-profile: live
-  cloud.gcp.sql.database-name: ${DB_NAME}
-  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
-  datasource:
-    username: ${POSTGRES_USER_NAME}
-    password:  ${POSTGRES_USER_PASSWORD}
-    type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql:///${DB_DATABASE}?cloudSqlInstance=${POSTGRES_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.postgres.SocketFactory&user=${POSTGRES_USER_NAME}&password=${POSTGRES_USER_PASSWORD}
-    hikari:
-      idle-timeout: 10001
-      max-lifetime: 30001
-      connectionTimeout: 1000
-      maximum-pool-size: 10
-      minimum-idle: 1
-  jpa:
-    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    database: postgresql
-
----
-spring:
-  config.activate.on-profile: test, scheduled-test, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
-  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
 
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 WIREMOCK_URL: http://localhost:8096
