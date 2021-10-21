@@ -1,10 +1,12 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@Value
+@AllArgsConstructor
+@Getter
 public class TempData {
 
-  byte[] bytes;
+  private byte[] bytes;
 
 }

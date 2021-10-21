@@ -1,6 +1,8 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -8,6 +10,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +25,8 @@ import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.backend.apps.api.provider.rs.TempData;
+import no.nav.farskapsportal.backend.apps.api.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -74,6 +80,21 @@ public class FarskapsportalApiConfig {
         .persistenceService(persistenceService)
         .personopplysningService(personopplysningService)
         .mapper(mapper).build();
+  }
+
+  @Bean
+  @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
+  public TempData tempData(
+      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
+      @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
+      @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
+      @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
+
+    var secretPayload = accessSecretVersion
+        .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
+
+    log.info("lengde sertifikat: {}", secretPayload.getData().size());
+    return new TempData(secretPayload.getData().toByteArray());
   }
 
   @Bean

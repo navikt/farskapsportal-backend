@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.yaml.YamlPropertySourceFactory;
+import no.nav.farskapsportal.backend.apps.api.provider.rs.TempData;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
@@ -37,7 +38,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
@@ -74,6 +74,12 @@ public class FarskapsportalApiApplicationLocal {
     httpHeaderTestRestTemplate.add(HttpHeaders.AUTHORIZATION, FarskapsportalApiApplicationLocal::generateTestToken);
 
     return httpHeaderTestRestTemplate;
+  }
+  
+  @Bean
+  @Profile(PROFILE_TEST)
+  public TempData tempData(){
+    return new TempData("123".getBytes(StandardCharsets.UTF_8));
   }
 
   @Bean
