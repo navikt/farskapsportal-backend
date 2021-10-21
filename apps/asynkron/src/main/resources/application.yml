@@ -32,12 +32,6 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-lesing: 10000
     maks-ventetid-forbindelse: 10000
 
-
-spring:
-  cloud:
-    gcp:
-      sql:
-        database-name: postgres
 ---
 spring:
   config.activate.on-profile: live
@@ -60,7 +54,7 @@ spring:
 
 ---
 spring:
-  config.activate.on-profile: test, scheduled-test
+  config.activate.on-profile: test, scheduled-test, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
