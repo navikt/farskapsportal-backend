@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -9,7 +8,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
 import javax.sql.DataSource;
@@ -22,7 +20,6 @@ import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.backend.apps.api.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -79,21 +76,6 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
-  public TempData tempData(
-      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
-      @Value("${virksomhetssertifikat.hemmelighetnavn}") String virksomhetssertifikatHemmelighetNavn,
-      @Value("${virksomhetssertifikat.hemmelighetversjon}") String virksomhetssertifikatHemmelighetVersjon,
-      @Autowired(required = false) AccessSecretVersion accessSecretVersion) throws IOException {
-
-    var secretPayload = accessSecretVersion
-        .accessSecretVersion(virksomhetssertifikatProsjektid, virksomhetssertifikatHemmelighetNavn, virksomhetssertifikatHemmelighetVersjon);
-
-    log.info("lengde sertifikat: {}", secretPayload.getData().size());
-    return new TempData(secretPayload.getData().toByteArray());
-  }
-
-  @Bean
   public ExceptionLogger exceptionLogger() {
     return new ExceptionLogger(FarskapsportalApiConfig.class.getSimpleName());
   }
@@ -133,7 +115,8 @@ public class FarskapsportalApiConfig {
   public static class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron) throws InterruptedException {
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron)
+        throws InterruptedException {
       Thread.sleep(30000);
       var placeholders = new HashMap<String, String>();
       placeholders.put("user_asynkron", dbUserAsynkron);
