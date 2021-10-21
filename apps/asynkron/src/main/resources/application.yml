@@ -1,5 +1,21 @@
 server.shutdown: graceful
 
+spring:
+  devtools.add-properties: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      schema.registry:
+        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+      security.protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
+      ssl:
+        truststore:
+          location: ${NAV_TRUSTSTORE_PATH}
+          password: ${NAV_TRUSTSTORE_PASSWORD}
+
 url:
   joark:
     base-url: ${JOURNALPOSTAPI_URL}
@@ -15,6 +31,15 @@ url:
   skatt:
     base-url: ${SKATT_URL}
     registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
+
+virksomhetssertifikat:
+  prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
+  hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN}
+  hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON}
+  passord:
+    prosjektid: ${VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID}
+    hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN}
+    hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
 farskapsportal.asynkron.egenskaper:
   systembruker-brukernavn: srvfarskapsportal
