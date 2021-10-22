@@ -68,8 +68,8 @@ farskapsportal.asynkron.egenskaper:
   skatt:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 10000
-    maks-ventetid-forbindelse: 10000
+    maks-ventetid-lesing: 120000
+    maks-ventetid-forbindelse: 130000
 
 ---
 spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
@@ -117,5 +117,19 @@ sertifikat:
 spring.config.activate.on-profile: scheduled-test
 
 farskapsportal.egenskaper.arkiveringsintervall: 60000
+
+---
+spring.config.activate.on-profile: integration-test
+
+SKATT_URL: https://folkeregisteret-api-ekstern.sits.no
+
+virksomhetssertifikat:
+  prosjektid: 627047445397
+  hemmelighetnavn: virksomhetssertifikat-test
+  hemmelighetversjon: 2
+  passord:
+    prosjektid: 627047445397
+    hemmelighetnavn: farskap-keystore-credentials-json
+    hemmelighetversjon: 2
 
 
