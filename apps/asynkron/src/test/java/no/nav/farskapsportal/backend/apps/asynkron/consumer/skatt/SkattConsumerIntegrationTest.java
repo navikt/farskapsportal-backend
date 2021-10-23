@@ -87,8 +87,8 @@ public class SkattConsumerIntegrationTest {
         .far(Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build())
         .barn(Barn.builder().termindato(UFOEDT_BARN.getTermindato()).build())
         .dokument(Dokument.builder()
-            .navn("farskapserklaering.pdf")
-            .dokumentinnhold(Dokumentinnhold.builder().innhold(readBytes(filnavnFarskapserklaering)).build())
+            .navn(filnavnFarskapserklaering)
+            .dokumentinnhold(Dokumentinnhold.builder().innhold(readBytes("farskapserklaering-test-20211023.pdf")).build())
             .signeringsinformasjonMor(Signeringsinformasjon.builder().signeringstidspunkt(LocalDateTime.now()).build())
             .signeringsinformasjonFar(Signeringsinformasjon.builder().signeringstidspunkt(LocalDateTime.now()).build())
             .build())
@@ -96,8 +96,8 @@ public class SkattConsumerIntegrationTest {
 
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(readFile("xades.xml"));
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(readFile("xades.xml"));
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(readFile("xades-mor.xml"));
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(readFile("xades-far.xml"));
 
     var millis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
     farskapserklaering.setMeldingsidSkatt(Long.toString(millis));
