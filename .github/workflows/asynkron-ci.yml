@@ -5,7 +5,7 @@ on:
       - '**'
       - '!release'
     paths:
-      - 'asynkron/**'
+      - 'apps/asynkron/**'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-asynkron:${{ github.sha }}
