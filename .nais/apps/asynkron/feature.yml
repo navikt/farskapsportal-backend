@@ -1,5 +1,5 @@
 name: asynkron-feature
-ingress: https://farskapsportal-asynkron-feature.dev.nav.no
+ingress: https://asynkron-feature.dev.nav.no
 
 gcp:
   sql-instances:
