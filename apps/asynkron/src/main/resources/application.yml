@@ -1,5 +1,7 @@
-server.shutdown: graceful
-
+server:
+  port: 8080
+  shutdown: graceful
+  
 spring:
   cloud.gcp.sql.database-name: ${DB_NAME}
   cloud.gcp.sql.instance-connection-name: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
