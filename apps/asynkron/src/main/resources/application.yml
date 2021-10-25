@@ -15,8 +15,8 @@ spring:
       connectionTimeout: 1000
       maximum-pool-size: 10
       minimum-idle: 1
-  jpa.hibernate:
-    connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   devtools.add-properties: false
   kafka:
