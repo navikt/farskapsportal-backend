@@ -32,6 +32,13 @@ spring:
         truststore:
           location: ${NAV_TRUSTSTORE_PATH}
           password: ${NAV_TRUSTSTORE_PASSWORD}
+
+management:
+  endpoints.web:
+    exposure.include: info, health, metrics, prometheus
+    base-path: /internal/actuator
+  endpoint.health.show-details: always
+
 url:
   joark:
     base-url: ${JOURNALPOSTAPI_URL}
