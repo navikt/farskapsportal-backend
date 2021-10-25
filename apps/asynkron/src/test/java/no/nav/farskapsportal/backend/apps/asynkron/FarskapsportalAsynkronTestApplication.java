@@ -31,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

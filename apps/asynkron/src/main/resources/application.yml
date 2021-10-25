@@ -34,8 +34,6 @@ spring:
           password: ${NAV_TRUSTSTORE_PASSWORD}
 
 management:
-  security.enabled: false
-  health.defaults.enabled: true
   endpoints.web:
     exposure.include: info, health, metrics, prometheus
     base-path: /internal/actuator
@@ -83,13 +81,14 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-forbindelse: 130000
 
 ---
-spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
+spring.config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
 spring:
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
 
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 WIREMOCK_URL: http://localhost:8096
@@ -142,5 +141,13 @@ virksomhetssertifikat:
     prosjektid: 627047445397
     hemmelighetnavn: farskap-keystore-credentials-json
     hemmelighetversjon: 2
+
+---
+spring.config.activate.on-profile: local
+
+# Lokal profil bruker selvstendige wiremocks
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
 
 
