@@ -17,6 +17,7 @@ public class FarskapsportalAsynkronEgenskaper {
   private int arkiveringsintervall;
   private boolean arkivereIJoark;
   private int brukernotifikasjonOppgaveSynlighetAntallDager;
+  private String sletteOppgaveIntervallCron;
   private String systembrukerBrukernavn;
   private String systembrukerPassord;
   private String urlFarskapsportal;
