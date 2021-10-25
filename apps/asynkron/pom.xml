@@ -134,6 +134,11 @@
 
     <!-- other -->
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
       <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
