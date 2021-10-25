@@ -1,7 +1,7 @@
 server:
   port: 8080
   shutdown: graceful
-  
+
 spring:
   cloud.gcp.sql.database-name: ${DB_NAME}
   cloud.gcp.sql.instance-connection-name: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
@@ -97,6 +97,7 @@ spring.config.activate.on-profile: skatt-ssl-test
 # SSL-oppsett med selfsigned server og klient-sertifikat for SkattStubController.
 # Brukes av SkattConsumerSslTest.
 server:
+  port: 9002
   ssl:
     enabled: true
     client-auth: need
