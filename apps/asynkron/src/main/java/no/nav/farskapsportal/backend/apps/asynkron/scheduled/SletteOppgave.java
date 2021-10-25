@@ -19,7 +19,7 @@ public class SletteOppgave {
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
   // Kjøres hver morgen kl 04:00
-  @Scheduled(cron = "${farskapsportal.asyknron.egenskaper.slette-oppgave.intervall.cron}")
+  @Scheduled(cron = "${farskapsportal.asyknron.egenskaper.slette-oppgave-intervall-cron}")
   public void sletteUtloepteSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
