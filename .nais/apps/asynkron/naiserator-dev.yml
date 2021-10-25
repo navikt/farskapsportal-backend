@@ -28,7 +28,7 @@ spec:
     timeout: 1
   prometheus:
     enabled: true
-    path: /internal/actuator/prometheus
+    path: /internal/prometheus
   replicas:
     max: 1
     min: 1
