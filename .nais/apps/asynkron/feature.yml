@@ -58,4 +58,6 @@ env:
     value: asynkron_feature
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
+  - name: SLETTE_OPPGAVE_CRONJOB
+    value: "*/15 * * * * ?"
 
