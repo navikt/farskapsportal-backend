@@ -17,6 +17,7 @@ import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApp
 import no.nav.farskapsportal.backend.apps.asynkron.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class SkattConsumerTest {
   private SkattConsumer skattConsumer;
 
   @Test
+  @Disabled
   void skalReturnereTidspunktForOverfoeringDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {
 
     // given

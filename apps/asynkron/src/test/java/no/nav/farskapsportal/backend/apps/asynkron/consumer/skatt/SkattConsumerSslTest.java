@@ -13,6 +13,7 @@ import no.nav.farskapsportal.backend.apps.asynkron.exception.SkattConsumerExcept
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ public class SkattConsumerSslTest {
   private SkattConsumer skattConsumerUsikret;
 
   @Test
+  @Disabled
   void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
 
     // given
