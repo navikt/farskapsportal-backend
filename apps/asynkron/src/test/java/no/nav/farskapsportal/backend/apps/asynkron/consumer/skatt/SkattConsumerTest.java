@@ -36,7 +36,6 @@ public class SkattConsumerTest {
   private SkattConsumer skattConsumer;
 
   @Test
-  @Disabled
   void skalReturnereTidspunktForOverfoeringDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {
 
     // given

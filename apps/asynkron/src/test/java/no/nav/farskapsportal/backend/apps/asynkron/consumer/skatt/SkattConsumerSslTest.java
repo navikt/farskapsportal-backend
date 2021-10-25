@@ -38,7 +38,6 @@ public class SkattConsumerSslTest {
   private SkattConsumer skattConsumerUsikret;
 
   @Test
-  @Disabled
   void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
 
     // given

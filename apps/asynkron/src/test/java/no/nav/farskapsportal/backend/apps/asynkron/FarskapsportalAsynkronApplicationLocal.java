@@ -23,7 +23,6 @@ import org.springframework.core.io.ResourceLoader;
 @SpringBootApplication
 @ComponentScan(excludeFilters = {
     @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = {FarskapsportalAsynkronApplication.class})})
-@EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
 @Slf4j
 public class FarskapsportalAsynkronApplicationLocal {
 

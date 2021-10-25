@@ -71,6 +71,7 @@ farskapsportal.asynkron.egenskaper:
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
   arkiveringsintervall: 3600000
   brukernotifikasjon-synlighet-antall-dager: 30
+  slette-oppgave.intervall.cron: ${SLETTE_OPPGAVE_CRONJOB}
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5

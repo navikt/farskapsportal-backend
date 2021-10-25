@@ -59,3 +59,5 @@ env:
     value: https://kafka-schema-registry.nais.adeo.no
   - name: SKATT_URL
     value: https://folkeregisteret.api.skatteetaten.no
+  - name: SLETTE_OPPGAVE_CRONJOB
+    value: "0 00 4 * * ?"
