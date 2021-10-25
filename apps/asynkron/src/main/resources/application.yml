@@ -34,6 +34,8 @@ spring:
           password: ${NAV_TRUSTSTORE_PASSWORD}
 
 management:
+  security.enabled: false
+  health.defaults.enabled: true
   endpoints.web:
     exposure.include: info, health, metrics, prometheus
     base-path: /internal/actuator
