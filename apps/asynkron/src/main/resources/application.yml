@@ -69,9 +69,9 @@ virksomhetssertifikat:
 farskapsportal.asynkron.egenskaper:
   systembruker-brukernavn: srvfarskapsportal
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
-  arkiveringsintervall: 3600000
+  arkiveringsintervall: ${ARKIVERINGSINTERVALL}
   brukernotifikasjon-synlighet-antall-dager: 30
-  slette-oppgave-intervall-cron: ${SLETTE_OPPGAVE_CRONJOB}
+  oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
@@ -131,8 +131,8 @@ sertifikat:
 
 ---
 spring.config.activate.on-profile: scheduled-test
-
-farskapsportal.egenskaper.arkiveringsintervall: 60000
+farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.oppgaveslettingsintervall: 600
 
 ---
 spring.config.activate.on-profile: integration-test

@@ -31,7 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +39,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -174,24 +174,4 @@ public class FarskapsportalAsynkronTestApplication {
     }
   }
 
-  @Lazy
-  @Configuration
-  @Profile(PROFILE_SCHEDULED_TEST)
-  static class SkattStubConfiguration {
-
-    @LocalServerPort
-    private int localServerPort;
-
-    @Bean
-    SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
-        @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
-
-      var baseUrl = "http://localhost:" + localServerPort;
-      log.info("baseUrl: {}", baseUrl);
-
-      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
-      restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-      return new SkattConsumer(restTemplate, consumerEndpoint);
-    }
-  }
 }

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

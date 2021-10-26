@@ -24,6 +24,7 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.joark.api.DokumentInfo;
 import no.nav.farskapsportal.backend.libs.dto.joark.api.OpprettJournalpostResponse;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
@@ -82,6 +83,19 @@ public class ArkivereFarskapserklaeringerTest {
         .persistenceService(persistenceService).build();
   }
 
+  private Farskapserklaering henteFarskapserklaeringNyfoedtSignertAvMor(String persnrBarn) {
+    var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
+        henteBarnMedFnr(LocalDate.now().minusWeeks(3), persnrBarn));
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering.setFarBorSammenMedMor(true);
+    farskapserklaering.getDokument()
+        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+    farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
+    return farskapserklaering;
+  }
+
   @Nested
   @DisplayName("Teste overføring til Skatt")
   class OverfoereTilSkatt {
@@ -95,18 +109,9 @@ public class ArkivereFarskapserklaeringerTest {
       meldingsloggDao.deleteAll();
 
       // given
-      var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-          henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111"));
-      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
-      farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+      var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("98953");
 
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-
-      farskapserklaering.getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-      farskapserklaering.setMeldingsidSkatt("123");
-      farskapserklaering.setFarBorSammenMedMor(true);
 
       var lagretSignertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
@@ -131,32 +136,18 @@ public class ArkivereFarskapserklaeringerTest {
     void skalSetteTidspunktForOverfoeringVedOverfoeringTilSkatt() {
 
       // given
-      var farskapserklaering1 = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-          henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111"));
-      farskapserklaering1.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-      farskapserklaering1.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaering1.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-      farskapserklaering1.setFarBorSammenMedMor(true);
-      farskapserklaering1.getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-      farskapserklaering1.setMeldingsidSkatt("1234");
+      meldingsloggDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+
+      Farskapserklaering farskapserklaering1 = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
 
       var lagretSignertFarskapserklaering1 = persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
       assert (lagretSignertFarskapserklaering1.getSendtTilSkatt() == null);
 
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering1)).thenReturn(LocalDateTime.now().minusMinutes(1));
 
-      var farskapserklaering2 = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-          henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222"));
-      farskapserklaering2.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-
-      farskapserklaering2.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaering2.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-      farskapserklaering2.setFarBorSammenMedMor(true);
-      farskapserklaering2.getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-
-      farskapserklaering2.setMeldingsidSkatt("2345");
+      Farskapserklaering farskapserklaering2 = henteFarskapserklaeringNyfoedtSignertAvMor("54321");
       var lagretSignertFarskapserklaering2 = persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
       assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
 
@@ -182,25 +173,18 @@ public class ArkivereFarskapserklaeringerTest {
     void skalIkkeOverfoereErklaeringSomIkkeErSignertAvBeggeParter() {
 
       // given
-      var farskapserklaeringIkkeSignertAvFar = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-          henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111"));
-      farskapserklaeringIkkeSignertAvFar.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
-      var lagretFarskapserklaeringIkkeSignertAvFar = persistenceService.lagreNyFarskapserklaering(farskapserklaeringIkkeSignertAvFar);
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+      meldingsloggDao.deleteAll();
+
+      var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("43215");
+      farskapserklaering.setMeldingsidSkatt(null);
+      var lagretFarskapserklaeringIkkeSignertAvFar = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
       assert (lagretFarskapserklaeringIkkeSignertAvFar.getSendtTilSkatt() == null);
 
-      var farskapserklaeringSignertAvBeggeParter =
-          henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-              henteBarnMedFnr(LocalDate.now().minusWeeks(3), "22222"));
-      farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonMor()
-          .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-      farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
-      farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonFar()
-          .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+      var farskapserklaeringSignertAvBeggeParter = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
       farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaeringSignertAvBeggeParter.getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-      farskapserklaeringSignertAvBeggeParter.setFarBorSammenMedMor(true);
-      farskapserklaeringSignertAvBeggeParter.setMeldingsidSkatt("2345");
       var lagretFarskapserklaeringSignertAvBeggeParter = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSignertAvBeggeParter);
       assert (lagretFarskapserklaeringSignertAvBeggeParter.getSendtTilSkatt() == null);
 
@@ -230,19 +214,10 @@ public class ArkivereFarskapserklaeringerTest {
     void skalOverfoereFarskapserklaeringTilSkattSomErSendtTilJoarkMenIkkeSkatt() {
 
       // given
-      var farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt = henteFarskapserklaering(henteForelder(Forelderrolle.MOR),
-          henteForelder(Forelderrolle.FAR), henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111"));
-      farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getDokument().getSigneringsinformasjonMor()
-          .setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
-      farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getDokument().getSigneringsinformasjonMor()
-          .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+      var farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt = henteFarskapserklaeringNyfoedtSignertAvMor("51432");
+
       farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getDokument().getSigneringsinformasjonFar()
-          .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-      farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.setFarBorSammenMedMor(true);
-      farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-      farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.setMeldingsidSkatt("1234");
+
       farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.setSendtTilJoark(LocalDateTime.now().minusMinutes(10));
 
       assert (farskapserklaeringSomErSendtTilJoarkMenIkkeTilSkatt.getSendtTilSkatt() == null);
@@ -279,19 +254,10 @@ public class ArkivereFarskapserklaeringerTest {
     void skalIkkeOverfoereFarskapserklaeringerSomAlleredeErSendtTilSkatt() {
 
       // given
-      var farskapserklaeringAlleredeOverfoert = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-          henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111"));
-      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonMor()
-          .setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
-      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonMor()
-          .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+      var farskapserklaeringAlleredeOverfoert = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+
       farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonFar()
-          .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-      farskapserklaeringAlleredeOverfoert.setFarBorSammenMedMor(false);
-      farskapserklaeringAlleredeOverfoert.getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-      farskapserklaeringAlleredeOverfoert.setMeldingsidSkatt("1234");
+
       farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(LocalDateTime.now());
       farskapserklaeringAlleredeOverfoert.setSendtTilJoark(LocalDateTime.now());
 
@@ -576,19 +542,9 @@ public class ArkivereFarskapserklaeringerTest {
 
       var jpId = "123";
       var tidspunktSendtTilSkatt = LocalDateTime.now();
-      var farskapserklaeringTilSkattOgJoark = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-          henteBarnMedFnr(LocalDate.now().minusWeeks(3), "11111"));
-      farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonMor()
-          .setSigneringstidspunkt(LocalDateTime.now().minusHours(1));
-      farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonMor()
-          .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+      var farskapserklaeringTilSkattOgJoark = henteFarskapserklaeringNyfoedtSignertAvMor("1234");
+
       farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaeringTilSkattOgJoark.getDokument().getSigneringsinformasjonFar()
-          .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-      farskapserklaeringTilSkattOgJoark.setFarBorSammenMedMor(false);
-      farskapserklaeringTilSkattOgJoark.getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-      farskapserklaeringTilSkattOgJoark.setMeldingsidSkatt("1234");
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringTilSkattOgJoark);
 

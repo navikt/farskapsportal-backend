@@ -9,6 +9,10 @@ kafka:
     host: kafka-schema-registry.nais-q.adeo.no
     url: https://kafka-schema-registry.nais-q.adeo.no
 env:
+  - name: AKRIVERINGSINTERVALL
+    value: 60000
+  - name: AKRIVERINGSFORSINKELSE
+    value: 60000
   - name: APIGW_URL
     value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
@@ -41,5 +45,5 @@ env:
     value: https://kafka-schema-registry.nais-q.adeo.no
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
-  - name: SLETTE_OPPGAVE_CRONJOB
-    value: "*/15 * * * * ?"
+  - name: OPPGAVESLETTINGSINTERVALL
+    value: 3600000
