@@ -9,9 +9,9 @@ kafka:
     host: kafka-schema-registry.nais-q.adeo.no
     url: https://kafka-schema-registry.nais-q.adeo.no
 env:
-  - name: AKRIVERINGSINTERVALL
+  - name: ARKIVERINGSINTERVALL
     value: 60000
-  - name: AKRIVERINGSFORSINKELSE
+  - name: ARKIVERINGSFORSINKELSE
     value: 60000
   - name: APIGW_URL
     value: https://api-gw-q1.oera.no
