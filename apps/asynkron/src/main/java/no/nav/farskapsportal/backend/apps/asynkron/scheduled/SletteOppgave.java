@@ -18,7 +18,7 @@ public class SletteOppgave {
   private PersistenceService persistenceService;
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
-  @Scheduled(fixedDelayString = "${farskapsportal.asynkron.egenskaper.oppgaveslettingsintervall}")
+  @Scheduled(initialDelayString = "${farskapsportal.asynkron.egenskaper.oppgaveslettingsforsinkelse}", fixedDelayString = "${farskapsportal.asynkron.egenskaper.oppgaveslettingsintervall}")
   public void sletteUtloepteSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 

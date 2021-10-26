@@ -70,8 +70,10 @@ farskapsportal.asynkron.egenskaper:
   systembruker-brukernavn: srvfarskapsportal
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
   arkiveringsintervall: ${ARKIVERINGSINTERVALL}
+  arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
   brukernotifikasjon-synlighet-antall-dager: 30
   oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
+  oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
@@ -132,7 +134,9 @@ sertifikat:
 ---
 spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
 farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
 farskapsportal.asynkron.egenskaper.oppgaveslettingsintervall: 600
+farskapsportal.asynkron.egenskaper.oppgaveslettingsforsinkelse: 0
 
 ---
 spring.config.activate.on-profile: integration-test

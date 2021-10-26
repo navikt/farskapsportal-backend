@@ -46,3 +46,6 @@ env:
     value: https://folkeregisteret.api.skatteetaten.no
   - name: OPPGAVESLETTINGSINTERVALL
     value: 5400000
+  - name: OPPGAVESLETTINGSFORSINKELSE
+    value: 360000
+

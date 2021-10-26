@@ -25,7 +25,7 @@ public class ArkivereFarskapserklaeringer {
   private int intervallMellomForsoek;
   private boolean arkivereIJoark;
 
-  @Scheduled(initialDelay = 30000, fixedDelayString = "${farskapsportal.asynkron.egenskaper.arkiveringsintervall}")
+  @Scheduled(initialDelayString = "${farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse}", fixedDelayString = "${farskapsportal.asynkron.egenskaper.arkiveringsintervall}")
   public void vurdereArkivering() {
 
     log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til  Skatt og evnt Joark");

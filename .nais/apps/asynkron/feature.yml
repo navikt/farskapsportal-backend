@@ -21,9 +21,9 @@ kafka:
     url: https://kafka-schema-registry.nais-q.adeo.no
 env:
   - name: ARKIVERINGSINTERVALL
-    value: 60000
+    value: 180000
   - name: ARKIVERINGSFORSINKELSE
-    value: 60000
+    value: 30000
   - name: APIGW_URL
     value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
@@ -63,5 +63,7 @@ env:
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
   - name: OPPGAVESLETTINGSINTERVALL
+    value: 1200000
+  - name: OPPGAVESLETTINGSFORSINKELSE
     value: 120000
 

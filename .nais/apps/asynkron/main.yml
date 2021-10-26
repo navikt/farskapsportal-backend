@@ -46,4 +46,6 @@ env:
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
   - name: OPPGAVESLETTINGSINTERVALL
-    value: 3600000
+    value: 1200000
+  - name: OPPGAVESLETTINGSFORSINKELSE
+    value: 120000
