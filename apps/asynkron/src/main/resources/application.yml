@@ -130,7 +130,7 @@ sertifikat:
   keystore-name: client-selfsigned.jks
 
 ---
-spring.config.activate.on-profile: scheduled-test
+spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
 farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
 farskapsportal.asynkron.egenskaper.oppgaveslettingsintervall: 600
 
