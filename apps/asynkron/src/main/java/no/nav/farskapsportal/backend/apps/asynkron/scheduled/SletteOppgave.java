@@ -22,6 +22,8 @@ public class SletteOppgave {
   public void sletteUtloepteSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
+    log.info("Ser etter utløpte signeringsoppgaver. Fant {} farskapserklæringer som venter på fars signatur.", farskapserklaeringerSomVenterPaaFar.size());
+
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
       if (farskapserklaering.getDokument().getSigneringsinformasjonMor()
           .getSigneringstidspunkt().toLocalDate()
