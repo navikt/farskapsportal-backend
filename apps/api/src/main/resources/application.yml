@@ -1,0 +1,287 @@
+server.shutdown: graceful
+
+spring:
+  devtools.add-properties: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      schema.registry:
+        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+      security.protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
+      ssl:
+        truststore:
+          location: ${NAV_TRUSTSTORE_PATH}
+          password: ${NAV_TRUSTSTORE_PASSWORD}
+  flyway:
+    placeholders:
+      user: ${DB_USER_ASYNKRON}
+
+springdoc:
+  packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
+  show-login-endpoint: true
+  swagger-ui.path: /swagger-ui.html
+
+virksomhetssertifikat:
+  prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
+  hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN}
+  hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON}
+  passord:
+    prosjektid: ${VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID}
+    hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN}
+    hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
+
+farskapsportal.egenskaper:
+  systembruker-brukernavn: srvfarskapsportal
+  systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
+  brukernotifikasjonerPaa: true
+  min-antall-uker-til-termindato: -3
+  maks-antall-uker-til-termindato: 21
+  maks-antall-maaneder-etter-foedsel: 6
+  nav-orgnummer: 889640782
+  url: ${FARSKAPSPORTAL_URL}
+  kontroll-far-forsoek-fornyes-etter-antall-dager: 1
+  kontroll-far-maks-antall-forsoek: 3
+  arkiveringsintervall: 3600000
+  arkivere-i-joark: false
+  brukernotifikasjon:
+    grupperingsid-farskap: farskap
+    skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
+    topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1
+    topic-ferdig: aapen-brukernotifikasjon-done-v1
+    topic-oppgave: aapen-brukernotifikasjon-nyOppgave-v1
+    synlighet-beskjed-antall-maaneder: 1
+    synlighet-oppgave-antall-dager: 30
+    sikkerhetsnivaa-beskjed: 3
+    sikkerhetsnivaa-oppgave: 3
+  esignering:
+    innhente-status-ved-polling: false
+    suksess-url: ${ESIGNERING_SUKSESS_URL}
+    avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
+    feilet-url: ${ESIGNERING_FEILET_URL}
+
+management:
+  endpoints.web:
+    exposure.include: info, health, metrics, prometheus
+    base-path: /internal/actuator
+  endpoint.health.show-details: always
+
+url:
+  farskapsportal:
+    url: ${FARSKAPSPORTAL_URL}
+  pdl-api:
+    base-url: ${APIGW_URL}
+    graphql: "/pdl-api/graphql"
+  sts:
+    base-url: ${APIGW_URL}
+    security-token-service: "/security-token-service/rest/v1/sts/token"
+
+farskapsportal-api:
+  disable-esignering: false
+
+---
+spring:
+  cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
+  config.activate.on-profile: live
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  flyway:
+    enabled: false
+    locations: classpath:/db/migration
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    database: postgresql
+
+no.nav:
+  security.jwt.issuer.selvbetjening:
+    discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+    accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
+
+---
+### H2 ###
+spring:
+  config.activate.on-profile: test, local
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+
+---
+### POSTGRES ###
+spring:
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test,  remote-postgres
+  # Oppsett for flyway med hikari og postgres
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5432/postgres
+    password:
+    databaseName: postgres
+    portNumber: 5432
+    serverName: localhost
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  flyway:
+    enabled: false
+    flyway.locations: classpath:/db/migration
+  jpa:
+    hibernate:
+      connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+
+DB_USER_ASYNKRON: asynkron_feature
+---
+### MOCK AZURE ###
+spring:
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test
+
+no.nav.security.jwt:
+  issuer.selvbetjening:
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+---
+spring:
+  config.activate.on-profile: test, local, local-postgres, integration-test, remote-postgres
+  main.allow-bean-definition-overriding: true
+
+INTEGRATION_TEST_CONTROLLER_PAA: true
+########## Mock props ##########
+WIREMOCK_URL: http://localhost:8096
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
+FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/nb/
+ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
+ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
+ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
+KAFKA_BROKERS: 127.0.0.1:9092
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
+NAV_TRUSTSTORE_PATH: certs/server-selfsigned.jks
+NAV_TRUSTSTORE_PASSWORD: qwer1234
+NAIS_CLUSTER_NAME: dev
+SRVFARSKAPSPORTAL_PWD: top_hemmelig
+
+url:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+
+farskapsportal-api.systembruker.passord: se-vault
+
+---
+spring:
+  config.activate.on-profile: test
+
+server.port: 8080
+
+BRUKERNOTIFIKASJON_PAA: true
+
+---
+spring:
+  config.activate.on-profile: local, local-postgres, remote-postgres, integration-test
+  flyway.enabled: false
+
+BRUKERNOTIFIKASJON_PAA: false
+
+---
+spring:
+  config.activate.on-profile: local, test, local-postgres, remote-postgres
+  flyway.enabled: false
+
+ESIGNERING_SUKSESS_URL: "http://localhost:8080/all-good"
+ESIGNERING_AVBRUTT_URL: "http://localhost:8080/f.this"
+ESIGNERING_FEILET_URL: "http://localhost:8080/damn"
+
+# Lar wiremock håndtere esignering
+farskapsportal-api.disable-esignering: false
+
+url.esignering: ${WIREMOCK_URL}
+
+spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.consumer.group-id: farskapsportal
+spring.kafka.consumer.auto-offset-reset: earliest
+
+---
+
+spring.config.activate.on-profile: local
+
+# Lokal profil bruker selvstendige wiremocks
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+---
+spring:
+  config.activate.on-profile: local-postgres, remote-postgres
+
+WIREMOCK_URL: http://localhost:8096
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
+KAFKA_BROKERS: 127.0.0.1:9092
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8080
+BRUKERNOTIFIKASJON_PAA: false
+NAIS_CLUSTER_NAME: dev-gcp
+
+url:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+
+farskapsportal-api:
+  systembruker.passord: se-vault
+
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+---
+spring:
+  config.activate.on-profile: remote-postgres
+  datasource:
+    username: ${REMOTE_POSTGRES_USER}
+    url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
+    password: ${REMOTE_POSTGRES_PWD}
+    databaseName: farskapsportaldb-feature
+
+---
+# Integrasjonstesting mot Posten
+spring:
+  config.activate.on-profile: integration-test
+
+url:
+  esignering: https://api.difitest.signering.posten.no/api
+
+virksomhetssertifikat:
+  prosjektid: 719909854975
+  hemmelighetnavn: test-virksomhetssertifikat-lokal-test-jceks_2021-2024
+  hemmelighetversjon: 1
+  passord:
+    prosjektid: 627047445397
+    hemmelighetnavn: farskap-keystore-credentials-json
+    hemmelighetversjon: 2
+
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+---
+
+spring.config.activate.on-profile: integration-test2
+
+no.nav:
+  security.jwt.issuer.selvbetjening:
+    discoveryurl: https://navtestb2c.b2clogin.com/navtestb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+    accepted_audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5

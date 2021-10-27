@@ -1,0 +1,90 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      schema.registry:
+        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+      security.protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
+      ssl:
+        truststore:
+          location: ${NAV_TRUSTSTORE_PATH}
+          password: ${NAV_TRUSTSTORE_PASSWORD}
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    database: postgresql
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+
+url:
+  pdl-api:
+    base-url: ${APIGW_URL}
+    graphql: "/pdl-api/graphql"
+  sts:
+    base-url: ${APIGW_URL}
+    security-token-service: "/security-token-service/rest/v1/sts/token"
+
+farskapsportal.felles.egenskaper:
+  systembruker-brukernavn: srvfarskapsportal
+  systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
+  maks-antall-maaneder-etter-foedsel: 3
+  kontroll-far-maks-antall-forsoek: 3
+  url: ${FARSKAPSPORTAL_URL}
+  brukernotifikasjon:
+    grupperingsid-farskap: farskap
+    skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
+    topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1
+    topic-ferdig: aapen-brukernotifikasjon-done-v1
+    topic-oppgave: aapen-brukernotifikasjon-nyOppgave-v1
+    synlighet-beskjed-antall-maaneder: 1
+    synlighet-oppgave-antall-dager: 30
+    sikkerhetsnivaa-beskjed: 3
+    sikkerhetsnivaa-oppgave: 3
+
+---
+spring:
+  config.activate.on-profile: test
+
+WIREMOCK_URL: http://localhost:8096
+
+url:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+
+### misc
+BRUKERNOTIFIKASJON_PAA: true
+FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no/nb/"
+NAV_TRUSTSTORE_PATH: classpath:cert/server-selfsigned.jks
+NAV_TRUSTSTORE_PASSWORD: qwer1234
+NAIS_CLUSTER_NAME: dev
+SRVFARSKAPSPORTAL_PWD: top_hemmelig
+APIKEY_PDLAPI_FP: keyForZoneCrossing
+APIKEY_STS_FP: keyForZoneCrossing
+
+### kafka
+KAFKA_BROKERS: 127.0.0.1:9092
+KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
+
+spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.consumer.group-id: farskapsportal
+spring.kafka.consumer.auto-offset-reset: earliest
+
+
+---
+### H2 ###
+spring:
+  config.activate.on-profile: test
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop

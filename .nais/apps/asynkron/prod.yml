@@ -1,0 +1,51 @@
+name: asynkron
+ingress: https://farskapsportal-asynkron.dev.nav.no
+gcp:
+  secretmanager.host: secretmanager.googleapis.com
+kafka:
+  brokers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
+  schema-registry:
+    host: kafka-schema-registry.nais.adeo.no
+    url: https://kafka-schema-registry.nais.adeo.no
+env:
+  - name: ARKIVERINGSINTERVALL
+    value: 3600000
+  - name: ARKIVERINGSFORSINKELSE
+    value: 60000
+  - name: APIGW_URL
+    value: https://api-gw.oera.no
+  - name: BRUKERNOTIFIKASJON_PAA
+    value: "true"
+  - name: DISCOVERY_URL
+    value: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
+  - name: AUD_FP
+    value: f45035f2-9a27-46f7-917c-0569a03285cd
+  - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
+    value: "642182003125"
+  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
+    value: virksomhetssertifikat-farskap-keystore-jceks_2021-2024
+  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
+    value: "3"
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID
+    value: "642182003125"
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN
+    value: farskap-keystore-credentials-json
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
+    value: "3"
+  - name: FARSKAPSPORTAL_URL
+    value: https://farskapsportal.nav.no
+  - name: INTEGRATION_TEST_CONTROLLER_PAA
+    value: "false"
+  - name: JOURNALPOSTAPI_URL
+    value: https://dokarkiv.adeo.no
+  - name: KAFKA_BROKERS
+    value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
+  - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
+    value: https://kafka-schema-registry.nais.adeo.no
+  - name: SKATT_URL
+    value: https://folkeregisteret.api.skatteetaten.no
+  - name: OPPGAVESLETTINGSINTERVALL
+    value: 5400000
+  - name: OPPGAVESLETTINGSFORSINKELSE
+    value: 360000
+
