@@ -61,4 +61,4 @@ env:
     value: https://folkeregisteret-api-ekstern.sits.no
 secret:
   - name: farskapsportal-api-secret
-  - name: postgres-user-asynkron-feature-password
+  - name: postgres-user-asynkron-main-password
