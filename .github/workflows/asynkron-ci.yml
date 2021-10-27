@@ -1,4 +1,4 @@
-name: continuous integration farskapsportal-asynkron
+name: continuous integration asynkron
 on:
   push:
     branches:
