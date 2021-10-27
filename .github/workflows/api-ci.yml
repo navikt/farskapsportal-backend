@@ -6,6 +6,7 @@ on:
       - '!release'
     paths:
       - 'apps/api/**'
+      - '**/api-ci.yml'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
