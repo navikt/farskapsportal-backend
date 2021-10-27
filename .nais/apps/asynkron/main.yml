@@ -1,8 +1,5 @@
 name: asynkron
 ingress: https://farskapsportal-asynkron.dev.nav.no
-gcp:
-  secretmanager:
-    host: secretmanager.googleapis.com
 kafka:
   brokers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
   schema-registry:
@@ -17,6 +14,8 @@ env:
     value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
+  - name: DB_NAME
+    value: fpdb-main
   - name: DISCOVERY_URL
     value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
   - name: AUD_FP
@@ -53,3 +52,6 @@ env:
     value: 1200000
   - name: OPPGAVESLETTINGSFORSINKELSE
     value: 120000
+secret:
+  - name: farskapsportal-api-secret
+  - name: postgres-user-asynkron-main-password

@@ -41,11 +41,12 @@ spec:
       value: "{{this.value}}"
   {{/each}}
   envFrom:
-    - secret: farskapsportal-api-secret
+  {{#each secret}}
+    - secret: {{this.name } }
+  {{/each}}
   accessPolicy:
     outbound:
       external:
         - host: api.signering.posten.no
         - host: folkeregisteret.api.skatteetaten.no
         - host: secretmanager.googleapis.com
-        - host: {{ kafka.schema-registry.host }}

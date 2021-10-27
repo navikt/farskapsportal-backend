@@ -11,11 +11,6 @@ gcp:
       users:
         asynkron:
           name: asynkron_feature
-kafka:
-  brokers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-  schema-registry:
-    host: kafka-schema-registry.nais-q.adeo.no
-    url: https://kafka-schema-registry.nais-q.adeo.no
 env:
   - name: APIGW_URL
     value: https://api-gw-q1.oera.no
@@ -57,10 +52,3 @@ env:
     value: https://kafka-schema-registry.nais-q.adeo.no
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
-secret:
-  - name: farskapsportal-api-secret
-  - name: postgres-user-asynkron-feature-password
-
-
-
-

@@ -1,8 +1,6 @@
 name: farskapsportal-api
 ingress: https://farskapsportal-api.dev.nav.no
 gcp:
-  secretmanager:
-    host: secretmanager.googleapis.com
   sql-instances:
     name: fp-main
     tier: db-custom-1-3840
@@ -13,11 +11,6 @@ gcp:
       users:
         asynkron:
           name: asynkron_main
-kafka:
-  brokers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-  schema-registry:
-    host: kafka-schema-registry.nais-q.adeo.no
-    url: https://kafka-schema-registry.nais-q.adeo.no
 env:
   - name: APIGW_URL
     value: https://api-gw-q1.oera.no
