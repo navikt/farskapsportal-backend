@@ -15,7 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @ActiveProfiles(PROFILE_SCHEDULED_TEST)
 @SpringJUnitConfig(ScheduledConfig.class)
-public class SletteOppgaveSchedulingTest {
+public class OppgavestyringSchedulingTest {
 
   @Autowired
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;

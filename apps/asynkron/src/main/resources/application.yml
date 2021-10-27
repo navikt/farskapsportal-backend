@@ -71,7 +71,7 @@ farskapsportal.asynkron.egenskaper:
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
   arkiveringsintervall: ${ARKIVERINGSINTERVALL}
   arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
-  brukernotifikasjon-synlighet-antall-dager: 30
+  brukernotifikasjon-oppgave-synlighet-antall-dager: 30
   oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
   oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
   joark:

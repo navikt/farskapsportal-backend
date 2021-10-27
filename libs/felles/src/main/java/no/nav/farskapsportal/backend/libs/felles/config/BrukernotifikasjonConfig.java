@@ -95,7 +95,7 @@ public class BrukernotifikasjonConfig {
   @Bean
   BrukernotifikasjonConsumer brukernotifikasjonConsumer(Beskjedprodusent beskjedprodusent, Ferdigprodusent ferdigprodusent,
       Oppgaveprodusent oppgaveprodusent, FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) throws MalformedURLException {
-    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent, toUrl(farskapsportalFellesEgenskaper.getUrl()),
+    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent,
         farskapsportalFellesEgenskaper.getSystembrukerBrukernavn());
   }
 
@@ -106,17 +106,17 @@ public class BrukernotifikasjonConfig {
 
   @Bean
   Oppgaveprodusent oppgaveprodusent(
-    @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate, PersistenceService persistenceService) throws MalformedURLException {
-      return new Oppgaveprodusent(kafkaTemplate, persistenceService, toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper);
-    }
-
-    @Bean
-    Ferdigprodusent ferdigprodusent (@Qualifier("ferdig") KafkaTemplate < Nokkel, Done > kafkaTemplate, PersistenceService persistenceService,
-        OppgavebestillingDao oppgavebestillingDao){
-      return new Ferdigprodusent(kafkaTemplate, persistenceService, oppgavebestillingDao, farskapsportalFellesEgenskaper);
-    }
-
-    private URL toUrl (String url) throws MalformedURLException {
-      return new URL(url);
-    }
+      @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate, PersistenceService persistenceService) throws MalformedURLException {
+    return new Oppgaveprodusent(kafkaTemplate, persistenceService, toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper);
   }
+
+  @Bean
+  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<Nokkel, Done> kafkaTemplate, PersistenceService persistenceService,
+      OppgavebestillingDao oppgavebestillingDao) {
+    return new Ferdigprodusent(kafkaTemplate, persistenceService, oppgavebestillingDao, farskapsportalFellesEgenskaper);
+  }
+
+  private URL toUrl(String url) throws MalformedURLException {
+    return new URL(url);
+  }
+}

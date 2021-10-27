@@ -7,7 +7,7 @@ import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.Farskapspor
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserklaeringer;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.SletteOppgave;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +45,10 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public SletteOppgave sletteOppgave(
+  public Oppgavestyring sletteOppgave(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
-    return SletteOppgave.builder()
+    return Oppgavestyring.builder()
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .persistenceService(persistenceService)

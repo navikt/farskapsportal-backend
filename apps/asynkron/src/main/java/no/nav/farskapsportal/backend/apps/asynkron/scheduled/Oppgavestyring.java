@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 @Builder
 @Slf4j
-public class SletteOppgave {
+public class Oppgavestyring {
 
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private PersistenceService persistenceService;
@@ -31,6 +31,8 @@ public class SletteOppgave {
 
         var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaering.getId(),
             farskapserklaering.getFar());
+
+        log.info("Fant {} utløpte signeringsoppgaver knyttet til farskapserklæring med id {}.", farskapserklaering.getId());
 
         for (Oppgavebestilling oppgave : aktiveOppgaver) {
 

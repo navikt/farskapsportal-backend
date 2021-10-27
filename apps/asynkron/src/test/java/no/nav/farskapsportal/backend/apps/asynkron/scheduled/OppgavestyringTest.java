@@ -53,7 +53,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DirtiesContext
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalAsynkronTestApplication.class)
 @ActiveProfiles(PROFILE_TEST)
-public class SletteOppgaveTest {
+public class OppgavestyringTest {
 
   private static final int BRUKERNOTIFIKASJON_BESKJED_MND_SYNLIG = 1;
   private static final int BRUKERNOTIFIKASJON_SIKKERHETSNIVAA_BESKJED = 3;
@@ -84,7 +84,7 @@ public class SletteOppgaveTest {
   @MockBean
   private KafkaTemplate<Nokkel, Done> ferdigkoe;
 
-  private SletteOppgave sletteOppgave;
+  private Oppgavestyring oppgavestyring;
 
 
   @BeforeEach
@@ -93,7 +93,7 @@ public class SletteOppgaveTest {
     MockitoAnnotations.openMocks(this); //without this you will get NPE
 
     // Bønnen sletteOppgave er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
-    sletteOppgave = SletteOppgave.builder()
+    oppgavestyring = Oppgavestyring.builder()
         .persistenceService(persistenceService)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
@@ -132,7 +132,7 @@ public class SletteOppgaveTest {
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
 
     // when
-    sletteOppgave.sletteUtloepteSigneringsoppgaver();
+    oppgavestyring.sletteUtloepteSigneringsoppgaver();
 
     // then
     verify(ferdigkoe, times(1))
@@ -194,6 +194,9 @@ public class SletteOppgaveTest {
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
         LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager() - 5));
 
+    // Skal ikke være mulig å signere fremover i tid. Er synlighet for oppgave hentet riktig inn?
+    assert(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().isBefore(LocalDateTime.now()));
+
     persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
     var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
@@ -204,7 +207,7 @@ public class SletteOppgaveTest {
         .build());
 
     // when
-    sletteOppgave.sletteUtloepteSigneringsoppgaver();
+    oppgavestyring.sletteUtloepteSigneringsoppgaver();
 
     // then
     verify(ferdigkoe, times(0)).send(eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG), any(), any());
@@ -244,7 +247,7 @@ public class SletteOppgaveTest {
     doThrow(KafkaException.class).when(ferdigkoe).send(anyString(), any(Nokkel.class), any(Done.class));
 
     // when
-    sletteOppgave.sletteUtloepteSigneringsoppgaver();
+    oppgavestyring.sletteUtloepteSigneringsoppgaver();
 
     // then
     var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());

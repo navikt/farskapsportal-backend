@@ -20,16 +20,13 @@ public class BrukernotifikasjonConsumer {
   private final Beskjedprodusent beskjedprodusent;
   private final Ferdigprodusent ferdigprodusent;
   private final Oppgaveprodusent oppgaveprodusent;
-  private final URL farskapsportalUrl;
   private final String navnFarskapsportalSystembruker;
 
-  public BrukernotifikasjonConsumer(Beskjedprodusent beskjedprodusent, Ferdigprodusent ferdigprodusent, Oppgaveprodusent oppgaveprodusent,
-      URL farskapsportalUrl, String navnFarskapsportalSystembruker)
+  public BrukernotifikasjonConsumer(Beskjedprodusent beskjedprodusent, Ferdigprodusent ferdigprodusent, Oppgaveprodusent oppgaveprodusent, String navnFarskapsportalSystembruker)
       throws MalformedURLException {
     this.beskjedprodusent = beskjedprodusent;
     this.ferdigprodusent = ferdigprodusent;
     this.oppgaveprodusent = oppgaveprodusent;
-    this.farskapsportalUrl = farskapsportalUrl;
     this.navnFarskapsportalSystembruker = navnFarskapsportalSystembruker;
   }
 
