@@ -38,7 +38,9 @@ spec:
       value: "{{this.value}}"
   {{/each}}
   envFrom:
-    - secret: farskapsportal-api-secret
+  {{#each secret}}
+    - secret: {{this.name}}
+  {{/each}}
     - configmap: loginservice-idporten
 
   gcp:
