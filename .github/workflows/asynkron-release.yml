@@ -4,7 +4,8 @@ on:
     branches:
       - release
     paths:
-      - 'never-apps/asynkron/**'
+      - 'apps/asynkron/**'
+      - '**/asynkron-ci.yml'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-sasynkron:${{ github.sha }}
