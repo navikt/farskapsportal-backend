@@ -6,6 +6,7 @@ on:
       - '!release'
     paths:
       - 'apps/api/**'
+      - '.nais/apps/api/**'
       - '**/api-ci.yml'
 
 env:
