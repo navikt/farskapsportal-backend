@@ -47,8 +47,9 @@ spec:
       value: "{{this.value}}"
   {{/each}}
   envFrom:
-    - secret: farskapsportal-api-secret
-    - secret: postgres-user-asynkron-feature-password
+  {{#each secret}}
+    - secret: {{this.name}}
+  {{/each}}
   accessPolicy:
     outbound:
       external:

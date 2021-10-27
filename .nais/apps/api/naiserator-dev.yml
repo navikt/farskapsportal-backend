@@ -38,9 +38,7 @@ spec:
       value: "{{this.value}}"
   {{/each}}
   envFrom:
-  {{#each secret}}
-    - secret: {{this.name}}
-  {{/each}}
+    - secret: farskapsportal-api-secrets
     - configmap: loginservice-idporten
 
   gcp:
@@ -64,4 +62,3 @@ spec:
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
-        - host: {{ kafka.schema-registry.host }}

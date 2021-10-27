@@ -1,12 +1,8 @@
 name: asynkron
 ingress: https://farskapsportal-asynkron.dev.nav.no
-gcp:
-  secretmanager.host: secretmanager.googleapis.com
 kafka:
-  brokers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
   schema-registry:
     host: kafka-schema-registry.nais.adeo.no
-    url: https://kafka-schema-registry.nais.adeo.no
 env:
   - name: ARKIVERINGSINTERVALL
     value: 3600000
@@ -16,6 +12,8 @@ env:
     value: https://api-gw.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
+  - name: DB_NAME
+    value: fpdb-prod
   - name: DISCOVERY_URL
     value: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
   - name: AUD_FP
@@ -42,10 +40,16 @@ env:
     value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
   - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
     value: https://kafka-schema-registry.nais.adeo.no
+  - name: POSTGRES_CONNECTION_NAME
+    value: farskapsportal-prod-f231:europe-north1:fp-prod
+  - name: POSTGRES_USER_NAME
+    value: asynkron_prod
   - name: SKATT_URL
     value: https://folkeregisteret.api.skatteetaten.no
   - name: OPPGAVESLETTINGSINTERVALL
     value: 5400000
   - name: OPPGAVESLETTINGSFORSINKELSE
     value: 360000
-
+secret:
+  - name: farskapsportal-api-secret
+  - name: postgres-user-asynkron-prod-password
