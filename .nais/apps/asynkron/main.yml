@@ -43,6 +43,10 @@ env:
     value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
   - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
     value: https://kafka-schema-registry.nais-q.adeo.no
+  - name: POSTGRES_CONNECTION_NAME
+    value: farskapsportal-dev-169c:europe-north1:fp-main
+  - name: POSTGRES_USER_NAME
+    value: asynkron_feature
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
   - name: OPPGAVESLETTINGSINTERVALL
