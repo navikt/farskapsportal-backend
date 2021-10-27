@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -22,7 +22,8 @@ public class Oppgavestyring {
   public void sletteUtloepteSigneringsoppgaver() {
     var farskapserklaeringerSomVenterPaaFar = persistenceService.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
 
-    log.info("Ser etter utløpte signeringsoppgaver. Fant {} farskapserklæringer som venter på fars signatur.", farskapserklaeringerSomVenterPaaFar.size());
+    log.info("Ser etter utløpte signeringsoppgaver. Fant {} farskapserklæringer som venter på fars signatur.",
+        farskapserklaeringerSomVenterPaaFar.size());
 
     for (Farskapserklaering farskapserklaering : farskapserklaeringerSomVenterPaaFar) {
       if (farskapserklaering.getDokument().getSigneringsinformasjonMor()
@@ -32,7 +33,7 @@ public class Oppgavestyring {
         var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaering.getId(),
             farskapserklaering.getFar());
 
-        log.info("Fant {} utløpte signeringsoppgaver knyttet til farskapserklæring med id {}.", farskapserklaering.getId());
+        log.info("Fant {} utløpte signeringsoppgaver knyttet til farskapserklæring med id {}.", aktiveOppgaver.size(), farskapserklaering.getId());
 
         for (Oppgavebestilling oppgave : aktiveOppgaver) {
 
