@@ -45,7 +45,7 @@ env:
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-dev-169c:europe-north1:fp-main
   - name: POSTGRES_USER_NAME
-    value: asynkron_feature
+    value: asynkron_main
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
   - name: OPPGAVESLETTINGSINTERVALL
