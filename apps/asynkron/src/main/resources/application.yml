@@ -86,17 +86,17 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-forbindelse: 130000
 
 ---
-spring.config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
-server:
-  ssl:
-    enabled: false
 spring:
+  config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
   jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+server:
+  ssl:
+    enabled: false
 
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 WIREMOCK_URL: http://localhost:8096
