@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.api.secretmanager;
+package no.nav.farskapsportal.backend.libs.felles.secretmanager;
 
 import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
 import com.google.cloud.secretmanager.v1.SecretName;

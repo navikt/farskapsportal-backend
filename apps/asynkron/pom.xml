@@ -26,7 +26,6 @@
     <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
-    <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
     <postgres-socket-factory.version>1.3.4</postgres-socket-factory.version>
   </properties>
 
@@ -139,18 +138,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
-      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
-      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
     </dependency>
 
     <!-- test -->

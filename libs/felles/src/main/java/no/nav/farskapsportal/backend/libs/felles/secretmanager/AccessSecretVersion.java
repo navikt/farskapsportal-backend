@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.api.secretmanager;
+package no.nav.farskapsportal.backend.libs.felles.secretmanager;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
