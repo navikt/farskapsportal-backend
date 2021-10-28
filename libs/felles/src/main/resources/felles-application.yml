@@ -14,6 +14,7 @@ spring:
           password: ${NAV_TRUSTSTORE_PASSWORD}
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
