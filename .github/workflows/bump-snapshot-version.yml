@@ -26,6 +26,6 @@ jobs:
       - uses: navikt/bidrag-git/commit@v5
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
-          pattern: "\S?pom.xml"
+          pattern: "."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
