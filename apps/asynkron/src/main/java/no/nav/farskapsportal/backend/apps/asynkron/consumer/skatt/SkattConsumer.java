@@ -49,7 +49,7 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor
 @Slf4j
 public class SkattConsumer {
-  
+
   private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
 
   private final RestTemplate restTemplate;

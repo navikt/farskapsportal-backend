@@ -6,7 +6,7 @@ server:
 
 spring:
   cloud.gcp.sql.database-name: ${DB_NAME}
-  cloud.gcp.sql.instance-connection-name: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
+  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
     username: ${POSTGRES_USER_NAME}
     password: ${POSTGRES_USER_PASSWORD}
