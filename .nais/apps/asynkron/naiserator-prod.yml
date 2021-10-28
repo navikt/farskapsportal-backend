@@ -42,7 +42,7 @@ spec:
   {{/each}}
   envFrom:
   {{#each secret}}
-    - secret: {{this.name } }
+    - secret: {{this.name}}
   {{/each}}
   accessPolicy:
     outbound:
