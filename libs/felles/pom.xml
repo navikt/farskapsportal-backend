@@ -23,6 +23,7 @@
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
+    <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
   </properties>
 
   <dependencyManagement>
@@ -76,6 +77,12 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
+      <version>${google.spring-cloud-gcp-starter-secretmanager.version}</version>
     </dependency>
 
     <!-- internal -->

@@ -12,8 +12,8 @@ import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApi
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumerEndpointName;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattEndpointName;
-import no.nav.farskapsportal.backend.apps.asynkron.secretmanager.AccessSecretVersion;
-import no.nav.farskapsportal.backend.apps.asynkron.secretmanager.FarskapKeystoreCredentials;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
