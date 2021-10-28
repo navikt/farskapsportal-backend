@@ -8,7 +8,7 @@ on:
       - '**/asynkron-ci.yml'
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-sasynkron:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-asynkron:${{ github.sha }}
 
 jobs:
   verify:
