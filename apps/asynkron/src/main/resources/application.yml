@@ -4,37 +4,6 @@ server:
   ssl:
     enabled: false
 
-spring:
-  cloud.gcp.sql.database-name: ${DB_NAME}
-  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
-  datasource:
-    username: ${POSTGRES_USER_NAME}
-    password: ${POSTGRES_USER_PASSWORD}
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      idle-timeout: 10001
-      max-lifetime: 30001
-      connectionTimeout: 1000
-      maximum-pool-size: 10
-      minimum-idle: 1
-  jpa:
-    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-  devtools.add-properties: false
-  kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
-    properties:
-      schema.registry:
-        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
-      security.protocol: SASL_SSL
-      sasl:
-        mechanism: PLAIN
-        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
-      ssl:
-        truststore:
-          location: ${NAV_TRUSTSTORE_PATH}
-          password: ${NAV_TRUSTSTORE_PASSWORD}
-
 management:
   endpoints.web:
     exposure.include: info, health, metrics, prometheus
@@ -85,6 +54,38 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-lesing: 120000
     maks-ventetid-forbindelse: 130000
 
+---
+spring:
+  config.activate.on-profile: live
+  cloud.gcp.sql.database-name: ${DB_NAME}
+  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
+  datasource:
+    username: ${POSTGRES_USER_NAME}
+    password: ${POSTGRES_USER_PASSWORD}
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  devtools.add-properties: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      schema.registry:
+        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+      security.protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
+      ssl:
+        truststore:
+          location: ${NAV_TRUSTSTORE_PATH}
+          password: ${NAV_TRUSTSTORE_PASSWORD}
 ---
 spring:
   config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
