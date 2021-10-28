@@ -1,0 +1,163 @@
+server:
+  port: 8080
+  shutdown: graceful
+  ssl:
+    enabled: false
+
+spring:
+  cloud.gcp.sql.database-name: ${DB_NAME}
+  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
+  datasource:
+    username: ${POSTGRES_USER_NAME}
+    password: ${POSTGRES_USER_PASSWORD}
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  devtools.add-properties: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      schema.registry:
+        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+      security.protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
+      ssl:
+        truststore:
+          location: ${NAV_TRUSTSTORE_PATH}
+          password: ${NAV_TRUSTSTORE_PASSWORD}
+
+management:
+  endpoints.web:
+    exposure.include: info, health, metrics, prometheus
+    base-path: /internal/actuator
+  endpoint.health.show-details: always
+
+url:
+  joark:
+    base-url: ${JOURNALPOSTAPI_URL}
+    opprette-journalpost: /rest/journalpostapi/v1/journalpost
+  farskapsportal:
+    url: ${FARSKAPSPORTAL_URL}
+  pdl-api:
+    base-url: ${APIGW_URL}
+    graphql: "/pdl-api/graphql"
+  sts:
+    base-url: ${APIGW_URL}
+    security-token-service: "/security-token-service/rest/v1/sts/token"
+  skatt:
+    base-url: ${SKATT_URL}
+    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
+
+virksomhetssertifikat:
+  prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
+  hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN}
+  hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON}
+  passord:
+    prosjektid: ${VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID}
+    hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN}
+    hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
+
+farskapsportal.asynkron.egenskaper:
+  systembruker-brukernavn: srvfarskapsportal
+  systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
+  arkiveringsintervall: ${ARKIVERINGSINTERVALL}
+  arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
+  brukernotifikasjon-oppgave-synlighet-antall-dager: 30
+  oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
+  oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
+  joark:
+    maks-antall-forbindelser: 5
+    maks-antall-forbindelser-per-rute: 5
+    maks-ventetid-lesing: 10000
+    maks-ventetid-forbindelse: 10000
+  skatt:
+    maks-antall-forbindelser: 5
+    maks-antall-forbindelser-per-rute: 5
+    maks-ventetid-lesing: 120000
+    maks-ventetid-forbindelse: 130000
+
+---
+spring.config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
+server:
+  ssl:
+    enabled: false
+spring:
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+
+SRVFARSKAPSPORTAL_PWD: top_hemmelig
+WIREMOCK_URL: http://localhost:8096
+
+url:
+  joark.base-url: ${WIREMOCK_URL}
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+  skatt.base-url: http://localhost
+
+---
+spring.config.activate.on-profile: skatt-ssl-test
+
+# SSL-oppsett med selfsigned server og klient-sertifikat for SkattStubController.
+# Brukes av SkattConsumerSslTest.
+server:
+  port: 9002
+  ssl:
+    enabled: true
+    client-auth: need
+    key-store: classpath:server-selfsigned.jks
+    key-store-password: qwer1234
+    key-alias: nt-ms
+    key-store-type: JKS
+    key-store-provider: SUN
+    trust-store: classpath:server-selfsigned.jks
+    trust-store-password: qwer1234
+    turst-store-type: JKS
+
+sertifikat:
+  passord: qwer1234
+  keystore-type: jks
+  keystore-name: client-selfsigned.jks
+
+---
+spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
+farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.oppgaveslettingsintervall: 600
+farskapsportal.asynkron.egenskaper.oppgaveslettingsforsinkelse: 0
+
+---
+spring.config.activate.on-profile: integration-test
+
+SKATT_URL: https://folkeregisteret-api-ekstern.sits.no
+
+virksomhetssertifikat:
+  prosjektid: 627047445397
+  hemmelighetnavn: virksomhetssertifikat-test
+  hemmelighetversjon: 2
+  passord:
+    prosjektid: 627047445397
+    hemmelighetnavn: farskap-keystore-credentials-json
+    hemmelighetversjon: 2
+
+---
+spring.config.activate.on-profile: local
+
+# Lokal profil bruker selvstendige wiremocks
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/stubs
+
+

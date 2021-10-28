@@ -1,0 +1,69 @@
+name: release farskapsportal-api
+on:
+  push:
+    branches:
+      - release
+    paths:
+      - 'apps/api/**'
+      - '**/api-ci.yml'
+
+env:
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
+
+jobs:
+  verify:
+    name: Verify that release commit is present in main branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: git clone --bare https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: check if commit to build exists in main branch
+        run: |
+          cd $( echo ${{ github.repository }} | sed 's;navikt/;;' ).git
+          git log | grep -c ${{ github.sha }}
+  build:
+    name: Build release with maven and docker
+    runs-on: ubuntu-latest
+    needs: verify
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '16'
+      - uses: actions/cache@v2.1.5
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: navikt/bidrag-maven/setup@v7
+        with:
+          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: mvn install -B -e
+      - name: Build and publish Docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar .
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+          docker push ${IMAGE}
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy docker image to prod
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: deploy/.nais/apps/api/naiserator-prod.yml
+          VARS: deploy/.nais/apps/api/prod.yml

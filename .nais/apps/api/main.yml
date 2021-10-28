@@ -1,0 +1,57 @@
+name: farskapsportal-api
+ingress: https://farskapsportal-api.dev.nav.no
+gcp:
+  sql-instances:
+    name: fp-main
+    tier: db-custom-1-3840
+    type: POSTGRES_12
+    databases:
+      name: fpdb-main
+      env-var-prefix: DB
+      users:
+        asynkron:
+          name: asynkron_main
+env:
+  - name: APIGW_URL
+    value: https://api-gw-q1.oera.no
+  - name: BRUKERNOTIFIKASJON_PAA
+    value: "true"
+  - name: DISCOVERY_URL
+    value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+  - name: AUD_FP
+    value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+  - name: DB_USER_ASYNKRON
+    value: asynkron_main
+  - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
+    value: "719909854975"
+  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
+    value: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
+  - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
+    value: "3"
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID
+    value: "627047445397"
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN
+    value: farskap-keystore-credentials-json
+  - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
+    value: "2"
+  - name: ESIGNERING_SUKSESS_URL
+    value: https://farskapsportal.dev.nav.no/suksess
+  - name: ESIGNERING_AVBRUTT_URL
+    value: https://farskapsportal.dev.nav.no/avbrutt
+  - name: ESIGNERING_FEILET_URL
+    value: https://farskapsportal.dev.nav.no/feilet
+  - name: FARSKAPSPORTAL_URL
+    value: https://farskapsportal.dev.nav.no
+  - name: INTEGRATION_TEST_CONTROLLER_PAA
+    value: "true"
+  - name: JOURNALPOSTAPI_URL
+    value: https://dokarkiv-q2.dev.adeo.no
+  - name: KAFKA_BROKERS
+    value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
+  - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
+    value: https://kafka-schema-registry.nais-q.adeo.no
+  - name: SKATT_URL
+    value: https://folkeregisteret-api-ekstern.sits.no
+secret:
+  - name: farskapsportal-api-secret
+  - name: postgres-user-asynkron-main-password

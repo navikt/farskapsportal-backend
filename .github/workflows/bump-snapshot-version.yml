@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - 'main'
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  bump_dev_version:
+    runs-on: ubuntu-latest
+    name: Bump SNAPSHOT version
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2.1.5
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: mvn release:update-versions -DautoVersionSubmodules=true
+      - run: |
+          BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo ::set-output name=version::${BUMPED_VERSION}
+        id: snapshot
+      - uses: navikt/bidrag-git/commit@v5
+        with:
+          commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
+          pattern: "."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

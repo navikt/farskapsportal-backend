@@ -1,0 +1,82 @@
+name: continuous integration farskapsportal-api
+on:
+  push:
+    branches:
+      - '**'
+      - '!release'
+    paths:
+      - 'apps/api/**'
+      - '.nais/apps/api/**'
+      - '**/api-ci.yml'
+
+env:
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
+
+jobs:
+  build:
+    name: Build with maven and docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: navikt/bidrag-docker/exists@v1
+        id: dockerimage
+        with:
+          image_name: farskapsportal-api
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
+      - uses: actions/checkout@v2
+        if: env.NOT_FOUND == 'true'
+      - uses: actions/setup-java@v1
+        if: env.NOT_FOUND == 'true'
+        with:
+          java-version: '16'
+      - uses: actions/cache@v2.1.5
+        if: env.NOT_FOUND == 'true'
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: navikt/bidrag-maven/setup@v7
+        if: env.NOT_FOUND == 'true'
+        with:
+          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: mvn install -B -e
+        if: env.NOT_FOUND == 'true'
+      - name: Build and publish Docker image
+        if: env.NOT_FOUND == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar --build-arg JAVA_OPTS=-Djavax.net.debug=handshake .
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+          docker push ${IMAGE}
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy docker image to dev
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
+      - name: Deploy main to dev-gcp
+        if: github.ref == 'refs/heads/main'
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/.nais/apps/api/naiserator-dev.yml
+          VARS: deploy/.nais/apps/api/main.yml
+      - name: Deploy feature to dev-gcp
+        if: github.ref != 'refs/heads/main'
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/.nais/apps/api/naiserator-dev.yml
+          VARS: deploy/.nais/apps/api/feature.yml

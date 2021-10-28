@@ -1,0 +1,20 @@
+name: Deploy asynkron-alerts to prod-gcp
+on:
+  push:
+    branches:
+      - release
+    paths:
+      - '.nais/apps/asynkron/alerts-prod.yml'
+jobs:
+  apply-alerts:
+    name: Apply alerts to cluster
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: deploy to prod-gcp
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/apps/asynkron/alerts-prod.yml

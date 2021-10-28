@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - 'release'
+    paths:
+      - 'apps/api/**'
+      - '.nais/apps/api/**'
+      - '**/api-ci.yml'
+      - 'apps/asynkron/**'
+      - '.nais/apps/asynkron/**'
+      - '**/asynkron-ci.yml'
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    name: Tag latest deploy to prod
+    if: github.ref == 'refs/heads/release'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2.1.5
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: |
+          TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          echo ::set-output name=tag::${TAG_VERSION}
+        id: release
+      - uses: navikt/bidrag-git/tag@v5
+        with:
+          tag_message: "Releasing version ${{ steps.release.outputs.tag }}"
+          tag: ${{ steps.release.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

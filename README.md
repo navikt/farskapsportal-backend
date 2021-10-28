@@ -128,4 +128,5 @@ Lombok-annoteringer brukes i utstrakt grad for å redusere behovet for kokeplate
 Jackson serialisering og deserialisering er det lagt til en egen konfig-fil, lombok.config, under prosjektets rot. Uten denne vil Jackson ikke finne
 standard konstruktør, og gi feil "(no Creators, like default construct, exist)" ved kjøring. 
  
-
+### Deploy
+NAIS_API_KEY hentes fra https://deploy.nais.io/apikeys
