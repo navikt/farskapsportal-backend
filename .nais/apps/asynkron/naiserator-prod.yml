@@ -9,6 +9,12 @@ spec:
   azure:
     application:
       enabled: true
+  gcp:
+    permissions:
+      - resource:
+          apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+          kind: Project
+        role: roles/cloudsql.client
   image: {{ image }}
   liveness:
     path: /internal/actuator/health
