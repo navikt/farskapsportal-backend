@@ -38,9 +38,9 @@
     <google.spring-cloud-gcp-starter-secretmanager.version>2.0.4</google.spring-cloud-gcp-starter-secretmanager.version>
     <google.api.gax.version>2.5.0</google.api.gax.version>
     <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
-    <jackson-core.version>2.12.5</jackson-core.version>
+    <jackson-core.version>2.13.0</jackson-core.version>
     <jersey-hk2.version>2.35</jersey-hk2.version>
-    <jsoup.version>1.14.2</jsoup.version>
+    <jsoup.version>1.14.3</jsoup.version>
     <openhtml.version>1.0.9</openhtml.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
