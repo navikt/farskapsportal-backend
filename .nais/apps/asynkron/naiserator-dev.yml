@@ -40,7 +40,9 @@ spec:
       cpu: 1000m
       memory: 2048Mi
   ingresses:
-    - {{ ingress }}
+  {{#each ingress}}
+    - {{ this.ingress }}
+  {{#each}}
   env:
   {{#each env}}
     - name: {{this.name}}
