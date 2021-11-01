@@ -42,7 +42,7 @@ spec:
   ingresses:
   {{#each ingress}}
     - {{ this.ingress }}
-  {{#each}}
+  {{/each}}
   env:
   {{#each env}}
     - name: {{this.name}}
