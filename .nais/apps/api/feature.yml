@@ -1,5 +1,5 @@
 name: farskapsportal-api-feature
-ingress: https://farskapsportal-api-feature.dev.nav.no
+ingress: https://farskapsportal-api-feature.dev.intern.nav.no
 gcp:
   sql-instances:
     name: farskapsportal-feature
