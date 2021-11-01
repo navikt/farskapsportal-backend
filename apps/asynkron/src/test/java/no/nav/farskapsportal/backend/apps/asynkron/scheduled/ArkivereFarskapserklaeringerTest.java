@@ -181,7 +181,7 @@ public class ArkivereFarskapserklaeringerTest {
       farskapserklaering.setMeldingsidSkatt(null);
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(null);
       var lagretFarskapserklaeringIkkeSignertAvFar = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-      
+
       assert (lagretFarskapserklaeringIkkeSignertAvFar.getMeldingsidSkatt() == null);
       assert (lagretFarskapserklaeringIkkeSignertAvFar.getSendtTilSkatt() == null);
       assert (lagretFarskapserklaeringIkkeSignertAvFar.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null);
