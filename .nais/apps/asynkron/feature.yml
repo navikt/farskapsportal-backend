@@ -1,7 +1,7 @@
 name: asynkron-feature
 ingress:
-  - https://farskapsportal-asynkron-feature.dev.intern.nav.no
   - https://farskapsportal-asynkron-feature.dev.nav.no
+  - https://farskapsportal-asynkron-feature.dev.intern.nav.no
 kafka:
   brokers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
   schema-registry:
