@@ -179,9 +179,12 @@ public class ArkivereFarskapserklaeringerTest {
 
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("43215");
       farskapserklaering.setMeldingsidSkatt(null);
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(null);
       var lagretFarskapserklaeringIkkeSignertAvFar = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-
+      
+      assert (lagretFarskapserklaeringIkkeSignertAvFar.getMeldingsidSkatt() == null);
       assert (lagretFarskapserklaeringIkkeSignertAvFar.getSendtTilSkatt() == null);
+      assert (lagretFarskapserklaeringIkkeSignertAvFar.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null);
 
       var farskapserklaeringSignertAvBeggeParter = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
       farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
