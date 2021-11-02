@@ -263,6 +263,38 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    void morSkalSeSineNyfoedteBarnSomIkkeHarRegistrertFar() {
+
+      // given
+      oppgavebestillingDao.deleteAll();
+      farskapserklaeringDao.deleteAll();
+
+      var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel() + 1));
+      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
+          .thenReturn(Set.of(barnFoedtInnenforGyldigIntervall.getFoedselsnummer()));
+      when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.erOver18Aar(MOR.getFoedselsnummer())).thenReturn(true);
+      when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer())).thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+      when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer())).thenReturn(
+          FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+              .build());
+
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(true);
+
+      // when
+      var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(MOR.getFoedselsnummer());
+
+      Assertions.assertEquals(1,
+          brukerinformasjon.getFnrNyligFoedteBarnUtenRegistrertFar().stream().filter(fnrNyfoedt -> fnrNyfoedt.equals(barnFoedtInnenforGyldigIntervall.getFoedselsnummer()))
+              .collect(Collectors.toSet()).size());
+    }
+
+    @Test
     @DisplayName("Skal ikke kaste ValideringException dersom mor er separert")
     void skalIkkeKasteValideringExceptionDersomMorErSeparert() {
 
