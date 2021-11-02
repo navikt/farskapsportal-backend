@@ -37,7 +37,7 @@ url:
 farskapsportal.felles.egenskaper:
   systembruker-brukernavn: srvfarskapsportal
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
-  maks-antall-maaneder-etter-foedsel: 3
+  maks-antall-maaneder-etter-foedsel: 6
   kontroll-far-maks-antall-forsoek: 3
   url: ${FARSKAPSPORTAL_URL}
   brukernotifikasjon:
