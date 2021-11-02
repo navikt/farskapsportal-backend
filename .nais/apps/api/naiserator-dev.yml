@@ -42,7 +42,6 @@ spec:
     - secret: {{this.name}}
   {{/each}}
     - configmap: loginservice-idporten
-
   gcp:
     permissions:
       - resource:

@@ -1,5 +1,5 @@
 name: asynkron
-ingress: https://farskapsportal-asynkron.dev.nav.no
+ingress: https://farskapsportal-asynkron.intern.nav.no
 kafka:
   schema-registry:
     host: kafka-schema-registry.nais.adeo.no
