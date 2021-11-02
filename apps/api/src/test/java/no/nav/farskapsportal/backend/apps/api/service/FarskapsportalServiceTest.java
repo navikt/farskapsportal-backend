@@ -68,6 +68,7 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
@@ -269,7 +270,7 @@ public class FarskapsportalServiceTest {
       oppgavebestillingDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
-      var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel() + 1));
+      var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getMaksAntallMaanederEtterFoedsel() + 1));
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
           .thenReturn(Set.of(barnFoedtInnenforGyldigIntervall.getFoedselsnummer()));
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
@@ -602,7 +603,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
+      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = henteBarnMedFnr(foedselsdatoBarn);
       var registrertNavnMor = NAVN_MOR;
       var registrertNavnFar = NAVN_FAR;
@@ -671,7 +672,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
+      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = mapper.toDto(henteBarnMedFnr(foedselsdatoBarn));
       barnFoedtInnenforGyldigIntervall.setFoedested("Slottsplassen");
       barnFoedtInnenforGyldigIntervall.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
@@ -733,7 +734,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).plusDays(1);
+      var foedselsdatoBarn = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getMaksAntallMaanederEtterFoedsel()).plusDays(1);
       var barnFoedtInnenforGyldigIntervall = mapper.toDto(henteBarnMedFnr(foedselsdatoBarn));
       barnFoedtInnenforGyldigIntervall.setFoedested("Fornebu");
       barnFoedtInnenforGyldigIntervall.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
@@ -1106,7 +1107,7 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var foedselsdatoNyfoedt = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel());
+      var foedselsdatoNyfoedt = LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getMaksAntallMaanederEtterFoedsel());
       var nyfoedt = mapper.toDto(henteBarnMedFnr(foedselsdatoNyfoedt));
       nyfoedt.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
       nyfoedt.setFoedested("Parken");
@@ -1979,7 +1980,7 @@ public class FarskapsportalServiceTest {
               .isEqualTo(1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek())
               .isEqualTo(
-                  farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
+                  farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek() - 1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isAfter(
                   tidspunktTestStart.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
@@ -2089,7 +2090,7 @@ public class FarskapsportalServiceTest {
               .isEqualTo(1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek())
               .isEqualTo(
-                  farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - 1),
+                  farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek() - 1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isAfter(
                   tidspunktTestStart.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),

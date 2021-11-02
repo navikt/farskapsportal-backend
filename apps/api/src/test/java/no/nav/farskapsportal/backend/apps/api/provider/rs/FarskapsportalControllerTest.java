@@ -991,7 +991,7 @@ public class FarskapsportalControllerTest {
               new HentPersonDoedsfall(null)), fnrFar);
 
       // when
-      for (int i = 1; i <= farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek(); i++) {
+      for (int i = 1; i <= farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek(); i++) {
         var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
             initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
             FarskapserklaeringFeilResponse.class);
@@ -1002,7 +1002,7 @@ public class FarskapsportalControllerTest {
         assertAll(
             () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
             () -> assertThat(respons.getBody().getAntallResterendeForsoek().get()).isEqualTo(
-                farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - finalI),
+                farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek() - finalI),
             () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER)
         );
       }
