@@ -152,11 +152,13 @@ public class OppgavestyringTest {
     var oppdatertOppgavebestilling = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
 
     assertAll(
-        () -> assertThat(ferdignokkel.getSystembruker()).isEqualTo(farskapsportalAsynkronEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(ferdignokkel.getSystembruker()).isEqualTo(
+            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerBrukernavn()),
         () -> assertThat(ferdig.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
         () -> assertThat(ferdig.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
         () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
-        () -> assertThat(beskjednoekkel.getSystembruker()).isEqualTo(farskapsportalAsynkronEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjednoekkel.getSystembruker()).isEqualTo(
+            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerBrukernavn()),
         () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
         () -> assertThat(beskjed.getLink()).isEqualTo(URL_FARSKAPSPORTAL),
         () -> assertThat(beskjed.getSikkerhetsnivaa()).isEqualTo(BRUKERNOTIFIKASJON_SIKKERHETSNIVAA_BESKJED),
@@ -195,7 +197,8 @@ public class OppgavestyringTest {
         LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager() - 5));
 
     // Skal ikke være mulig å signere fremover i tid. Er synlighet for oppgave hentet riktig inn?
-    assert(farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().isBefore(LocalDateTime.now()));
+    assert (farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()
+        .isBefore(LocalDateTime.now()));
 
     persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 

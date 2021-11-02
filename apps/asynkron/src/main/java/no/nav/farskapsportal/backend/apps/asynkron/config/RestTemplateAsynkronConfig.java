@@ -43,7 +43,8 @@ public class RestTemplateAsynkronConfig {
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
     httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
     httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + securityTokenServiceConsumer
-        .hentIdTokenForServicebruker(farskapsportalAsynkronEgenskaper.getSystembrukerBrukernavn(), farskapsportalAsynkronEgenskaper.getSystembrukerPassord()));
+        .hentIdTokenForServicebruker(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerBrukernavn(),
+            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerPassord()));
     return httpHeaderRestTemplate;
   }
 
