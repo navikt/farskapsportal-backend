@@ -37,6 +37,7 @@ import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
+import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
@@ -492,7 +493,7 @@ public class FarskapsportalService {
 
   private void antallsbegrensetKontrollAvNavnOgNummerPaaFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
     var statusKontrollereFar = persistenceService.henteStatusKontrollereFar(fnrMor);
-    if (statusKontrollereFar.isEmpty() || farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() > statusKontrollereFar.get()
+    if (statusKontrollereFar.isEmpty() || farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek() > statusKontrollereFar.get()
         .getAntallFeiledeForsoek()) {
       kontrollereNavnOgNummerFar(fnrMor, request);
     } else {
@@ -512,9 +513,9 @@ public class FarskapsportalService {
     var statusKontrollereFarDto = mapper
         .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, e.getNavnIRegister(), e.getOppgittNavn(),
             farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
-            farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek()));
+            farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek()));
     e.setStatusKontrollereFarDto(Optional.of(statusKontrollereFarDto));
-    var resterendeAntallForsoek = farskapsportalApiEgenskaper.getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
+    var resterendeAntallForsoek = farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek() - statusKontrollereFarDto.getAntallFeiledeForsoek();
     resterendeAntallForsoek = resterendeAntallForsoek < 0 ? 0 : resterendeAntallForsoek;
     statusKontrollereFarDto.setAntallResterendeForsoek(resterendeAntallForsoek);
     throw e;
@@ -643,7 +644,7 @@ public class FarskapsportalService {
 
   private void validereAlderNyfoedt(String fnrOppgittBarn) {
     var foedselsdato = personopplysningService.henteFoedselsdato(fnrOppgittBarn);
-    if (!LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getMaksAntallMaanederEtterFoedsel()).isBefore(foedselsdato)) {
+    if (!LocalDate.now().minusMonths(farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getMaksAntallMaanederEtterFoedsel()).isBefore(foedselsdato)) {
       throw new ValideringException(Feilkode.NYFODT_ER_FOR_GAMMEL);
     }
   }
