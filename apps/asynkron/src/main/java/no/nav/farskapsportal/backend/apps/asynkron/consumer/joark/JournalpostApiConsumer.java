@@ -22,10 +22,10 @@ public class JournalpostApiConsumer {
 
   public JournalpostApiConsumer(RestTemplate restTemplate,
       ConsumerEndpoint journalpostapiEndpoints,
-      FarskapsportalJoarkMapper farskapsportalTilJoarkMapper) {
+      FarskapsportalJoarkMapper farskapsportalJoarkMapper) {
     this.restTemplate = restTemplate;
     this.journalpostapiEndpoints = journalpostapiEndpoints;
-    this.farskapsportalTilJoarkMapper = farskapsportalTilJoarkMapper;
+    this.farskapsportalTilJoarkMapper = farskapsportalJoarkMapper;
   }
 
   public OpprettJournalpostResponse arkivereFarskapserklaering(Farskapserklaering farskapserklaering) {

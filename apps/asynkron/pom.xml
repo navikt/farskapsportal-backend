@@ -28,6 +28,7 @@
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <postgres-socket-factory.version>1.3.4</postgres-socket-factory.version>
     <google.spring-cloud-gcp.version>2.0.4</google.spring-cloud-gcp.version>
+    <token-support.version>1.3.9</token-support.version>
   </properties>
 
   <dependencyManagement>
@@ -128,6 +129,13 @@
       <groupId>no.nav.farskapsportal.backend.libs</groupId>
       <artifactId>dtos</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <!-- navikt -->
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-client-spring</artifactId>
+      <version>${token-support.version}</version>
     </dependency>
 
     <!-- other -->

@@ -54,6 +54,24 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-lesing: 120000
     maks-ventetid-forbindelse: 130000
 
+no.nav.security.jwt:
+  client.registration:
+    dokarkiv-client:
+      token-endpoint-url: ${AZURE_AD_DISCOVERY_URL}
+      grant-type: client_credentials
+      scope: ${DOKARKIV_CLIENT_SCOPE}
+      authentication:
+        client-id: ${ASYNKRON_CLIENT_ID}
+        client-secret: ${ASYNKRON_CLIENT_PASSWORD}
+        client-auth-method: client_secret_basic
+      
+    
+
+
+
+
+
+
 ---
 spring:
   config.activate.on-profile: live

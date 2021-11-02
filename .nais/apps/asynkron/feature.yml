@@ -12,14 +12,18 @@ env:
     value: 30000
   - name: APIGW_URL
     value: https://api-gw-q1.oera.no
+  - name: AZURE_AD_DISCOVERY_URL
+    value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
+  - name: AZURE_AD_TOKEN_ENDPOINT
+    value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
   - name: DB_NAME
     value: farskapsportaldb-feature
-  - name: DISCOVERY_URL
-    value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
   - name: AUD_FP
     value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+  - name: DOKARKIV_CLIENT_SCOPE
+    value: api://972814f3-8bdf-44f8-a191-c2ed00020b54/.default
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "627047445397"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
