@@ -5,6 +5,7 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -73,7 +74,33 @@ public class DeaktivereFarskapserklaeringerTest {
   }
 
   @Test
-  void test() {
+  void skalDeaktivereFarskapserklaeringMedUtdatertSigneringsoppdragOgSomManglerFarsSignatur() {
+
+    // rydde testdata
+    farskapserklaeringDao.deleteAll();
+    forelderDao.deleteAll();
+    meldingsloggDao.deleteAll();
+
+    // given
+    var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
+        LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1), "12345");
+
+    var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+    // when
+    deaktivereFarskapserklaeringer.vurdereDeaktivering();
+
+    // then
+    var farskapserklaeringEtterDeaktiverering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+    assertAll(
+        () -> assertThat(farskapserklaeringEtterDeaktiverering).isPresent(),
+        () -> assertThat(farskapserklaeringEtterDeaktiverering.get().getDeaktivert()).isNotNull()
+    );
+  }
+
+  @Test
+  void skalIkkeDeaktivereFarskapserklaeringMedIkkeUtloeptSigneringsoppdragMenSomManglerFarsSignatur() {
 
     // rydde testdata
     farskapserklaeringDao.deleteAll();
@@ -90,10 +117,41 @@ public class DeaktivereFarskapserklaeringerTest {
     deaktivereFarskapserklaeringer.vurdereDeaktivering();
 
     // then
-    var farskapserklaeringEtterDeaktiverering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
-    assertThat(farskapserklaeringEtterDeaktiverering.getDeaktivert()).isNotNull();
+    var farskapserklaeringEtterDeaktiverering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
+    assertAll(
+        () -> assertThat(farskapserklaeringEtterDeaktiverering).isPresent(),
+        () -> assertThat(farskapserklaeringEtterDeaktiverering.get().getDeaktivert()).isNull()
+    );
 
   }
 
+  @Test
+  void skalIkkeDeaktivereFerdigstiltFarskapserklaering() {
+
+    // rydde testdata
+    farskapserklaeringDao.deleteAll();
+    forelderDao.deleteAll();
+    meldingsloggDao.deleteAll();
+
+    // given
+    var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
+        LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1), "12345");
+
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("en signatur".getBytes(StandardCharsets.UTF_8));
+
+    var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+    // when
+    deaktivereFarskapserklaeringer.vurdereDeaktivering();
+
+    // then
+    var farskapserklaeringEtterDeaktiverering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+    assertAll(
+        () -> assertThat(farskapserklaeringEtterDeaktiverering).isPresent(),
+        () -> assertThat(farskapserklaeringEtterDeaktiverering.get().getDeaktivert()).isNull()
+    );
+  }
 }
