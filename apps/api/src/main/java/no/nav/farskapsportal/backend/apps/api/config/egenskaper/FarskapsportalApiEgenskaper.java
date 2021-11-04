@@ -20,8 +20,6 @@ public class FarskapsportalApiEgenskaper {
   @Autowired
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
-  private String systembrukerBrukernavn;
-  private String systembrukerPassord;
   private boolean brukernotifikasjonerPaa;
   private int minAntallUkerTilTermindato;
   private int maksAntallUkerTilTermindato;

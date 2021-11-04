@@ -74,12 +74,14 @@ public class FarskapsportalFellesConfig {
       OppgavebestillingDao oppgavebestillingDao,
       PersonopplysningService personopplysningService,
       FarskapserklaeringDao farskapserklaeringDao,
+      FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper,
       Mapper mapper,
       BarnDao barnDao,
       ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao,
       MeldingsloggDao meldingsloggDao) {
-    return new PersistenceService(oppgavebestillingDao, personopplysningService, farskapserklaeringDao, barnDao, forelderDao, kontrollereFarDao,
+    return new PersistenceService(oppgavebestillingDao, personopplysningService, farskapserklaeringDao, farskapsportalFellesEgenskaper, barnDao,
+        forelderDao, kontrollereFarDao,
         meldingsloggDao, mapper);
   }
 

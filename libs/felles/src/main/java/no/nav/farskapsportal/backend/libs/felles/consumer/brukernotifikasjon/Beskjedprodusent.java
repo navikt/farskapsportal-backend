@@ -30,7 +30,8 @@ public class Beskjedprodusent {
       log.error("Opprettelse av beskjed til forelder med id {} feilet!", forelder.getId());
     }
 
-    log.info("Beskjed sendt til forelder med id {}.", forelder.getId());
+    var medEllerUten = medEksternVarsling ? "med" : "uten";
+    log.info("Beskjed {} ekstern varsling og eventId {} er sendt til forelder (id {}).", medEllerUten, nokkel.getEventId(), forelder.getId());
   }
 
   private Beskjed oppretteBeskjed(String foedselsnummer, String meldingTilBruker, boolean medEksternVarsling, URL lenke) {

@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
 import static no.digipost.signature.client.direct.DirectJobStatus.FAILED;
-import static no.digipost.signature.client.direct.DirectJobStatus.NO_CHANGES;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -30,19 +28,18 @@ import no.digipost.signature.client.direct.ExitUrls;
 import no.digipost.signature.client.direct.Signature;
 import no.digipost.signature.client.direct.SignerStatus;
 import no.digipost.signature.client.direct.StatusReference;
-import no.digipost.signature.client.direct.StatusRetrievalMethod;
 import no.digipost.signature.client.direct.WithSignerUrl;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.api.StatusSignering;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
+import no.nav.farskapsportal.backend.libs.entity.Dokument;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 import no.nav.farskapsportal.backend.libs.felles.exception.OppretteSigneringsjobbException;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.apache.commons.lang3.Validate;
 
@@ -176,46 +173,6 @@ public class DifiESignaturConsumer {
       e.printStackTrace();
     }
     throw new InternFeilException(Feilkode.ESIGNERING_REDIRECT_FEIL);
-  }
-
-  public Optional<DokumentStatusDto> henteOppdatertStatusPaaSigneringsjobbHvisEndringer(int idFarskapserklaring, byte[] dokument,
-      String fnrMor, String fnrFar) {
-
-    var farsskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaring);
-    var dokumenttittel = farsskapserklaering.getDokument().getTittel() == null ? tekstvelger(Tekst.DOKUMENT_TITTEL, Skriftspraak.BOKMAAL)
-        : farsskapserklaering.getDokument().getTittel();
-    var dokumentnavn = farsskapserklaering.getDokument().getNavn() == null ? tekstvelger(Tekst.DOKUMENT_FILNAVN, Skriftspraak.BOKMAAL)
-        : farsskapserklaering.getDokument().getNavn();
-
-    var directSigners = List
-        .of(DirectSigner.withPersonalIdentificationNumber(fnrMor).build(), DirectSigner.withPersonalIdentificationNumber(fnrFar).build());
-    var directDocument = DirectDocument.builder(dokumentnavn, dokumenttittel, dokument)
-        .build();
-    var directJob = DirectJob.builder(directDocument, exitUrls, directSigners)
-        .retrieveStatusBy(StatusRetrievalMethod.POLLING)
-        .build();
-    client.create(directJob);
-    var directJobStatusResponse = client.getStatusChange();
-    if (directJobStatusResponse.is(NO_CHANGES)) {
-      log.info("Ingen statusendring på signeringsjobb knyttet til farskapserklæring med id {}", idFarskapserklaring);
-      client.confirm(directJobStatusResponse);
-      return Optional.empty();
-    } else if (directJobStatusResponse.isPAdESAvailable()) {
-
-      var pAdESReference = directJobStatusResponse.getpAdESUrl();
-      var statusJobb = directJobStatusResponse.getStatus();
-      var bekreftelseslenke = directJobStatusResponse.getConfirmationReference().getConfirmationUrl();
-
-      client.confirm(directJobStatusResponse);
-
-      return Optional.of(DokumentStatusDto.builder()
-          .statusSignering(henteSigneringsstatus(statusJobb))
-          .padeslenke(pAdESReference.getpAdESUrl())
-          .bekreftelseslenke(bekreftelseslenke)
-          .build());
-    }
-    client.confirm(directJobStatusResponse);
-    return Optional.empty();
   }
 
   private void validereInnholdStatusrespons(DirectJobStatusResponse directJobStatusResponse) {

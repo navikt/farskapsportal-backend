@@ -1,5 +1,8 @@
 package no.nav.farskapsportal.backend.libs.felles.persistence.dao;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import org.springframework.data.jpa.repository.Query;
@@ -10,37 +13,45 @@ import org.springframework.stereotype.Repository;
 public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering, Integer> {
 
   @Query(
-      "select fe from Farskapserklaering fe where (fe.far.foedselsnummer = :fnr or fe.mor.foedselsnummer = :fnr) and (fe.dokument.padesUrl is not null or fe.dokument.padesUrl is not null )")
+      "select fe from Farskapserklaering fe where (fe.far.foedselsnummer = :fnr or fe.mor.foedselsnummer = :fnr) "
+          + "and (fe.dokument.padesUrl is not null or fe.dokument.padesUrl is not null) and fe.deaktivert is null")
   Set<Farskapserklaering> hentFarskapserklaeringerMedPadeslenke(String fnr);
 
-  @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer = :fnrForelder or fe.mor.foedselsnummer = :fnrForelder")
+  @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer = :fnrForelder or fe.mor.foedselsnummer = :fnrForelder and fe.deaktivert is null")
   Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder);
 
   @Query(
-      "select fe from Farskapserklaering fe where fe.mor.foedselsnummer =:fnrMor")
+      "select fe from Farskapserklaering fe where fe.mor.foedselsnummer =:fnrMor and fe.deaktivert is null")
   Set<Farskapserklaering> henteMorsErklaeringer(String fnrMor);
 
   @Query(
-      "select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null")
+      "select fe from Farskapserklaering fe where fe.far.foedselsnummer =:fnrFar and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null and fe.deaktivert is null")
   Set<Farskapserklaering> henteFarsErklaeringer(String fnrFar);
 
   @Query(
-      "select fe from Farskapserklaering fe where fe.barn.foedselsnummer =:fnrBarn")
+      "select fe from Farskapserklaering fe where fe.barn.foedselsnummer =:fnrBarn and fe.deaktivert is null")
   Set<Farskapserklaering> henteBarnsErklaeringer(String fnrBarn);
 
   @Query(
-      "select fe from Farskapserklaering  fe where fe.mor.foedselsnummer =:fnrMor and fe.dokument.padesUrl is null")
+      "select fe from Farskapserklaering  fe where fe.mor.foedselsnummer =:fnrMor and fe.dokument.padesUrl is null and fe.deaktivert is null")
   Set<Farskapserklaering> hentFarskapserklaeringerMorUtenPadeslenke(String fnrMor);
 
   @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonFar.signeringstidspunkt is not null "
-      + "and fe.sendtTilSkatt is not null and fe.farBorSammenMedMor = false and fe.sendtTilJoark is null")
+      + "and fe.sendtTilSkatt is not null and fe.farBorSammenMedMor = false and fe.sendtTilJoark is null and fe.deaktivert is null")
   Set<Farskapserklaering> henteFarskapserklaeringerSomTidligereErForsoektSendtTilJoark();
 
   @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonFar.signeringstidspunkt is not null"
-      + " and fe.sendtTilSkatt is null")
+      + " and fe.sendtTilSkatt is null and fe.deaktivert is null")
   Set<Farskapserklaering> henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
 
   @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
-      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
+      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null and fe.deaktivert is null")
   Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur();
+
+  @Query("select fe from Farskapserklaering fe "
+      + "where fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
+      + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt < :sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag "
+      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null "
+      + "and fe.deaktivert is null")
+  Set<Farskapserklaering> henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(LocalDateTime sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag);
 }

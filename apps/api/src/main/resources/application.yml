@@ -34,28 +34,12 @@ virksomhetssertifikat:
     hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
 farskapsportal.egenskaper:
-  systembruker-brukernavn: srvfarskapsportal
-  systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
   brukernotifikasjonerPaa: true
   min-antall-uker-til-termindato: -3
   maks-antall-uker-til-termindato: 21
-  maks-antall-maaneder-etter-foedsel: 6
   nav-orgnummer: 889640782
-  url: ${FARSKAPSPORTAL_URL}
   kontroll-far-forsoek-fornyes-etter-antall-dager: 1
   kontroll-far-maks-antall-forsoek: 3
-  arkiveringsintervall: 3600000
-  arkivere-i-joark: false
-  brukernotifikasjon:
-    grupperingsid-farskap: farskap
-    skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
-    topic-beskjed: aapen-brukernotifikasjon-nyBeskjed-v1
-    topic-ferdig: aapen-brukernotifikasjon-done-v1
-    topic-oppgave: aapen-brukernotifikasjon-nyOppgave-v1
-    synlighet-beskjed-antall-maaneder: 1
-    synlighet-oppgave-antall-dager: 30
-    sikkerhetsnivaa-beskjed: 3
-    sikkerhetsnivaa-oppgave: 3
   esignering:
     innhente-status-ved-polling: false
     suksess-url: ${ESIGNERING_SUKSESS_URL}
