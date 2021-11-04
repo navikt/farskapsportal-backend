@@ -15,7 +15,9 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
@@ -235,11 +237,15 @@ public class PersistenceServiceTest {
       return farskapserklaeringDao.save(farskapserklaering);
     }
 
-    void lagreFarskapserklaeringSignertAvMor() {
+    private Farskapserklaering lagreFarskapserklaeringSignertAvMor() {
+      return lagreFarskapserklaeringSignertAvMor(LocalDateTime.now().minusMinutes(15));
+    }
+
+    private Farskapserklaering lagreFarskapserklaeringSignertAvMor(LocalDateTime signeringstidspunkt) {
       var farskapserklaeringSignertAvMor = lagreFarskapserklaering();
       farskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.posten.no/" + MOR.getFoedselsnummer() + "/pades");
-      farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(15));
-      farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
+      farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signeringstidspunkt);
+      return farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
     }
 
     @Test
@@ -400,6 +406,40 @@ public class PersistenceServiceTest {
     }
 
     @Test
+    void skalHenteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaeringSignertAvMor(
+          ZonedDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1)
+              .with(ChronoField.HOUR_OF_DAY, 0).toLocalDateTime());
+      assertNotNull(lagretFarskapserklaering);
+
+      // when
+      var farskapserklaeringer = persistenceService.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
+
+      // then
+      assertAll(
+          () -> assertThat(farskapserklaeringer.size()).isEqualTo(1),
+          () -> assertThat(farskapserklaeringer.stream().findFirst().get().getId()).isEqualTo(lagretFarskapserklaering.getId())
+      );
+    }
+
+    @Test
+    void skalIkkeHenteAktiveFarskapserklaeringerUtenUtgaatteSigneringsoppdrag() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaeringSignertAvMor(
+          LocalDate.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager()).atStartOfDay());
+      assertNotNull(lagretFarskapserklaering);
+
+      // when
+      var farskapserklaeringer = persistenceService.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
+
+      // then
+      assertThat(farskapserklaeringer.size()).isEqualTo(0);
+    }
+
+    @Test
     @DisplayName("Skal kaste RessursIkkeFunnetException ved henting av undertegnerUrl dersom farskapserklaering ikke finnes")
     void skalKasteRessursIkkeFunnetExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
 
@@ -445,11 +485,11 @@ public class PersistenceServiceTest {
       var lagretFarskapserklaering = lagreFarskapserklaering();
 
       // when
-      var internFeilException = assertThrows(InternFeilException.class,
+      var illegalStateException = assertThrows(IllegalStateException.class,
           () -> persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId() + 1));
 
       // then
-      AssertionsForClassTypes.assertThat(internFeilException.getFeilkode()).isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+      AssertionsForClassTypes.assertThat(illegalStateException.getMessage()).isEqualTo("Farskapserklæring ikke funnet");
     }
   }
 

@@ -36,11 +36,10 @@ virksomhetssertifikat:
     hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
 farskapsportal.asynkron.egenskaper:
-  systembruker-brukernavn: srvfarskapsportal
-  systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
   arkiveringsintervall: ${ARKIVERINGSINTERVALL}
   arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
   brukernotifikasjon-oppgave-synlighet-antall-dager: 30
+  deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
   oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
   joark:
@@ -101,6 +100,7 @@ server:
 
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 WIREMOCK_URL: http://localhost:8096
+DEAKTIVERINGSRATE: "1 * * * * ?"
 
 url:
   joark.base-url: ${WIREMOCK_URL}

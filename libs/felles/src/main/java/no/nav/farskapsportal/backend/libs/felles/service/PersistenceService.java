@@ -1,10 +1,10 @@
 package no.nav.farskapsportal.backend.libs.felles.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
@@ -16,6 +16,7 @@ import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Meldingslogg;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
@@ -25,11 +26,11 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.BarnDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.exception.FantIkkeEntititetException;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import no.nav.farskapsportal.backend.libs.felles.util.Utils;
-import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -41,6 +42,8 @@ public class PersistenceService {
   private final PersonopplysningService personopplysningService;
 
   private final FarskapserklaeringDao farskapserklaeringDao;
+
+  private final FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   private final BarnDao barnDao;
 
@@ -90,19 +93,19 @@ public class PersistenceService {
   }
 
   public Set<Farskapserklaering> henteMorsEksisterendeErklaeringer(String fnrMor) {
-    return bareAktive(farskapserklaeringDao.henteMorsErklaeringer(fnrMor));
+    return farskapserklaeringDao.henteMorsErklaeringer(fnrMor);
   }
 
   public Set<Farskapserklaering> henteFarsErklaeringer(String fnrFar) {
-    return bareAktive(farskapserklaeringDao.henteFarsErklaeringer(fnrFar));
+    return farskapserklaeringDao.henteFarsErklaeringer(fnrFar);
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder) {
-    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder));
+    return farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder);
   }
 
   public Optional<Farskapserklaering> henteBarnsEksisterendeErklaering(String fnrBarn) {
-    var farskapserklaeringer = bareAktive(farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn));
+    var farskapserklaeringer = farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn);
 
     if (farskapserklaeringer.isEmpty()) {
       return Optional.empty();
@@ -116,14 +119,14 @@ public class PersistenceService {
   public Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrForelder, Forelderrolle forelderrolle, KjoennType gjeldendeKjoenn) {
     switch (forelderrolle) {
       case MOR:
-        return bareAktive(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
+        return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
       case FAR:
         return henteFarsErklaeringer(fnrForelder);
       case MOR_ELLER_FAR:
         if (KjoennType.KVINNE.equals(gjeldendeKjoenn)) {
-          return bareAktive(farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder));
+          return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
         } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
-          return bareAktive(farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder));
+          return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
         }
       default:
         throw new ValideringException(Feilkode.FEIL_ROLLE);
@@ -195,15 +198,15 @@ public class PersistenceService {
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerHvorFarIkkeBorSammenMedMorOgErSendtTilSkattMenIkkeJoark() {
-    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerSomTidligereErForsoektSendtTilJoark());
+    return farskapserklaeringDao.henteFarskapserklaeringerSomTidligereErForsoektSendtTilJoark();
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt() {
-    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt());
+    return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
   }
 
   public Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur() {
-    return bareAktive(farskapserklaeringDao.henteFarskapserklaeringerSomVenterPaaFarsSignatur());
+    return farskapserklaeringDao.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
   }
 
   @Transactional
@@ -212,7 +215,26 @@ public class PersistenceService {
     if (farskapserklaering.isPresent()) {
       farskapserklaering.get().setDeaktivert(LocalDateTime.now());
     } else {
-      throw new InternFeilException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+      log.error("Farskapserklæring med id {} ble ikke funnet i databasen, og kunne av den grunn ikke deaktiveres.", idFarskapserklaering);
+      throw new IllegalStateException("Farskapserklæring ikke funnet");
+    }
+  }
+
+  @Transactional
+  public void sletteDokumentinnhold(int idFarskapserklaering) {
+    var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
+
+    if (farskapserklaering.isPresent()) {
+      if (farskapserklaering.get().getDeaktivert() == null) {
+        log.error("Kan ikke slette dokument knyttet til aktiv farskapserklæring med id {}", idFarskapserklaering);
+        throw new IllegalStateException("Farskapserklæringen ikke deaktivert");
+      }
+      farskapserklaering.get().getDokument().setDokumentinnhold(null);
+      farskapserklaering.get().getDokument().getSigneringsinformasjonMor().setXadesXml(null);
+      farskapserklaering.get().getDokument().getSigneringsinformasjonFar().setXadesXml(null);
+    } else {
+      log.error("Fant ikke deaktivert farskapserklæring med id {}", idFarskapserklaering);
+      throw new IllegalStateException("Fant ikke farskapserklæring");
     }
   }
 
@@ -231,6 +253,14 @@ public class PersistenceService {
     return oppgavebestillingDao.henteAktiveOppgaver(idFarskapserklaering, forelder.getFoedselsnummer());
   }
 
+  public Set<Farskapserklaering> henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
+    var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
+        .minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager());
+    var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
+    var farskapserklaeringer = farskapserklaeringDao.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
+    return farskapserklaeringer;
+  }
+
   @Transactional
   public void setteOppgaveTilFerdigstilt(String eventId) {
     var aktiveOppgaver = oppgavebestillingDao.henteOppgavebestilling(eventId);
@@ -245,10 +275,6 @@ public class PersistenceService {
   public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {
     var nyttInnslag = Meldingslogg.builder().tidspunktForOversendelse(tidspunktForOverfoering).meldingsidSkatt(meldingsidSkatt).build();
     meldingsloggDao.save(nyttInnslag);
-  }
-
-  private Set<Farskapserklaering> bareAktive(Set<Farskapserklaering> farskapserklaeringer) {
-    return farskapserklaeringer.stream().filter(fe -> fe.getDeaktivert() == null).collect(Collectors.toSet());
   }
 
   private void farForskjelligFraFarIEksisterendeFarskapserklaeringForNyfoedt(String fnrFar,

@@ -34,7 +34,6 @@ public class OppgavestyringSchedulingTest {
 
     // then
     verify(persistenceService, atLeast(1)).henteFarskapserklaeringerSomVenterPaaFarsSignatur();
-
   }
 
 }

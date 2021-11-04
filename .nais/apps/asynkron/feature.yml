@@ -16,6 +16,8 @@ env:
     value: "true"
   - name: DB_NAME
     value: farskapsportaldb-feature
+  - name: DEAKTIVERINGSRATE
+    value: "0 0/3 * * * ?"
   - name: DISCOVERY_URL
     value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
   - name: AUD_FP

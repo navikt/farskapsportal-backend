@@ -7,6 +7,7 @@ import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.Farskapspor
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserklaeringer;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.DeaktivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -42,6 +43,11 @@ public class ScheduledConfig {
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
         .build();
+  }
+
+  @Bean
+  public DeaktivereFarskapserklaeringer deaktivereFarskapserklaeringer(PersistenceService persistenceService) {
+    return DeaktivereFarskapserklaeringer.builder().persistenceService(persistenceService).build();
   }
 
   @Bean

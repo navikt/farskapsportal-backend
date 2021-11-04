@@ -24,6 +24,7 @@ public class FarskapsportalAsynkronEgenskaper {
   private int arkiveringsintervall;
   private boolean arkivereIJoark;
   private int brukernotifikasjonOppgaveSynlighetAntallDager;
+  private String deaktiveringsrate;
   private int oppgaveslettingsintervall;
   private Skatt skatt;
 }
