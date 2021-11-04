@@ -18,7 +18,7 @@ public class DeaktivereFarskapserklaeringer {
 
   private void deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
       var farskapserklaeringerMedUtgaatteSigneringsoppdrag = persistenceService.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
-    log.info("Fant {} ikke ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn 40 dager. Deaktiverer disse.",
+    log.info("Fant {} ikke-ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn 40 dager. Deaktiverer disse.",
         farskapserklaeringerMedUtgaatteSigneringsoppdrag.size());
     farskapserklaeringerMedUtgaatteSigneringsoppdrag.forEach(
         farskapserklaering -> persistenceService.deaktivereFarskapserklaering(farskapserklaering.getId()));
