@@ -31,6 +31,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -322,11 +323,17 @@ public class ArkivereFarskapserklaeringerTest {
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(tidspunktSendtTilSkatt.withNano(0)),
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(tidspunktSendtTilSkatt.withNano(0)));
+
+      // TODO: JOARK
+         /*
+
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isAfter(arkivertFarskapserklaering.get().getSendtTilSkatt()),
           () -> assertThat(arkivertFarskapserklaering.get().getJoarkJournalpostId()).isEqualTo(jpId)
       );
+      */
+
     }
 
     @Test
@@ -402,13 +409,16 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isEqualTo(lagretFarskapserklaering.getMeldingsidSkatt()),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt().withNano(0)).isEqualTo(
-              lagretFarskapserklaering.getSendtTilSkatt().withNano(0)),
+              lagretFarskapserklaering.getSendtTilSkatt().withNano(0)));
+      // TODO: JOARK
+      /*
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isNotNull(),
           () -> assertThat(arkivertFarskapserklaering.get().getSendtTilJoark()).isAfter(arkivertFarskapserklaering.get().getSendtTilSkatt()),
           () -> assertThat(arkivertFarskapserklaering.get().getJoarkJournalpostId()).isEqualTo(jpId)
-      );
+      );*/
     }
 
+    @Disabled("JOARK")
     @Test
     void skalOverfoereTilJoarkSelvOmOverfoeringTilSkattFeiler() {
 
@@ -454,6 +464,7 @@ public class ArkivereFarskapserklaeringerTest {
       );
     }
 
+    @Disabled("JOARK")
     @Test
     void skalOverfoereTilSkattSelvOmOverfoeringTilJoarkFeiler() {
 

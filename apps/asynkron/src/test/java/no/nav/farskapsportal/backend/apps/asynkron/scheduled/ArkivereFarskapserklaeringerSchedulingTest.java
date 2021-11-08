@@ -33,7 +33,6 @@ public class ArkivereFarskapserklaeringerSchedulingTest {
     Thread.sleep(arkiveringsintervall * 2);
 
     // then
-    verify(persistenceService, atLeast(1)).henteFarskapserklaeringerHvorFarIkkeBorSammenMedMorOgErSendtTilSkattMenIkkeJoark();
     verify(persistenceService, atLeast(1)).henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt();
   }
 

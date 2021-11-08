@@ -40,9 +40,9 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       + "and fe.sendtTilSkatt is not null and fe.farBorSammenMedMor = false and fe.sendtTilJoark is null and fe.deaktivert is null")
   Set<Farskapserklaering> henteFarskapserklaeringerSomTidligereErForsoektSendtTilJoark();
 
-  @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonFar.signeringstidspunkt is not null"
+  @Query("select fe.id from Farskapserklaering fe where fe.dokument.signeringsinformasjonFar.signeringstidspunkt is not null"
       + " and fe.sendtTilSkatt is null and fe.deaktivert is null")
-  Set<Farskapserklaering> henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
+  Set<Integer> henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
 
   @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null and fe.deaktivert is null")

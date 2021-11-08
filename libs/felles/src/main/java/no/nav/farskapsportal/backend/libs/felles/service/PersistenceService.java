@@ -201,7 +201,7 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerSomTidligereErForsoektSendtTilJoark();
   }
 
-  public Set<Farskapserklaering> henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt() {
+  public Set<Integer> henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt() {
     return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
   }
 

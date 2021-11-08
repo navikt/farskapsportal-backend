@@ -29,7 +29,8 @@ public class ArkivereFarskapserklaeringer {
   public void vurdereArkivering() {
 
     log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til  Skatt og evnt Joark");
-    var farskapserklaeringerTilJoark = persistenceService.henteFarskapserklaeringerHvorFarIkkeBorSammenMedMorOgErSendtTilSkattMenIkkeJoark();
+    // TODO: reaktivere når Joark-integrasjon er klar
+    // var farskapserklaeringerTilJoark = persistenceService.henteFarskapserklaeringerHvorFarIkkeBorSammenMedMorOgErSendtTilSkattMenIkkeJoark();
     var farskapserklaeringer = persistenceService.henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt();
     try {
       overfoereTilSkatt(farskapserklaeringer);
@@ -39,6 +40,7 @@ public class ArkivereFarskapserklaeringer {
     }
     // TODO: Fjerne if så snart Joark-integrasjon er klar
     log.warn("Overføring til Joark er skrudd av i påvente av ferdigstilling av integrasjon");
+    /*
     if (arkivereIJoark) {
       var farskapserklaeringSomSkalOverfoeresTilJoark = farskapserklaeringer.stream()
           .filter(s -> s.getFarBorSammenMedMor() != null && !s.getFarBorSammenMedMor() && s.getJoarkJournalpostId() == null)
@@ -47,30 +49,31 @@ public class ArkivereFarskapserklaeringer {
       farskapserklaeringSomSkalOverfoeresTilJoark.addAll(farskapserklaeringerTilJoark);
       overfoereTilJoark(farskapserklaeringSomSkalOverfoeresTilJoark);
     }
+     */
   }
 
-  private void overfoereTilSkatt(Set<Farskapserklaering> farskapserklaeringer) {
-    var fpTekst = farskapserklaeringer.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
-    log.info("Fant {} {} som er klar for overføring til skatt.", farskapserklaeringer.size(), fpTekst);
-    for (Farskapserklaering fe : farskapserklaeringer) {
-      log.debug("Oppdaterer tidspunkt for oversendelse til skatt for farskapserklæring med id {}", fe.getId());
+  private void overfoereTilSkatt(Set<Integer> farskapserklaeringsider) {
+    var fpTekst = farskapserklaeringsider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
+    log.info("Fant {} {} som er klar for overføring til skatt.", farskapserklaeringsider.size(), fpTekst);
+    for (Integer farskapserklaeringsid : farskapserklaeringsider) {
+      log.debug("Oppdaterer tidspunkt for oversendelse til skatt for farskapserklæring med id {}", farskapserklaeringsid);
+      var farskapserklaering = persistenceService.henteFarskapserklaeringForId(farskapserklaeringsid);
       try {
-        var tidspunktForOverfoering = skattConsumer.registrereFarskap(fe);
-
-        fe.setSendtTilSkatt(tidspunktForOverfoering);
-        persistenceService.oppdatereFarskapserklaering(fe);
-        persistenceService.oppdatereMeldingslogg(fe.getSendtTilSkatt(), fe.getMeldingsidSkatt());
+        var tidspunktForOverfoering = skattConsumer.registrereFarskap(farskapserklaering);
+        farskapserklaering.setSendtTilSkatt(tidspunktForOverfoering);
+        persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+        persistenceService.oppdatereMeldingslogg(farskapserklaering.getSendtTilSkatt(), farskapserklaering.getMeldingsidSkatt());
         log.debug("Meldingslogg oppdatert");
 
       } catch (SkattConsumerException sce) {
         var tidspunktNesteForsoek = LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000);
         log.error(
             "En feil oppstod i kommunikasjon med Skatt. Farskapserklæring med meldingsidSkatt {} ble ikke overført. Nytt forsøk vil bli igangsatt kl {}",
-            fe.getMeldingsidSkatt(), tidspunktNesteForsoek, sce);
+            farskapserklaering.getMeldingsidSkatt(), tidspunktNesteForsoek, sce);
         throw sce;
       }
     }
-    if (farskapserklaeringer.size() > 0) {
+    if (farskapserklaeringsider.size() > 0) {
       log.info("Farskapserklæringene ble overført til Skatt uten problemer");
     }
   }
