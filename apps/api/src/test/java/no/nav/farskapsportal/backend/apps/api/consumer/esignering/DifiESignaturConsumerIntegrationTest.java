@@ -2,13 +2,12 @@ package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.tilUri;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Set;
+import java.util.UUID;
 import no.digipost.signature.client.direct.DirectClient;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
@@ -55,7 +54,7 @@ public class DifiESignaturConsumerIntegrationTest {
 
     @Test
     @DisplayName("Skal hente dokumentstatus etter redirect")
-    void skalHenteDokumentstatusEtterRedirect() throws URISyntaxException {
+    void skalHenteDokumentstatusEtterRedirect() {
 
       // given
       // Hente fra GCP-instans
@@ -63,7 +62,7 @@ public class DifiESignaturConsumerIntegrationTest {
       var statusQueryToken = "9RAYkOFvDkP6fMFUKwmRGgxQuHIDRMXcK1t58HDRTns";
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteStatus(statusQueryToken, Set.of(new URI(statusUrl)));
+      var dokumentStatusDto = difiESignaturConsumer.henteStatus(statusQueryToken, UUID.randomUUID().toString(), tilUri(statusUrl));
 
       // then
       assertAll(

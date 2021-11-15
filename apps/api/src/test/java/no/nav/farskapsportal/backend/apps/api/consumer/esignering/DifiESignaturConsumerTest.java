@@ -1,6 +1,8 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.tilUri;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -14,7 +16,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
-import java.util.Set;
+import java.util.Map;
+import java.util.UUID;
 import lombok.SneakyThrows;
 import no.digipost.signature.client.core.exceptions.SenderNotSpecifiedException;
 import no.digipost.signature.client.direct.DirectClient;
@@ -78,9 +81,6 @@ public class DifiESignaturConsumerTest {
   @Autowired
   private DifiESignaturStub difiESignaturStub;
 
-  @Autowired
-  private PersistenceService persistenceService;
-
   @Nested
   @DisplayName("Teste oppretteSigneringsjobb")
   class OppretteSigneringsJobb {
@@ -105,7 +105,7 @@ public class DifiESignaturConsumerTest {
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       // when
-      difiESignaturConsumer.oppretteSigneringsjobb(dokument, Skriftspraak.BOKMAAL, mor, far);
+      difiESignaturConsumer.oppretteSigneringsjobb(1, dokument, Skriftspraak.BOKMAAL, mor, far);
 
       // then
       assertAll(() -> assertNotNull(dokument.getSigneringsinformasjonMor().getRedirectUrl(), "Mors redirectUrl skal være lagt til"),
@@ -132,7 +132,7 @@ public class DifiESignaturConsumerTest {
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       // when
-      difiESignaturConsumer.oppretteSigneringsjobb(dokument, Skriftspraak.ENGELSK, mor, far);
+      difiESignaturConsumer.oppretteSigneringsjobb(1, dokument, Skriftspraak.ENGELSK, mor, far);
 
       // then
       assertAll(
@@ -162,17 +162,12 @@ public class DifiESignaturConsumerTest {
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
-      var exitUrls = ExitUrls
-          .of(URI.create(farskapsportalApiEgenskaper.getEsignering().getSuksessUrl()),
-              URI.create(farskapsportalApiEgenskaper.getEsignering().getAvbruttUrl()),
-              URI.create(farskapsportalApiEgenskaper.getEsignering().getFeiletUrl()));
-
-      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(exitUrls, directClientMock, persistenceService);
+      var difiEsignaturConsumerWithMocks = new DifiESignaturConsumer(farskapsportalApiEgenskaper, directClientMock);
       when(directClientMock.create(any(DirectJob.class))).thenThrow(SenderNotSpecifiedException.class);
 
       // when
       Assertions.assertThrows(OppretteSigneringsjobbException.class,
-          () -> difiEsignaturConsumerWithMocks.oppretteSigneringsjobb(dokument, Skriftspraak.BOKMAAL, mor, far),
+          () -> difiEsignaturConsumerWithMocks.oppretteSigneringsjobb(1, dokument, Skriftspraak.BOKMAAL, mor, far),
           "Skal kaste OppretteSigneringsjobbException dersom Difiklient feiler");
     }
   }
@@ -183,13 +178,13 @@ public class DifiESignaturConsumerTest {
 
     @Test
     @DisplayName("Skal hente dokumentstatus etter redirect")
-    void skalHenteDokumentstatusEtterRedirect() throws URISyntaxException {
+    void skalHenteDokumentstatusEtterRedirect() {
 
       // given
       difiESignaturStub.runGetStatus(STATUS_URL, PADES_URL, MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda", Set.of(new URI(STATUS_URL)));
+      var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda", UUID.randomUUID().toString(), tilUri(STATUS_URL));
 
       // then
       assertAll(
@@ -220,7 +215,7 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(TestUtils.lageUri(FarskapsportalApiLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(FarskapsportalApiLocalConfig.PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);
@@ -237,7 +232,7 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runGetXades(FarskapsportalApiLocalConfig.XADES);
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(TestUtils.lageUri(FarskapsportalApiLocalConfig.XADES));
+      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(lageUri(FarskapsportalApiLocalConfig.XADES));
 
       // then
       assertNotNull(dokumentStatusDto);
