@@ -187,7 +187,7 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runGetStatus(STATUS_URL, PADES_URL, MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda",  Set.of(new URI(STATUS_URL), new URI(STATUS_URL + "2")));
+      var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda",  Set.of(new URI(STATUS_URL)));
 
       // then
       assertAll(
