@@ -113,8 +113,9 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "410", description = "Status på signeringsjobben er FEILET. Farskapserklæring slettes og må opprettes på ny."),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  // TOOD: Parameter id_farskapserklaering skal være påkrevd etter overgang til ny modell for å hente status på signeringsoppdrag (25.12.2021)
   public ResponseEntity<FarskapserklaeringDto> oppdatereStatusEtterRedirect(
-      @Parameter(name = "id_farskapserklaering", description = "ID til farskapserklæringen status skal oppdateres for", required = true) @RequestParam(name = "id_farskapserklaering") int idFarskapserklaering,
+      @Parameter(name = "id_farskapserklaering", description = "ID til farskapserklæringen status skal oppdateres for") @RequestParam(name = "id_farskapserklaering", defaultValue = "-1") int idFarskapserklaering,
       @Parameter(name = "status_query_token", description = "statusQueryToken som mottatt fra e-signeringsløsningen i redirect-url", required = true) @RequestParam(name = "status_query_token") String statusQueryToken) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
     var signertDokument = farskapsportalService.oppdatereStatusSigneringsjobb(fnrPaaloggetPerson, idFarskapserklaering, statusQueryToken);
