@@ -194,10 +194,7 @@ public class DifiESignaturConsumerTest {
           () -> AssertionsForClassTypes.assertThat(dokumentStatusDto).isNotNull(),
           () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getStatuslenke().toString()).isEqualTo(STATUS_URL),
           () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getPadeslenke()).isNotNull(),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getPadeslenke().toString()).isEqualTo(PADES_URL),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().get(1).getTidspunktForStatus())
-              .isAfter(ZonedDateTime.now().minusSeconds(15)),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().get(1).getTidspunktForStatus()).isBefore(ZonedDateTime.now())
+          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getPadeslenke().toString()).isEqualTo(PADES_URL)
       );
     }
 
