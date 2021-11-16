@@ -17,7 +17,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
           + "and (fe.dokument.padesUrl is not null or fe.dokument.padesUrl is not null) and fe.deaktivert is null")
   Set<Farskapserklaering> hentFarskapserklaeringerMedPadeslenke(String fnr);
 
-  @Query("select fe from Farskapserklaering fe where fe.far.foedselsnummer = :fnrForelder or fe.mor.foedselsnummer = :fnrForelder and fe.deaktivert is null")
+  @Query("select fe from Farskapserklaering fe where (fe.far.foedselsnummer = :fnrForelder or fe.mor.foedselsnummer = :fnrForelder) and fe.deaktivert is null")
   Set<Farskapserklaering> henteFarskapserklaeringerForForelder(String fnrForelder);
 
   @Query(
