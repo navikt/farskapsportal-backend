@@ -38,7 +38,9 @@ public class BrukernotifikasjonConsumer {
 
   public void varsleMorOmUtgaattOppgaveForSignering(Forelder mor) {
     log.info("Sender varsel til mor om utgått signeringsoppgave");
-    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, oppretteNokkel());
+    var noekkel = oppretteNokkel();
+    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, noekkel);
+    log.info("Ekstern melding med eventId: {}, ble sendt til mor", noekkel.getEventId());
   }
 
   public void varsleOmAvbruttSignering(Forelder mor, Forelder far) {
