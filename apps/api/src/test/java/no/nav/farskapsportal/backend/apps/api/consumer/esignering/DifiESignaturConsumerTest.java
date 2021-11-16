@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import lombok.SneakyThrows;
 import no.digipost.signature.client.core.exceptions.SenderNotSpecifiedException;
@@ -176,8 +177,33 @@ public class DifiESignaturConsumerTest {
   @DisplayName("Teste henteStatus")
   class HenteStatus {
 
+    // TODO: Fjerne
     @Test
     @DisplayName("Skal hente dokumentstatus etter redirect")
+    @Deprecated
+    void skalHenteDokumentstatusEtterRedirectPaaGamlemaaten() throws URISyntaxException {
+
+      // given
+      difiESignaturStub.runGetStatus(STATUS_URL, PADES_URL, MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
+
+      // when
+      var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda",  Set.of(new URI(STATUS_URL), new URI(STATUS_URL + "2")));
+
+      // then
+      assertAll(
+          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto).isNotNull(),
+          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getStatuslenke().toString()).isEqualTo(STATUS_URL),
+          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getPadeslenke()).isNotNull(),
+          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getPadeslenke().toString()).isEqualTo(PADES_URL),
+          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().get(1).getTidspunktForStatus())
+              .isAfter(ZonedDateTime.now().minusSeconds(15)),
+          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().get(1).getTidspunktForStatus()).isBefore(ZonedDateTime.now())
+      );
+    }
+
+    @Test
+    @DisplayName("Skal hente dokumentstatus etter redirect")
+    @Deprecated
     void skalHenteDokumentstatusEtterRedirect() {
 
       // given
