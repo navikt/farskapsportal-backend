@@ -15,6 +15,7 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao;
@@ -36,6 +37,9 @@ public class DeaktivereFarskapserklaeringerTest {
 
   @Autowired
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+
+  @Autowired
+  private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
 
   @Autowired
   private PersistenceService persistenceService;
@@ -60,7 +64,9 @@ public class DeaktivereFarskapserklaeringerTest {
     meldingsloggDao.deleteAll();
 
     // Bønnen dekativereFarskapserklaeringer er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
-    deaktivereFarskapserklaeringer = DeaktivereFarskapserklaeringer.builder().persistenceService(persistenceService).build();
+    deaktivereFarskapserklaeringer = DeaktivereFarskapserklaeringer.builder()
+        .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .persistenceService(persistenceService).build();
   }
 
   private Farskapserklaering henteFarskapserklaeringNyfoedtSignertAvMor(LocalDateTime signeringstidspunktMor, String persnrBarn) {
