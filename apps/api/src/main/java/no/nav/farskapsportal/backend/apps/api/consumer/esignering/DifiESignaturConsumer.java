@@ -267,9 +267,13 @@ public class DifiESignaturConsumer {
     for (URI statusUrl : statusUrler) {
       var directJobResponse = new DirectJobResponse(1, null, statusUrl, null);
 
-      var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
-      log.info("Fant riktig status-url");
-      return Collections.singletonMap(statusUrl, directJobStatusResponse);
+      try {
+        var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
+        log.info("Fant riktig status-url");
+        return Collections.singletonMap(statusUrl, directJobStatusResponse);
+      } catch (Exception e) {
+        log.info("Feil kombinasjon av status-url og status-query-token, prøver neste på lista");
+      }
     }
 
     throw new EsigneringConsumerException(Feilkode.ESIGNERING_UKJENT_TOKEN);
