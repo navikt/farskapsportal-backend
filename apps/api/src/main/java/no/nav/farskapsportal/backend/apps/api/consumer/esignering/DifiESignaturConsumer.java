@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import no.digipost.signature.client.direct.StatusReference;
 import no.digipost.signature.client.direct.WithSignerUrl;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.api.StatusSignering;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
@@ -40,7 +42,6 @@ import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerExc
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 import no.nav.farskapsportal.backend.libs.felles.exception.OppretteSigneringsjobbException;
-import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.apache.commons.lang3.Validate;
 
 @Slf4j
@@ -55,9 +56,8 @@ public class DifiESignaturConsumer {
       Tekst.DOKUMENT_FILNAVN, "declaration-of-paternity.pdf",
       Tekst.DOKUMENT_TITTEL, "Declaration Of Paternity"
   );
-  private final ExitUrls exitUrls;
+  private final FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   private final DirectClient client;
-  private final PersistenceService persistenceService;
 
   private String tekstvelger(Tekst tekst, Skriftspraak skriftspraak) {
     switch (skriftspraak) {
@@ -77,7 +77,7 @@ public class DifiESignaturConsumer {
    * @param mor første signatør
    * @param far andre signatør
    */
-  public void oppretteSigneringsjobb(Dokument dokument, Skriftspraak skriftspraak, Forelder mor, Forelder far) {
+  public void oppretteSigneringsjobb(int idFarskapserklaering, Dokument dokument, Skriftspraak skriftspraak, Forelder mor, Forelder far) {
 
     log.info("Oppretter signeringsjobb");
     var tittel = tekstvelger(Tekst.DOKUMENT_TITTEL, skriftspraak);
@@ -85,10 +85,15 @@ public class DifiESignaturConsumer {
 
     var directDocument = DirectDocument.builder(tittel, dokumentnavn, dokument.getDokumentinnhold().getInnhold()).build();
 
+    var exitUrls = ExitUrls
+        .of(URI.create(farskapsportalApiEgenskaper.getEsignering().getSuksessUrl() + "/id_farskapserklaering/" + idFarskapserklaering),
+            URI.create(farskapsportalApiEgenskaper.getEsignering().getAvbruttUrl() + "/id_farskapserklaering/" + idFarskapserklaering),
+            URI.create(farskapsportalApiEgenskaper.getEsignering().getFeiletUrl() + "/id_farskapserklaering/" + idFarskapserklaering));
+
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
-
-    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer)).build();
+    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer)).withReference(UUID.randomUUID().toString())
+        .build();
     DirectJobResponse directJobResponse;
     try {
       directJobResponse = client.create(directJob);
@@ -99,6 +104,7 @@ public class DifiESignaturConsumer {
 
     dokument.setTittel(tittel);
     dokument.setNavn(dokumentnavn);
+    dokument.setJobbref(directJob.getReference());
 
     log.info("Setter statusUrl {}", directJobResponse.getStatusUrl());
     dokument.setStatusUrl(directJobResponse.getStatusUrl().toString());
@@ -121,11 +127,44 @@ public class DifiESignaturConsumer {
   }
 
   /**
-   * Hente dokumentstatus.
+   * Hente dokumentstatus på gamlemåten.
+   *
+   * Slettes når alle aktive signeringsoppdrag har blitt opprettet med nytt exit-url-format (trygt etter 25.12.2021)
    */
+  // TODO: Fjerne etter 25.12.2021
+  @Deprecated
   public DokumentStatusDto henteStatus(String statusQueryToken, Set<URI> statuslenker) {
 
     var directJobStatusResponseMap = henteSigneringsjobbstatus(statuslenker, statusQueryToken);
+
+    var statuslenke = directJobStatusResponseMap.keySet().stream().findAny().get();
+    var directJobStatusResponse = directJobStatusResponseMap.get(statuslenke);
+
+    validereInnholdStatusrespons(directJobStatusResponse);
+
+    var pAdESReference = directJobStatusResponse.getpAdESUrl();
+    var statusJobb = directJobStatusResponse.getStatus();
+    var bekreftelseslenke = directJobStatusResponse.getConfirmationReference().getConfirmationUrl();
+
+    var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(this::mapTilDto)
+        .collect(Collectors.toList());
+
+    log.info("Antall signaturer i statusrespons: {}", signaturer.size());
+
+    return DokumentStatusDto.builder()
+        .statuslenke(statuslenke)
+        .statusSignering(henteSigneringsstatus(statusJobb))
+        .padeslenke(pAdESReference != null ? pAdESReference.getpAdESUrl() : null)
+        .bekreftelseslenke(bekreftelseslenke)
+        .signaturer(signaturer).build();
+  }
+
+  /**
+   * Hente dokumentstatus.
+   */
+  public DokumentStatusDto henteStatus(String statusQueryToken, String signeringsjobbreferanse, URI statusurl) {
+
+    var directJobStatusResponseMap = henteSigneringsjobbstatus(statusurl, signeringsjobbreferanse, statusQueryToken);
 
     var statuslenke = directJobStatusResponseMap.keySet().stream().findAny().get();
     var directJobStatusResponse = directJobStatusResponseMap.get(statuslenke);
@@ -213,15 +252,28 @@ public class DifiESignaturConsumer {
     throw new InternFeilException(Feilkode.UKJENT_SIGNERINGSSTATUS);
   }
 
+  private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(URI statusurl, String signeringsjobbbreferanse, String statusQueryToken) {
+    log.info("Henter status på signeringsjobb fra {}", statusurl.toString());
+    var directJobResponse = new DirectJobResponse(1, signeringsjobbbreferanse, statusurl, null);
+    var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
+    return Collections.singletonMap(directJobResponse.getStatusUrl(), directJobStatusResponse);
+  }
+
+  // TODO: Fjerne etter 25.12.2021
+  @Deprecated
   private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {
     log.info("Henter status på signeringsjobb. Leter etter riktig status-url ut fra {} mulige kandidater", statusUrler.size());
 
     for (URI statusUrl : statusUrler) {
       var directJobResponse = new DirectJobResponse(1, null, statusUrl, null);
 
-      var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
-      log.info("Fant riktig status-url");
-      return Collections.singletonMap(statusUrl, directJobStatusResponse);
+      try {
+        var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
+        log.info("Fant riktig status-url");
+        return Collections.singletonMap(statusUrl, directJobStatusResponse);
+      } catch (Exception e) {
+        log.info("Feil kombinasjon av status-url og status-query-token, prøver neste på lista");
+      }
     }
 
     throw new EsigneringConsumerException(Feilkode.ESIGNERING_UKJENT_TOKEN);

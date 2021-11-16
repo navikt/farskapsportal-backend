@@ -92,14 +92,9 @@ public class DifiEsigneringConfig {
   }
 
   @Bean
-  public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient, @Autowired PersistenceService persistenceService) {
+  public DifiESignaturConsumer difiESignaturConsumer(DirectClient directClient) {
 
-    var exitUrls = ExitUrls
-        .of(URI.create(farskapsportalApiEgenskaper.getEsignering().getSuksessUrl()),
-            URI.create(farskapsportalApiEgenskaper.getEsignering().getAvbruttUrl()),
-            URI.create(farskapsportalApiEgenskaper.getEsignering().getFeiletUrl()));
-
-    return new DifiESignaturConsumer(exitUrls, directClient, persistenceService);
+    return new DifiESignaturConsumer(farskapsportalApiEgenskaper, directClient);
   }
 
   private enum NavClusterName {

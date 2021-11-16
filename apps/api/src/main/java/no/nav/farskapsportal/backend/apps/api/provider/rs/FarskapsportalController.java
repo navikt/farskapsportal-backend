@@ -16,8 +16,8 @@ import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringRequ
 import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
-import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.dto.FarskapserklaeringDto;
+import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class FarskapsportalController {
   @Autowired
   private FarskapsportalApiConfig.OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
 
-  @GetMapping(value="/brukerinformasjon")
+  @GetMapping(value = "/brukerinformasjon")
   @Operation(description = "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn",
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
@@ -113,10 +113,12 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "410", description = "Status på signeringsjobben er FEILET. Farskapserklæring slettes og må opprettes på ny."),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  // TOOD: Parameter id_farskapserklaering skal være påkrevd etter overgang til ny modell for å hente status på signeringsoppdrag (25.12.2021)
   public ResponseEntity<FarskapserklaeringDto> oppdatereStatusEtterRedirect(
+      @Parameter(name = "id_farskapserklaering", description = "ID til farskapserklæringen status skal oppdateres for") @RequestParam(name = "id_farskapserklaering", defaultValue = "-1") int idFarskapserklaering,
       @Parameter(name = "status_query_token", description = "statusQueryToken som mottatt fra e-signeringsløsningen i redirect-url", required = true) @RequestParam(name = "status_query_token") String statusQueryToken) {
     var fnrPaaloggetPerson = oidcTokenSubjectExtractor.hentPaaloggetPerson();
-    var signertDokument = farskapsportalService.oppdatereStatusSigneringsjobb(fnrPaaloggetPerson, statusQueryToken);
+    var signertDokument = farskapsportalService.oppdatereStatusSigneringsjobb(fnrPaaloggetPerson, idFarskapserklaering, statusQueryToken);
     return new ResponseEntity<>(signertDokument, HttpStatus.OK);
   }
 

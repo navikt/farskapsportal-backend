@@ -249,56 +249,6 @@ public class PersistenceServiceTest {
     }
 
     @Test
-    @DisplayName("Skal hente farskapserklæring i forbindelse med mors redirect fra signeringsløsningen")
-    void skalHenteFarskapserklaeringEtterRedirectForMor() {
-
-      // given
-      var lagretFarskapserklaering = lagreFarskapserklaering();
-
-      lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
-
-      assertAll(() -> assertNull(lagretFarskapserklaering.getDokument().getPadesUrl()),
-          () -> assertNull(lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()),
-          () -> assertNull(lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()));
-
-      // when
-      var farskapserklaeringerEtterRedirect = persistenceService
-          .henteFarskapserklaeringerEtterRedirect(MOR.getFoedselsnummer(), Forelderrolle.MOR, KjoennType.KVINNE).stream().findFirst().get();
-
-      // then
-      assertAll(
-          () -> assertNull(farskapserklaeringerEtterRedirect.getDokument().getPadesUrl(),
-              "PAdES-URL skal ikke være satt i farskapserklæring i det mor redirektes tilbake til farskapsportalen etter utført signering"),
-          () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()),
-          () -> assertThat(farskapserklaeringerEtterRedirect.getDeaktivert()).isNull()
-      );
-    }
-
-    @Test
-    @DisplayName("Skal hente farskapserklæring i forbindelse med fars redirect fra signeringsløsningen")
-    void skalHenteFarskapserklaeringEtterRedirectForFar() {
-
-      // given
-      lagreFarskapserklaeringSignertAvMor();
-
-      //when
-      var farskapserklaeringerEtterRedirect = persistenceService
-          .henteFarskapserklaeringerEtterRedirect(FAR.getFoedselsnummer(), Forelderrolle.FAR, KjoennType.MANN).stream().findFirst().get();
-
-      // then
-      assertAll(
-          () -> assertNotNull(farskapserklaeringerEtterRedirect.getDokument(),
-              "PAdES-URL skal være satt i farskapserklæring i det far redirektes tilbake til farskapsportalen etter utført signering"),
-          () -> assertEquals(FARSKAPSERKLAERING.getMor().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getMor().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), farskapserklaeringerEtterRedirect.getFar().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), farskapserklaeringerEtterRedirect.getBarn().getTermindato()),
-          () -> assertThat(farskapserklaeringerEtterRedirect.getDeaktivert()).isNull()
-      );
-    }
-
-    @Test
     @DisplayName("Skal hente farskapserklæring som venter på far")
     void skalHenteFarskapserklaeringSomVenterPaaFar() {
 

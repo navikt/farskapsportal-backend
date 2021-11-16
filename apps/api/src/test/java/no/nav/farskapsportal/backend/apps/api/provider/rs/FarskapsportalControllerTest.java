@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -263,7 +264,7 @@ public class FarskapsportalControllerTest {
     when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrPaaloggetBruker);
 
     when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
-    doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+    doNothing().when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
   }
 
   @AfterEach
@@ -1038,10 +1039,10 @@ public class FarskapsportalControllerTest {
       // legger på redirecturl til dokument i void-metode
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
-        var dokument = (Dokument) args[0];
+        var dokument = (Dokument) args[1];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
-        return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+        return dokument;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1108,10 +1109,10 @@ public class FarskapsportalControllerTest {
       // legger på redirecturl til dokument i void-metode
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
-        var dokument = (Dokument) args[0];
+        var dokument = (Dokument) args[1];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
-        return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+        return dokument;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1133,10 +1134,10 @@ public class FarskapsportalControllerTest {
       // legger på redirecturl til dokument i void-metode
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
-        var dokument = (Dokument) args[0];
+        var dokument = (Dokument) args[1];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
-        return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+        return dokument;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1158,10 +1159,10 @@ public class FarskapsportalControllerTest {
       // legger på redirecturl til dokument i void-metode
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
-        var dokument = (Dokument) args[0];
+        var dokument = (Dokument) args[1];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
-        return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+        return dokument;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1183,10 +1184,10 @@ public class FarskapsportalControllerTest {
       // legger på redirecturl til dokument i void-metode
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
-        var dokument = (Dokument) args[0];
+        var dokument = (Dokument) args[1];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(REDIRECT_URL).build());
-        return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+        return dokument;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1255,10 +1256,10 @@ public class FarskapsportalControllerTest {
       // legger på redirecturl til dokument i void-metode
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
-        var dokument = (Dokument) args[0];
+        var dokument = (Dokument) args[1];
         dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-mor")).build());
-        return null;
-      }).when(difiESignaturConsumer).oppretteSigneringsjobb(any(), any(), any(), any());
+        return dokument;
+      }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
@@ -1328,7 +1329,7 @@ public class FarskapsportalControllerTest {
               new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
           FAR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUri("/confirmation"))
               .statuslenke(tilUri(statuslenke))
@@ -1347,7 +1348,9 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              .queryParam("id_farskapserklaering", farskapserklaeringUtenSignaturer.getId())
+              .queryParam("status_query_token", "Sjalalala-lala").build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
@@ -1399,7 +1402,7 @@ public class FarskapsportalControllerTest {
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false)),
           MOR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .bekreftelseslenke(lageUri("/confirmation"))
               .statuslenke(new URI(statuslenke)).statusSignering(StatusSignering.SUKSESS)
@@ -1418,7 +1421,9 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId()).queryParam("status_query_token", "Sjalalala-lala")
+              .build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
@@ -1478,7 +1483,7 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(mapper.modelMapper(registrertNavnMor, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
           MOR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .statuslenke(lageUri("/status"))
               .bekreftelseslenke(lageUri("/confirmation"))
@@ -1497,7 +1502,9 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId()).queryParam("status_query_token", "Sjalalala-lala")
+              .build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
@@ -1531,7 +1538,7 @@ public class FarskapsportalControllerTest {
       nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status"));
       nyopprettetFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
-      farskapserklaeringDao.save(nyopprettetFarskapserklaering);
+      var farskapserklaering = farskapserklaeringDao.save(nyopprettetFarskapserklaering);
 
       var registrertNavnMor = NAVN_MOR;
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
@@ -1544,7 +1551,7 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(mapper.modelMapper(registrertNavnMor, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
           MOR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .statuslenke(lageUri("/status"))
               .bekreftelseslenke(lageUri("/confirmation"))
@@ -1561,7 +1568,8 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("id_farskapserklaering", farskapserklaering.getId())
+              .queryParam("status_query_token", "Sjalalala-lala").build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
@@ -1607,7 +1615,7 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(mapper.modelMapper(registrertNavnFar, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
           FAR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteStatus(any(), any())).thenReturn(
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
               .statuslenke(lageUri("/status"))
               .bekreftelseslenke(lageUri("/confirmation"))
@@ -1624,7 +1632,9 @@ public class FarskapsportalControllerTest {
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              .queryParam("id_farskapserklaering", farskapserklaeringSignertAvMor.getId())
+              .queryParam("status_query_token", "Sjalalala-lala").build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
@@ -1670,11 +1680,12 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(mapper.modelMapper(registrertNavnFar, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
           FAR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteStatus(any(), any())).thenThrow(new EsigneringConsumerException(Feilkode.ESIGNERING_UKJENT_TOKEN));
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenThrow(new EsigneringConsumerException(Feilkode.ESIGNERING_UKJENT_TOKEN));
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("id_farskapserklaering", 1)
+              .queryParam("status_query_token", "Sjalalala-lala").build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then
@@ -1733,14 +1744,16 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(mapper.modelMapper(registrertNavnMor, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
           MOR.getFoedselsnummer());
 
-      when(difiESignaturConsumer.henteStatus(any(), any())).thenThrow(new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_DATA));
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenThrow(new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_DATA));
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(
-          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("status_query_token", "Sjalalala-lala").build().encode()
+          UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId())
+              .queryParam("status_query_token", "Sjalalala-lala").build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
 
       // then

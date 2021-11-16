@@ -116,24 +116,6 @@ public class PersistenceService {
   }
 
   @Transactional
-  public Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrForelder, Forelderrolle forelderrolle, KjoennType gjeldendeKjoenn) {
-    switch (forelderrolle) {
-      case MOR:
-        return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
-      case FAR:
-        return henteFarsErklaeringer(fnrForelder);
-      case MOR_ELLER_FAR:
-        if (KjoennType.KVINNE.equals(gjeldendeKjoenn)) {
-          return farskapserklaeringDao.hentFarskapserklaeringerMorUtenPadeslenke(fnrForelder);
-        } else if (KjoennType.MANN.equals(gjeldendeKjoenn)) {
-          return farskapserklaeringDao.hentFarskapserklaeringerMedPadeslenke(fnrForelder);
-        }
-      default:
-        throw new ValideringException(Feilkode.FEIL_ROLLE);
-    }
-  }
-
-  @Transactional
   public StatusKontrollereFar oppdatereStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,
       int antallDagerTilForsoekNullstilles, int maksAntallFeiledeForsoek) {
     var muligStatusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
