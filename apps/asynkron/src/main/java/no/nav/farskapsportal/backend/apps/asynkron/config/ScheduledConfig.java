@@ -51,7 +51,7 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public Oppgavestyring sletteOppgave(
+  public Oppgavestyring oppgavestyring(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
     return Oppgavestyring.builder()
