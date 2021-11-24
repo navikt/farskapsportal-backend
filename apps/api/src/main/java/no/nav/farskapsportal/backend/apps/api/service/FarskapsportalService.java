@@ -229,9 +229,6 @@ public class FarskapsportalService {
 
     log.info("Oppdaterer status på signeringsoppdrag for pålogget person");
 
-    // Forelder må være myndig
-    personopplysningService.erOver18Aar(fnrPaaloggetPerson);
-
     if (idFarskapserklaering > 0) {
       return oppdatereStatusSigneringsjobb(idFarskapserklaering, statusQueryToken, fnrPaaloggetPerson);
     } else {

@@ -36,6 +36,8 @@ public class BrukernotifikasjonConsumer {
     beskjedprodusent.oppretteBeskjedTilBruker(far, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, oppretteNokkel());
   }
 
+  public 
+
   public void varsleMorOmUtgaattOppgaveForSignering(Forelder mor) {
     log.info("Sender varsel til mor om utgått signeringsoppgave");
     var noekkel = oppretteNokkel();
