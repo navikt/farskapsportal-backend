@@ -54,6 +54,8 @@ env:
     value: 120000
   - name: OPPGAVESLETTINGSFORSINKELSE
     value: 60000
+  - name: VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER
+    value: 10
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-feature-password

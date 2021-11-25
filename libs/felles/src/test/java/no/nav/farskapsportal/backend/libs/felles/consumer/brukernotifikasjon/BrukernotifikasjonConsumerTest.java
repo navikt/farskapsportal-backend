@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FAR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.MOR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import no.nav.brukernotifikasjon.schemas.Beskjed;
 import no.nav.brukernotifikasjon.schemas.Done;
@@ -52,10 +54,13 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class BrukernotifikasjonConsumerTest {
 
+
+  private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING = "Du har en signert farskapserklæring er tilgjengelig for nedlasting i en begrenset tidsperiode fra farskapsportalen:";
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
-  private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
+  private static final String MELDING_OM_MANGLENDE_SIGNERING = "Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med NAV ved problemer.";
+  private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final Barn BARN = TestUtils.henteBarnUtenFnr(5);
 
   @Autowired
@@ -207,6 +212,116 @@ public class BrukernotifikasjonConsumerTest {
             farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
         () -> assertThat(beskjedTilFar.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
         () -> assertThat(beskjedTilFar.getTekst()).isEqualTo(MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING),
+        () -> assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
+    );
+  }
+
+  @Test
+  void skalVarsleForeldreOmManglendeSigneringForUfoedt() {
+
+    // given
+    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
+    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+    var erklaeringOpprettetDato = LocalDate.now().minusDays(10);
+    var ufoedt = henteBarnUtenFnr(5);
+
+    // when
+    brukernotifikasjonConsumer.varsleForeldreOmManglendeSignering(MOR, FAR, ufoedt, erklaeringOpprettetDato);
+
+    // then
+    verify(beskjedkoe, times(2))
+        .send(eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), noekkelfanger.capture(), beskjedfanger.capture());
+
+    var alleBeskjeder = beskjedfanger.getAllValues();
+    var beskjedTilMor = alleBeskjeder.get(0);
+    var beskjedTilFar = alleBeskjeder.get(1);
+
+    var alleNoekler = noekkelfanger.getAllValues();
+    var noekkelTilMor = alleNoekler.get(0);
+    var noekkelTilFar = alleNoekler.get(1);
+
+    assertAll(
+        () -> assertThat(noekkelTilMor.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjedTilMor.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjedTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(beskjedTilMor.getGrupperingsId()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilMor.getSikkerhetsnivaa()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjedTilMor.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
+        () -> assertThat(beskjedTilMor.getTekst()).isEqualTo(
+            String.format(MELDING_OM_MANGLENDE_SIGNERING, erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                "termindato " + ufoedt.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))),
+        () -> assertThat(beskjedTilMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
+    );
+
+    assertAll(
+        () -> assertThat(noekkelTilFar.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjedTilFar.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjedTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        () -> assertThat(beskjedTilFar.getGrupperingsId()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilFar.getSikkerhetsnivaa()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjedTilFar.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
+        () -> assertThat(beskjedTilFar.getTekst()).isEqualTo(
+            String.format(MELDING_OM_MANGLENDE_SIGNERING, erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                "termindato " + ufoedt.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))),
+        () -> assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
+    );
+  }
+
+  @Test
+  void skalVarsleForeldreOmManglendeSigneringForNyfoedt() {
+
+    // given
+    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
+    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+    var erklaeringOpprettetDato = LocalDate.now().minusDays(10);
+    var nyfoedt = henteBarnMedFnr(LocalDate.now().minusMonths(1));
+
+    // when
+    brukernotifikasjonConsumer.varsleForeldreOmManglendeSignering(MOR, FAR, nyfoedt, LocalDate.now().minusDays(10));
+
+    // then
+    verify(beskjedkoe, times(2))
+        .send(eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed()), noekkelfanger.capture(), beskjedfanger.capture());
+
+    var alleBeskjeder = beskjedfanger.getAllValues();
+    var beskjedTilMor = alleBeskjeder.get(0);
+    var beskjedTilFar = alleBeskjeder.get(1);
+
+    var alleNoekler = noekkelfanger.getAllValues();
+    var noekkelTilMor = alleNoekler.get(0);
+    var noekkelTilFar = alleNoekler.get(1);
+
+    assertAll(
+        () -> assertThat(noekkelTilMor.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjedTilMor.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjedTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(beskjedTilMor.getGrupperingsId()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilMor.getSikkerhetsnivaa()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjedTilMor.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
+        () -> assertThat(beskjedTilMor.getTekst()).isEqualTo(
+            String.format(MELDING_OM_MANGLENDE_SIGNERING, erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                "fødselsnummer " + nyfoedt.getFoedselsnummer())),
+        () -> assertThat(beskjedTilMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
+    );
+
+    assertAll(
+        () -> assertThat(noekkelTilFar.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
+        () -> assertThat(beskjedTilFar.getEksternVarsling()).isTrue(),
+        () -> assertThat(beskjedTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        () -> assertThat(beskjedTilFar.getGrupperingsId()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(beskjedTilFar.getSikkerhetsnivaa()).isEqualTo(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(beskjedTilFar.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
+        () -> assertThat(beskjedTilFar.getTekst()).isEqualTo(
+            String.format(MELDING_OM_MANGLENDE_SIGNERING, erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                "fødselsnummer " + nyfoedt.getFoedselsnummer())),
         () -> assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl())
     );
   }

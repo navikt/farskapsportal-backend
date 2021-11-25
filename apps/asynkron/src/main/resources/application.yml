@@ -42,6 +42,7 @@ farskapsportal.asynkron.egenskaper:
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
   oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
+  varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
