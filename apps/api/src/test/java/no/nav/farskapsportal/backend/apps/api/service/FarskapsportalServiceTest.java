@@ -1553,6 +1553,72 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    void skalLagreStatusQueryTokenDersomStatusOppdateres() {
+
+      // given
+      farskapserklaeringDao.deleteAll();
+      var statusQueryToken = "etGyldigStatusQueryToken";
+
+      var statuslenke = lageUri("/status");
+      var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
+      var padesFar = lageUri("/padesFar");
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
+      var farskapserklaeringDokumentinnhold = "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+      var xadesXml = "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+
+      assertNull(farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt());
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      lagretFarskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+      when(personopplysningService.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+      when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
+      when(personopplysningService.henteGjeldendeKjoenn(FAR.getFoedselsnummer())).thenReturn(KjoennDto.builder().kjoenn(KjoennType.MANN).build());
+
+      when(personopplysningService.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+      when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+      when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer())).thenReturn(true);
+
+      doNothing().when(brukernotifikasjonConsumer).sletteFarsSigneringsoppgave(anyString(), any(Forelder.class));
+      doNothing().when(brukernotifikasjonConsumer)
+          .informereForeldreOmTilgjengeligFarskapserklaering(MOR, FAR);
+
+      when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
+          DokumentStatusDto.builder()
+              .bekreftelseslenke(lageUri("/confirmation"))
+              .statuslenke(statuslenke)
+              .statusSignering(StatusSignering.SUKSESS)
+              .padeslenke(padesFar).signaturer(List.of(
+                  SignaturDto.builder()
+                      .signatureier(FAR.getFoedselsnummer())
+                      .harSignert(true)
+                      .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
+                      .xadeslenke(lageUri("/xades"))
+                      .build())).build());
+
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+
+      // when
+      farskapsportalService.oppdatereStatusSigneringsjobb(FAR.getFoedselsnummer(), lagretFarskapserklaering.getId(), statusQueryToken);
+
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      // then
+      assertAll(
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () -> assertNotNull(oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()),
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getStatusQueryToken()).isEqualTo(statusQueryToken),
+          () -> Assertions.assertArrayEquals(farskapserklaeringDokumentinnhold,
+              oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold().getInnhold()),
+          () -> Assertions.assertArrayEquals(xadesXml, oppdatertFarskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml())
+      );
+    }
+
+
+    @Test
     void dersomMorAvbryterSigneringSkalAktuellFarskapserklaeringDeaktiveres() {
 
       // given
