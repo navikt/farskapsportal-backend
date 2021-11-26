@@ -14,7 +14,7 @@ public class DeaktivereFarskapserklaeringer {
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private PersistenceService persistenceService;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppdatere-signeringsstatus-cron}", zone = "Europe/Oslo")
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.deaktiveringsrate}", zone = "Europe/Oslo")
   public void vurdereDeaktivering() {
     deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
   }

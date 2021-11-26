@@ -16,21 +16,17 @@ public class OppdatereSigneringsstatus {
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private FarskapsportalApiConsumer farskapsportalApiConsumer;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.deaktiveringsrate}", zone = "Europe/Oslo")
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppdatere-signeringsstatus-cron}", zone = "Europe/Oslo")
   public void oppdatereSigneringsstatus() {
 
     var signertAvMorFoer = LocalDateTime.now()
         .minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterMorSignering());
     var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(signertAvMorFoer);
 
+    log.info("Fant id til {} farskapserklæringer som signeringsstatus skal synkroniseres for.", ider.size());
+
     for (int id : ider) {
       farskapsportalApiConsumer.synkronisereSigneringsstatus(id);
-    }
-
-    if (ider.size() > 0) {
-      log.info("Fant id til {} farskapserklæringer som signeringsstatus skal synkroniseres for.", ider.size());
-    } else {
-      log.info("Fant ingen farskapserklæringer som status må synkroniseres for");
     }
   }
 }
