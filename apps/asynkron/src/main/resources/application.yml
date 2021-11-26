@@ -42,6 +42,8 @@ farskapsportal.asynkron.egenskaper:
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
   oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
+  oppdatere-signeringsstatus-cron: ${OPPDATERE_SIGNERINGSSTATUS_CRON}
+  oppdatere-signeringsstatus-min-antall-timer-etter-mors-signering: 8
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
@@ -101,6 +103,7 @@ server:
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 WIREMOCK_URL: http://localhost:8096
 DEAKTIVERINGSRATE: "1 * * * * ?"
+OPPDATERE_SIGNERINGSSTATUS_CRON: "2 * * * * ?"
 
 url:
   joark.base-url: ${WIREMOCK_URL}

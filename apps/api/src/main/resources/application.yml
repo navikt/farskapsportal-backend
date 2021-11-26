@@ -128,6 +128,7 @@ spring:
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 DB_USER_ASYNKRON: asynkron_feature
+
 ---
 ### MOCK AZURE ###
 spring:

@@ -239,8 +239,11 @@ public class PersistenceService {
     var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
         .minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager());
     var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
-    var farskapserklaeringer = farskapserklaeringDao.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
-    return farskapserklaeringer;
+    return farskapserklaeringDao.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
+  }
+
+  public Set<Farskapserklaering> henteAktiveFarskapserklaeringerManglerSigneringsinfoFar(LocalDateTime signertAvMorFoer) {
+      return farskapserklaeringDao.henteAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(signertAvMorFoer);
   }
 
   @Transactional
