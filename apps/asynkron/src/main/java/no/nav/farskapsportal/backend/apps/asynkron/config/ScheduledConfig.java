@@ -4,10 +4,12 @@ import static no.nav.farskapsportal.backend.apps.asynkron.config.FarskapsportalA
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.DeaktivereFarskapserklaeringer;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.OppdatereSigneringsstatus;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -51,9 +53,21 @@ public class ScheduledConfig {
   }
 
   @Bean
+  public OppdatereSigneringsstatus oppdatereSigneringsstatus(PersistenceService persistenceService,
+      FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper,
+      FarskapsportalApiConsumer farskapsportalApiConsumer) {
+
+    return OppdatereSigneringsstatus.builder()
+        .farskapsportalApiConsumer(farskapsportalApiConsumer)
+        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
+        .persistenceService(persistenceService).build();
+  }
+
+  @Bean
   public Oppgavestyring oppgavestyring(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
+
     return Oppgavestyring.builder()
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
