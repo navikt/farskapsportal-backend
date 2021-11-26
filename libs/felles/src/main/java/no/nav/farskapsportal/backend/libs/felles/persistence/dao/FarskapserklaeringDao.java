@@ -54,11 +54,11 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Set<Farskapserklaering> henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
       LocalDateTime sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag);
 
-  @Query("select fe from Farskapserklaering fe "
+  @Query("select fe.id from Farskapserklaering fe "
       + "where fe.farBorSammenMedMor is not null "
       + "and fe.deaktivert is null "
       + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
       + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt < :grenseSigneringstidspunktMor "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
-  Set<Farskapserklaering> henteAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(LocalDateTime grenseSigneringstidspunktMor);
+  Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(LocalDateTime grenseSigneringstidspunktMor);
 }

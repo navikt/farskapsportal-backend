@@ -34,6 +34,8 @@ env:
     value: "3"
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal.nav.no
+  - name: FARSKAPSPORTAL_API_URL
+    value: http://farskapsportal-api.farskapsportal.svc.cluster.local
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "false"
   - name: JOURNALPOSTAPI_URL
