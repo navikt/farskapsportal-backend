@@ -16,6 +16,9 @@ url:
     opprette-journalpost: /rest/journalpostapi/v1/journalpost
   farskapsportal:
     url: ${FARSKAPSPORTAL_URL}
+    api:
+      url: ${FARSKAPSPORTAL_API_URL}
+      synkronisere-signeringsstatus: /api/v1/asynkron/statussynkronisering/farskapserklaering/%s
   pdl-api:
     base-url: ${APIGW_URL}
     graphql: "/pdl-api/graphql"
@@ -42,7 +45,12 @@ farskapsportal.asynkron.egenskaper:
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
   oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
+<<<<<<< HEAD
   varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
+=======
+  oppdatere-signeringsstatus-cron: ${OPPDATERE_SIGNERINGSSTATUS_CRON}
+  oppdatere-signeringsstatus-min-antall-timer-etter-mors-signering: 8
+>>>>>>> main
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
@@ -102,8 +110,10 @@ server:
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 WIREMOCK_URL: http://localhost:8096
 DEAKTIVERINGSRATE: "1 * * * * ?"
+OPPDATERE_SIGNERINGSSTATUS_CRON: "2 * * * * ?"
 
 url:
+  farskapsportal.api.url: http://localhost
   joark.base-url: ${WIREMOCK_URL}
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}

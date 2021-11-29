@@ -58,6 +58,10 @@ spec:
             users:
               - name: {{ gcp.sql-instances.databases.users.asynkron.name }}
   accessPolicy:
+    inbound:
+      rules:
+        - application: asynkron
+        - application: asynkron-feature
     outbound:
       external:
         - host: api.difitest.signering.posten.no

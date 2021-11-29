@@ -34,6 +34,8 @@ env:
     value: "3"
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal.nav.no
+  - name: FARSKAPSPORTAL_API_URL
+    value: http://farskapsportal-api.farskapsportal.svc.cluster.local
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "false"
   - name: JOURNALPOSTAPI_URL
@@ -52,6 +54,8 @@ env:
     value: 5400000
   - name: OPPGAVESLETTINGSFORSINKELSE
     value: 360000
+  - name: OPPDATERE_SIGNERINGSSTATUS_CRON
+    value: "0 0 1 * * ?"
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-prod-password

@@ -228,12 +228,30 @@ public class FarskapsportalService {
   public FarskapserklaeringDto oppdatereStatusSigneringsjobb(String fnrPaaloggetPerson, int idFarskapserklaering, String statusQueryToken) {
 
     log.info("Oppdaterer status på signeringsoppdrag for pålogget person");
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
     if (idFarskapserklaering > 0) {
       return oppdatereStatusSigneringsjobb(idFarskapserklaering, statusQueryToken, fnrPaaloggetPerson);
     } else {
-      // TODO: Fjernes etter overgang til ny modell for statusinnhenting
+      // TODO: Fjernes etter overgang til ny modell for statusinnhenting (25.12.2021)
       return oppdatereStatusSigneringsjobb(statusQueryToken, fnrPaaloggetPerson);
+    }
+  }
+
+  @Transactional(noRollbackFor = EsigneringStatusFeiletException.class)
+  public void synkronisereSigneringsstatusFar(int idFarskapserklaering) {
+    log.info("Oppdaterer status på fars signeringsjobb i farskapserklaering med id {}", idFarskapserklaering);
+    var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
+
+    var statusQueryToken = farskapserklaering.getDokument().getStatusQueryToken();
+
+    if (statusQueryToken != null && statusQueryToken.length() > 0) {
+      var respons = oppdatereStatusSigneringsjobb(idFarskapserklaering, farskapserklaering.getDokument().getStatusQueryToken(),
+          farskapserklaering.getFar().getFoedselsnummer());
+      log.info("Signeringstatus synkronisert for farskapserklæring med i {}, far signerte {}", idFarskapserklaering,
+          respons.getDokument().getSignertAvFar());
     }
   }
 
@@ -246,6 +264,8 @@ public class FarskapsportalService {
 
     // Henter status på signeringsjobben fra Postens signeringstjeneste
     var dokumentStatusDto = henteDokumentstatus(statusQueryToken, farskapserklaering);
+
+    farskapserklaering.getDokument().setStatusQueryToken(statusQueryToken);
 
     validereAtForeldreIkkeAlleredeHarSignert(fnrPaaloggetPerson, farskapserklaering);
 
@@ -765,6 +785,8 @@ public class FarskapsportalService {
 
     log.info("Statuslenke tilhører farskapserklaering med id {}", aktuellFarskapserklaering.getId());
 
+    aktuellFarskapserklaering.getDokument().setStatusQueryToken(statusQueryToken);
+
     validereAtForeldreIkkeAlleredeHarSignert(fnrPaaloggetPerson, aktuellFarskapserklaering);
 
     log.info("Oppdaterer signeringsinfo for pålogget person");
@@ -773,7 +795,7 @@ public class FarskapsportalService {
     return mapper.toDto(aktuellFarskapserklaering);
   }
 
-  //TODO: Fjerne ifbm overgang til ny statusinnhentingsmodell
+  //TODO: Fjerne ifbm overgang til ny statusinnhentingsmodell (etter 25.12.2021)
   @Deprecated
   private Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrPaaloggetPerson) {
 
@@ -811,7 +833,7 @@ public class FarskapsportalService {
     throw new ValideringException(Feilkode.FEIL_ROLLE);
   }
 
-  //TODO: Fjerne ifbm overgang til ny statusinnhentingsmodell
+  //TODO: Fjerne ifbm overgang til ny statusinnhentingsmodell (etter 25.12.2021)
   @Deprecated
   private DokumentStatusDto henteDokumentstatus(String statusQueryToken, Set<Farskapserklaering> farskapserklaeringer) {
 

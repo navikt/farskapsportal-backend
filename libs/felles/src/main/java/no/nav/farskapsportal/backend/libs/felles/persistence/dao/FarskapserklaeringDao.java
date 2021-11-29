@@ -1,8 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.persistence.dao;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.Set;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import org.springframework.data.jpa.repository.Query;
@@ -53,5 +51,14 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt < :sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null "
       + "and fe.deaktivert is null")
-  Set<Farskapserklaering> henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(LocalDateTime sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag);
+  Set<Farskapserklaering> henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
+      LocalDateTime sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag);
+
+  @Query("select fe.id from Farskapserklaering fe "
+      + "where fe.farBorSammenMedMor is not null "
+      + "and fe.deaktivert is null "
+      + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
+      + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt < :grenseSigneringstidspunktMor "
+      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
+  Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(LocalDateTime grenseSigneringstidspunktMor);
 }

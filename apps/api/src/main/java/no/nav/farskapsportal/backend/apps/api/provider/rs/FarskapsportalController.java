@@ -85,7 +85,7 @@ public class FarskapsportalController {
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Farskapserklæring opprettet"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke fødselsnummer eller navn"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
@@ -107,7 +107,7 @@ public class FarskapsportalController {
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Status ble oppdatert, og padeslenke lagret uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke dokument"),
       @ApiResponse(responseCode = "410", description = "Status på signeringsjobben er FEILET. Farskapserklæring slettes og må opprettes på ny."),
@@ -144,7 +144,7 @@ public class FarskapsportalController {
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Farskapserklæring oppdatert uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
@@ -161,7 +161,7 @@ public class FarskapsportalController {
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),

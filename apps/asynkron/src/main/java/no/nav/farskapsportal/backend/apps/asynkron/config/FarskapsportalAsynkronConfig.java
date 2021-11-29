@@ -7,15 +7,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiEndpoint;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.FarskapsportalJoarkMapper;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumer;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumerEndpointName;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiEndpoint;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattEndpointName;
-import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
-import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,6 +66,16 @@ public class FarskapsportalAsynkronConfig {
             farskapKeystoreCredentials.getPassword());
   }
 
+  @Bean
+  public FarskapsportalApiConsumer farskapsportalApiConsumer(@Qualifier("base") RestTemplate restTemplate,
+      @Value("${url.farskapsportal.api.url}") String baseUrl,
+      @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
+      ConsumerEndpoint consumerEndpoint) {
+    consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME, synkronisereSigneringsstatusEndpoint);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+    log.info("Oppretter FarskapsportalApiConsumer med url {}", baseUrl);
+    return new FarskapsportalApiConsumer(restTemplate, consumerEndpoint);
+  }
 
   @Bean
   public JournalpostApiConsumer journalpostApiConsumer(
@@ -72,7 +84,7 @@ public class FarskapsportalAsynkronConfig {
       @Value("${url.joark.opprette-journalpost}") String journalpostapiEndpoint,
       ConsumerEndpoint consumerEndpoint,
       FarskapsportalJoarkMapper farskapsportalJoarkMapper) {
-    consumerEndpoint.addEndpoint(JournalpostApiConsumerEndpointName.ARKIVERE_JOURNALPOST, journalpostapiEndpoint);
+    consumerEndpoint.addEndpoint(JournalpostApiEndpoint.ARKIVERE_JOURNALPOST, journalpostapiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostapiUrl));
     log.info("Oppretter JournalpostApiConsumer med url {}", journalpostapiUrl);
     return new JournalpostApiConsumer(restTemplate, consumerEndpoint, farskapsportalJoarkMapper);
@@ -84,7 +96,7 @@ public class FarskapsportalAsynkronConfig {
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     log.info("Oppretter SkattConsumer med url {}", baseUrl);
-    consumerEndpoint.addEndpoint(SkattEndpointName.MOTTA_FARSKAPSERKLAERING, endpoint);
+    consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, endpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }

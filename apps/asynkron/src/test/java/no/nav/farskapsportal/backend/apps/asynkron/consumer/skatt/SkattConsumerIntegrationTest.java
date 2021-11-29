@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt;
 
-import static no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattEndpointName.MOTTA_FARSKAPSERKLAERING;
+import static no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattEndpoint.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;

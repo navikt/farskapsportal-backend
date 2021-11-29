@@ -60,7 +60,7 @@ public class IntegrationTestManagementController {
   @Operation(description = "Henter PADES for en farskapserklærings forelder")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
@@ -75,7 +75,7 @@ public class IntegrationTestManagementController {
   @Operation(description = "Henter XADES for en farskapserklærings forelder")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),
@@ -90,7 +90,7 @@ public class IntegrationTestManagementController {
   @Operation(description = "Henter XADES for en farskapserklærings forelder")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),

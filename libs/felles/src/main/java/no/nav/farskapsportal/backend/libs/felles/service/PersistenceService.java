@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
-import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
-import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Meldingslogg;
@@ -239,8 +237,11 @@ public class PersistenceService {
     var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
         .minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager());
     var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
-    var farskapserklaeringer = farskapserklaeringDao.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
-    return farskapserklaeringer;
+    return farskapserklaeringDao.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
+  }
+
+  public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime signertAvMorFoer) {
+      return farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(signertAvMorFoer);
   }
 
   @Transactional

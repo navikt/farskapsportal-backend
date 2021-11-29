@@ -36,6 +36,8 @@ env:
     value: "2"
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal-feature.dev.nav.no
+  - name: FARSKAPSPORTAL_API_URL
+    value: http://farskapsportal-api-feature.farskapsportal.svc.cluster.local
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: JOURNALPOSTAPI_URL
@@ -54,8 +56,13 @@ env:
     value: 120000
   - name: OPPGAVESLETTINGSFORSINKELSE
     value: 60000
+<<<<<<< HEAD
   - name: VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER
     value: 10
+=======
+  - name: OPPDATERE_SIGNERINGSSTATUS_CRON
+    value: "0 0/3 * * * ?"
+>>>>>>> main
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-feature-password

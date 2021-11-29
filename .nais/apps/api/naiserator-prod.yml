@@ -55,6 +55,7 @@ spec:
     inbound:
       rules:
         - application: farskapsportal-ui
+        - application: asynkron
     outbound:
       external:
         - host: api.signering.posten.no
