@@ -55,5 +55,6 @@ spec:
       external:
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
-    rules:
-      - application: asynkron
+      rules:
+        - application: farskapsportal-api
+        - application: farskapsportal-api-feature

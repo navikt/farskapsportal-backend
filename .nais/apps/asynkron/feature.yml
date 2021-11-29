@@ -57,7 +57,7 @@ env:
   - name: OPPGAVESLETTINGSFORSINKELSE
     value: 60000
   - name: OPPDATERE_SIGNERINGSSTATUS_CRON
-    value: "5 * * * * ?"
+    value: "0 3 * * * ?"
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-feature-password
