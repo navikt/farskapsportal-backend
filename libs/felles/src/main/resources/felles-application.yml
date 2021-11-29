@@ -90,3 +90,4 @@ spring:
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect

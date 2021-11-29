@@ -46,8 +46,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@AllArgsConstructor
 @Slf4j
+@AllArgsConstructor
 public class SkattConsumer {
 
   private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
@@ -105,7 +105,7 @@ public class SkattConsumer {
     try {
       var respons = restTemplate.exchange(
           consumerEndpoint.retrieveEndpoint(
-              SkattEndpointName.MOTTA_FARSKAPSERKLAERING),
+              SkattEndpoint.MOTTA_FARSKAPSERKLAERING),
           HttpMethod.POST,
           requestEntity, Void.class);
       if (!respons.getStatusCode().equals(HttpStatus.ACCEPTED)) {

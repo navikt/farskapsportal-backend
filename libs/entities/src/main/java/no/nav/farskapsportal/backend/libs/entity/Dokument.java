@@ -42,6 +42,8 @@ public class Dokument implements Serializable {
 
   private String statusUrl;
 
+  private String statusQueryToken;
+
   private String padesUrl;
 
   private String bekreftelsesUrl;

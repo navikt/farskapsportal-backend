@@ -1,7 +1,7 @@
 package no.nav.farskapsportal.backend.apps.asynkron.consumer.joark;
 
 
-import static no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumerEndpointName.ARKIVERE_JOURNALPOST;
+import static no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiEndpoint.ARKIVERE_JOURNALPOST;
 
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
