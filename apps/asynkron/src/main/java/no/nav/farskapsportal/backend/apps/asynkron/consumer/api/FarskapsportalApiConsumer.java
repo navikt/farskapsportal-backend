@@ -19,6 +19,10 @@ public class FarskapsportalApiConsumer {
   public void synkronisereSigneringsstatus(int idFarskapserklaering) {
 
     log.info("Ber om statusoppdatering for farskapserklæring med id {}", idFarskapserklaering);
+
+    log.info("Endepunkt oppdatere signeringsstatus: {}", String.format(consumerEndpoint.retrieveEndpoint(
+        FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME), idFarskapserklaering));
+
     var respons = restTemplate.exchange(
         String.format(consumerEndpoint.retrieveEndpoint(
             FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME), idFarskapserklaering),

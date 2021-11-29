@@ -30,7 +30,7 @@ public class AsynkronController {
   @Operation(description = "Synkroniserer signeringsstatus for farskapserklæring med signeringsoppdrag i Posten. Oppdaterer status i Farskapsportal hvis endret.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "202", description = "Status synkronisert"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysinger oppgitt"),
+      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
       @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklaering"),
       @ApiResponse(responseCode = "410", description = "Status på signeringsjobben er FEILET. Farskapserklæring slettes og må opprettes på ny."),
       @ApiResponse(responseCode = "500", description = "Serverfeil"),

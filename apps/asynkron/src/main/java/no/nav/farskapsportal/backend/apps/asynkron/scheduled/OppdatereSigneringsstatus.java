@@ -23,7 +23,9 @@ public class OppdatereSigneringsstatus {
         .minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterMorSignering());
     var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(signertAvMorFoer);
 
-    log.info("Fant id til {} farskapserklæringer som signeringsstatus skal synkroniseres for.", ider.size());
+    var farskapserklaering_tekst = ider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
+
+    log.info("Fant id til {} {} som signeringsstatus skal synkroniseres for.", ider.size(), farskapserklaering_tekst);
 
     for (int id : ider) {
       farskapsportalApiConsumer.synkronisereSigneringsstatus(id);
