@@ -41,16 +41,13 @@ virksomhetssertifikat:
 farskapsportal.asynkron.egenskaper:
   arkiveringsintervall: ${ARKIVERINGSINTERVALL}
   arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
-  brukernotifikasjon-oppgave-synlighet-antall-dager: 30
+  brukernotifikasjon-oppgave-synlighet-antall-dager: 40
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
   oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
-<<<<<<< HEAD
   varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
-=======
   oppdatere-signeringsstatus-cron: ${OPPDATERE_SIGNERINGSSTATUS_CRON}
   oppdatere-signeringsstatus-min-antall-timer-etter-mors-signering: 8
->>>>>>> main
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5

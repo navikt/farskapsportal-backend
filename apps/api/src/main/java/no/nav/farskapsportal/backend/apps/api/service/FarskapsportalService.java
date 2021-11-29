@@ -228,10 +228,7 @@ public class FarskapsportalService {
   public FarskapserklaeringDto oppdatereStatusSigneringsjobb(String fnrPaaloggetPerson, int idFarskapserklaering, String statusQueryToken) {
 
     log.info("Oppdaterer status på signeringsoppdrag for pålogget person");
-<<<<<<< HEAD
 
-=======
->>>>>>> main
     if (idFarskapserklaering > 0) {
       return oppdatereStatusSigneringsjobb(idFarskapserklaering, statusQueryToken, fnrPaaloggetPerson);
     } else {
