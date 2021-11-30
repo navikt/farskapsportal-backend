@@ -26,6 +26,6 @@ public class FarskapsportalAsynkronEgenskaper {
   private int brukernotifikasjonOppgaveSynlighetAntallDager;
   private String deaktiveringsrate;
   private int oppgavestyringsforsinkelse;
-  private int oppdatereSigneringsstatusMinAntallTimerEtterMorSignering;
+  private int oppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering;
   private Skatt skatt;
 }

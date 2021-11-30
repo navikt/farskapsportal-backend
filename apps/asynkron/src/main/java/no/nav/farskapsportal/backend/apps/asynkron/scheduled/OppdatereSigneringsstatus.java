@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
@@ -16,12 +17,12 @@ public class OppdatereSigneringsstatus {
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private FarskapsportalApiConsumer farskapsportalApiConsumer;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppdatere-signeringsstatus-cron}", zone = "Europe/Oslo")
+  @Scheduled(cron = "@hourly", zone = "Europe/Oslo")
   public void oppdatereSigneringsstatus() {
 
-    var signertAvMorFoer = LocalDateTime.now()
-        .minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterMorSignering());
-    var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(signertAvMorFoer);
+    var farSendtTilSigneringFoer = LocalDateTime.now()
+        .minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering());
+    var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(farSendtTilSigneringFoer);
 
     var farskapserklaering_tekst = ider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
 

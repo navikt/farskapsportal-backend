@@ -244,8 +244,11 @@ public class PersistenceService {
     return farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
   }
 
-  public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime signertAvMorFoer) {
-      return farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(signertAvMorFoer);
+  public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime farSendtTilSigneringFoer) {
+    var ider =  farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(farSendtTilSigneringFoer);
+    var iderForErklaeringerUtenFarSendtTilSigneringInfo = farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar();
+    ider.addAll(iderForErklaeringerUtenFarSendtTilSigneringInfo);
+    return ider;
   }
 
   @Transactional

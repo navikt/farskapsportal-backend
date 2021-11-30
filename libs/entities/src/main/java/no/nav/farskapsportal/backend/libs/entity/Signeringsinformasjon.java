@@ -32,6 +32,8 @@ public class Signeringsinformasjon {
 
   private LocalDateTime signeringstidspunkt;
 
+  private LocalDateTime sendtTilSignering;
+
   private String redirectUrl;
 
   private String undertegnerUrl;
@@ -40,5 +42,4 @@ public class Signeringsinformasjon {
 
   @Column(length = 100000000)
   private byte[] xadesXml;
-
 }

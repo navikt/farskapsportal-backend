@@ -46,8 +46,7 @@ farskapsportal.asynkron.egenskaper:
   oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
   oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
   varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
-  oppdatere-signeringsstatus-cron: ${OPPDATERE_SIGNERINGSSTATUS_CRON}
-  oppdatere-signeringsstatus-min-antall-timer-etter-mors-signering: 8
+  oppdatere-signeringsstatus-min-antall-timer-etter-far-ble-sendt-til-signering: 1
   varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
   joark:
     maks-antall-forbindelser: 5
@@ -108,7 +107,6 @@ server:
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 WIREMOCK_URL: http://localhost:8096
 DEAKTIVERINGSRATE: "1 * * * * ?"
-OPPDATERE_SIGNERINGSSTATUS_CRON: "2 * * * * ?"
 
 url:
   farskapsportal.api.url: http://localhost

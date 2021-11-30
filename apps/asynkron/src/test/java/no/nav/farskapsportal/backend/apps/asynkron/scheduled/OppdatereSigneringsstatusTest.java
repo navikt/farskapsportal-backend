@@ -83,6 +83,33 @@ public class OppdatereSigneringsstatusTest {
   }
 
   @Test
+  void skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringDersomDetIkkeHarGaattNokTidEtterFarBleSendtTilSignerering() {
+
+    // given
+    farskapserklaeringDao.deleteAll();
+
+    var farskapserklaeringSomManglerSigneringsstatus = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
+        henteBarnUtenFnr(5));
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor()
+        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+    farskapserklaeringSomManglerSigneringsstatus.getDokument()
+        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
+        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().setStatusQueryToken("tokenetMorFikkDaHunSignerte");
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now());
+    farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
+    farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
+    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
+
+    // when
+    oppdatereSigneringsstatus.oppdatereSigneringsstatus();
+
+    // then
+    verify(farskapsportalApiConsumer, times(0)).synkronisereSigneringsstatus(farskapserklaering.getId());
+  }
+
+  @Test
   void skalIkkeBestilleStatusoppdateringForDeaktivertFarskapserklaeringSomManglerFarsSignaturMenHarBorSammenInfo() {
 
     // given
