@@ -43,7 +43,7 @@ farskapsportal.asynkron.egenskaper:
   arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
   brukernotifikasjon-oppgave-synlighet-antall-dager: 40
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
-  oppgavestyringsintervall: ${OPPGAVESTYRINGSSINTERVALL}
+  oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
   oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
   varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
   oppdatere-signeringsstatus-cron: ${OPPDATERE_SIGNERINGSSTATUS_CRON}
