@@ -573,7 +573,7 @@ public class FarskapsportalServiceTest {
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
         var dokument = (Dokument) args[1];
-        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/mors-redirect").toString()).build());
+        dokument.getSigneringsinformasjonMor().setRedirectUrl(lageUrl("/mors-redirect"));
         return null;
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
@@ -586,9 +586,11 @@ public class FarskapsportalServiceTest {
 
       // then
       var opprettetFarskapserklaering = persistenceService.henteFarskapserklaeringerForForelder(MOR.getFoedselsnummer());
+
       assertAll(
           () -> assertThat(opprettetFarskapserklaering.size()).isEqualTo(1),
           () -> assertThat(opprettetFarskapserklaering.stream().findAny().get().getFarBorSammenMedMor()).isNull(),
+          () -> assertThat(opprettetFarskapserklaering.stream().findAny().get().getDokument().getSigneringsinformasjonMor().getSendtTilSignering()).isNotNull(),
           () -> assertThat(opprettetFarskapserklaering.stream().findAny().get().getFar().getFoedselsnummer()).isEqualTo(FAR.getFoedselsnummer())
       );
     }
@@ -2536,7 +2538,11 @@ public class FarskapsportalServiceTest {
       var respons = farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(fnrPaaloggetPerson, request);
 
       // then
-      assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue();
+      var oppdatertFarskapserklaering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(respons.getOppdatertFarskapserklaeringDto().getFarBorSammenMedMor()).isTrue(),
+          () -> assertThat(oppdatertFarskapserklaering.getDokument().getSigneringsinformasjonFar().getSendtTilSignering()).isNotNull());
     }
 
     @Test

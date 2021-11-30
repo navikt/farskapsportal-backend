@@ -113,10 +113,10 @@ public class DifiESignaturConsumer {
 
     for (DirectSignerResponse signer : directJobResponse.getSigners()) {
       Validate.notNull(signer.getRedirectUrl(), "Null redirect url mottatt fra Esigneringstjenesten!");
-      Validate.notNull(signer.getSignerUrl(), "Null signer url mottatt fra Esigneringstjenesten!");
+      Validate.notNull(signer.getSignerUrl(), "Null signer-url mottatt fra Esigneringstjenesten!");
       if (signer.getPersonalIdentificationNumber().equals(mor.getFoedselsnummer())) {
-        dokument.setSigneringsinformasjonMor(
-            Signeringsinformasjon.builder().undertegnerUrl(signer.getSignerUrl().toString()).redirectUrl(signer.getRedirectUrl().toString()).build());
+        dokument.getSigneringsinformasjonMor().setUndertegnerUrl(signer.getSignerUrl().toString());
+        dokument.getSigneringsinformasjonMor().setRedirectUrl(signer.getRedirectUrl().toString());
       } else if (signer.getPersonalIdentificationNumber().equals(far.getFoedselsnummer())) {
         dokument.setSigneringsinformasjonFar(
             Signeringsinformasjon.builder().undertegnerUrl(signer.getSignerUrl().toString()).redirectUrl(signer.getRedirectUrl().toString()).build());
