@@ -102,6 +102,10 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder);
   }
 
+  public Set<Integer> henteIdTilFarskapserklaeringerMedAktiveOppgaver(LocalDateTime opprettetFoer) {
+   return  oppgavebestillingDao.henteIdTilFarskapserklaeringerMedAktiveOppgaver(opprettetFoer);
+  }
+
   public Optional<Farskapserklaering> henteBarnsEksisterendeErklaering(String fnrBarn) {
     var farskapserklaeringer = farskapserklaeringDao.henteBarnsErklaeringer(fnrBarn);
 
@@ -185,8 +189,8 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
   }
 
-  public Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur() {
-    return farskapserklaeringDao.henteFarskapserklaeringerSomVenterPaaFarsSignatur();
+  public Set<Integer> henteIdTilFarskapserklaeringerSomVenterPaaFarsSignatur() {
+    return farskapserklaeringDao.henteIdTilFarskapserklaeringerSomVenterPaaFarsSignatur();
   }
 
   @Transactional
@@ -233,11 +237,11 @@ public class PersistenceService {
     return oppgavebestillingDao.henteAktiveOppgaver(idFarskapserklaering, forelder.getFoedselsnummer());
   }
 
-  public Set<Farskapserklaering> henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
+  public Set<Integer> henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
     var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
         .minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager());
     var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
-    return farskapserklaeringDao.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
+    return farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
   }
 
   public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime signertAvMorFoer) {

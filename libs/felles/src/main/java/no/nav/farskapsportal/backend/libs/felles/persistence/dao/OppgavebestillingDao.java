@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.persistence.dao;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
@@ -15,5 +16,8 @@ public interface OppgavebestillingDao extends CrudRepository<Oppgavebestilling, 
 
   @Query("select o from Oppgavebestilling o where o.eventId = :eventId")
   Optional<Oppgavebestilling> henteOppgavebestilling(String eventId);
+
+  @Query("select o.farskapserklaering.id from Oppgavebestilling o where o.ferdigstilt is null and o.opprettet > :oppgaveOpprettetFoer")
+  Set<Integer> henteIdTilFarskapserklaeringerMedAktiveOppgaver(LocalDateTime oppgaveOpprettetFoer);
 
 }
