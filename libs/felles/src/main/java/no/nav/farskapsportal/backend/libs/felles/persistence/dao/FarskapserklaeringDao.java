@@ -42,16 +42,16 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       + " and fe.sendtTilSkatt is null and fe.deaktivert is null")
   Set<Integer> henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
 
-  @Query("select fe from Farskapserklaering fe where fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
+  @Query("select fe.id from Farskapserklaering fe where fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null and fe.deaktivert is null")
-  Set<Farskapserklaering> henteFarskapserklaeringerSomVenterPaaFarsSignatur();
+  Set<Integer> henteIdTilFarskapserklaeringerSomVenterPaaFarsSignatur();
 
-  @Query("select fe from Farskapserklaering fe "
+  @Query("select fe.id from Farskapserklaering fe "
       + "where fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
       + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt < :sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null "
       + "and fe.deaktivert is null")
-  Set<Farskapserklaering> henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
+  Set<Integer> henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
       LocalDateTime sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag);
 
   @Query("select fe.id from Farskapserklaering fe "

@@ -50,12 +50,12 @@ env:
     value: asynkron_prod
   - name: SKATT_URL
     value: https://folkeregisteret.api.skatteetaten.no
-  - name: OPPGAVESLETTINGSINTERVALL
-    value: 5400000
-  - name: OPPGAVESLETTINGSFORSINKELSE
-    value: 360000
+  - name: OPPGAVESTYRINGSINTERVALL
+    value: "0 0 7 * * ?"
+  - name: OPPGAVESTYRINGSFORSINKELSE
+    value: 1
   - name: OPPDATERE_SIGNERINGSSTATUS_CRON
-    value: "0 0 1 * * ?"
+    value: "0 0 13 ? * TUE"
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-prod-password

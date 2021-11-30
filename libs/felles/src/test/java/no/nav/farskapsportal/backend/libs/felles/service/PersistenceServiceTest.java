@@ -20,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
-import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
@@ -31,7 +30,6 @@ import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
-import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.DokumentDao;
@@ -365,12 +363,12 @@ public class PersistenceServiceTest {
       assertNotNull(lagretFarskapserklaering);
 
       // when
-      var farskapserklaeringer = persistenceService.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
+      var idTilFarskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
 
       // then
       assertAll(
-          () -> assertThat(farskapserklaeringer.size()).isEqualTo(1),
-          () -> assertThat(farskapserklaeringer.stream().findFirst().get().getId()).isEqualTo(lagretFarskapserklaering.getId())
+          () -> assertThat(idTilFarskapserklaeringer.size()).isEqualTo(1),
+          () -> assertThat(idTilFarskapserklaeringer.stream().findFirst().get()).isEqualTo(lagretFarskapserklaering.getId())
       );
     }
 
@@ -383,7 +381,7 @@ public class PersistenceServiceTest {
       assertNotNull(lagretFarskapserklaering);
 
       // when
-      var farskapserklaeringer = persistenceService.henteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
+      var farskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
 
       // then
       assertThat(farskapserklaeringer.size()).isEqualTo(0);

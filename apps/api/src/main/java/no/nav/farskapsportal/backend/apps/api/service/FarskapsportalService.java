@@ -247,8 +247,10 @@ public class FarskapsportalService {
     if (statusQueryToken != null && statusQueryToken.length() > 0) {
       var respons = oppdatereStatusSigneringsjobb(idFarskapserklaering, farskapserklaering.getDokument().getStatusQueryToken(),
           farskapserklaering.getFar().getFoedselsnummer());
-      log.info("Signeringstatus synkronisert for farskapserklæring med i {}, far signerte {}", idFarskapserklaering,
+      log.info("Signeringstatus synkronisert for farskapserklæring med id {}, far signerte {}", idFarskapserklaering,
           respons.getDokument().getSignertAvFar());
+    } else {
+      log.info("Status-query-token manglet for farskapserklæring med id {}. Fikk derfor ikke oppdatert signeringsstatus.", idFarskapserklaering);
     }
   }
 

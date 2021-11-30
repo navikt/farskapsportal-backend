@@ -52,13 +52,15 @@ env:
     value: asynkron_feature
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
-  - name: OPPGAVESLETTINGSINTERVALL
-    value: 120000
-  - name: OPPGAVESLETTINGSFORSINKELSE
-    value: 60000
+  - name: OPPGAVESTYRINGSINTERVALL
+    value: "0 0/5 * * * ?"
+  - name: OPPGAVESTYRINGSFORSINKELSE
+    value: 1
   - name: VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER
     value: 10
   - name: OPPDATERE_SIGNERINGSSTATUS_CRON
+    value: "0 0/10 * * * ?"
+  - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
     value: "0 0/3 * * * ?"
 secret:
   - name: farskapsportal-api-secret

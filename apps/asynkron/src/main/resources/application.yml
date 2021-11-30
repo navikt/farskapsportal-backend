@@ -43,11 +43,12 @@ farskapsportal.asynkron.egenskaper:
   arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
   brukernotifikasjon-oppgave-synlighet-antall-dager: 40
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
-  oppgaveslettingsintervall: ${OPPGAVESLETTINGSINTERVALL}
-  oppgaveslettingsforsinkelse: ${OPPGAVESLETTINGSFORSINKELSE}
+  oppgavestyringsintervall: ${OPPGAVESTYRINGSSINTERVALL}
+  oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
   varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
   oppdatere-signeringsstatus-cron: ${OPPDATERE_SIGNERINGSSTATUS_CRON}
   oppdatere-signeringsstatus-min-antall-timer-etter-mors-signering: 8
+  varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
@@ -144,8 +145,9 @@ sertifikat:
 spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
 farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
 farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
-farskapsportal.asynkron.egenskaper.oppgaveslettingsintervall: 600
-farskapsportal.asynkron.egenskaper.oppgaveslettingsforsinkelse: 0
+farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
 
 ---
 spring.config.activate.on-profile: integration-test

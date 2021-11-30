@@ -11,7 +11,9 @@ import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserk
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.DeaktivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.OppdatereSigneringsstatus;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Varsel;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -66,12 +68,28 @@ public class ScheduledConfig {
   @Bean
   public Oppgavestyring oppgavestyring(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
+      FarskapserklaeringDao farskapserklaeringDao,
       PersistenceService persistenceService) {
 
     return Oppgavestyring.builder()
-        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
+        .farskapserklaeringDao(farskapserklaeringDao)
         .persistenceService(persistenceService)
         .build();
+  }
+
+  @Bean
+  public Varsel varsel(
+      BrukernotifikasjonConsumer brukernotifikasjonConsumer,
+      PersistenceService persistenceService
+  ) {
+
+    return Varsel.builder()
+        .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
+        .persistenceService(persistenceService)
+        .build();
+
   }
 }
