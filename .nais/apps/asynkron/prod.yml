@@ -55,7 +55,9 @@ env:
   - name: OPPGAVESTYRINGSFORSINKELSE
     value: 1
   - name: OPPDATERE_SIGNERINGSSTATUS_CRON
-    value: "0 0 13 ? * TUE"
+    value: "0 0 1 * * ?"
+  - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
+    value: "0 0 11 ? * TUE"
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-prod-password
