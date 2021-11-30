@@ -36,6 +36,7 @@ import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
@@ -168,6 +169,7 @@ public class FarskapsportalService {
     var dokument = Dokument.builder()
         .navn("Farskapserklaering.pdf")
         .dokumentinnhold(Dokumentinnhold.builder().innhold(innhold).build())
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().sendtTilSignering(LocalDateTime.now()).build())
         .build();
 
     log.info("Lagre farskapserklæring");
@@ -301,6 +303,7 @@ public class FarskapsportalService {
 
     if (personErFarIFarskapserklaering(fnrPaaloggetPerson, farskapserklaering)) {
       farskapserklaering.setFarBorSammenMedMor(request.getFarBorSammenMedMor().booleanValue());
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now());
     } else {
       throw new ValideringException(Feilkode.BOR_SAMMEN_INFO_KAN_BARE_OPPDATERES_AV_FAR);
     }

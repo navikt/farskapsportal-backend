@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,7 @@ import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
@@ -100,6 +102,7 @@ public class DifiESignaturConsumerTest {
           .navn("Farskapsportal.pdf")
           .dokumentinnhold(Dokumentinnhold.builder()
               .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
+          .signeringsinformasjonMor(Signeringsinformasjon.builder().sendtTilSignering(LocalDateTime.now()).build())
           .statusUrl("https://getstatus.no/").build();
 
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
@@ -127,6 +130,7 @@ public class DifiESignaturConsumerTest {
           .navn("Farskapsportal.pdf")
           .dokumentinnhold(Dokumentinnhold.builder()
               .innhold("Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8)).build())
+          .signeringsinformasjonMor(Signeringsinformasjon.builder().sendtTilSignering(LocalDateTime.now()).build())
           .statusUrl("https://getstatus.no/").build();
 
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
