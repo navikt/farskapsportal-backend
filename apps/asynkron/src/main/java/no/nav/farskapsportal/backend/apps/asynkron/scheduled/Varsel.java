@@ -19,10 +19,10 @@ public class Varsel {
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron}", zone = "Europe/Oslo")
   public void varsleOmManglendeSigneringsinfo() {
 
-    var signertAvMorFoer = LocalDateTime.now()
+    var grensetidspunkt = LocalDateTime.now()
         .minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse());
 
-    var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(signertAvMorFoer);
+    var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(grensetidspunkt);
 
     var farskapserklaering_tekst = ider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
 
@@ -30,8 +30,16 @@ public class Varsel {
 
     for (int id : ider) {
       var farskapserklaering = persistenceService.henteFarskapserklaeringForId(id);
-      brukernotifikasjonConsumer.varsleForeldreOmManglendeSignering(farskapserklaering.getMor(), farskapserklaering.getFar(),
-          farskapserklaering.getBarn(), farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate());
+      var sendtTilSignering = farskapserklaering.getDokument().getSigneringsinformasjonFar().getSendtTilSignering();
+      var sendeVarsel = sendtTilSignering == null
+          ? farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().isBefore(grensetidspunkt)
+          : sendtTilSignering.isBefore(grensetidspunkt);
+      if (sendeVarsel) {
+        brukernotifikasjonConsumer.varsleForeldreOmManglendeSignering(farskapserklaering.getMor(), farskapserklaering.getFar(),
+            farskapserklaering.getBarn(), farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate());
+      } else {
+        log.info("Varsel ikke sendt for farskapserklæring med id {} ettersom det var for kort tid siden denne ble oppdatert", id);
+      }
     }
   }
 }
