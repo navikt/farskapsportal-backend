@@ -81,7 +81,7 @@ public class BrukernotifikasjonConsumer {
     try {
       ferdigprodusent.ferdigstilleFarsSigneringsoppgave(far, oppretteNokkel(eventId));
     } catch (InternFeilException internFeilException) {
-      log.error("En feil oppstod ved sending av ferdigmelding for oppgave med eventId {}.");
+      log.error("En feil oppstod ved sending av ferdigmelding for oppgave med eventId {}.", eventId);
     }
   }
 
