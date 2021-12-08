@@ -213,7 +213,7 @@ public class PersistenceService {
         log.error("Kan ikke slette dokument knyttet til aktiv farskapserklæring med id {}", idFarskapserklaering);
         throw new IllegalStateException("Farskapserklæringen ikke deaktivert");
       }
-      farskapserklaering.get().getDokument().setDokumentinnhold(null);
+      farskapserklaering.get().getDokument().getDokumentinnhold().setInnhold(null);
       farskapserklaering.get().getDokument().getSigneringsinformasjonMor().setXadesXml(null);
       farskapserklaering.get().getDokument().getSigneringsinformasjonFar().setXadesXml(null);
     } else {
