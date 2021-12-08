@@ -50,8 +50,11 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public DeaktivereFarskapserklaeringer deaktivereFarskapserklaeringer(PersistenceService persistenceService) {
-    return DeaktivereFarskapserklaeringer.builder().persistenceService(persistenceService).build();
+  public DeaktivereFarskapserklaeringer deaktivereFarskapserklaeringer(
+      BrukernotifikasjonConsumer brukernotifikasjonConsumer,
+      PersistenceService persistenceService) {
+    return DeaktivereFarskapserklaeringer.builder()
+        .brukernotifikasjonConsumer(brukernotifikasjonConsumer).persistenceService(persistenceService).build();
   }
 
   @Bean

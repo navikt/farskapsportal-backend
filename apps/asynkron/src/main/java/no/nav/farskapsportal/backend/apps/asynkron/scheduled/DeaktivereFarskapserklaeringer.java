@@ -40,8 +40,11 @@ public class DeaktivereFarskapserklaeringer {
       persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid);
       log.info("Sletter dokumentinnhold til farskapserklæring med id {}", farskapserklaeringsid);
       persistenceService.sletteDokumentinnhold(farskapserklaeringsid);
-      log.info("Varsler mor om utgått signeringsoppave");
-      brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(farskapserklaering.getMor());
+
+      if (aktiveOppgaver.size() > 0) {
+        log.info("Varsler mor om utgått signeringsoppave");
+        brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(farskapserklaering.getMor());
+      }
     }
 
     log.info(
