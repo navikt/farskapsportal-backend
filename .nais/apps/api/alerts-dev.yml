@@ -23,7 +23,7 @@ spec:
       severity: warning
       sla: respond within 1h, during office hours
       description: "App {{ $labels.log_app }} har høy feilrate i logger"
-      action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil. Link https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%22{{ $labels.log_app }}%22%20and%20level:(Error)%20and%20cluster:%22dev-fss%22'),sort:!()) "
+      action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil. Link https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%22{{ $labels.log_app }}%22%20and%20level:(Error)%20and%20cluster:%22dev-gcp%22'),sort:!()) "
     - alert: Høy andel HTTP serverfeil (5xx responser)
       severity: warning
       expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^5\\d\\d", backend=~"farskapsportal.+"}[3m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"farskapsportal.+"}[3m])))) > 1
