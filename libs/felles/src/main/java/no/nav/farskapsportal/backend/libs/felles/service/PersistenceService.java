@@ -194,14 +194,18 @@ public class PersistenceService {
   }
 
   @Transactional
-  public void deaktivereFarskapserklaering(int idFarskapserklaering) {
+  public int deaktivereFarskapserklaering(int idFarskapserklaering) {
+    var teller = 0;
     var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
     if (farskapserklaering.isPresent()) {
+      log.info("Deaktiverer farskapserklæring med id {} ", idFarskapserklaering);
       farskapserklaering.get().setDeaktivert(LocalDateTime.now());
+      teller++;
     } else {
       log.error("Farskapserklæring med id {} ble ikke funnet i databasen, og kunne av den grunn ikke deaktiveres.", idFarskapserklaering);
       throw new IllegalStateException("Farskapserklæring ikke funnet");
     }
+    return teller;
   }
 
   @Transactional
@@ -242,6 +246,13 @@ public class PersistenceService {
         .minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager());
     var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
     return farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
+  }
+
+  public Set<Integer> henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering() {
+    var oversendtTilSkattFoer = LocalDate.now()
+        .minusDays(farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager());
+    var tidspunktOversendt = oversendtTilSkattFoer.atStartOfDay();
+    return farskapserklaeringDao.henteIdTilOversendteFarskapserklaeringerSomSkalDeaktiveres(tidspunktOversendt);
   }
 
   public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime farSendtTilSigneringFoer) {

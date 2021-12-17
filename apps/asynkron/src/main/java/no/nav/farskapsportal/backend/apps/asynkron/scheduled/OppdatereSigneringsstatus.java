@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
