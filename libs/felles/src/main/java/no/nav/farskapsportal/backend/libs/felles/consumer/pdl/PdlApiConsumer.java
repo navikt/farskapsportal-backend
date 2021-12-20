@@ -45,8 +45,7 @@ public class PdlApiConsumer {
   public static final String PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR = "FNR";
   private static final String MASTER_PDL = "PDL";
   private static final String MASTER_FREG = "FREG";
-  private static final String TEMA = "Tema";
-  private static final String TEMA_FAR = "FAR";
+
   @NonNull
   private final RestTemplate restTemplate;
   @NonNull

@@ -15,8 +15,9 @@ public class DeaktivereFarskapserklaeringer {
   private PersistenceService persistenceService;
 
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.deaktiveringsrate}", zone = "Europe/Oslo")
-  public void vurdereDeaktivering() {
+  public void deaktivereFarskapserklaeringer() {
     deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
+    deaktivereFarskapserklaeringerSomErSendtTilSkatt();
   }
 
   private void deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
@@ -36,7 +37,6 @@ public class DeaktivereFarskapserklaeringer {
         brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.getFar());
       }
 
-      log.info("Deaktiverer farskapserklæring med id {} ", farskapserklaeringsid);
       persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid);
       log.info("Sletter dokumentinnhold til farskapserklæring med id {}", farskapserklaeringsid);
       persistenceService.sletteDokumentinnhold(farskapserklaeringsid);
@@ -48,6 +48,17 @@ public class DeaktivereFarskapserklaeringer {
     }
 
     log.info(
-        "Farskapserklæringer med utgåtte signeringsoppdrag daktivert, relaterte dokumenter er slettet, mor er varslet om utgått signeringsoppgave");
+        "Farskapserklæringer med utgåtte signeringsoppdrag deaktivert, relaterte dokumenter er slettet, mor er varslet om utgått signeringsoppgave");
+  }
+
+  private void deaktivereFarskapserklaeringerSomErSendtTilSkatt() {
+    var antallErklaeringerSomBleDeaktivert = 0;
+    var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering();
+    log.info("Fant {} ferdigstilte farskapserklæringer som har blitt overført til skatt og er klare for deaktivering.", idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+    for (int farskapserklaeringsid :idTilFarskapserklaeringerSomSkalDeaktiveres ) {
+      antallErklaeringerSomBleDeaktivert = persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert : antallErklaeringerSomBleDeaktivert;
+    }
+
+    log.info("{} ferdigstilte farskapserklæringer ble i denne omgang deaktivert", antallErklaeringerSomBleDeaktivert);
   }
 }

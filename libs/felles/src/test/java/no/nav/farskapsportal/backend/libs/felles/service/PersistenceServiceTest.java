@@ -420,10 +420,13 @@ public class PersistenceServiceTest {
       var lagretFarskapserklaering = lagreFarskapserklaering();
 
       // when
-      persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId());
+      var erklaeringBleDeaktivert = persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId());
 
       // then
-      assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId()));
+      assertAll(
+          () -> assertThat(erklaeringBleDeaktivert).isTrue(),
+          () -> assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId()))
+      );
     }
 
     @Test
