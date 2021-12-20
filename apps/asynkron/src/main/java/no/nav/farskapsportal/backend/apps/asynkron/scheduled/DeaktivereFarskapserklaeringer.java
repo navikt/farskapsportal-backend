@@ -56,7 +56,7 @@ public class DeaktivereFarskapserklaeringer {
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering();
     log.info("Fant {} ferdigstilte farskapserklæringer som har blitt overført til skatt og er klare for deaktivering.", idTilFarskapserklaeringerSomSkalDeaktiveres.size());
     for (int farskapserklaeringsid :idTilFarskapserklaeringerSomSkalDeaktiveres ) {
-      antallErklaeringerSomBleDeaktivert = persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid);
+      antallErklaeringerSomBleDeaktivert = persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert : antallErklaeringerSomBleDeaktivert;
     }
 
     log.info("{} ferdigstilte farskapserklæringer ble i denne omgang deaktivert", antallErklaeringerSomBleDeaktivert);

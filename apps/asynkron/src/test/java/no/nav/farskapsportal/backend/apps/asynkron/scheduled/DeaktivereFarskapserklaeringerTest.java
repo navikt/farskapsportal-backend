@@ -25,15 +25,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("DeaktivereFarskapserklaeringer")
 @DirtiesContext
 @ActiveProfiles(PROFILE_TEST)
+@ExtendWith(OutputCaptureExtension.class)
 @SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class DeaktivereFarskapserklaeringerTest {
 
@@ -245,7 +248,7 @@ public class DeaktivereFarskapserklaeringerTest {
     }
 
     @Test
-    void skaDeaktivereArkiverteFarskapserklaeringForUfoedtNaarTermindatoErPassertMedEtBestemtAntallDager() {
+    void skalDeaktivereArkiverteFarskapserklaeringForUfoedtNaarTermindatoErPassertMedEtBestemtAntallDager() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -255,7 +258,7 @@ public class DeaktivereFarskapserklaeringerTest {
       // given
       var farskapserklaering = henteFarskapserklaeringUfoedtSignertAvMor(
           LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1),
-          (farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager()+1)*-1);
+          (farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1) * -1);
 
       farskapserklaering.getDokument().getSigneringsinformasjonFar()
           .setSigneringstidspunkt(LocalDateTime.now().minusDays(100));

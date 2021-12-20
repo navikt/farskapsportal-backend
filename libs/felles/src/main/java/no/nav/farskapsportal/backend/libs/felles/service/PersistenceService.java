@@ -194,18 +194,16 @@ public class PersistenceService {
   }
 
   @Transactional
-  public int deaktivereFarskapserklaering(int idFarskapserklaering) {
-    var teller = 0;
+  public boolean deaktivereFarskapserklaering(int idFarskapserklaering) {
     var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
     if (farskapserklaering.isPresent()) {
       log.info("Deaktiverer farskapserklæring med id {} ", idFarskapserklaering);
       farskapserklaering.get().setDeaktivert(LocalDateTime.now());
-      teller++;
+      return true;
     } else {
       log.error("Farskapserklæring med id {} ble ikke funnet i databasen, og kunne av den grunn ikke deaktiveres.", idFarskapserklaering);
       throw new IllegalStateException("Farskapserklæring ikke funnet");
     }
-    return teller;
   }
 
   @Transactional
