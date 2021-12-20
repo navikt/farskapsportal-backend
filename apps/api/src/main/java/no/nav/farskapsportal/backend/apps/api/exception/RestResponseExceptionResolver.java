@@ -53,16 +53,13 @@ public class RestResponseExceptionResolver {
   @ResponseBody
   @ExceptionHandler(ValideringException.class)
   protected ResponseEntity<?> handleValideringException(ValideringException e) {
-    exceptionLogger.logException(e, "RestResponseExceptionResolver");
-
+    log.warn("Validering av brukerinput feilet med kode: {}", e.getFeilkode());
     return generereFeilrespons("Validering av innleste verdier feilet!", e.getFeilkode(), Optional.empty(), HttpStatus.BAD_REQUEST);
   }
 
   @ResponseBody
   @ExceptionHandler(FeilNavnOppgittException.class)
   protected ResponseEntity<?> handleFeilNavnOppgittException(FeilNavnOppgittException e) {
-    exceptionLogger.logException(e, "RestResponseExceptionResolver");
-
     return generereFeilrespons("Oppgitt navn på far stemmer ikke med registrert navn i Folkeregisteret", e.getFeilkode(),
         e.getStatusKontrollereFarDto(), HttpStatus.BAD_REQUEST);
   }
