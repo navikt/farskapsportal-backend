@@ -233,10 +233,9 @@ public class FarskapsportalService {
 
     if (idFarskapserklaering > 0) {
       return oppdatereStatusSigneringsjobb(idFarskapserklaering, statusQueryToken, fnrPaaloggetPerson);
-    } else {
-      // TODO: Fjernes etter overgang til ny modell for statusinnhenting (25.12.2021)
-      return oppdatereStatusSigneringsjobb(statusQueryToken, fnrPaaloggetPerson);
     }
+
+    throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
   }
 
   @Transactional(noRollbackFor = EsigneringStatusFeiletException.class)
@@ -766,88 +765,5 @@ public class FarskapsportalService {
     } catch (URISyntaxException e) {
       throw new InternFeilException(Feilkode.FEILFORMATERT_URL_UNDERTEGNERURL);
     }
-  }
-
-  //TODO: Fjerne ifbm overgang til ny statusinnhentingsmodell
-  @Deprecated
-  private FarskapserklaeringDto oppdatereStatusSigneringsjobb(String statusQueryToken, String fnrPaaloggetPerson) {
-    var farskapserklaeringer = henteFarskapserklaeringerEtterRedirect(fnrPaaloggetPerson);
-
-    if (farskapserklaeringer.size() < 1) {
-      throw new ValideringException(Feilkode.PERSON_HAR_INGEN_VENTENDE_FARSKAPSERKLAERINGER);
-    }
-
-    // Henter status på signeringsjobben fra Postens signeringstjeneste
-    var dokumentStatusDto = henteDokumentstatus(statusQueryToken, farskapserklaeringer);
-
-    // filtrerer ut farskapserklæringen statuslenka tilhører
-    var aktuellFarskapserklaering = farskapserklaeringer.stream().filter(Objects::nonNull)
-        .filter(fe -> fe.getDokument().getStatusUrl().equals(dokumentStatusDto.getStatuslenke().toString())).collect(Collectors.toSet())
-        .stream().findAny().orElseThrow(() -> new ValideringException(Feilkode.INGEN_TREFF_PAA_TOKEN));
-
-    log.info("Statuslenke tilhører farskapserklaering med id {}", aktuellFarskapserklaering.getId());
-
-    aktuellFarskapserklaering.getDokument().setStatusQueryToken(statusQueryToken);
-
-    validereAtForeldreIkkeAlleredeHarSignert(fnrPaaloggetPerson, aktuellFarskapserklaering);
-
-    log.info("Oppdaterer signeringsinfo for pålogget person");
-    oppdatereSigneringsinfoForPaaloggetPerson(fnrPaaloggetPerson, dokumentStatusDto, aktuellFarskapserklaering);
-
-    return mapper.toDto(aktuellFarskapserklaering);
-  }
-
-  //TODO: Fjerne ifbm overgang til ny statusinnhentingsmodell (etter 25.12.2021)
-  @Deprecated
-  private Set<Farskapserklaering> henteFarskapserklaeringerEtterRedirect(String fnrPaaloggetPerson) {
-
-    var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-
-    var foreldersFarskapserklaeringer = persistenceService.henteFarskapserklaeringerForForelder(fnrPaaloggetPerson);
-
-    if (Forelderrolle.MOR.equals(brukersForelderrolle)) {
-      return foreldersFarskapserklaeringer.stream()
-          .filter(Objects::nonNull)
-          .filter(fe -> fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null)
-          .collect(Collectors.toSet());
-    } else if (Forelderrolle.FAR.equals(brukersForelderrolle)) {
-      return foreldersFarskapserklaeringer.stream()
-          .filter(Objects::nonNull)
-          .filter(fe -> (fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null))
-          .filter(fe -> (fe.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null))
-          .collect(Collectors.toSet());
-    } else if (Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
-      // pålogget person kan potensielt være både mor og far i eksisterende farskapserklæringer
-      var feMor = foreldersFarskapserklaeringer.stream()
-          .filter(Objects::nonNull)
-          .filter(fe -> fnrPaaloggetPerson.equals(fe.getMor().getFoedselsnummer()))
-          .filter(fe -> (fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() == null))
-          .collect(Collectors.toSet());
-      var feFar = foreldersFarskapserklaeringer.stream().filter(Objects::nonNull)
-          .filter(fe -> fnrPaaloggetPerson.equals(fe.getFar().getFoedselsnummer()))
-          .filter(fe -> (fe.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt() != null))
-          .filter(fe -> (fe.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null))
-          .collect(Collectors.toSet());
-
-      feMor.addAll(feFar);
-      return feMor;
-    }
-    throw new ValideringException(Feilkode.FEIL_ROLLE);
-  }
-
-  //TODO: Fjerne ifbm overgang til ny statusinnhentingsmodell (etter 25.12.2021)
-  @Deprecated
-  private DokumentStatusDto henteDokumentstatus(String statusQueryToken, Set<Farskapserklaering> farskapserklaeringer) {
-
-    log.info("Henter dokumentstatus fra Posten.");
-
-    Set<URI> dokumentStatuslenker = farskapserklaeringer.stream().map(Farskapserklaering::getDokument).map(Dokument::getStatusUrl)
-        .map(this::tilUri)
-        .collect(Collectors.toSet());
-
-    // Mangler sikker identifisering av hvilken statuslenke tokenet er tilknyuttet. Forelder kan
-    // potensielt ha flere farskapserklæringer som er startet men hvor signeringsprosessen ikke
-    // er fullført. Returnerer statuslenke som hører til statusQueryToken.
-    return difiESignaturConsumer.henteStatus(statusQueryToken, dokumentStatuslenker);
   }
 }

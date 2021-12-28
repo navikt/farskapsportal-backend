@@ -88,6 +88,8 @@ public class VarselTest {
         LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now()
+        .minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse()));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
     var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
@@ -129,6 +131,8 @@ public class VarselTest {
         LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now()
+        .minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse()));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
     var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
     var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
