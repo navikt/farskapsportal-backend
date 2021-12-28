@@ -78,7 +78,7 @@ public class DifiEsigneringConfig {
   public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
 
     var certificates = miljoe.equals(NavClusterName.TEST.toString()) ? Certificates.TEST : Certificates.PRODUCTION;
-    var serviceUrl = miljoe.equals(NavClusterName.TEST.toString()) ? ServiceUri.DIFI_TEST : ServiceUri.PRODUCTION;
+    var serviceUrl = miljoe.equals(NavClusterName.TEST.toString()) ? ServiceUri.DIFI_QA : ServiceUri.PRODUCTION;
 
     log.info("Kobler opp mot Postens {}-milljø for esignering med service-uri {}.", miljoe.toLowerCase(Locale.ROOT), serviceUrl);
 
