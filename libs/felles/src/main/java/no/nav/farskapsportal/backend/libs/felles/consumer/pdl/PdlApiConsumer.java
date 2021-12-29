@@ -65,7 +65,7 @@ public class PdlApiConsumer {
         || MASTER_FREG.equalsIgnoreCase(dto.getMetadata().getMaster());
   }
 
-  @Cacheable
+  @Cacheable("bostedsadresse")
   public BostedsadresseDto henteBostedsadresse(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_BOSTEDSADRESSE, false);
     var bostedsadresseDtos = respons.getData().getHentPerson().getBostedsadresse();
@@ -78,7 +78,7 @@ public class PdlApiConsumer {
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
-  @Cacheable
+  @Cacheable("doedsfall")
   public DoedsfallDto henteDoedsfall(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_DOEDSFALL, false);
     var doedsfallDto = respons.getData().getHentPerson().getDoedsfall();
@@ -90,7 +90,7 @@ public class PdlApiConsumer {
     }
   }
 
-  @Cacheable
+  @Cacheable("foedsel")
   public FoedselDto henteFoedsel(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
     var foedselDtos = respons.getData().getHentPerson().getFoedsel();
@@ -104,7 +104,7 @@ public class PdlApiConsumer {
     return foedselDtosFraPdlEllerFreg.stream().findFirst().orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
-  @Cacheable
+  @Cacheable("folkeregisteridentifikator")
   public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOLKEREGISTERIDENTIFIKATOR, false);
     var folkeregisteridentifikatorDtos = respons.getData().getHentPerson().getFolkeregisteridentifikator();
@@ -120,13 +120,14 @@ public class PdlApiConsumer {
             "Feil ved mapping av folkeregisteridentifikator, forventet bare et innslag av folkeregisteridentifikator på person")));
   }
 
-  @Cacheable
+  @Cacheable("forelderBarnRelasjon")
   public List<ForelderBarnRelasjonDto> henteForelderBarnRelasjon(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FORELDER_BARN_RELASJON, false);
     var forelderBarnRelasjonDtos = respons.getData().getHentPerson().getForelderBarnRelasjon();
     return forelderBarnRelasjonDtos.stream().filter(Objects::nonNull).filter(isMasterPdlOrFreg()).collect(toList());
   }
 
+  @Cacheable("kjoenn")
   public KjoennDto henteKjoennUtenHistorikk(String foedselsnummer) {
 
     var kjoennFraPdlEllerFreg = henteKjoenn(foedselsnummer, false);
@@ -135,6 +136,7 @@ public class PdlApiConsumer {
         .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av kjønn, forventet bare et registrert kjønn på person")));
   }
 
+  @Cacheable("kjoennshistorikk")
   public List<KjoennDto> henteKjoennMedHistorikk(String foedselsnummer) {
     var kjoennshistorikk = henteKjoenn(foedselsnummer, true);
 
@@ -142,7 +144,7 @@ public class PdlApiConsumer {
   }
 
   @NotNull
-  @Cacheable
+  @Cacheable("navn")
   public NavnDto hentNavnTilPerson(String foedselsnummer) {
     log.info("Henter navn til person");
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN, false);
@@ -164,7 +166,7 @@ public class PdlApiConsumer {
   }
 
   @NotNull
-  @Cacheable
+  @Cacheable("sivilstand")
   public SivilstandDto henteSivilstand(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_SIVILSTAND, false);
     var sivilstandDtos = respons.getData().getHentPerson().getSivilstand();
@@ -179,7 +181,7 @@ public class PdlApiConsumer {
         .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av sivilstand, forventet bare et innslag av sivilstand på person")));
   }
 
-  @Cacheable
+  @Cacheable("verge")
   public List<VergemaalEllerFremtidsfullmaktDto> henteVergeEllerFremtidsfullmakt(String foedselsnummer) {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_VERGE, false);
     var vergemaalEllerFremtidsfullmaktDtos = respons.getData().getHentPerson().getVergemaalEllerFremtidsfullmakt();

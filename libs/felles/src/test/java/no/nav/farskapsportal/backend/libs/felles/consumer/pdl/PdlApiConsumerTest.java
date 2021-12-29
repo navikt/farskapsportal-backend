@@ -42,11 +42,13 @@ import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.Hen
 import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.stub.StsStub;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -67,9 +69,17 @@ public class PdlApiConsumerTest {
   @Autowired
   private StsStub stsStub;
 
+  @Autowired
+  private CacheManager cacheManager;
+
   @Nested
   @DisplayName("Hente kjønn")
   class Kjoenn {
+
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("kjoenn").clear();
+    }
 
     @Test
     @DisplayName("Skal hente kjønn hvis person eksisterer")
@@ -150,7 +160,7 @@ public class PdlApiConsumerTest {
     void skalKastePersonIkkeFunnetExceptionHvisPersonMedKjoennshistorikkIkkeEksisterer() {
 
       // given
-      var fnrMor = "111222240280";
+      var fnrMor = "111222240289";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
@@ -162,6 +172,11 @@ public class PdlApiConsumerTest {
   @Nested
   @DisplayName("Hente navn")
   class Navn {
+
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("navn").clear();
+    }
 
     @Test
     @DisplayName("Skal returnere navn til person dersom fødselsnummer eksisterer")
@@ -218,6 +233,11 @@ public class PdlApiConsumerTest {
   @DisplayName("Hente folkeregisteridentifikator")
   class Folkeregisteridentifikator {
 
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("folkeregisteridentifikator").clear();
+    }
+
     @Test
     void skalHenteFolkeregisteridentifikatorForMor() {
 
@@ -242,6 +262,11 @@ public class PdlApiConsumerTest {
   @Nested
   @DisplayName("Hente fødselsdato")
   class Foedsel {
+
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("foedsel").clear();
+    }
 
     @Test
     @DisplayName("Skal hente fødselsdato for eksisterende person")
@@ -275,13 +300,18 @@ public class PdlApiConsumerTest {
       var foedselDto = pdlApiConsumer.henteFoedsel(fnrMor);
 
       // then
-      assertEquals("Tana", foedselDto.getFoedested(), "Mors fødselsdato skal være den samme som den returnerte datoen");
+      assertEquals("Tana", foedselDto.getFoedested(), "Mors fødested skal være den samme som det registrerte fødestedet");
     }
   }
 
   @Nested
   @DisplayName("Hente forelderBarnRelasjon")
   class ForelderBarnRelasjon {
+
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("forelderBarnReleasjon").clear();
+    }
 
     @Test
     @DisplayName("Skal ikke feile dersom  mor ikke har noen forelder-barn-relasjon før barnet er født")
@@ -331,6 +361,11 @@ public class PdlApiConsumerTest {
   @DisplayName("Hente sivilstand")
   class Sivilstand {
 
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("sivilstand").clear();
+    }
+
     @Test
     @DisplayName("Skal hente sivilstand for far")
     void skalHenteSivilstandForFar() {
@@ -352,8 +387,9 @@ public class PdlApiConsumerTest {
     @Test
     @DisplayName("Skal hente sivilstand gift dersom person er gift")
     void skalHenteSivilstandGiftDersomPersonErGift() {
+
       // given
-      var fnr = "13108411111";
+      var fnr = "1310841511";
 
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
@@ -370,7 +406,7 @@ public class PdlApiConsumerTest {
     @DisplayName("Skal hente sivilstand uoppgitt dersom sivilstand ikke er registrert")
     void skalHenteSivilstandUoppgittDersomSivilstandIkkeErRegistrert() {
       // given
-      var fnr = "13108411111";
+      var fnr = "13108411311";
 
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
@@ -387,6 +423,11 @@ public class PdlApiConsumerTest {
   @Nested
   @DisplayName("Hente bostedsadresse")
   class Bostedsadresse {
+
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("bostedsadresse").clear();
+    }
 
     @Test
     void skalHenteBostedsadresseForMorBosattINorge() {
@@ -412,6 +453,11 @@ public class PdlApiConsumerTest {
   @Nested
   @DisplayName("Hente doedsfall")
   class Doedsfall {
+
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("doedsfall").clear();
+    }
 
     @Test
     void skalHenteInformasjonOmDoedsfallForLevendePerson() {
@@ -448,12 +494,16 @@ public class PdlApiConsumerTest {
       );
 
     }
-
   }
 
   @Nested
   @DisplayName("Hente vergeEllerFremtidsfullmakt")
   class VergeEllerFremtidsfullmakt {
+
+    @BeforeEach
+    void clearCache() {
+      cacheManager.getCache("verge").clear();
+    }
 
     @Test
     @DisplayName("Skal hente vergeEllerFremtidsfullmakt for person med verge")
