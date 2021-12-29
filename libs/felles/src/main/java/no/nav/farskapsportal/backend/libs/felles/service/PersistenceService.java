@@ -254,10 +254,7 @@ public class PersistenceService {
   }
 
   public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime farSendtTilSigneringFoer) {
-    var ider =  farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(farSendtTilSigneringFoer);
-    var iderForErklaeringerUtenFarSendtTilSigneringInfo = farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar();
-    ider.addAll(iderForErklaeringerUtenFarSendtTilSigneringInfo);
-    return ider;
+    return  farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(farSendtTilSigneringFoer);
   }
 
   @Transactional

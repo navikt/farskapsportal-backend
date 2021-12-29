@@ -69,14 +69,4 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       + "and fe.dokument.signeringsinformasjonFar.sendtTilSignering < :farSendtTilSigneringFoer "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
   Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(LocalDateTime farSendtTilSigneringFoer);
-
-  @Query("select fe.id from Farskapserklaering fe "
-      + "where fe.farBorSammenMedMor is not null "
-      + "and fe.deaktivert is null "
-      + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
-      + "and fe.dokument.signeringsinformasjonFar.sendtTilSignering is null "
-      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
-  @Deprecated
-  // TODO: (30.11.2021) Kan fjernes når alle aktuelle farskapserklæringer har sendtTilSignering satt for far
-  Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar();
 }
