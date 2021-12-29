@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
@@ -39,6 +40,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Builder
 public class PdlApiConsumer {
 
@@ -142,6 +144,7 @@ public class PdlApiConsumer {
   @NotNull
   @Cacheable
   public NavnDto hentNavnTilPerson(String foedselsnummer) {
+    log.info("Henter navn til person");
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN, false);
     var navnDtos = respons.getData().getHentPerson().getNavn();
 
