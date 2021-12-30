@@ -101,6 +101,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.cache.CacheManager;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -162,6 +163,8 @@ public class FarskapsportalControllerTest {
   private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   @Autowired
   private Mapper mapper;
+  @Autowired
+  private CacheManager cacheManager;
 
   static <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
 
@@ -295,6 +298,10 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
       statusKontrollereFarDao.deleteAll();
       forelderDao.deleteAll();
+      var cacheNames = cacheManager.getCacheNames();
+      for(String cacheName:cacheNames) {
+        cacheManager.getCache(cacheName).clear();
+      }
     }
 
     @Test
@@ -738,6 +745,10 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
       statusKontrollereFarDao.deleteAll();
       forelderDao.deleteAll();
+      var cacheNames = cacheManager.getCacheNames();
+      for(String cacheName:cacheNames) {
+        cacheManager.getCache(cacheName).clear();
+      }
     }
 
     @Test
