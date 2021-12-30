@@ -5,6 +5,8 @@ on:
       - release
     paths:
       - 'apps/asynkron/**'
+      - 'libs/**'
+      - '.nais/apps/asynkron/**'
       - '**/asynkron-ci.yml'
 
 env:
