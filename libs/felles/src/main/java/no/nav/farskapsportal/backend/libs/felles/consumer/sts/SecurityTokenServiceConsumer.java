@@ -18,8 +18,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-@AllArgsConstructor
 @Slf4j
+@AllArgsConstructor
 public class SecurityTokenServiceConsumer {
 
   private final RestTemplate restTemplate;

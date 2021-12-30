@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.pdl;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -10,14 +9,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
-import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
-import no.nav.farskapsportal.backend.libs.felles.config.CachingConfig;
-import no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
