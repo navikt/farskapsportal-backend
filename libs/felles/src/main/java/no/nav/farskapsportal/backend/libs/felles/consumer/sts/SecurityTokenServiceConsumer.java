@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.apache.commons.lang3.Validate;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -33,6 +34,7 @@ public class SecurityTokenServiceConsumer {
         }
       };
 
+  @Cacheable(cacheNames = "sts", cacheManager = "cacheManagerSts")
   @Retryable(value = Exception.class, backoff = @Backoff(delay = 500))
   public String hentIdTokenForServicebruker(String brukernavn, String passord) {
 
