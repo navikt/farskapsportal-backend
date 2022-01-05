@@ -382,7 +382,7 @@ public class PersistenceServiceTest {
 
       // when
       var farskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
-          LocalDateTime.now().minusDays(1));
+          LocalDateTime.now().minusDays(40));
 
       // then
       assertThat(farskapserklaeringer.size()).isEqualTo(0);
