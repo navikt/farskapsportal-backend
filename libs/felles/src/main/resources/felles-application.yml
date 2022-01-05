@@ -37,8 +37,6 @@ url:
 farskapsportal.felles.egenskaper:
   systembruker-brukernavn: srvfarskapsportal
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
-  levetid-ikke-ferdigstilt-signeringsoppdrag-i-dager: 40
-  levetid-oversendte-farskapserklaeringer-i-dager: 30
   maks-antall-maaneder-etter-foedsel: 6
   kontroll-far-maks-antall-forsoek: 3
   url: ${FARSKAPSPORTAL_URL}

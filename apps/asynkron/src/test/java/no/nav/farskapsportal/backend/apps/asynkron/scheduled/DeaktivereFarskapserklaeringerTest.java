@@ -11,11 +11,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
+import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
@@ -41,7 +41,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class DeaktivereFarskapserklaeringerTest {
 
   @Autowired
-  private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
   @Autowired
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
@@ -71,6 +71,7 @@ public class DeaktivereFarskapserklaeringerTest {
     // Bønnen dekativereFarskapserklaeringer er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
     deaktivereFarskapserklaeringer = DeaktivereFarskapserklaeringer.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .persistenceService(persistenceService).build();
   }
 
@@ -107,7 +108,7 @@ public class DeaktivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
-          LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1), "12345");
+          LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() + 1), "12345");
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
@@ -133,7 +134,7 @@ public class DeaktivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
-          LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager()), "12345");
+          LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager()), "12345");
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
@@ -164,12 +165,13 @@ public class DeaktivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
-          LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1), "12345");
+          LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() + 1), "12345");
 
       farskapserklaering.getDokument().getSigneringsinformasjonFar()
-          .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
+          .setSigneringstidspunkt(
+              LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
       farskapserklaering.setSendtTilSkatt(LocalDateTime.now().minusDays(
-          farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
+          farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
@@ -195,12 +197,13 @@ public class DeaktivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
-          LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() - 1), "12345");
+          LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() - 1), "12345");
 
       farskapserklaering.getDokument().getSigneringsinformasjonFar()
-          .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() - 1));
+          .setSigneringstidspunkt(
+              LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() - 1));
       farskapserklaering.setSendtTilSkatt(LocalDateTime.now().minusDays(
-          farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() - 1));
+          farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() - 1));
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
@@ -226,12 +229,13 @@ public class DeaktivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringUfoedtSignertAvMor(
-          LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1), 4);
+          LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() + 1), 4);
 
       farskapserklaering.getDokument().getSigneringsinformasjonFar()
-          .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
+          .setSigneringstidspunkt(
+              LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
       farskapserklaering.setSendtTilSkatt(LocalDateTime.now().minusDays(
-          farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
+          farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1));
 
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
@@ -257,8 +261,8 @@ public class DeaktivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringUfoedtSignertAvMor(
-          LocalDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1),
-          (farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1) * -1);
+          LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() + 1),
+          (farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() + 1) * -1);
 
       farskapserklaering.getDokument().getSigneringsinformasjonFar()
           .setSigneringstidspunkt(LocalDateTime.now().minusDays(100));
@@ -277,5 +281,64 @@ public class DeaktivereFarskapserklaeringerTest {
           () -> assertThat(farskapserklaeringEtterDeaktiverering.get().getDeaktivert()).isNotNull()
       );
     }
+  }
+
+  @Nested
+  class ManglerSignaturMor {
+
+    @Test
+    void skalDeaktivereFarskapserklaeringOgSomManglerMorsSignatur() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+      meldingsloggDao.deleteAll();
+
+      // given
+      var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
+          null, "12345");
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSendtTilSignering(LocalDateTime.now().minusDays(3));
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      // when
+      deaktivereFarskapserklaeringer.deaktivereFarskapserklaeringer();
+
+      // then
+      var farskapserklaeringEtterDeaktiverering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(farskapserklaeringEtterDeaktiverering).isPresent(),
+          () -> assertThat(farskapserklaeringEtterDeaktiverering.get().getDeaktivert()).isNotNull()
+      );
+    }
+
+    @Test
+    void skalIkkeDeaktivereFarskapserklaeringOgSomManglerMorsSignaturMenIkkeHarVaertInaktivLengeNok() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+      meldingsloggDao.deleteAll();
+
+      // given
+      var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
+          null, "12345");
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSendtTilSignering(LocalDateTime.now().minusHours(3));
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      // when
+      deaktivereFarskapserklaeringer.deaktivereFarskapserklaeringer();
+
+      // then
+      var farskapserklaeringEtterDeaktiverering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(farskapserklaeringEtterDeaktiverering).isPresent(),
+          () -> assertThat(farskapserklaeringEtterDeaktiverering.get().getDeaktivert()).isNull()
+      );
+    }
+
   }
 }

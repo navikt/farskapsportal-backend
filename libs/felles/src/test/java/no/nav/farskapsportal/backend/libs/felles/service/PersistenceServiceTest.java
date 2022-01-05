@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -358,12 +357,13 @@ public class PersistenceServiceTest {
 
       // given
       var lagretFarskapserklaering = lagreFarskapserklaeringSignertAvMor(
-          ZonedDateTime.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager() + 1)
+          ZonedDateTime.now().minusDays(41)
               .with(ChronoField.HOUR_OF_DAY, 0).toLocalDateTime());
       assertNotNull(lagretFarskapserklaering);
 
       // when
-      var idTilFarskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
+      var idTilFarskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
+          LocalDateTime.now().minusDays(40));
 
       // then
       assertAll(
@@ -377,11 +377,12 @@ public class PersistenceServiceTest {
 
       // given
       var lagretFarskapserklaering = lagreFarskapserklaeringSignertAvMor(
-          LocalDate.now().minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager()).atStartOfDay());
+          LocalDate.now().minusDays(2).atStartOfDay());
       assertNotNull(lagretFarskapserklaering);
 
       // when
-      var farskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
+      var farskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
+          LocalDateTime.now().minusDays(1));
 
       // then
       assertThat(farskapserklaeringer.size()).isEqualTo(0);
@@ -425,7 +426,8 @@ public class PersistenceServiceTest {
       // then
       assertAll(
           () -> assertThat(erklaeringBleDeaktivert).isTrue(),
-          () -> assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId()))
+          () -> assertThrows(RessursIkkeFunnetException.class,
+              () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId()))
       );
     }
 
