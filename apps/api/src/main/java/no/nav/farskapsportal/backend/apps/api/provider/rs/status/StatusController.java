@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.Builder;
 import lombok.Value;
@@ -67,7 +68,7 @@ public class StatusController {
         .name("Farskapsportal")
         .status(operasjonellStatus.toString())
         .team("Bidrag")
-        .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS")))
+        .timestamp(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS z")))
         .build(), HttpStatus.OK);
   }
 

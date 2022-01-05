@@ -181,17 +181,14 @@ public class PersonopplysningService {
     return true;
   }
 
-  public void navnekontroll(String navn, NavnDto navnFraRegister) {
-    var sammenslaattNavnFraRegister = navnFraRegister.getFornavn() + hentMellomnavnHvisFinnes(navnFraRegister) + navnFraRegister.getEtternavn();
-    var normalisertNavnFraRegister = Normalizer.normalize(sammenslaattNavnFraRegister, Form.NFD).replaceAll("\\p{M}", "").replaceAll("\\s+", "");
-    var normalisertOppgittNavn = Normalizer.normalize(navn, Form.NFD).replaceAll("\\p{M}", "").replaceAll("\\s+", "");
+  public void navnekontroll(String oppgittNavn, String navnFraRegister) {
 
-    boolean navnStemmer = normalisereNavn(sammenslaattNavnFraRegister).equalsIgnoreCase(normalisereNavn(navn));
+    boolean navnStemmer = normalisereNavn(navnFraRegister).equalsIgnoreCase(normalisereNavn(oppgittNavn));
 
     if (!navnStemmer) {
-      log.error("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn er forskjellig fra navn i register");
-      throw new FeilNavnOppgittException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
-    }
+      log.warn("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn  er forskjellig fra navn i register.");
+      throw new FeilNavnOppgittException(oppgittNavn, navnFraRegister);
+     }
 
     log.info("Navnekontroll gjennomført uten feil");
   }
