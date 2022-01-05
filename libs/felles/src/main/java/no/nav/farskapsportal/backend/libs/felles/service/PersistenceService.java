@@ -63,6 +63,10 @@ public class PersistenceService {
         .orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ingen forelder med id %d i databasen", id)));
   }
 
+  public Optional<Forelder> henteForelderForIdent(String ident) {
+    return forelderDao.henteForelderMedFnr(ident);
+  }
+
   public Farskapserklaering oppdatereFarskapserklaering(Farskapserklaering farskapserklaering) {
     if (farskapserklaeringDao.findById(farskapserklaering.getId()).isEmpty()) {
       throw new InternFeilException(Feilkode.INTERN_FEIL_OPPDATERING_AV_ERKLAERING);

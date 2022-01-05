@@ -1,20 +1,24 @@
 package no.nav.farskapsportal.backend.libs.felles.exception;
 
-import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
-import no.nav.farskapsportal.backend.libs.dto.StatusKontrollereFarDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Getter
 @Setter
-public class FeilNavnOppgittException extends ValideringException {
+@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+public class FeilNavnOppgittException extends KontrollereNavnFarException {
 
-  private String oppgittNavn;
-  private String navnIRegister;
+  public FeilNavnOppgittException(String oppgittNavn, String navnIRegister) {
+    super(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
+    this.oppgittNavn = oppgittNavn;
+    this.navnIRegister = navnIRegister;
+  }
 
-  private Optional<StatusKontrollereFarDto> statusKontrollereFarDto;
-
-  public FeilNavnOppgittException(Feilkode feilkode) {
+  public FeilNavnOppgittException(Feilkode feilkode, String oppgittNavn, String navnIRegister) {
     super(feilkode);
+    this.oppgittNavn = oppgittNavn;
+    this.navnIRegister = navnIRegister;
   }
 }

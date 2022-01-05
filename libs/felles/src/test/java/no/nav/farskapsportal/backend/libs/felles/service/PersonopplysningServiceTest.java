@@ -42,6 +42,7 @@ import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
+import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
@@ -221,11 +222,11 @@ public class PersonopplysningServiceTest {
       var oppgittNavn = NAVN_FAR.getFornavn() + " Danger " + NAVN_FAR.getEtternavn();
 
       // when, then
-      assertDoesNotThrow(() -> personopplysningService.navnekontroll(oppgittNavn, registrertNavn));
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(oppgittNavn, registrertNavn.sammensattNavn()));
     }
 
     @Test
-    void skalKasteValideringExceptionDersomOppgittNavnIkkeStemmerMedRegister() {
+    void skalKastekontrollereNavnFarExceptionDersomOppgittNavnIkkeStemmerMedRegister() {
 
       // given
       var farsRegistrerteNavn = NAVN_FAR;
@@ -233,10 +234,11 @@ public class PersonopplysningServiceTest {
       var farsNavn = NAVN_FAR.getFornavn() + " Dangerous " + NAVN_FAR.getEtternavn();
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+      var kontrollereNavnFarException = assertThrows(KontrollereNavnFarException.class,
+          () -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn.sammensattNavn()));
 
       // then
-      assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
+      assertThat(kontrollereNavnFarException.getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
     }
 
     @Test
@@ -248,7 +250,7 @@ public class PersonopplysningServiceTest {
       var farsNavn = "Donald André" + " Dangerous " + NAVN_FAR.getEtternavn();
 
       // when, then
-      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn.sammensattNavn()));
     }
 
     @Test
@@ -260,7 +262,7 @@ public class PersonopplysningServiceTest {
       var farsNavn = "Dånald Øndræ" + " Dængerås " + NAVN_FAR.getEtternavn();
 
       // when, then
-      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn));
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(farsNavn, farsRegistrerteNavn.sammensattNavn()));
     }
 
     @Test
@@ -277,7 +279,7 @@ public class PersonopplysningServiceTest {
       var test = sn.replace(oppgittNavnPaaFar, "");
 
       // when, then
-      assertDoesNotThrow(() -> personopplysningService.navnekontroll(oppgittNavnPaaFar, farsRegistrerteNavn));
+      assertDoesNotThrow(() -> personopplysningService.navnekontroll(oppgittNavnPaaFar, farsRegistrerteNavn.sammensattNavn()));
     }
   }
 

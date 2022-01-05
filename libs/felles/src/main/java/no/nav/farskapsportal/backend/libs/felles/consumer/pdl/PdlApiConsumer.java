@@ -220,7 +220,7 @@ public class PdlApiConsumer {
     } catch (HttpClientErrorException clientErrorException) {
       clientErrorException.printStackTrace();
       if (response == null) {
-        throw new ValideringException(Feilkode.PDL_PERSON_IKKE_FUNNET);
+        throw new RessursIkkeFunnetException(Feilkode.PDL_PERSON_IKKE_FUNNET);
       }
     } catch (Exception e) {
       // Håndterer evnt feil i checkForPdlApiErrors

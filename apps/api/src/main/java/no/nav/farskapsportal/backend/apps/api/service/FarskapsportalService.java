@@ -31,6 +31,7 @@ import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
+import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.Rolle;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
@@ -42,7 +43,9 @@ import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeile
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
+import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
+import no.nav.farskapsportal.backend.libs.felles.exception.PersonIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -234,6 +237,12 @@ public class FarskapsportalService {
     if (idFarskapserklaering > 0) {
       return oppdatereStatusSigneringsjobb(idFarskapserklaering, statusQueryToken, fnrPaaloggetPerson);
     }
+
+    var forelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
+    var forelder = persistenceService.henteForelderForIdent(fnrPaaloggetPerson);
+
+    log.error("Fant ikke farskapserklæring med id {} i databasen for person med forelderrolle {} og forelderid {}.", idFarskapserklaering,
+        forelderrolle, forelder.isPresent() ? forelder.get().getId() : "ukjent");
 
     throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
   }
@@ -510,24 +519,25 @@ public class FarskapsportalService {
 
   private void antallsbegrensetKontrollAvNavnOgNummerPaaFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
     var statusKontrollereFar = persistenceService.henteStatusKontrollereFar(fnrMor);
+    var registrertNavnFar = hentRegistrertNavnPaaOppgittFar(fnrMor, request);
     if (statusKontrollereFar.isEmpty()
         || farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek() > statusKontrollereFar.get()
         .getAntallFeiledeForsoek()) {
-      kontrollereNavnOgNummerFar(fnrMor, request);
+      kontrollereNavnOgNummerFar(fnrMor, request.getNavn(), registrertNavnFar.sammensattNavn());
     } else {
-      berikeOgKasteFeilNavnOppgittException(fnrMor, new FeilNavnOppgittException(Feilkode.MAKS_ANTALL_FORSOEK));
+     throw berikeOgKasteKontrollereNavnFarException(fnrMor, new FeilNavnOppgittException(Feilkode.MAKS_ANTALL_FORSOEK, request.getNavn(), null));
     }
   }
 
-  private void kontrollereNavnOgNummerFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
+  private void kontrollereNavnOgNummerFar(String fnrMor, String oppgittNavnFar, String registrertNavnFar) {
     try {
-      validereOppgittNavnFar(request.getFoedselsnummer(), request.getNavn());
-    } catch (FeilNavnOppgittException e) {
-      berikeOgKasteFeilNavnOppgittException(fnrMor, e);
+      validereOppgittNavnFar(oppgittNavnFar, registrertNavnFar);
+    } catch (KontrollereNavnFarException e) {
+      throw berikeOgKasteKontrollereNavnFarException(fnrMor, e);
     }
   }
 
-  private void berikeOgKasteFeilNavnOppgittException(String fnrMor, FeilNavnOppgittException e) {
+  private KontrollereNavnFarException berikeOgKasteKontrollereNavnFarException(String fnrMor, KontrollereNavnFarException e) {
     var statusKontrollereFarDto = mapper
         .toDto(persistenceService.oppdatereStatusKontrollereFar(fnrMor, e.getNavnIRegister(), e.getOppgittNavn(),
             farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager(),
@@ -537,28 +547,27 @@ public class FarskapsportalService {
         - statusKontrollereFarDto.getAntallFeiledeForsoek();
     resterendeAntallForsoek = Math.max(resterendeAntallForsoek, 0);
     statusKontrollereFarDto.setAntallResterendeForsoek(resterendeAntallForsoek);
-    throw e;
+    return e;
   }
 
-  private void validereOppgittNavnFar(String foedselsnummerFar, String oppgittNavnPaaFar) {
-
-    if (foedselsnummerFar == null || foedselsnummerFar.trim().length() < 1) {
+  private NavnDto hentRegistrertNavnPaaOppgittFar(String fnrMor, KontrollerePersonopplysningerRequest request) {
+    if (request.getFoedselsnummer() == null || request.getFoedselsnummer().trim().length() < 1) {
       throw new ValideringException(Feilkode.FOEDSELNUMMER_MANGLER_FAR);
     }
+    try {
+      return personopplysningService.henteNavn(request.getFoedselsnummer());
+    } catch (RessursIkkeFunnetException rife) {
+       throw berikeOgKasteKontrollereNavnFarException(fnrMor, new PersonIkkeFunnetException(request.getNavn(), null));
+    }
+  }
+
+  private void validereOppgittNavnFar(String oppgittNavnPaaFar, String navnFraFolkeregisteret) {
 
     if (oppgittNavnPaaFar == null || oppgittNavnPaaFar.trim().length() < 1) {
       throw new ValideringException(Feilkode.KONTROLLERE_FAR_NAVN_MANGLER);
     }
 
-    try {
-      var navnDtoFraFolkeregisteret = personopplysningService.henteNavn(foedselsnummerFar);
-      // Validere input
-      personopplysningService.navnekontroll(oppgittNavnPaaFar, navnDtoFraFolkeregisteret);
-    } catch (RessursIkkeFunnetException rife) {
-      throw new FeilNavnOppgittException(rife.getFeilkode());
-    } catch (ValideringException ve) {
-      throw new FeilNavnOppgittException(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER);
-    }
+    personopplysningService.navnekontroll(oppgittNavnPaaFar, navnFraFolkeregisteret);
   }
 
   private void validereFar(String foedselsnummer) {
