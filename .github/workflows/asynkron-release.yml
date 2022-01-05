@@ -4,6 +4,7 @@ on:
     branches:
       - release
     paths:
+      - 'pom.xml'
       - 'apps/asynkron/**'
       - 'libs/**'
       - '.nais/apps/asynkron/**'
