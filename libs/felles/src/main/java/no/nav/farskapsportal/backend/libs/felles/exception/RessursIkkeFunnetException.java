@@ -1,8 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.exception;
 
-import java.util.Optional;
 import lombok.Getter;
-import no.nav.farskapsportal.backend.libs.dto.StatusKontrollereFarDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
