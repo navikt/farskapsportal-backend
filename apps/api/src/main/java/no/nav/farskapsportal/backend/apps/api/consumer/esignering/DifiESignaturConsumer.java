@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.digipost.signature.client.core.IdentifierInSignedDocuments;
 import no.digipost.signature.client.core.PAdESReference;
 import no.digipost.signature.client.core.XAdESReference;
 import no.digipost.signature.client.direct.DirectClient;
@@ -91,7 +92,9 @@ public class DifiESignaturConsumer {
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
-    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer)).withReference(UUID.randomUUID().toString())
+    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer))
+        .withReference(UUID.randomUUID().toString())
+        .withIdentifierInSignedDocuments(IdentifierInSignedDocuments.PERSONAL_IDENTIFICATION_NUMBER_AND_NAME)
         .build();
     DirectJobResponse directJobResponse;
     try {
