@@ -40,7 +40,7 @@
     <jackson-core.version>2.12.5</jackson-core.version>
     <jersey-hk2.version>2.35</jersey-hk2.version>
     <jsoup.version>1.14.3</jsoup.version>
-    <openhtml.version>1.0.9</openhtml.version>
+    <openhtml.version>1.0.10</openhtml.version>
     <signature-api-client-java.version>5.0.1</signature-api-client-java.version>
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
 
