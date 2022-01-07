@@ -13,7 +13,7 @@
   <properties>
     <maven.compiler.source>16</maven.compiler.source>
     <maven.compiler.target>16</maven.compiler.target>
-    <wiremock-standalone.version>2.19.0</wiremock-standalone.version>
+    <wiremock-standalone.version>2.27.2</wiremock-standalone.version>
   </properties>
 
   <dependencies>
