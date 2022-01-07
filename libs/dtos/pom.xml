@@ -14,7 +14,7 @@
     <maven.compiler.source>16</maven.compiler.source>
     <maven.compiler.target>16</maven.compiler.target>
     <javax.validation.version>2.0.1.Final</javax.validation.version>
-    <springdoc-openapi-ui.version>1.5.11</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.6.0</springdoc-openapi-ui.version>
   </properties>
 
   <dependencies>
