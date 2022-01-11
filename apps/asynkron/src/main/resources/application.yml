@@ -48,6 +48,9 @@ farskapsportal.asynkron.egenskaper:
   varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
   oppdatere-signeringsstatus-min-antall-timer-etter-far-ble-sendt-til-signering: 1
   varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
+  levetid-ikke-ferdigstilt-signeringsoppdrag-i-dager: 40
+  levetid-oversendte-farskapserklaeringer-i-dager: 30
+  levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
   joark:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5

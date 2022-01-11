@@ -16,8 +16,6 @@ public class FarskapsportalFellesEgenskaper {
 
   private String systembrukerBrukernavn;
   private String systembrukerPassord;
-  private int levetidIkkeFerdigstiltSigneringsoppdragIDager;
-  private int levetidOversendteFarskapserklaeringerIDager;
   private int maksAntallMaanederEtterFoedsel;
   private int kontrollFarMaksAntallForsoek;
   private String url;

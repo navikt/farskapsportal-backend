@@ -157,7 +157,7 @@ public class PdlApiConsumer {
     }
 
     var navnDto = navnFraPdlEllerFreg.stream().filter(Objects::nonNull)
-        .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av kjønn, forventet bare et registrert kjønn på person")));
+        .collect(toSingletonOrThrow(new UnrecoverableException("Feil ved mapping av navn, forventet bare et registrert navn på person")));
 
     Validate.notNull(navnDto.getFornavn(), "Fornavn mangler i retur fra PDL!");
     Validate.notNull(navnDto.getEtternavn(), "Etternavn mangler i retur fra PDL!");

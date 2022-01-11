@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -107,7 +106,7 @@ public class PersistenceService {
   }
 
   public Set<Integer> henteIdTilFarskapserklaeringerMedAktiveOppgaver(LocalDateTime opprettetFoer) {
-   return  oppgavebestillingDao.henteIdTilFarskapserklaeringerMedAktiveOppgaver(opprettetFoer);
+    return oppgavebestillingDao.henteIdTilFarskapserklaeringerMedAktiveOppgaver(opprettetFoer);
   }
 
   public Optional<Farskapserklaering> henteBarnsEksisterendeErklaering(String fnrBarn) {
@@ -243,22 +242,20 @@ public class PersistenceService {
     return oppgavebestillingDao.henteAktiveOppgaver(idFarskapserklaering, forelder.getFoedselsnummer());
   }
 
-  public Set<Integer> henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
-    var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
-        .minusDays(farskapsportalFellesEgenskaper.getLevetidIkkeFerdigstiltSigneringsoppdragIDager());
-    var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
+  public Set<Integer> henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(LocalDateTime utloepstidspunkt) {
     return farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(utloepstidspunkt);
   }
 
-  public Set<Integer> henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering() {
-    var oversendtTilSkattFoer = LocalDate.now()
-        .minusDays(farskapsportalFellesEgenskaper.getLevetidOversendteFarskapserklaeringerIDager());
-    var tidspunktOversendt = oversendtTilSkattFoer.atStartOfDay();
+  public Set<Integer> henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering(LocalDateTime tidspunktOversendt) {
     return farskapserklaeringDao.henteIdTilOversendteFarskapserklaeringerSomSkalDeaktiveres(tidspunktOversendt);
   }
 
   public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime farSendtTilSigneringFoer) {
-    return  farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(farSendtTilSigneringFoer);
+    return farskapserklaeringDao.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(farSendtTilSigneringFoer);
+  }
+
+  public Set<Integer> henteIdTilFarskapserklaeringerSomManglerMorsSignatur(LocalDateTime morSendtTilSigneringFoer) {
+    return farskapserklaeringDao.henteIdTilFarskapserklaeringerSomManglerMorsSignatur(morSendtTilSigneringFoer);
   }
 
   @Transactional
