@@ -22,8 +22,7 @@ public class Oppgavestyring {
 
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgavestyringsintervall}")
   public void rydddeISigneringsoppgaver() {
-    var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse()));
+    var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver();
 
     log.info("Fant {} farskapserklæringer med aktive signeringsoppgaver.", farskapserklaeringerMedAktiveOppgaver.size());
 

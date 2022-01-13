@@ -221,39 +221,4 @@ public class OppgavestyringTest {
 
     assertThat(oppgavebestillingEtterSlettforsoek.get().getFerdigstilt()).isNull();
   }
-
-  @Test
-  void skalSletteOppgaveOpprettetFoerGrensedatoRelatertTilDeaktivertErklaering() {
-
-    // given
-    oppgavebestillingDao.deleteAll();
-    farskapserklaeringDao.deleteAll();
-
-    var deaktivertFarskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnUtenFnr(5));
-
-    deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager() - 5));
-    deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.setDeaktivert(LocalDateTime.now());
-
-    assert (deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()
-        .isBefore(LocalDateTime.now()));
-
-    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(deaktivertFarskapserklaeringSomVenterPaaFarsSignatur);
-
-    var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
-        .eventId(UUID.randomUUID().toString())
-        .forelder(deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.getFar())
-        .farskapserklaering(farskapserklaering)
-        .opprettet(LocalDateTime.now().minusDays(2))
-        .build());
-
-    // when
-    oppgavestyring.rydddeISigneringsoppgaver();
-
-    // then
-    var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
-
-    assertThat(oppgavebestillingEtterSlettforsoek.get().getFerdigstilt()).isNotNull();
-  }
 }
