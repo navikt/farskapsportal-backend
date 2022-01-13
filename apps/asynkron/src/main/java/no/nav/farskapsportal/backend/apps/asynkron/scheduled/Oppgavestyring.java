@@ -35,13 +35,9 @@ public class Oppgavestyring {
           && (farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null
           || farskapserklaering.get().getDeaktivert() != null)) {
 
-        Set<Oppgavebestilling>   aktiveOppgaver = null;
-        try {
-          aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaeringsId,
-              farskapserklaering.get().getFar());
-        } catch(Exception e) {
-          e.printStackTrace();
-        }
+        var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaeringsId,
+            farskapserklaering.get().getFar());
+
         log.info("Fant {} aktive signeringsoppgaver knyttet til ferdigstilt/ deaktivert farskapserklæring med id {}.", aktiveOppgaver.size(),
             farskapserklaeringsId);
 
