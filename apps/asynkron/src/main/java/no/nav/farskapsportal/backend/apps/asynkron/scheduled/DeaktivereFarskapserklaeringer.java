@@ -27,7 +27,8 @@ public class DeaktivereFarskapserklaeringer {
 
   private void deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
     var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
-        .minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager());
+        .minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() < 40 ? 40
+            : farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager());
     var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
 
     var idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
@@ -65,7 +66,8 @@ public class DeaktivereFarskapserklaeringer {
     var antallErklaeringerSomBleDeaktivert = 0;
 
     var oversendtTilSkattFoer = LocalDate.now()
-        .minusDays(farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager());
+        .minusDays(farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() < 30 ? 30
+            : farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager());
     var tidspunktOversendtFoer = oversendtTilSkattFoer.atStartOfDay();
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering(
