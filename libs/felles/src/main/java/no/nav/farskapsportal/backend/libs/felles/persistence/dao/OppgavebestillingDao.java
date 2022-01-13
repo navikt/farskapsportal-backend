@@ -17,7 +17,7 @@ public interface OppgavebestillingDao extends CrudRepository<Oppgavebestilling, 
   @Query("select o from Oppgavebestilling o where o.eventId = :eventId")
   Optional<Oppgavebestilling> henteOppgavebestilling(String eventId);
 
-  @Query("select o.farskapserklaering.id from Oppgavebestilling o where o.ferdigstilt is null and o.opprettet > :oppgaveOpprettetFoer")
+  @Query("select o.farskapserklaering.id from Oppgavebestilling o where o.ferdigstilt is null and o.opprettet < :oppgaveOpprettetFoer")
   Set<Integer> henteIdTilFarskapserklaeringerMedAktiveOppgaver(LocalDateTime oppgaveOpprettetFoer);
 
 }
