@@ -105,8 +105,8 @@ public class PersistenceService {
     return farskapserklaeringDao.henteFarskapserklaeringerForForelder(fnrForelder);
   }
 
-  public Set<Integer> henteIdTilFarskapserklaeringerMedAktiveOppgaver(LocalDateTime opprettetFoer) {
-    return oppgavebestillingDao.henteIdTilFarskapserklaeringerMedAktiveOppgaver(opprettetFoer);
+  public Set<Integer> henteIdTilFarskapserklaeringerMedAktiveOppgaver() {
+    return oppgavebestillingDao.henteIdTilFarskapserklaeringerMedAktiveOppgaver();
   }
 
   public Optional<Farskapserklaering> henteBarnsEksisterendeErklaering(String fnrBarn) {

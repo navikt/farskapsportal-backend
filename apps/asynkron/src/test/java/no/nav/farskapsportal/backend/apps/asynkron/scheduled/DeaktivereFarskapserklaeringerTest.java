@@ -150,6 +150,34 @@ public class DeaktivereFarskapserklaeringerTest {
       );
 
     }
+
+    @Test
+    void skalIkkeDeaktivereFarskapserklaeringMedIkkeUtloeptSigneringsoppdragMenSomManglerFarsSignaturFoer40DagerErGaatt() {
+
+      // rydde testdata
+      farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
+      meldingsloggDao.deleteAll();
+
+      // given
+      // tester minimumsverdi for levetid til ikke-fullførte signeringsoppdrag
+      var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor(
+          LocalDateTime.now().minusDays(0), "12345");
+
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      // when
+      deaktivereFarskapserklaeringer.deaktivereFarskapserklaeringer();
+
+      // then
+      var farskapserklaeringEtterDeaktiverering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(farskapserklaeringEtterDeaktiverering).isPresent(),
+          () -> assertThat(farskapserklaeringEtterDeaktiverering.get().getDeaktivert()).isNull()
+      );
+
+    }
   }
 
   @Nested
