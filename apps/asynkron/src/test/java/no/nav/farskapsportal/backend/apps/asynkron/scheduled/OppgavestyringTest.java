@@ -6,6 +6,7 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -34,7 +35,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import static org.mockito.ArgumentMatchers.eq;
 
 @DirtiesContext
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalAsynkronTestApplication.class)
@@ -220,5 +220,40 @@ public class OppgavestyringTest {
     var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
 
     assertThat(oppgavebestillingEtterSlettforsoek.get().getFerdigstilt()).isNull();
+  }
+
+  @Test
+  void skalSletteOppgaveOpprettetFoerGrensedatoRelatertTilDeaktivertErklaering() {
+
+    // given
+    oppgavebestillingDao.deleteAll();
+    farskapserklaeringDao.deleteAll();
+
+    var deaktivertFarskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
+        henteBarnUtenFnr(5));
+
+    deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
+        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager() - 5));
+    deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.setDeaktivert(LocalDateTime.now());
+
+    assert (deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()
+        .isBefore(LocalDateTime.now()));
+
+    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(deaktivertFarskapserklaeringSomVenterPaaFarsSignatur);
+
+    var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
+        .eventId(UUID.randomUUID().toString())
+        .forelder(deaktivertFarskapserklaeringSomVenterPaaFarsSignatur.getFar())
+        .farskapserklaering(farskapserklaering)
+        .opprettet(LocalDateTime.now().minusDays(2))
+        .build());
+
+    // when
+    oppgavestyring.rydddeISigneringsoppgaver();
+
+    // then
+    var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
+
+    assertThat(oppgavebestillingEtterSlettforsoek.get().getFerdigstilt()).isNotNull();
   }
 }
