@@ -27,7 +27,7 @@
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <postgres-socket-factory.version>1.3.4</postgres-socket-factory.version>
-    <google.spring-cloud-gcp.version>2.0.6</google.spring-cloud-gcp.version>
+    <google.spring-cloud-gcp.version>2.0.7</google.spring-cloud-gcp.version>
   </properties>
 
   <dependencyManagement>
