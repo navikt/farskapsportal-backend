@@ -104,7 +104,7 @@ public class DeaktivereFarskapserklaeringer {
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilFarskapserklaeringerSomManglerMorsSignatur(
         morSendtTilSigneringFoer);
     if (idTilFarskapserklaeringerSomSkalDeaktiveres.size() > 0) {
-      log.info("Fant {} farskapserklæringer som ikke er signert av mor - deaktiverer disse.", idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+      log.info("Fant {} farskapserklæringer som ikke er signert av mor -> deaktiverer disse.", idTilFarskapserklaeringerSomSkalDeaktiveres.size());
       for (int farskapserklaeringsid : idTilFarskapserklaeringerSomSkalDeaktiveres) {
         antallErklaeringerSomBleDeaktivert =
             persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert
@@ -113,7 +113,7 @@ public class DeaktivereFarskapserklaeringer {
 
       log.info("{} usignerte farskapserklæringer ble i denne omgang deaktivert", antallErklaeringerSomBleDeaktivert);
     } else {
-      log.info("Fant ingen farskapserklæringer som ikke er signert av mor.");
+      log.info("Fant ingen farskapserklæringer som ikke er signert av mor -> ingen å deaktivere.");
     }
   }
 }
