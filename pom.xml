@@ -26,7 +26,7 @@
     <google.api.gax.version>1.65.1</google.api.gax.version>
     <javassist.version>3.28.0-GA</javassist.version>
     <osgi.core.version>6.0.0</osgi.core.version>
-    <scala.version>2.13.5</scala.version>
+    <scala.version>2.13.8</scala.version>
     <servlet-api.version>2.5</servlet-api.version>
   </properties>
 
