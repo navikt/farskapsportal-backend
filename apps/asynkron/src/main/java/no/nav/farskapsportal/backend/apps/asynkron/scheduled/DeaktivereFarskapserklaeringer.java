@@ -26,6 +26,7 @@ public class DeaktivereFarskapserklaeringer {
   }
 
   private void deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
+    var antallErklaeringerSomBleDeaktivert = 0;
     var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
         .minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() < 40 ? 40
             : farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager());
@@ -34,8 +35,10 @@ public class DeaktivereFarskapserklaeringer {
     var idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
         utloepstidspunkt);
 
-    log.info("Fant {} ikke-ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn 40 dager. Deaktiverer disse.",
-        idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag.size());
+    if (idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag.size() > 0) {
+      log.info("Fant {} ikke-ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn 40 dager. Deaktiverer disse.",
+          idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag.size());
+    }
 
     for (int farskapserklaeringsid : idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag) {
       var farskapserklaering = persistenceService.henteFarskapserklaeringForId(farskapserklaeringsid);
@@ -49,6 +52,7 @@ public class DeaktivereFarskapserklaeringer {
       }
 
       persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid);
+      ++antallErklaeringerSomBleDeaktivert;
       log.info("Sletter dokumentinnhold til farskapserklæring med id {}", farskapserklaeringsid);
       persistenceService.sletteDokumentinnhold(farskapserklaeringsid);
 
@@ -59,7 +63,8 @@ public class DeaktivereFarskapserklaeringer {
     }
 
     log.info(
-        "Farskapserklæringer med utgåtte signeringsoppdrag deaktivert, relaterte dokumenter er slettet, mor er varslet om utgått signeringsoppgave");
+        "{} farskapserklæringer med utgåtte signeringsoppdrag deaktivert, relaterte dokumenter er slettet, mor er varslet om utgått signeringsoppgave",
+        antallErklaeringerSomBleDeaktivert);
   }
 
   private void deaktivereFarskapserklaeringerSomErSendtTilSkatt() {
@@ -72,8 +77,10 @@ public class DeaktivereFarskapserklaeringer {
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering(
         tidspunktOversendtFoer);
-    log.info("Fant {} ferdigstilte farskapserklæringer som har blitt overført til skatt og er klare for deaktivering.",
-        idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+    if (idTilFarskapserklaeringerSomSkalDeaktiveres.size() > 0) {
+      log.info("Fant {} ferdigstilte farskapserklæringer som har blitt overført til skatt og er klare for deaktivering.",
+          idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+    }
     for (int farskapserklaeringsid : idTilFarskapserklaeringerSomSkalDeaktiveres) {
       antallErklaeringerSomBleDeaktivert =
           persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert
@@ -91,7 +98,9 @@ public class DeaktivereFarskapserklaeringer {
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilFarskapserklaeringerSomManglerMorsSignatur(
         morSendtTilSigneringFoer);
-    log.info("Fant {} farskapserklæringer som ikke er signert av mor - deaktiverer disse.", idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+    if (idTilFarskapserklaeringerSomSkalDeaktiveres.size() > 0) {
+      log.info("Fant {} farskapserklæringer som ikke er signert av mor - deaktiverer disse.", idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+    }
     for (int farskapserklaeringsid : idTilFarskapserklaeringerSomSkalDeaktiveres) {
       antallErklaeringerSomBleDeaktivert =
           persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert
