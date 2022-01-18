@@ -26,6 +26,7 @@
     <google.guava.version>31.0.1-jre</google.guava.version>
     <google.api.gax.version>1.65.1</google.api.gax.version>
     <javassist.version>3.28.0-GA</javassist.version>
+    <jetty-client.version>11.0.7</jetty-client.version>
     <osgi.core.version>6.0.0</osgi.core.version>
     <scala.version>2.13.8</scala.version>
     <servlet-api.version>2.5</servlet-api.version>
@@ -62,6 +63,11 @@
         <groupId>com.google.api</groupId>
         <artifactId>gax</artifactId>
         <version>${google.api.gax.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-client</artifactId>
+        <version>${jetty-client.version}</version>
       </dependency>
       <dependency>
         <groupId>org.javassist</groupId>
