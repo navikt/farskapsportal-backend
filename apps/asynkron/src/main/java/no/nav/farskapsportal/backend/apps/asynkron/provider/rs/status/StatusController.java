@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.api.provider.rs.status;
+package no.nav.farskapsportal.backend.apps.asynkron.provider.rs.status;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

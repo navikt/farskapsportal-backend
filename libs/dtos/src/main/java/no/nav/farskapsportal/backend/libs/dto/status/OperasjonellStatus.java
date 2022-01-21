@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain;
+package no.nav.farskapsportal.backend.libs.dto.status;
 
 import lombok.Builder;
 import lombok.Value;

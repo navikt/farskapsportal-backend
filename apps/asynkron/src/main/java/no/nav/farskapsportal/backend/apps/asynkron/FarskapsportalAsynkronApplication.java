@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.backend.apps.asynkron;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +17,7 @@ public class FarskapsportalAsynkronApplication {
 
   public static void main(String[] args) {
 
-    String profile = args.length < 1 ? PROFILE_LIVE : args[0];
+    String profile = args.length < 1 ? PROFILE_TEST : args[0];
 
     SpringApplication app = new SpringApplication(FarskapsportalAsynkronApplication.class);
     app.setAdditionalProfiles(profile);
