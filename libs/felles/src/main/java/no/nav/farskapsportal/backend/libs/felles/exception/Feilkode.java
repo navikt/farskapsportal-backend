@@ -21,7 +21,7 @@ public enum Feilkode {
   FARSKAPSERKLAERING_MANGLER_SIGNATUR("Farskapserklæringen er ikke signert av begge foreldrene"),
   FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR("Mor har ikke signert farskapserklæringen"),
   FEILFORMATERT_URL_UNDERTEGNERURL("URL for å hente ny redirect-url er feilformattert"),
-  FANT_IKKE_FARSKAPSERKLAERING("Oppgitt farskapserklæring ble ikke funnet i databasen"),
+   FANT_IKKE_FARSKAPSERKLAERING("Oppgitt farskapserklæring (id: {}) ble ikke funnet i databasen"),
   FAR_HAR_ALLEREDE_SIGNERT("Far har allerede signert farskapserklæringen"),
   FAR_HAR_IKKE_FNUMMER("Far er ikke registrert med fødselsnummer i PDL"),
   FEIL_ROLLE("Pålogget person kan verken opptre som mor eller far i løsningen!"),

@@ -22,7 +22,9 @@ spring:
 springdoc:
   packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
   show-login-endpoint: true
-  swagger-ui.path: /swagger-ui.html
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /v3/api-docs
 
 virksomhetssertifikat:
   prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}

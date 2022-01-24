@@ -54,12 +54,13 @@ public class ScheduledConfig {
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       PersistenceService persistenceService) {
     return DeaktivereFarskapserklaeringer.builder()
-        .brukernotifikasjonConsumer(brukernotifikasjonConsumer).persistenceService(persistenceService).build();
+        .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
+        .persistenceService(persistenceService).build();
   }
 
   @Bean
   public OppdatereSigneringsstatus oppdatereSigneringsstatus(PersistenceService persistenceService,
-      FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper,
       FarskapsportalApiConsumer farskapsportalApiConsumer) {
 
     return OppdatereSigneringsstatus.builder()

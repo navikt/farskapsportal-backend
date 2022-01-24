@@ -4,13 +4,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import lombok.Builder;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.libs.dto.status.ActuatorHealth;
-import no.nav.farskapsportal.backend.libs.dto.status.OperasjonellStatus;
-import no.nav.farskapsportal.backend.libs.dto.status.Status;
+import no.nav.farskapsportal.backend.apps.api.api.BrukerinformasjonResponse;
+import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.ActuatorHealth;
+import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.OperasjonellStatus;
+import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.Status;
 import no.nav.security.token.support.core.api.Unprotected;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -62,7 +68,7 @@ public class StatusController {
         .name("Farskapsportal")
         .status(operasjonellStatus.toString())
         .team("Bidrag")
-        .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS")))
+        .timestamp(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS z")))
         .build(), HttpStatus.OK);
   }
 

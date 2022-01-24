@@ -55,6 +55,14 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       LocalDateTime sisteGyldigeDagForIkkeFerdigstiltSigneringsoppdrag);
 
   @Query("select fe.id from Farskapserklaering fe "
+      + "where fe.deaktivert is null "
+      + "and fe.sendtTilSkatt is not null "
+      + "and fe.sendtTilSkatt < :sendtTilSkattFoer "
+      + "and (fe.barn.termindato is null or fe.barn.termindato < :sendtTilSkattFoer)")
+  Set<Integer> henteIdTilOversendteFarskapserklaeringerSomSkalDeaktiveres(
+      LocalDateTime sendtTilSkattFoer);
+
+  @Query("select fe.id from Farskapserklaering fe "
       + "where fe.farBorSammenMedMor is not null "
       + "and fe.deaktivert is null "
       + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
@@ -63,12 +71,10 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar(LocalDateTime farSendtTilSigneringFoer);
 
   @Query("select fe.id from Farskapserklaering fe "
-      + "where fe.farBorSammenMedMor is not null "
-      + "and fe.deaktivert is null "
-      + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is not null "
-      + "and fe.dokument.signeringsinformasjonFar.sendtTilSignering is null "
+      + "where fe.deaktivert is null "
+      + "and fe.dokument.signeringsinformasjonMor.signeringstidspunkt is null "
+      + "and fe.dokument.signeringsinformasjonMor.sendtTilSignering is not null "
+      + "and fe.dokument.signeringsinformasjonMor.sendtTilSignering < :morSendtTilSigneringFoer "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
-  @Deprecated
-  // TODO: (30.11.2021) Kan fjernes når alle aktuelle farskapserklæringer har sendtTilSignering satt for far
-  Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoForFar();
+  Set<Integer> henteIdTilFarskapserklaeringerSomManglerMorsSignatur(LocalDateTime morSendtTilSigneringFoer);
 }

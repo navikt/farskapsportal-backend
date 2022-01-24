@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -101,6 +100,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.cache.CacheManager;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -162,6 +162,8 @@ public class FarskapsportalControllerTest {
   private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   @Autowired
   private Mapper mapper;
+  @Autowired
+  private CacheManager cacheManager;
 
   static <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
 
@@ -295,6 +297,10 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
       statusKontrollereFarDao.deleteAll();
       forelderDao.deleteAll();
+      var cacheNames = cacheManager.getCacheNames();
+      for (String cacheName : cacheNames) {
+        cacheManager.getCache(cacheName).clear();
+      }
     }
 
     @Test
@@ -738,6 +744,10 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
       statusKontrollereFarDao.deleteAll();
       forelderDao.deleteAll();
+      var cacheNames = cacheManager.getCacheNames();
+      for (String cacheName : cacheNames) {
+        cacheManager.getCache(cacheName).clear();
+      }
     }
 
     @Test
@@ -749,21 +759,12 @@ public class FarskapsportalControllerTest {
       var fornavnFar = "Borat";
       var etternavnFar = "Sagidiyev";
       var registrertNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn(fornavnFar).etternavn(etternavnFar).build();
+      var request = KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(fornavnFar + " " + etternavnFar).build();
       stsStub.runSecurityTokenServiceStub("jalla");
 
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkFar = getKjoennshistorikk(KjoennType.MANN);
       LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikkMor = getKjoennshistorikk(KjoennType.KVINNE);
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
-
-      pdlApiStub.runPdlApiHentPersonStub(
-          List.of(
-              new HentPersonKjoenn(kjoennshistorikkFar),
-              new HentPersonNavn(mapper.modelMapper(registrertNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
-              new HentPersonDoedsfall(null),
-              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
-          fnrFar);
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -778,13 +779,27 @@ public class FarskapsportalControllerTest {
                   .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
           MOR.getFoedselsnummer());
 
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(kjoennshistorikkFar),
+              new HentPersonNavn(mapper.modelMapper(registrertNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+          fnrFar);
+
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
-          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(fornavnFar + " " + etternavnFar).build()),
+          initHttpEntity(request),
           HttpStatus.class);
 
       // then
-      assertTrue(respons.getStatusCode().is2xxSuccessful());
+      var statusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(MOR.getFoedselsnummer());
+
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(statusKontrollereFar).isEmpty());
     }
 
     @Test
@@ -838,56 +853,43 @@ public class FarskapsportalControllerTest {
     void skalGiBadRequestDersomOppgittFarErKvinne() {
 
       // given
-      var oppgittNavn = NAVN_MOR;
+      var oppgittNavn = NAVN_FAR;
 
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
 
-      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.KVINNE);
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonBostedsadresse(
+                  BostedsadresseDto.builder().vegadresse(VegadresseDto.builder().adressenavn("Snarveien 15").build()).build()),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())), MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonKjoenn(kjoennshistorikk),
+              new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
               new HentPersonNavn(mapper.modelMapper(oppgittNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-              new HentPersonDoedsfall(null)));
+              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())), FAR.getFoedselsnummer());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
-          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer("01058011444").navn("Natalya Sagdiyev").build()),
-          String.class);
+          initHttpEntity(
+              KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer()).navn(NAVN_FAR.sammensattNavn()).build()),
+          FarskapserklaeringFeilResponse.class);
 
       // then
-      assertTrue(respons.getStatusCode().is4xxClientError());
-    }
-
-    @Test
-    @DisplayName("Skal gi bad request dersom navn er gjengitt feil i spørring")
-    void skalGiBadRequestDersomNavnErGjengittFeilISpoerring() {
-
-      // given
-      var registrertNavn = no.nav.farskapsportal.backend.libs.dto.NavnDto.builder().fornavn("Borat").etternavn("Sagdiyev").build();
-
-      when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
-
-      stsStub.runSecurityTokenServiceStub("jalla");
-
-      LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk = getKjoennshistorikk(KjoennType.MANN);
-
-      pdlApiStub.runPdlApiHentPersonStub(
-          List.of(
-              new HentPersonKjoenn(kjoennshistorikk),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
-              new HentPersonNavn(mapper.modelMapper(registrertNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonDoedsfall(null)));
-
-      // when
-      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
-          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer("01058011444").navn("Borat Nicolai Sagdiyev").build()),
-          String.class);
-
-      // then
-      assertTrue(respons.getStatusCode().is4xxClientError());
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.UGYLDIG_FAR),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty(),
+          () -> assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek()).isNull());
     }
 
     @Test
@@ -897,15 +899,31 @@ public class FarskapsportalControllerTest {
       // given
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
       stsStub.runSecurityTokenServiceStub("jalla");
-      pdlApiStub.runPdlApiHentPersonStub(List.of(new HentPersonFoedsel(FOEDSELSDATO_MOR, false)));
-      pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
+
+      pdlApiStub.runPdlApiHentPersonStub(
+          List.of(
+              new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
+              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonSivilstand(Sivilstandtype.UGIFT),
+              new HentPersonBostedsadresse(BostedsadresseDto.builder()
+                  .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("10").husbokstav("B").postnummer("0010").build())
+                  .build()),
+              new HentPersonDoedsfall(null),
+              new HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto.builder().type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())),
+          MOR.getFoedselsnummer());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
-          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer("01058011444").navn("Borat Sagdiyev").build()), String.class);
+          initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer("01058011446").navn("Borat Sagdiyev").build()),
+          FarskapserklaeringFeilResponse.class);
 
       // then
-      assertSame(respons.getStatusCode(), HttpStatus.NOT_FOUND);
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
+          () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.PDL_NAVN_IKKE_FUNNET),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty(),
+          () -> assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek()).isNull());
     }
 
     @Test
@@ -948,10 +966,26 @@ public class FarskapsportalControllerTest {
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
           initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
-          String.class);
+          FarskapserklaeringFeilResponse.class);
 
       // then
-      assertTrue(respons.getStatusCode().is4xxClientError());
+      var statusKontrollereFar = statusKontrollereFarDao.henteStatusKontrollereFar(MOR.getFoedselsnummer());
+
+      assertAll(
+          () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isPresent(),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek().get()).isEqualTo(2),
+          () -> assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek()).isNotNull(),
+          () -> assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek()).isBeforeOrEqualTo(LocalDateTime.now().plusDays(1)));
+
+      assertAll(
+          () -> assertThat(statusKontrollereFar).isPresent(),
+          () -> assertThat(statusKontrollereFar.get().getAntallFeiledeForsoek()).isEqualTo(1),
+          () -> assertThat(statusKontrollereFar.get().getOppgittNavnFar()).isEqualTo(oppgittNavnFar),
+          () -> assertThat(statusKontrollereFar.get().getRegistrertNavnFar()).isEqualTo(registrertNavnFar.sammensattNavn()),
+          () -> assertThat(statusKontrollereFar.get().getTidspunktForNullstilling()).isBeforeOrEqualTo(LocalDateTime.now().plusDays(1)),
+          () -> assertThat(statusKontrollereFar.get().getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test

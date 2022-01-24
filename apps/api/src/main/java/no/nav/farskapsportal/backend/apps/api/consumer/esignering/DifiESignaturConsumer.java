@@ -10,11 +10,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.digipost.signature.client.core.IdentifierInSignedDocuments;
 import no.digipost.signature.client.core.PAdESReference;
 import no.digipost.signature.client.core.XAdESReference;
 import no.digipost.signature.client.direct.DirectClient;
@@ -92,7 +92,9 @@ public class DifiESignaturConsumer {
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
-    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer)).withReference(UUID.randomUUID().toString())
+    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer))
+        .withReference(UUID.randomUUID().toString())
+        .withIdentifierInSignedDocuments(IdentifierInSignedDocuments.PERSONAL_IDENTIFICATION_NUMBER_AND_NAME)
         .build();
     DirectJobResponse directJobResponse;
     try {
@@ -124,39 +126,6 @@ public class DifiESignaturConsumer {
         throw new ESigneringFeilException(Feilkode.ESIGNERING_REDIRECTURL_UKJENT);
       }
     }
-  }
-
-  /**
-   * Hente dokumentstatus på gamlemåten.
-   *
-   * Slettes når alle aktive signeringsoppdrag har blitt opprettet med nytt exit-url-format (trygt etter 25.12.2021)
-   */
-  // TODO: Fjerne etter 25.12.2021
-  @Deprecated
-  public DokumentStatusDto henteStatus(String statusQueryToken, Set<URI> statuslenker) {
-
-    var directJobStatusResponseMap = henteSigneringsjobbstatus(statuslenker, statusQueryToken);
-
-    var statuslenke = directJobStatusResponseMap.keySet().stream().findAny().get();
-    var directJobStatusResponse = directJobStatusResponseMap.get(statuslenke);
-
-    validereInnholdStatusrespons(directJobStatusResponse);
-
-    var pAdESReference = directJobStatusResponse.getpAdESUrl();
-    var statusJobb = directJobStatusResponse.getStatus();
-    var bekreftelseslenke = directJobStatusResponse.getConfirmationReference().getConfirmationUrl();
-
-    var signaturer = directJobStatusResponse.getSignatures().stream().filter(Objects::nonNull).map(this::mapTilDto)
-        .collect(Collectors.toList());
-
-    log.info("Antall signaturer i statusrespons: {}", signaturer.size());
-
-    return DokumentStatusDto.builder()
-        .statuslenke(statuslenke)
-        .statusSignering(henteSigneringsstatus(statusJobb))
-        .padeslenke(pAdESReference != null ? pAdESReference.getpAdESUrl() : null)
-        .bekreftelseslenke(bekreftelseslenke)
-        .signaturer(signaturer).build();
   }
 
   /**
@@ -257,26 +226,6 @@ public class DifiESignaturConsumer {
     var directJobResponse = new DirectJobResponse(1, signeringsjobbbreferanse, statusurl, null);
     var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
     return Collections.singletonMap(directJobResponse.getStatusUrl(), directJobStatusResponse);
-  }
-
-  // TODO: Fjerne etter 25.12.2021
-  @Deprecated
-  private Map<URI, DirectJobStatusResponse> henteSigneringsjobbstatus(Set<URI> statusUrler, String statusQueryToken) {
-    log.info("Henter status på signeringsjobb. Leter etter riktig status-url ut fra {} mulige kandidater", statusUrler.size());
-
-    for (URI statusUrl : statusUrler) {
-      var directJobResponse = new DirectJobResponse(1, null, statusUrl, null);
-
-      try {
-        var directJobStatusResponse = client.getStatus(StatusReference.of(directJobResponse).withStatusQueryToken(statusQueryToken));
-        log.info("Fant riktig status-url");
-        return Collections.singletonMap(statusUrl, directJobStatusResponse);
-      } catch (Exception e) {
-        log.info("Feil kombinasjon av status-url og status-query-token, prøver neste på lista");
-      }
-    }
-
-    throw new EsigneringConsumerException(Feilkode.ESIGNERING_UKJENT_TOKEN);
   }
 
   private void signatureierErIkkeNull(Signature signature) {
