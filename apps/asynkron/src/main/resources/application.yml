@@ -80,6 +80,7 @@ spring:
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
   devtools.add-properties: false
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
@@ -97,6 +98,7 @@ spring:
 ---
 spring:
   config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
+  cloud.gcp.sql.enabled: false
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
@@ -149,7 +151,13 @@ farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
 farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
 farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "* * 1 * * ?"
 farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
-
+---
+spring.config.activate.on-profile: local
+farskapsportal.asynkron.egenskaper.arkiveringsintervall: 3600
+farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 3600
+farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "0 0/30 * * * ?"
 ---
 spring.config.activate.on-profile: integration-test
 

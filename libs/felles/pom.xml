@@ -17,8 +17,6 @@
     <hikaricp.version>5.0.0</hikaricp.version>
     <javassist.version>3.28.0-GA</javassist.version>
     <kafka-avro-serializer.version>6.1.1</kafka-avro-serializer.version>
-    <maven.compiler.source>16</maven.compiler.source>
-    <maven.compiler.target>16</maven.compiler.target>
     <modelmapper.version>2.4.5</modelmapper.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
