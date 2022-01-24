@@ -111,6 +111,7 @@
         <groupId>com.google.cloud.sql</groupId>
         <artifactId>postgres-socket-factory</artifactId>
         <version>${postgres-socket-factory.version}</version>
+        <scope>runtime</scope>
       </dependency>
 
     </dependencies>
@@ -145,6 +146,7 @@
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
       <version>${google.spring-cloud-gcp.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- test -->

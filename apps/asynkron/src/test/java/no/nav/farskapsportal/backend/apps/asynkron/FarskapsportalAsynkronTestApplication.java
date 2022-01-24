@@ -171,5 +171,4 @@ public class FarskapsportalAsynkronTestApplication {
       return new SkattConsumer(restTemplate, consumerEndpoint);
     }
   }
-
 }

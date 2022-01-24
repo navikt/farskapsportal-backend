@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.status.ActuatorHealth;
@@ -62,7 +63,7 @@ public class StatusController {
         .name("Farskapsportal")
         .status(operasjonellStatus.toString())
         .team("Bidrag")
-        .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS")))
+        .timestamp(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS z")))
         .build(), HttpStatus.OK);
   }
 
