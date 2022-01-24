@@ -12,8 +12,10 @@ import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeile
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
+import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
 import no.nav.farskapsportal.backend.libs.felles.exception.OppretteSigneringsjobbException;
+import no.nav.farskapsportal.backend.libs.felles.exception.PersonIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.UnrecoverableException;
 import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
@@ -65,6 +67,13 @@ public class RestResponseExceptionResolver {
   }
 
   @ResponseBody
+  @ExceptionHandler(PersonIkkeFunnetException.class)
+  protected ResponseEntity<?> handleFeilNavnOppgittException(PersonIkkeFunnetException e) {
+    return generereFeilrespons("Ingen treff på oppgitt far i Folkeregisteret", e.getFeilkode(),
+        e.getStatusKontrollereFarDto(), HttpStatus.NOT_FOUND);
+  }
+
+  @ResponseBody
   @ExceptionHandler(MappingException.class)
   protected ResponseEntity<?> handleInternFeilException(UnrecoverableException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
@@ -113,6 +122,7 @@ public class RestResponseExceptionResolver {
   @ResponseBody
   @ExceptionHandler(RessursIkkeFunnetException.class)
   protected ResponseEntity<?> handleRessursIkkeFunnetException(RessursIkkeFunnetException e) {
+
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     return generereFeilrespons("Oppgitt ressurs ble ikke funnet!", e.getFeilkode(), Optional.empty(), HttpStatus.NOT_FOUND);
@@ -151,6 +161,6 @@ public class RestResponseExceptionResolver {
             .tidspunktForNullstillingAvForsoek(statusKontrollereFarDto.get().getTidspunktForNullstilling())
             .feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
 
-    return new ResponseEntity<>(respons, headers, httpStatus);
+      return new ResponseEntity<>(respons, headers, httpStatus);
   }
 }

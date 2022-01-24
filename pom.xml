@@ -4,11 +4,11 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.5.5</version>
+    <version>2.5.8</version>
   </parent>
   <groupId>no.nav.farskapsportal.backend</groupId>
   <artifactId>farskapsportal-backend</artifactId>
-  <version>2.0.23-SNAPSHOT</version>
+  <version>2.0.48-SNAPSHOT</version>
   <name>farskapsportal-backend</name>
   <description>Backend for farskapsportal</description>
   <packaging>pom</packaging>
@@ -21,12 +21,14 @@
     <java.version>16</java.version>
     <checker-qual.version>3.12.0</checker-qual.version>
     <commons-cli.version>1.4</commons-cli.version>
+    <jackson-databind.version>2.12.6</jackson-databind.version>
     <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
     <google.guava.version>31.0.1-jre</google.guava.version>
     <google.api.gax.version>1.65.1</google.api.gax.version>
     <javassist.version>3.28.0-GA</javassist.version>
+    <jetty-client.version>11.0.7</jetty-client.version>
     <osgi.core.version>6.0.0</osgi.core.version>
-    <scala.version>2.13.5</scala.version>
+    <scala.version>2.13.8</scala.version>
     <servlet-api.version>2.5</servlet-api.version>
   </properties>
 
@@ -43,6 +45,11 @@
         <version>${commons-cli.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson-databind.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.google.code.findbugs</groupId>
         <artifactId>jsr305</artifactId>
         <version>${google.code.findbugs.jsr305.version}</version>
@@ -56,6 +63,11 @@
         <groupId>com.google.api</groupId>
         <artifactId>gax</artifactId>
         <version>${google.api.gax.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-client</artifactId>
+        <version>${jetty-client.version}</version>
       </dependency>
       <dependency>
         <groupId>org.javassist</groupId>
@@ -88,8 +100,6 @@
   <!-- build -->
   <build>
     <plugins>
-      <!-- Nice to have, fails the build if multiple versions of same framework is found-->
-      <!--
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
@@ -99,13 +109,19 @@
             </goals>
             <configuration>
               <rules>
-                <dependencyConvergence />
+                <!-- Nice to have, fails the build if multiple versions of same framework is found-->
+                <!-- <dependencyConvergence /> -->
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>org.apache.logging.log4j:log4j-core:(,2.15.0)</exclude>
+                  </excludes>
+                </bannedDependencies>
               </rules>
+              <fail>true</fail>
             </configuration>
           </execution>
         </executions>
       </plugin>
-      -->
     </plugins>
   </build>
 

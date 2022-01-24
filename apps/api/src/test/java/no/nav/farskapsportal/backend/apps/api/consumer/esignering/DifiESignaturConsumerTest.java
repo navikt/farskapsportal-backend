@@ -181,27 +181,6 @@ public class DifiESignaturConsumerTest {
   @DisplayName("Teste henteStatus")
   class HenteStatus {
 
-    // TODO: Fjerne
-    @Test
-    @DisplayName("Skal hente dokumentstatus etter redirect")
-    @Deprecated
-    void skalHenteDokumentstatusEtterRedirectPaaGamlemaaten() throws URISyntaxException {
-
-      // given
-      difiESignaturStub.runGetStatus(STATUS_URL, PADES_URL, MOR.getFoedselsnummer(), FAR.getFoedselsnummer());
-
-      // when
-      var dokumentStatusDto = difiESignaturConsumer.henteStatus("jadda",  Set.of(new URI(STATUS_URL)));
-
-      // then
-      assertAll(
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto).isNotNull(),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getStatuslenke().toString()).isEqualTo(STATUS_URL),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getPadeslenke()).isNotNull(),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getPadeslenke().toString()).isEqualTo(PADES_URL)
-      );
-    }
-
     @Test
     @DisplayName("Skal hente dokumentstatus etter redirect")
     @Deprecated

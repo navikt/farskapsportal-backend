@@ -4,7 +4,10 @@ on:
     branches:
       - release
     paths:
+      - 'pom.xml'
       - 'apps/api/**'
+      - 'libs/**'
+      - '.nais/apps/api/**'
       - '**/api-ci.yml'
 
 env:

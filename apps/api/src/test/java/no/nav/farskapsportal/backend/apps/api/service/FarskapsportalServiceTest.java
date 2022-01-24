@@ -72,6 +72,7 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Bru
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
+import no.nav.farskapsportal.backend.libs.felles.exception.PersonIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -590,7 +591,8 @@ public class FarskapsportalServiceTest {
       assertAll(
           () -> assertThat(opprettetFarskapserklaering.size()).isEqualTo(1),
           () -> assertThat(opprettetFarskapserklaering.stream().findAny().get().getFarBorSammenMedMor()).isNull(),
-          () -> assertThat(opprettetFarskapserklaering.stream().findAny().get().getDokument().getSigneringsinformasjonMor().getSendtTilSignering()).isNotNull(),
+          () -> assertThat(
+              opprettetFarskapserklaering.stream().findAny().get().getDokument().getSigneringsinformasjonMor().getSendtTilSignering()).isNotNull(),
           () -> assertThat(opprettetFarskapserklaering.stream().findAny().get().getFar().getFoedselsnummer()).isEqualTo(FAR.getFoedselsnummer())
       );
     }
@@ -1864,7 +1866,8 @@ public class FarskapsportalServiceTest {
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
 
       // when
-      var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class, () -> farskapsportalService.synkronisereSigneringsstatusFar(10));
+      var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class,
+          () -> farskapsportalService.synkronisereSigneringsstatusFar(10));
 
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
@@ -1999,7 +2002,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(FAR.getFoedselsnummer()).status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build());
 
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar.sammensattNavn());
 
       // when, then
       assertDoesNotThrow(() -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
@@ -2026,7 +2029,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFolkeregisteridentifikator(FAR.getFoedselsnummer())).thenReturn(
           FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(FAR.getFoedselsnummer()).status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
               .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR).build());
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar.sammensattNavn());
 
       // when, then
       assertDoesNotThrow(() -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
@@ -2049,7 +2052,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
       when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.MOR);
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar.sammensattNavn());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -2076,7 +2079,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(LocalDate.now().minusYears(17));
       when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(false);
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar.sammensattNavn());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -2103,7 +2106,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.harVerge(FAR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), NAVN_FAR);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), NAVN_FAR.sammensattNavn());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -2130,7 +2133,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(LocalDate.now().minusYears(17));
       when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar.sammensattNavn());
       when(personopplysningService.henteFolkeregisteridentifikator(FAR.getFoedselsnummer())).thenReturn(
           FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(FAR.getFoedselsnummer()).type("DNR")
               .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build());
@@ -2164,7 +2167,8 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFolkeregisteridentifikator(FAR.getFoedselsnummer())).thenReturn(
           FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build());
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
-      Mockito.doThrow(FeilNavnOppgittException.class).when(personopplysningService).navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar);
+      Mockito.doThrow(FeilNavnOppgittException.class).when(personopplysningService)
+          .navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar.sammensattNavn());
 
       // when
       var tidspunktTestStart = LocalDateTime.now();
@@ -2175,7 +2179,6 @@ public class FarskapsportalServiceTest {
 
       // then
       assertAll(
-          () -> assertThat(feilNavnOppgittException.getFeilkode()).isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallFeiledeForsoek())
               .isEqualTo(1),
           () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek())
@@ -2210,7 +2213,8 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.henteFolkeregisteridentifikator(FAR.getFoedselsnummer())).thenReturn(
           FolkeregisteridentifikatorDto.builder().type("FNR").status("I_BRUK").build());
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
-      doThrow(FeilNavnOppgittException.class).when(personopplysningService).navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar);
+      doThrow(FeilNavnOppgittException.class).when(personopplysningService)
+          .navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar.sammensattNavn());
 
       // when
       // Bruker opp antall mulige forsøk på å finne frem til riktig kombinasjon av fnr og navn
@@ -2247,7 +2251,7 @@ public class FarskapsportalServiceTest {
           FolkeregisteridentifikatorDto.builder().status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .build());
 
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnMor);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnMor.sammensattNavn());
 
       // when
       var valideringException = assertThrows(ValideringException.class,
@@ -2267,7 +2271,6 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var registrertNavnFar = "";
       var oppgittNavnPaaFar = "Borat Sagidyev";
       var fnrIkkeEksisterende = "55555111111";
       var registrertNavnMor = NAVN_MOR;
@@ -2278,23 +2281,23 @@ public class FarskapsportalServiceTest {
 
       // when
       var tidspunktTestStart = LocalDateTime.now();
-      var feilNavnOppgittException = assertThrows(FeilNavnOppgittException.class,
+      var personIkkeFunnetException = assertThrows(PersonIkkeFunnetException.class,
           () -> farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
       var tidspunktTestSlutt = LocalDateTime.now();
 
       // then
       assertAll(
-          () -> assertThat(feilNavnOppgittException.getFeilkode()).isEqualTo(Feilkode.PDL_PERSON_IKKE_FUNNET),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallFeiledeForsoek())
+          () -> assertThat(personIkkeFunnetException.getFeilkode()).isEqualTo(Feilkode.PDL_PERSON_IKKE_FUNNET),
+          () -> assertThat(personIkkeFunnetException.getStatusKontrollereFarDto().get().getAntallFeiledeForsoek())
               .isEqualTo(1),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek())
+          () -> assertThat(personIkkeFunnetException.getStatusKontrollereFarDto().get().getAntallResterendeForsoek())
               .isEqualTo(
                   farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek() - 1),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
+          () -> assertThat(personIkkeFunnetException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isAfter(
                   tidspunktTestStart.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager())),
-          () -> assertThat(feilNavnOppgittException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
+          () -> assertThat(personIkkeFunnetException.getStatusKontrollereFarDto().get().getTidspunktForNullstilling())
               .isBefore(
                   tidspunktTestSlutt.plusDays(farskapsportalApiEgenskaper.getKontrollFarForsoekFornyesEtterAntallDager()))
       );
@@ -2318,7 +2321,7 @@ public class FarskapsportalServiceTest {
       when(personopplysningService.erOver18Aar(FAR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.erDoed(FAR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer())).thenReturn(Forelderrolle.FAR);
-      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar);
+      doNothing().when(personopplysningService).navnekontroll(NAVN_FAR.sammensattNavn(), registrertNavnFar.sammensattNavn());
 
       // when
       var valideringException = assertThrows(ValideringException.class,

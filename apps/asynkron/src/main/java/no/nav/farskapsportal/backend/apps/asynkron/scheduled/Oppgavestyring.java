@@ -22,8 +22,7 @@ public class Oppgavestyring {
 
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgavestyringsintervall}")
   public void rydddeISigneringsoppgaver() {
-    var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse()));
+    var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver();
 
     log.info("Fant {} farskapserklæringer med aktive signeringsoppgaver.", farskapserklaeringerMedAktiveOppgaver.size());
 
@@ -35,13 +34,9 @@ public class Oppgavestyring {
           && (farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null
           || farskapserklaering.get().getDeaktivert() != null)) {
 
-        Set<Oppgavebestilling>   aktiveOppgaver = null;
-        try {
-          aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaeringsId,
-              farskapserklaering.get().getFar());
-        } catch(Exception e) {
-          e.printStackTrace();
-        }
+        var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaeringsId,
+            farskapserklaering.get().getFar());
+
         log.info("Fant {} aktive signeringsoppgaver knyttet til ferdigstilt/ deaktivert farskapserklæring med id {}.", aktiveOppgaver.size(),
             farskapserklaeringsId);
 
