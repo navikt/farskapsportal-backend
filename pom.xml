@@ -18,7 +18,7 @@
   </modules>
   <properties>
     <!-- language -->
-    <java.version>16</java.version>
+    <java.version>17</java.version>
     <checker-qual.version>3.12.0</checker-qual.version>
     <commons-cli.version>1.4</commons-cli.version>
     <jackson-databind.version>2.12.6</jackson-databind.version>

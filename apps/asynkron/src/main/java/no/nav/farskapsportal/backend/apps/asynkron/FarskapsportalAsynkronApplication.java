@@ -17,7 +17,7 @@ public class FarskapsportalAsynkronApplication {
 
   public static void main(String[] args) {
 
-    String profile = args.length < 1 ? PROFILE_TEST : args[0];
+    String profile = args.length < 1 ? PROFILE_LIVE : args[0];
 
     SpringApplication app = new SpringApplication(FarskapsportalAsynkronApplication.class);
     app.setAdditionalProfiles(profile);
