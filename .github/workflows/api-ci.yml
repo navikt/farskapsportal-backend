@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-java@v1
         if: env.NOT_FOUND == 'true'
         with:
-          java-version: '16'
+          java-version: '17'
       - uses: actions/cache@v2.1.5
         if: env.NOT_FOUND == 'true'
         with:
