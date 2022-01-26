@@ -75,7 +75,7 @@ public class PdlApiConsumer {
       throw new RessursIkkeFunnetException(Feilkode.PDL_BOSTEDSADRESSE_MANGLER);
     }
     return bostedsadresseFraPdlEllerFreg.stream().findFirst()
-        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FEIL));
   }
 
   @Cacheable("doedsfall")
