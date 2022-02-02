@@ -26,7 +26,7 @@ p {
     font-family: 'ArialNormal';
 }
 
-td.beskrivelse, td.description {
+td.beskrivelse, td.forklaring, td.description {
     font-size : 1em;
     font-family: 'ArialNormal';
     font-weight: bold;

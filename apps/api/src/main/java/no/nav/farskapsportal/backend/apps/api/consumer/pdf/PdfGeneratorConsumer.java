@@ -43,6 +43,13 @@ public class PdfGeneratorConsumer {
       new AbstractMap.SimpleEntry<>(Elementnavn.TERMINDATO, "due-date"),
       new AbstractMap.SimpleEntry<>(Elementnavn.UFOEDT, "unborn")
   );
+
+  private static final Map<Elementnavn, String> nynorskeElementnavn = Map.ofEntries(
+      new AbstractMap.SimpleEntry<>(Elementnavn.BESKRIVELSE, "forklaring"),
+      new AbstractMap.SimpleEntry<>(Elementnavn.FOEDESTED, "foedestad"),
+      new AbstractMap.SimpleEntry<>(Elementnavn.NAVN, "namn")
+  );
+
   private static final Map<Tekst, String> tekstBokmaal = Map.of(
       Tekst.FOEDSELSDATO, "Fødselsdato",
       Tekst.FOEDSELSNUMMER, "Fødselsnummer",
@@ -51,6 +58,13 @@ public class PdfGeneratorConsumer {
       Tekst.OPPLYSNINGER_OM_BARNET, "Opplysninger om barnet",
       Tekst.TERMINDATO, "Termindato"
   );
+
+  private static final Map<Tekst, String> tekstNynorsk = Map.of(
+      Tekst.FOEDESTED, "Fødestad",
+      Tekst.NAVN, "Namn",
+      Tekst.OPPLYSNINGER_OM_BARNET, "Opplysningar om barnet"
+  );
+
   private static final Map<Tekst, String> tekstEngelsk = Map.of(
       Tekst.FOEDSELSDATO, "Date of birth",
       Tekst.FOEDSELSNUMMER, "Social security number",
@@ -77,8 +91,6 @@ public class PdfGeneratorConsumer {
         byte[] colorProfileBytes = IOUtils.toByteArray(colorProfile);
         builder.useColorProfile(colorProfileBytes);
       }
-
-
 
       try (InputStream fontStream = PdfGeneratorConsumer.class.getResourceAsStream("/pdf-template/Arial.ttf")) {
         final File midlertidigFil = File.createTempFile("Arial", "ttf");
@@ -175,6 +187,11 @@ public class PdfGeneratorConsumer {
       case ENGELSK -> {
         return elementnavnTilEngelsk.get(element);
       }
+      case NYNORSK -> {
+        if (nynorskeElementnavn.containsKey(element)) {
+          return nynorskeElementnavn.get(element);
+        }
+      }
     }
 
     // bokmål
@@ -185,6 +202,13 @@ public class PdfGeneratorConsumer {
     switch (skriftspraak) {
       case ENGELSK -> {
         return tekstEngelsk.get(tekst);
+      }
+      case NYNORSK ->  {
+        if (tekstNynorsk.containsKey(tekst)) {
+          return tekstNynorsk.get(tekst);
+        } else {
+          return tekstBokmaal.get(tekst);
+        }
       }
       default -> {
         return tekstBokmaal.get(tekst);

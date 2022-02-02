@@ -101,7 +101,7 @@ public class BrukernotifikasjonConfig {
 
   @Bean
   Beskjedprodusent beskjedprodusent(@Qualifier("beskjed") KafkaTemplate<Nokkel, Beskjed> kafkaTemplate) throws MalformedURLException {
-    return new Beskjedprodusent(kafkaTemplate, toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper);
+    return new Beskjedprodusent(kafkaTemplate, toUrl(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"), farskapsportalFellesEgenskaper);
   }
 
   @Bean

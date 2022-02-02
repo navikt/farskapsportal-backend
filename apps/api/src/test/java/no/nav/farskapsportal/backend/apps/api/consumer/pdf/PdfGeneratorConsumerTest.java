@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
@@ -24,7 +23,6 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -37,7 +35,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PdfGeneratorConsumerTest")
-@SpringBootTest(classes =  FarskapsportalApiApplicationLocal.class)
+@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
 @ActiveProfiles(PROFILE_TEST)
 public class PdfGeneratorConsumerTest {
 
@@ -45,7 +43,7 @@ public class PdfGeneratorConsumerTest {
   private static final Forelder FAR = henteForelder(Forelderrolle.FAR);
   private static final Barn UFOEDT_BARN = henteBarnUtenFnr(17);
   private static final Barn NYFOEDT_BARN = henteNyligFoedtBarn();
-  private static boolean skriveUtPdf = false;
+  private static boolean skriveUtPdf = true;
 
   @Autowired
   private PdfGeneratorConsumer pdfGeneratorConsumer;
@@ -60,6 +58,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaBokmaalForUfoedt() throws IOException {
 
     // given
+    var skriftsspraak = Skriftspraak.BOKMAAL;
     when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
     when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -73,7 +72,7 @@ public class PdfGeneratorConsumerTest {
     far.setForelderrolle(Forelderrolle.FAR);
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(ufoedtBarn, mor, far, Skriftspraak.BOKMAAL);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(ufoedtBarn, mor, far, skriftsspraak);
 
     // then
     if (skriveUtPdf) {
@@ -89,8 +88,45 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Termindato: " + UFOEDT_BARN.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
     );
 
-    validereInformasjonOmForeldrenePaaBokmaal(dokumenttekst, mor, far);
+    validereInformasjonOmForeldrenePaaNorsk(dokumenttekst, mor, far, skriftsspraak);
 
+  }
+
+  @Test
+  void skalGenererePdfPaaNynorskForUfoedt() throws IOException {
+
+    // given
+    var skriftsspraak = Skriftspraak.NYNORSK;
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
+    var ufoedtBarn = mapper.toDto(UFOEDT_BARN);
+    var mor = mapper.toDto(MOR);
+    mor.setForelderrolle(Forelderrolle.MOR);
+
+    var far = mapper.toDto(FAR);
+    far.setForelderrolle(Forelderrolle.FAR);
+
+    // when
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(ufoedtBarn, mor, far, skriftsspraak);
+
+    // then
+    if (skriveUtPdf) {
+      skriveUtPdfForInspeksjon(pdfstroem);
+    }
+
+    PDDocument doc = PDDocument.load(pdfstroem);
+    PDFTextStripper pdfTextStripper = new PDFTextStripper();
+    String dokumenttekst = pdfTextStripper.getText(doc);
+
+    assertAll(
+        () -> assertThat(dokumenttekst).doesNotContain("Fødestad"),
+        () -> assertThat(dokumenttekst).contains("Termindato: " + UFOEDT_BARN.getTermindato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+    );
+
+    validereInformasjonOmForeldrenePaaNorsk(dokumenttekst, mor, far, skriftsspraak);
   }
 
   @Test
@@ -134,6 +170,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaBokmaalForNyfoedt() throws IOException {
 
     // given
+    var skriftspraak = Skriftspraak.BOKMAAL;
     when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
     when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -150,7 +187,7 @@ public class PdfGeneratorConsumerTest {
     far.setForelderrolle(Forelderrolle.FAR);
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, far, Skriftspraak.BOKMAAL);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, far, skriftspraak);
 
     // then
     if (skriveUtPdf) {
@@ -169,7 +206,57 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Fødested: " + nyfoedtBarn.getFoedested())
     );
 
-    validereInformasjonOmForeldrenePaaBokmaal(dokumenttekst, mor, far);
+    validereInformasjonOmForeldrenePaaNorsk(dokumenttekst, mor, far, skriftspraak);
+  }
+
+  @Test
+  void skalGenererePdfPaaNynorskForNyfoedt() throws IOException {
+
+    // given
+    var skriftsspraak = Skriftspraak.NYNORSK;
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
+    var nyfoedtBarn = mapper.toDto(NYFOEDT_BARN);
+    nyfoedtBarn.setFoedested("Stange");
+    nyfoedtBarn.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
+
+    var mor = mapper.toDto(MOR);
+    mor.setForelderrolle(Forelderrolle.MOR);
+
+    var far = mapper.toDto(FAR);
+    far.setForelderrolle(Forelderrolle.FAR);
+
+    // when
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, far, skriftsspraak);
+
+    // then
+    if (skriveUtPdf) {
+      skriveUtPdfForInspeksjon(pdfstroem);
+    }
+
+    PDDocument doc = PDDocument.load(pdfstroem);
+    PDFTextStripper pdfTextStripper = new PDFTextStripper();
+    String dokumenttekst = pdfTextStripper.getText(doc);
+
+    assertAll(
+        () -> assertThat(dokumenttekst).doesNotContain("Termindato"),
+        () -> assertThat(dokumenttekst).contains("Opplysningar om barnet"),
+        () -> assertThat(dokumenttekst).contains("Fødselsnummer: " + NYFOEDT_BARN.getFoedselsnummer()),
+        () -> assertThat(dokumenttekst).contains("Fødselsdato: " + FOEDSELSDATO_NYFOEDT_BARN.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains("Fødestad: " + nyfoedtBarn.getFoedested()),
+        () -> assertThat(dokumenttekst).doesNotContain(" fra "),
+        () -> assertThat(dokumenttekst).doesNotContain(" ønsker "),
+        () -> assertThat(dokumenttekst).doesNotContain(" ikke "),
+        () -> assertThat(dokumenttekst).doesNotContain(" hvis "),
+        () -> assertThat(dokumenttekst).doesNotContain(" foreldrene "),
+        () -> assertThat(dokumenttekst).doesNotContain("barnene"),
+        () -> assertThat(dokumenttekst).doesNotContain("navn")
+    );
+
+    validereInformasjonOmForeldrenePaaNorsk(dokumenttekst, mor, far, skriftsspraak);
   }
 
   @Test
@@ -218,6 +305,7 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaBokmaalForForelderMedMellomnavn() throws IOException {
 
     // given
+    var skriftsspraak = Skriftspraak.BOKMAAL;
     when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
     when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
@@ -237,7 +325,7 @@ public class PdfGeneratorConsumerTest {
             .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
 
     // when
-    var pdfstroem = pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, farMedMellomnavn, Skriftspraak.BOKMAAL);
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, farMedMellomnavn, skriftsspraak);
 
     // then
     PDDocument doc = PDDocument.load(pdfstroem);
@@ -252,7 +340,57 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Fødested: " + nyfoedtBarn.getFoedested())
     );
 
-    validereInformasjonOmForeldrenePaaBokmaal(dokumenttekst, mor, farMedMellomnavn);
+    validereInformasjonOmForeldrenePaaNorsk(dokumenttekst, mor, farMedMellomnavn, skriftsspraak);
+
+    if (skriveUtPdf) {
+      skriveUtPdfForInspeksjon(pdfstroem);
+    }
+  }
+
+  @Test
+  void skalGenererePdfPaaNynorskForForelderMedMellomnavn() throws IOException {
+
+    // given
+    var skriftsspraak = Skriftspraak.NYNORSK;
+    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
+    when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
+    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
+    when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
+
+    var nyfoedtBarn = mapper.toDto(NYFOEDT_BARN);
+    nyfoedtBarn.setFoedested("Ås");
+    nyfoedtBarn.setFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN);
+    var mor = mapper.toDto(MOR);
+    var farMedMellomnavn = mapper.toDto(henteForelder(Forelderrolle.FAR));
+    var farsOpprinneligeNavn = NAVN_FAR;
+
+    farMedMellomnavn.setNavn(
+        NavnDto.builder()
+            .fornavn(farsOpprinneligeNavn.getFornavn())
+            .mellomnavn("Strømstad")
+            .etternavn(farsOpprinneligeNavn.getEtternavn()).build());
+
+    // when
+    var pdfstroem = pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, farMedMellomnavn, skriftsspraak);
+
+    // then
+    PDDocument doc = PDDocument.load(pdfstroem);
+    PDFTextStripper pdfTextStripper = new PDFTextStripper();
+    String dokumenttekst = pdfTextStripper.getText(doc);
+
+    assertAll(
+        () -> assertThat(dokumenttekst).doesNotContain("Termindato"),
+        () -> assertThat(dokumenttekst).contains("Opplysningar om barnet"),
+        () -> assertThat(dokumenttekst).contains("Fødselsnummer: " + NYFOEDT_BARN.getFoedselsnummer()),
+        () -> assertThat(dokumenttekst).contains("Fødselsdato: " + FOEDSELSDATO_NYFOEDT_BARN.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        () -> assertThat(dokumenttekst).contains("Fødestad: " + nyfoedtBarn.getFoedested())
+    );
+
+    validereInformasjonOmForeldrenePaaNorsk(dokumenttekst, mor, farMedMellomnavn, skriftsspraak);
+
+    if (skriveUtPdf) {
+      skriveUtPdfForInspeksjon(pdfstroem);
+    }
   }
 
   @Test
@@ -301,7 +439,6 @@ public class PdfGeneratorConsumerTest {
     validereInformasjonOmForeldrenePaaEngelsk(dokumenttekst, mor, farMedMellomnavn);
   }
 
-
   private void skriveUtPdfForInspeksjon(byte[] pdfstroem) {
     try (final FileOutputStream filstroem = new FileOutputStream("farskapserklaering.pdf")) {
       filstroem.write(pdfstroem);
@@ -310,22 +447,22 @@ public class PdfGeneratorConsumerTest {
     }
   }
 
-
-  private void validereInformasjonOmForeldrenePaaBokmaal(String dokumenttekst, ForelderDto mor, ForelderDto far) {
-
+  private void validereInformasjonOmForeldrenePaaNorsk(String dokumenttekst, ForelderDto mor, ForelderDto far, Skriftspraak norskSkriftsspraak) {
     var navnFar = far.getNavn().sammensattNavn();
-
     var navnMor = mor.getNavn().sammensattNavn();
 
+    var opplysninger = norskSkriftsspraak.equals(Skriftspraak.NYNORSK) ? "Opplysningar" : "Opplysninger";
+    var navn = norskSkriftsspraak.equals(Skriftspraak.NYNORSK) ? "Namn" : "Navn";
+
     assertAll(
-        () -> assertThat(dokumenttekst).contains("Opplysninger om mor"),
+        () -> assertThat(dokumenttekst).contains(opplysninger + " om mor"),
         () -> assertThat(dokumenttekst).contains("Fødselsnummer: " + mor.getFoedselsnummer()),
         () -> assertThat(dokumenttekst).contains("Fødselsdato: " + mor.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
-        () -> assertThat(dokumenttekst).contains("Navn: " + navnMor),
-        () -> assertThat(dokumenttekst).contains("Opplysninger om far"),
+        () -> assertThat(dokumenttekst).contains(navn + ": " + navnMor),
+        () -> assertThat(dokumenttekst).contains(opplysninger + " om far"),
         () -> assertThat(dokumenttekst).contains("Fødselsnummer: " + far.getFoedselsnummer()),
         () -> assertThat(dokumenttekst).contains("Fødselsdato: " + far.getFoedselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
-        () -> assertThat(dokumenttekst).contains("Navn: " + navnFar)
+        () -> assertThat(dokumenttekst).contains(navn + ": " + navnFar)
     );
   }
 
@@ -346,4 +483,5 @@ public class PdfGeneratorConsumerTest {
         () -> assertThat(dokumenttekst).contains("Name: " + navnFar)
     );
   }
+
 }
