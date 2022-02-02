@@ -37,8 +37,8 @@ public class BrukernotifikasjonConsumer {
 
   public void informereForeldreOmTilgjengeligFarskapserklaering(Forelder mor, Forelder far) {
     log.info("Informerer foreldre (mor: {}, far: {}) om ferdigstilt farskapserklæring.", mor.getId(), far.getId());
-    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, oppretteNokkel());
-    beskjedprodusent.oppretteBeskjedTilBruker(far, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(mor, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, true, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(far, MELDING_OM_SIGNERT_FARSKAPSERKLAERING, true, true, oppretteNokkel());
   }
 
   public void varsleForeldreOmManglendeSignering(Forelder mor, Forelder far, Barn barn, LocalDate opprettetDato) {

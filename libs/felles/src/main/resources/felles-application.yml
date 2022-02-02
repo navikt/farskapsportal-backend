@@ -63,7 +63,7 @@ url:
 
 ### misc
 BRUKERNOTIFIKASJON_PAA: true
-FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no/nb/"
+FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no"
 NAV_TRUSTSTORE_PATH: classpath:cert/server-selfsigned.jks
 NAV_TRUSTSTORE_PASSWORD: qwer1234
 NAIS_CLUSTER_NAME: dev

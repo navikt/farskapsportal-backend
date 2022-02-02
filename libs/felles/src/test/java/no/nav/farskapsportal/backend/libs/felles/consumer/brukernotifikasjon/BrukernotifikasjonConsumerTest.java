@@ -54,8 +54,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class BrukernotifikasjonConsumerTest {
 
-
-  private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING = "Du har en signert farskapserklæring er tilgjengelig for nedlasting i en begrenset tidsperiode fra farskapsportalen:";
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
   private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING = "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
@@ -126,8 +124,8 @@ public class BrukernotifikasjonConsumerTest {
             farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()),
         () -> assertThat(beskjedMor.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(beskjedFar.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
-        () -> assertThat(beskjedMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()),
-        () -> assertThat(beskjedFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()),
+        () -> assertThat(beskjedMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"),
+        () -> assertThat(beskjedFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"),
         () -> assertThat(beskjedMorSynligFremTilDato)
             .isEqualTo(LocalDate.now().plusMonths(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder())),
         () -> assertThat(beskjedFarSynligFremTilDato)
