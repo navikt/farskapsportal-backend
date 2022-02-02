@@ -17,10 +17,17 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class Beskjedprodusent {
 
   KafkaTemplate<Nokkel, Beskjed> kafkaTemplate;
-  URL farskapsportalUrl;
+  URL farskapsportalUrlForside;
+  URL farskapsportalUrlOversikt;
   FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   public void oppretteBeskjedTilBruker(Forelder forelder, String meldingTilBruker, boolean medEksternVarsling, Nokkel nokkel) {
+    oppretteBeskjedTilBruker(forelder,meldingTilBruker, medEksternVarsling, false,nokkel );
+  }
+
+  public void oppretteBeskjedTilBruker(Forelder forelder, String meldingTilBruker, boolean medEksternVarsling, boolean lenkeTilOversikt, Nokkel nokkel) {
+
+    var farskapsportalUrl = lenkeTilOversikt ? farskapsportalUrlOversikt : farskapsportalUrlForside;
 
     var beskjed = oppretteBeskjed(forelder.getFoedselsnummer(), meldingTilBruker, medEksternVarsling, farskapsportalUrl);
 

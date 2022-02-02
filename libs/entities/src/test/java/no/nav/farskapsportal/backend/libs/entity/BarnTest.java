@@ -15,6 +15,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 public class BarnTest {
 
+  public enum Kilde {PDL, FREG}
+
   @Test
   @DisplayName("Barnets termindato skal være representert i streng-versjonen av en barn-instans")
   void barnetsTermindatoSkalVaereRepresentertIStrengversjonenAvEnBarninstans() {
@@ -29,4 +31,12 @@ public class BarnTest {
     var barn = Barn.builder().foedselsnummer(foedselsdato + "12345").build();
     assertThat(barn.toString()).isEqualTo("Barn med fødselsnummer som starter med: " + foedselsdato);
   }
+
+  @Test
+  void test() {
+
+    assertThat(Kilde.PDL.toString()).isEqualTo("PDL");
+
+  }
+
 }
