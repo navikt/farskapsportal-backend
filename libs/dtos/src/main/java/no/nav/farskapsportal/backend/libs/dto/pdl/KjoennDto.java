@@ -8,6 +8,5 @@ import lombok.Value;
 public class KjoennDto implements PdlDto {
 
   KjoennType kjoenn;
-  FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;
 }

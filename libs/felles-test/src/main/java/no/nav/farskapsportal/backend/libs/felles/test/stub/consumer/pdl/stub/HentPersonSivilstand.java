@@ -13,6 +13,7 @@ public class HentPersonSivilstand implements HentPersonSubResponse {
 
   public HentPersonSivilstand(Sivilstandtype sivilstandtype) {
     this.response = buildResponseSivilstand(sivilstandtype);
+    var t = true;
   }
 
   private String buildResponseSivilstand(Sivilstandtype sivilstandtype) {
@@ -22,19 +23,19 @@ public class HentPersonSivilstand implements HentPersonSubResponse {
       var startingElements = String.join("\n", " \"sivilstand\": [");
       var closingElements = String.join("\n", "]");
 
-      return startingElements + hentSivilstandElement(sivilstandtype, null, "123") + closingElements;
+      return startingElements + hentSivilstandElement(sivilstandtype, LocalDateTime.now(), "123") + closingElements;
     }
   }
 
-  private String hentSivilstandElement(Sivilstandtype sivilstandtype, LocalDateTime gyldighetstidspunkt, String opplysningsId) {
+  private String hentSivilstandElement(Sivilstandtype sivilstandtype, LocalDateTime tidspunktOpprettet, String opplysningsId) {
     var sivilstandElement = new StringBuilder();
 
     sivilstandElement.append(String.join("\n", " {", " \"type\": \"" + sivilstandtype + "\","));
-    if (gyldighetstidspunkt != null) {
-      sivilstandElement.append(PdlApiStub.hentFolkerigstermetadataElement(gyldighetstidspunkt));
+    if (tidspunktOpprettet != null) {
+      sivilstandElement.append(PdlApiStub.hentFolkerigstermetadataElement(tidspunktOpprettet));
       sivilstandElement.append(",");
     }
-    sivilstandElement.append(PdlApiStub.hentMetadataElement(opplysningsId, false));
+    sivilstandElement.append(PdlApiStub.hentMetadataElement(opplysningsId, false, tidspunktOpprettet));
     sivilstandElement.append(String.join("\n", " }"));
 
     return sivilstandElement.toString();

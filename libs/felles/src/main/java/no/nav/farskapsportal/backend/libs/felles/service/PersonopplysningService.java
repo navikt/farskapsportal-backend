@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.Kjoenn;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.EndringDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.EndringDto.Type;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle;
@@ -67,7 +69,7 @@ public class PersonopplysningService {
     }
 
     // Barn må være født i Norge
-    return filrereBortBarnFoedtUtenforNorge(spedbarnUtenFar);
+    return filtrereBortBarnFoedtUtenforNorge(spedbarnUtenFar);
   }
 
   public boolean erDoed(String foedselsnummer) {
@@ -188,7 +190,7 @@ public class PersonopplysningService {
     if (!navnStemmer) {
       log.warn("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn  er forskjellig fra navn i register.");
       throw new FeilNavnOppgittException(oppgittNavn, navnFraRegister);
-     }
+    }
 
     log.info("Navnekontroll gjennomført uten feil");
   }
@@ -206,19 +208,27 @@ public class PersonopplysningService {
       return kjoennshistorikk.get(0);
     }
 
-    var minsteGyldighetstidspunkt = kjoennshistorikk.stream().map(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt())
-        .min(LocalDateTime::compareTo).orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_LAVESTE_GYLDIGHETSTIDSPUNKT));
+    var eldsteInnslag = kjoennshistorikk.stream()
+        .filter(kjoennDto -> kjoennDto.getMetadata().getHistorisk() == true)
+        .flatMap(kjoennDto -> kjoennDto.getMetadata().getEndringer().stream())
+        .filter(e -> e.getType().equals(Type.OPPRETT))
+        .map(e ->e.getRegistrert())
+        .min(LocalDateTime::compareTo)
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ElDSTE_INNSLAG));
+
     return kjoennshistorikk.stream()
-        .filter(kjoennDto -> kjoennDto.getFolkeregistermetadata().getGyldighetstidspunkt().equals(minsteGyldighetstidspunkt)).findFirst()
+        .filter(kjoennDto -> kjoennDto.getMetadata().getHistorisk() == true)
+        .filter(e -> inkludererEndringMedRegistreringstidspunkt(e.getMetadata().getEndringer(), eldsteInnslag))
+        .findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ORIGINALT));
   }
 
-  private String hentMellomnavnHvisFinnes(NavnDto navnFraRegister) {
-    return navnFraRegister.getMellomnavn() == null || navnFraRegister.getMellomnavn().length() < 1 ? " "
-        : " " + navnFraRegister.getMellomnavn() + " ";
+  private boolean inkludererEndringMedRegistreringstidspunkt(List<EndringDto> endringer, LocalDateTime registreringstidspunkt) {
+    var endring = endringer.stream().filter(e -> e.getRegistrert().equals(registreringstidspunkt)).findFirst();
+    return endring.isPresent();
   }
 
-  private Set<String> filrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
+  private Set<String> filtrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
     return nyfoedteBarn.stream().filter(barn -> henteFoedeland(barn) != null).filter(barn -> henteFoedeland(barn).equalsIgnoreCase(
             FarskapsportalFellesConfig.KODE_LAND_NORGE))
         .collect(Collectors.toSet());

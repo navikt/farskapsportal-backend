@@ -89,8 +89,8 @@ public class PdlApiConsumerTest {
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
 
-      var kjoennshistorikk = new LinkedHashMap<KjoennType, LocalDateTime>();
-      kjoennshistorikk.put(KjoennType.KVINNE, LocalDateTime.now().minusYears(30));
+      var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
+      kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
 
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(kjoennshistorikk));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
@@ -136,9 +136,9 @@ public class PdlApiConsumerTest {
       var fnrMor = "111222240280";
       stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
 
-      var kjoennshistorikk = new LinkedHashMap<KjoennType, LocalDateTime>();
-      kjoennshistorikk.put(KjoennType.KVINNE, LocalDateTime.now().minusYears(30));
-      kjoennshistorikk.put(KjoennType.MANN, LocalDateTime.now().minusYears(4));
+      var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
+      kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
+      kjoennshistorikk.put(LocalDateTime.now().minusYears(4), KjoennType.MANN);
 
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(kjoennshistorikk));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);

@@ -57,7 +57,7 @@ public enum Feilkode {
   PDL_FOEDSELSDATO_TEKNISK_FEIL("Feil inntraff ved henting av fødselsdato fra PDL for person"),
   PDL_FOEDSELSDATO_MANGLER("Respons fra PDL inneholdt ingen informasjon om personens foedselsdato..."),
   PDL_FOLKEREGISTERIDENTIFIKATOR_IKKE_FUNNET("Respons fra PDL inneholdt ingen informasjon om personens folkeregisteridentifikator"),
-  PDL_KJOENN_LAVESTE_GYLDIGHETSTIDSPUNKT("Feil ved henting av laveste gyldighetstidspunkt for kjønnshistorikk"),
+  PDL_KJOENN_ElDSTE_INNSLAG("Feil ved henting av eldste innslag i kjønnshistorikken"),
   PDL_KJOENN_INGEN_INFO("Respons fra PDL inneholdt ingen informasjon om kjønn..."),
   PDL_KJOENN_ORIGINALT("Feil ved henting av originalt kjønn fra PDL"),
   PDL_NAVN_IKKE_FUNNET("Fant ikke personens navn i PDL"),

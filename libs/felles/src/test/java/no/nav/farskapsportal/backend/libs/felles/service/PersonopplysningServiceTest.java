@@ -15,20 +15,21 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.EndringDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.EndringDto.Type;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselDto;
-import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregistermetadataDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle.Sivilstandtype;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
+import no.nav.farskapsportal.backend.libs.dto.pdl.MetadataDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.VergeEllerFullmektigDto;
@@ -44,7 +45,6 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
-import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -65,16 +65,27 @@ public class PersonopplysningServiceTest {
   private static final LocalDate FOEDSELSDATO_NYFOEDT = LocalDate.now().minusMonths(1);
   private static final Barn NYDFOEDT_BARN = TestUtils.henteBarnMedFnr(FOEDSELSDATO_NYFOEDT, "00000");
 
-
   @MockBean
   private PdlApiConsumer pdlApiConsumerMock;
 
   @Autowired
   private PersonopplysningService personopplysningService;
 
-  private KjoennDto henteKjoennMedGyldighetstidspunkt(KjoennType typeKjoenn, LocalDate datoForGyldighet) {
-    return KjoennDto.builder().kjoenn(typeKjoenn).folkeregistermetadata(FolkeregistermetadataDto.builder()
-            .gyldighetstidspunkt(LocalDateTime.ofEpochSecond(datoForGyldighet.toEpochSecond(LocalTime.MIN, ZoneOffset.MIN), 0, ZoneOffset.MIN)).build())
+  private KjoennDto henteKjoenn(KjoennType typeKjoenn) {
+    return henteKjoenn(typeKjoenn, MetadataDto.builder().historisk(false).build());
+  }
+
+  private KjoennDto henteKjoenn(KjoennType typeKjoenn, LocalDateTime registreringstidspunkt, boolean historisk) {
+    var metadata = MetadataDto.builder()
+        .historisk(historisk)
+        .endringer(List.of(EndringDto.builder().type(Type.OPPRETT).registrert(registreringstidspunkt).build()))
+        .build();
+    return henteKjoenn(typeKjoenn, metadata);
+  }
+
+  private KjoennDto henteKjoenn(KjoennType typeKjoenn, MetadataDto metadata) {
+    return KjoennDto.builder().kjoenn(typeKjoenn)
+        .metadata(metadata)
         .build();
   }
 
@@ -127,7 +138,7 @@ public class PersonopplysningServiceTest {
       var personnummer = "12345";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var gjeldendeKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.KVINNE, foedselsdato);
+      var gjeldendeKjoenn = henteKjoenn(KjoennType.KVINNE);
 
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(gjeldendeKjoenn);
 
@@ -438,7 +449,7 @@ public class PersonopplysningServiceTest {
       var personnummer = "12344";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var kjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.KVINNE, foedselsdato);
+      var kjoenn = henteKjoenn(KjoennType.KVINNE);
 
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(kjoenn);
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(kjoenn));
@@ -629,8 +640,8 @@ public class PersonopplysningServiceTest {
       var personnummer = "12345";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var originaltKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.KVINNE, foedselsdato);
-      var endretKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.MANN, LocalDate.now().minusYears(10));
+      var originaltKjoenn = henteKjoenn(KjoennType.KVINNE, LocalDateTime.of(foedselsdato, LocalTime.now()), true);
+      var endretKjoenn = henteKjoenn(KjoennType.MANN, LocalDateTime.now().minusYears(10), false);
 
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(originaltKjoenn, endretKjoenn));
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(endretKjoenn);
@@ -651,7 +662,7 @@ public class PersonopplysningServiceTest {
       var personnummer = "12344";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var originaltKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.KVINNE, foedselsdato);
+      var originaltKjoenn = henteKjoenn(KjoennType.KVINNE, LocalDateTime.of(foedselsdato, LocalTime.now()), true);
 
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(originaltKjoenn));
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(originaltKjoenn);
@@ -671,8 +682,30 @@ public class PersonopplysningServiceTest {
       var personnummer = "12344";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var originaltKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.MANN, foedselsdato);
-      var endretKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.KVINNE, LocalDate.now().minusYears(10));
+      var originaltKjoenn = henteKjoenn(KjoennType.MANN, LocalDateTime.now().minusYears(35), true);
+
+      var endretKjoenn = henteKjoenn(KjoennType.KVINNE, LocalDateTime.now().minusYears(10), false);
+
+      when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(originaltKjoenn, endretKjoenn));
+      when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(endretKjoenn);
+
+      // when
+      var forelderrolle = personopplysningService.bestemmeForelderrolle(foedselsnummer);
+
+      // then
+      Assertions.assertEquals(Forelderrolle.MEDMOR, forelderrolle,
+          "En person som er født mann, men endrer kjønn til kvinne skal ha foreldrerolle MEDMOR");
+    }
+
+    @Test
+    void foedeKjoennMannOgGjeldendeKjoennKvinneSkalGiForelderrolleMedmorManglerGyldighetstidspunkt() {
+
+      // given
+      var personnummer = "12344";
+      var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
+      var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
+      var originaltKjoenn = henteKjoenn(KjoennType.MANN, LocalDateTime.of(foedselsdato, LocalTime.now()), true);
+      var endretKjoenn = henteKjoenn(KjoennType.KVINNE, LocalDateTime.now().minusYears(10), false);
 
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(originaltKjoenn, endretKjoenn));
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(endretKjoenn);
@@ -693,7 +726,7 @@ public class PersonopplysningServiceTest {
       var personnummer = "12345";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var originaltKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.MANN, foedselsdato);
+      var originaltKjoenn = henteKjoenn(KjoennType.MANN);
 
       when(pdlApiConsumerMock.henteKjoennMedHistorikk(foedselsnummer)).thenReturn(List.of(originaltKjoenn));
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(originaltKjoenn);
@@ -713,7 +746,7 @@ public class PersonopplysningServiceTest {
       var personnummer = "12345";
       var foedselsdato = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
       var foedselsnummer = foedselsdato.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummer;
-      var gjeldendeKjoenn = henteKjoennMedGyldighetstidspunkt(KjoennType.UKJENT, foedselsdato);
+      var gjeldendeKjoenn = henteKjoenn(KjoennType.UKJENT);
 
       when(pdlApiConsumerMock.henteKjoennUtenHistorikk(foedselsnummer)).thenReturn(gjeldendeKjoenn);
 
@@ -723,5 +756,6 @@ public class PersonopplysningServiceTest {
       // then
       Assertions.assertEquals(Forelderrolle.UKJENT, forelderrolle, "En person med UKJENT som gjeldende kjønn, skal ha foreldrerolle UKJENT.");
     }
+
   }
 }
