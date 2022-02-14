@@ -2,15 +2,18 @@ query($ident: ID!, $historikk: Boolean!) {
     hentPerson(ident: $ident) {
         kjoenn(historikk: $historikk){
             kjoenn,
-            folkeregistermetadata {
-                ajourholdstidspunkt,
-                gyldighetstidspunkt,
-                opphoerstidspunkt,
-                kilde,
-                aarsak,
-                sekvens
-            },
-            metadata {opplysningsId, master}
+            metadata {
+                opplysningsId,
+                master,
+                historisk,
+                endringer {
+                    type,
+                    registrert,
+                    registrertAv,
+                    systemkilde,
+                    kilde
+                }
+            }
         }
     }
 }

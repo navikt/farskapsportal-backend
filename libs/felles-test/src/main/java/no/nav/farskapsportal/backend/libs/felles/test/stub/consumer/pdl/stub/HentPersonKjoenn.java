@@ -15,12 +15,13 @@ public class HentPersonKjoenn implements HentPersonSubResponse {
 
   String responsUtenHistorikk;
 
-  public HentPersonKjoenn(LinkedHashMap<KjoennType, LocalDateTime> kjoennshistorikk) {
+  public HentPersonKjoenn(LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk) {
     this.responsMedHistorikk = buildResponseKjoenn(kjoennshistorikk, true);
     this.responsUtenHistorikk = buildResponseKjoenn(kjoennshistorikk, false);
+    var t= false;
   }
 
-  private String buildResponseKjoenn(LinkedHashMap<KjoennType, LocalDateTime> input, boolean medHistorikk) {
+  private String buildResponseKjoenn(LinkedHashMap<LocalDateTime, KjoennType> input, boolean medHistorikk) {
     if (input == null || input.isEmpty()) {
       return String.join("\n", " \"kjoenn\": [", "]");
     } else {
@@ -32,16 +33,16 @@ public class HentPersonKjoenn implements HentPersonSubResponse {
       kjoennshistorikk.append(startingElements);
 
       var count = 0;
-      for (Map.Entry<KjoennType, LocalDateTime> kjoenn : input.entrySet()) {
+      for (Map.Entry<LocalDateTime, KjoennType> kjoenn : input.entrySet()) {
         var historisk = input.size() > 1 && (count == 0 || count < input.size() - 2);
         if (!medHistorikk) {
           if (!historisk) {
-            kjoennshistorikk.append(hentKjoennElement(kjoenn.getKey(), kjoenn.getValue(), "123", false));
+            kjoennshistorikk.append(hentKjoennElement(kjoenn.getValue(), kjoenn.getKey(), "123", false));
             kjoennshistorikk.append(closingElements);
             return kjoennshistorikk.toString();
           }
         } else {
-          kjoennshistorikk.append(hentKjoennElement(kjoenn.getKey(), kjoenn.getValue(), "123", historisk));
+          kjoennshistorikk.append(hentKjoennElement(kjoenn.getValue(), kjoenn.getKey(), "123", historisk));
           if (input.size() > 1 && (count == 0 || count > input.size() - 1)) {
             kjoennshistorikk.append(",");
           }
@@ -55,16 +56,12 @@ public class HentPersonKjoenn implements HentPersonSubResponse {
   }
 
   private String hentKjoennElement(
-      KjoennType kjoenn, LocalDateTime gyldighetstidspunkt, String opplysningsId, boolean historisk) {
+      KjoennType kjoenn, LocalDateTime registrert, String opplysningsId, boolean historisk) {
 
     var kjoennElement = new StringBuilder();
 
     kjoennElement.append(String.join("\n", " {", " \"kjoenn\": \"" + kjoenn + "\","));
-    if (gyldighetstidspunkt != null) {
-      kjoennElement.append(PdlApiStub.hentFolkerigstermetadataElement(gyldighetstidspunkt));
-      kjoennElement.append(",");
-    }
-    kjoennElement.append(PdlApiStub.hentMetadataElement(opplysningsId, historisk));
+    kjoennElement.append(PdlApiStub.hentMetadataElement(opplysningsId, historisk, registrert));
     kjoennElement.append(String.join("\n", " }"));
 
     return kjoennElement.toString();
