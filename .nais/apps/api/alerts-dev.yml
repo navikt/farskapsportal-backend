@@ -10,12 +10,12 @@ spec:
     slack:
       channel: '#farskapsportal-varsel-dev'
   alerts:
-    - alert: Applikasjon nede
+    - alert: "Applikasjon { $labels.deployment }} nede i dev"
       expr: kube_deployment_status_replicas_available{deployment=~"farskapsportal.+"} == 0
       for: 30m
-      severity: warning
+      severity: danger
       sla: respond within 1h, during office hours
-      description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
+      description: "App {{ $labels.deployment }} er nede i dev namespace {{ $labels.kubernetes_namespace }}"
       action: "`kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for logger"
     - alert: Høy feilrate i logger
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+",log_level=~"Error"}[5m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+"}[5m]))) > 10
