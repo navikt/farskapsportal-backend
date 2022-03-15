@@ -69,8 +69,10 @@ public class OppdatereSigneringsstatusTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
-    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now().minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(
+        LocalDateTime.now().minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering()));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().setStatusQueryToken("tokenetMorFikkDaHunSignerte");
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
@@ -96,8 +98,11 @@ public class OppdatereSigneringsstatusTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
-    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now().minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering()).plusMinutes(2));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
+    farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(
+        LocalDateTime.now().minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering())
+            .plusMinutes(2));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().setStatusQueryToken("tokenetMorFikkDaHunSignerte");
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
@@ -123,7 +128,8 @@ public class OppdatereSigneringsstatusTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().setStatusQueryToken("tokenetMorFikkDaHunSignerte");
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now());
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
@@ -150,7 +156,8 @@ public class OppdatereSigneringsstatusTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().setStatusQueryToken("tokenetMorFikkDaHunSignerte");
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(LocalDateTime.now());
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
@@ -176,7 +183,8 @@ public class OppdatereSigneringsstatusTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().setStatusQueryToken("tokenetMorFikkDaHunSignerte");
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(LocalDateTime.now());
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(null);
@@ -202,7 +210,8 @@ public class OppdatereSigneringsstatusTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(
         LocalDateTime.now());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().setStatusQueryToken("tokenetMorFikkDaHunSignerte");

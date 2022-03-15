@@ -6,10 +6,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import no.nav.brukernotifikasjon.schemas.Beskjed;
-import no.nav.brukernotifikasjon.schemas.Done;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
-import no.nav.brukernotifikasjon.schemas.Oppgave;
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput;
+import no.nav.brukernotifikasjon.schemas.input.DoneInput;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
+import no.nav.brukernotifikasjon.schemas.input.OppgaveInput;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Beskjedprodusent;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
@@ -28,6 +28,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 @Configuration
 public class BrukernotifikasjonConfig {
+
+  public static final String NAMESPACE_FARSKAPSPORTAL = "farskapsportal";
+  public static final String APPNAVN_FARSKAPSPORTAL = "Farskapsportal";
 
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
@@ -78,40 +81,41 @@ public class BrukernotifikasjonConfig {
   }
 
   @Bean("beskjed")
-  public KafkaTemplate<Nokkel, Beskjed> kafkaTemplateBeskjed() {
+  public KafkaTemplate<NokkelInput, BeskjedInput> kafkaTemplateBeskjed() {
     return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getKafkaConfigProps()));
   }
 
   @Bean("ferdig")
-  public KafkaTemplate<Nokkel, Done> kafkaTemplateFerdig() {
+  public KafkaTemplate<NokkelInput, DoneInput> kafkaTemplateFerdig() {
     return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getKafkaConfigProps()));
   }
 
   @Bean("oppgave")
-  public KafkaTemplate<Nokkel, Oppgave> kafkaTemplateOppgave() {
+  public KafkaTemplate<NokkelInput, OppgaveInput> kafkaTemplateOppgave() {
     return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(getKafkaConfigProps()));
   }
 
   @Bean
   BrukernotifikasjonConsumer brukernotifikasjonConsumer(Beskjedprodusent beskjedprodusent, Ferdigprodusent ferdigprodusent,
       Oppgaveprodusent oppgaveprodusent, FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) throws MalformedURLException {
-    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent,
-        farskapsportalFellesEgenskaper.getSystembrukerBrukernavn());
+    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent, farskapsportalFellesEgenskaper);
   }
 
   @Bean
-  Beskjedprodusent beskjedprodusent(@Qualifier("beskjed") KafkaTemplate<Nokkel, Beskjed> kafkaTemplate) throws MalformedURLException {
-    return new Beskjedprodusent(kafkaTemplate, toUrl(farskapsportalFellesEgenskaper.getUrl()), toUrl(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"), farskapsportalFellesEgenskaper);
+  Beskjedprodusent beskjedprodusent(@Qualifier("beskjed") KafkaTemplate<NokkelInput, BeskjedInput> kafkaTemplate) throws MalformedURLException {
+    return new Beskjedprodusent(kafkaTemplate, toUrl(farskapsportalFellesEgenskaper.getUrl()),
+        toUrl(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"), farskapsportalFellesEgenskaper);
   }
 
   @Bean
   Oppgaveprodusent oppgaveprodusent(
-      @Qualifier("oppgave") KafkaTemplate<Nokkel, Oppgave> kafkaTemplate, PersistenceService persistenceService) throws MalformedURLException {
+      @Qualifier("oppgave") KafkaTemplate<NokkelInput, OppgaveInput> kafkaTemplate, PersistenceService persistenceService)
+      throws MalformedURLException {
     return new Oppgaveprodusent(kafkaTemplate, persistenceService, toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper);
   }
 
   @Bean
-  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<Nokkel, Done> kafkaTemplate, PersistenceService persistenceService,
+  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<NokkelInput, DoneInput> kafkaTemplate, PersistenceService persistenceService,
       OppgavebestillingDao oppgavebestillingDao) {
     return new Ferdigprodusent(kafkaTemplate, persistenceService, oppgavebestillingDao, farskapsportalFellesEgenskaper);
   }

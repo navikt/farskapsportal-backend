@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukernotifikasjon.schemas.Beskjed;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
-import no.nav.brukernotifikasjon.schemas.builders.BeskjedBuilder;
+import no.nav.brukernotifikasjon.schemas.builders.BeskjedInputBuilder;
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -16,20 +16,21 @@ import org.springframework.kafka.core.KafkaTemplate;
 @Value
 public class Beskjedprodusent {
 
-  KafkaTemplate<Nokkel, Beskjed> kafkaTemplate;
+  KafkaTemplate<NokkelInput, BeskjedInput> kafkaTemplate;
   URL farskapsportalUrlForside;
   URL farskapsportalUrlOversikt;
   FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
-  public void oppretteBeskjedTilBruker(Forelder forelder, String meldingTilBruker, boolean medEksternVarsling, Nokkel nokkel) {
-    oppretteBeskjedTilBruker(forelder,meldingTilBruker, medEksternVarsling, false,nokkel );
+  public void oppretteBeskjedTilBruker(Forelder forelder, String meldingTilBruker, boolean medEksternVarsling, NokkelInput nokkel) {
+    oppretteBeskjedTilBruker(forelder, meldingTilBruker, medEksternVarsling, false, nokkel);
   }
 
-  public void oppretteBeskjedTilBruker(Forelder forelder, String meldingTilBruker, boolean medEksternVarsling, boolean lenkeTilOversikt, Nokkel nokkel) {
+  public void oppretteBeskjedTilBruker(Forelder forelder, String meldingTilBruker, boolean medEksternVarsling, boolean lenkeTilOversikt,
+      NokkelInput nokkel) {
 
     var farskapsportalUrl = lenkeTilOversikt ? farskapsportalUrlOversikt : farskapsportalUrlForside;
 
-    var beskjed = oppretteBeskjed(forelder.getFoedselsnummer(), meldingTilBruker, medEksternVarsling, farskapsportalUrl);
+    var beskjed = oppretteBeskjed(meldingTilBruker, medEksternVarsling, farskapsportalUrl);
 
     try {
       kafkaTemplate.send(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed(), nokkel, beskjed);
@@ -41,12 +42,10 @@ public class Beskjedprodusent {
     log.info("Beskjed {} ekstern varsling og eventId {} er sendt til forelder (id {}).", medEllerUten, nokkel.getEventId(), forelder.getId());
   }
 
-  private Beskjed oppretteBeskjed(String foedselsnummer, String meldingTilBruker, boolean medEksternVarsling, URL lenke) {
+  private BeskjedInput oppretteBeskjed(String meldingTilBruker, boolean medEksternVarsling, URL lenke) {
 
-    return new BeskjedBuilder()
+    return new BeskjedInputBuilder()
         .withTidspunkt(LocalDateTime.now(ZoneId.of("UTC")))
-        .withFodselsnummer(foedselsnummer)
-        .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withEksternVarsling(medEksternVarsling)
         .withSynligFremTil(
             LocalDateTime.now(ZoneId.of("UTC")).withHour(0)

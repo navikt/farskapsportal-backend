@@ -32,6 +32,7 @@
     <osgi.core.version>6.0.0</osgi.core.version>
     <scala.version>2.13.8</scala.version>
     <servlet-api.version>2.5</servlet-api.version>
+    <google.spring-cloud-gcp-starter-sql-postgresql.version>3.1.0</google.spring-cloud-gcp-starter-sql-postgresql.version>
   </properties>
 
   <dependencyManagement>
@@ -60,6 +61,11 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${google.guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
+        <version>${google.spring-cloud-gcp-starter-sql-postgresql.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.api</groupId>

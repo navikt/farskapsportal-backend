@@ -5,7 +5,7 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -14,8 +14,8 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import no.nav.brukernotifikasjon.schemas.Beskjed;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -57,7 +57,7 @@ public class VarselTest {
   private Varsel varsel;
 
   @MockBean
-  private KafkaTemplate<Nokkel, Beskjed> beskjedkoe;
+  private KafkaTemplate<NokkelInput, BeskjedInput> beskjedkoe;
 
   @BeforeEach
   void setup() {
@@ -85,14 +85,15 @@ public class VarselTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now()
         .minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse()));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();
@@ -128,14 +129,15 @@ public class VarselTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonFar().setSendtTilSignering(LocalDateTime.now()
         .minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse()));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();
@@ -150,7 +152,6 @@ public class VarselTest {
     var meldingstekst = String.format(MELDING_OM_MANGLENDE_SIGNERING,
         farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate()
             .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), "fødselsnummer " + farskapserklaering.getBarn().getFoedselsnummer());
-
     assertAll(
         () -> assertThat(beskjednoekkel.getEventId()).isNotNull(),
         () -> assertThat(beskjed.getTekst()).isEqualTo(meldingstekst)
@@ -170,12 +171,13 @@ public class VarselTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(null);
     persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();
@@ -198,12 +200,13 @@ public class VarselTest {
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(LocalDateTime.now());
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
     persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();

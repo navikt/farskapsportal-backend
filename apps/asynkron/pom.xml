@@ -143,7 +143,6 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
-      <version>${google.spring-cloud-gcp.version}</version>
       <scope>runtime</scope>
     </dependency>
 

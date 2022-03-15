@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.APPNAVN_FARSKAPSPORTAL;
+import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -16,9 +18,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
 import java.util.UUID;
-import no.nav.brukernotifikasjon.schemas.Beskjed;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
-import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
+import no.nav.brukernotifikasjon.schemas.builders.NokkelInputBuilder;
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
@@ -40,7 +42,7 @@ public class BeskjedprodusentTest {
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @MockBean
-  private KafkaTemplate<Nokkel, Beskjed> ferdigkoe;
+  private KafkaTemplate<NokkelInput, BeskjedInput> ferdigkoe;
 
   @Autowired
   private Beskjedprodusent beskjedprodusent;
@@ -49,15 +51,15 @@ public class BeskjedprodusentTest {
   void skalOppretteBeskjedTilBruker() throws MalformedURLException {
 
     // given
-    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var beskjedfanger = ArgumentCaptor.forClass(Beskjed.class);
+    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
     var eksternVarsling = true;
 
     var far = Forelder.builder().foedselsnummer("11111122222").build();
     var farskapsportalUrl = new URL(farskapsportalFellesEgenskaper.getUrl());
 
     // when
-    beskjedprodusent.oppretteBeskjedTilBruker(far, "Hei på deg", eksternVarsling, oppretteNokkel());
+    beskjedprodusent.oppretteBeskjedTilBruker(far, "Hei på deg", eksternVarsling, oppretteNokkel(far.getFoedselsnummer()));
 
     //then
     verify(ferdigkoe, times(1))
@@ -74,8 +76,8 @@ public class BeskjedprodusentTest {
     var beskjed = beskjeder.get(0);
 
     assertAll(
-        () -> assertThat(beskjed.getFodselsnummer()).isEqualTo(far.getFoedselsnummer()),
-        () -> assertThat(beskjed.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(noekkel.getFodselsnummer()).isEqualTo(far.getFoedselsnummer()),
+        () -> assertThat(noekkel.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
             ZoneId.of("UTC"))).isBetween(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2),
             ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime()),
@@ -85,13 +87,17 @@ public class BeskjedprodusentTest {
         () -> assertThat(beskjed.getTekst()).isEqualTo("Hei på deg"),
         () -> assertThat(LocalDate.ofInstant(Instant.ofEpochMilli(beskjed.getSynligFremTil()),
             ZoneId.of("UTC"))).isEqualTo(LocalDate.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
-            TimeZone.getDefault().toZoneId()).plusMonths(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder())),
-        () -> assertThat(noekkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn())
-    );
+            TimeZone.getDefault().toZoneId()).plusMonths(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
+        );
   }
 
-  private Nokkel oppretteNokkel() {
+  private NokkelInput oppretteNokkel(String foedselsnummer) {
     var unikEventid = UUID.randomUUID().toString();
-    return new NokkelBuilder().withSystembruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()).withEventId(unikEventid).build();
+    return new NokkelInputBuilder()
+        .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+        .withFodselsnummer(foedselsnummer).withEventId(unikEventid)
+        .withNamespace(NAMESPACE_FARSKAPSPORTAL)
+        .withAppnavn(APPNAVN_FARSKAPSPORTAL)
+        .build();
   }
 }

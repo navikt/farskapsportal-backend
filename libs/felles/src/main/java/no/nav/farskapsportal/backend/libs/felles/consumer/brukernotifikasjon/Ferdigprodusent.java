@@ -1,13 +1,12 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukernotifikasjon.schemas.Done;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
-import no.nav.brukernotifikasjon.schemas.builders.DoneBuilder;
+import no.nav.brukernotifikasjon.schemas.builders.DoneInputBuilder;
+import no.nav.brukernotifikasjon.schemas.input.DoneInput;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -25,12 +24,12 @@ public class Ferdigprodusent {
   OppgavebestillingDao oppgavebestillingDao;
   FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
-  public void ferdigstilleFarsSigneringsoppgave(Forelder far, Nokkel nokkel) {
+  public void ferdigstilleFarsSigneringsoppgave(Forelder far, NokkelInput nokkel) {
 
     var oppgaveSomSkalFerdigstilles = oppgavebestillingDao.henteOppgavebestilling(nokkel.getEventId());
 
     if (oppgaveSomSkalFerdigstilles.isPresent() && oppgaveSomSkalFerdigstilles.get().getFerdigstilt() == null) {
-      var melding = oppretteDone(far.getFoedselsnummer());
+      var melding = oppretteDone();
       try {
         kafkaTemplate.send(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicFerdig(), nokkel, melding);
       } catch (Exception e) {
@@ -45,11 +44,9 @@ public class Ferdigprodusent {
     }
   }
 
-  private Done oppretteDone(String foedselsnummerFar) {
-    return new DoneBuilder()
+  private DoneInput oppretteDone() {
+    return new DoneInputBuilder()
         .withTidspunkt(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime())
-        .withFodselsnummer(foedselsnummerFar)
-        .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .build();
   }
 }

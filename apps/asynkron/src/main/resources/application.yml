@@ -41,7 +41,6 @@ virksomhetssertifikat:
 farskapsportal.asynkron.egenskaper:
   arkiveringsintervall: ${ARKIVERINGSINTERVALL}
   arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
-  brukernotifikasjon-oppgave-synlighet-antall-dager: 40
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
   oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}

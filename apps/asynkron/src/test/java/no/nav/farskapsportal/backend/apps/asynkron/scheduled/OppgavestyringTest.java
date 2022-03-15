@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import no.nav.brukernotifikasjon.schemas.Done;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
+import no.nav.brukernotifikasjon.schemas.input.DoneInput;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -60,7 +60,7 @@ public class OppgavestyringTest {
   private OppgavebestillingDao oppgavebestillingDao;
 
   @MockBean
-  private KafkaTemplate<Nokkel, Done> ferdigkoe;
+  private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
 
   private Oppgavestyring oppgavestyring;
 
@@ -95,7 +95,8 @@ public class OppgavestyringTest {
     deaktivertFarskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     deaktivertFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     deaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(deaktivertFarskapserklaering);
 
@@ -106,8 +107,8 @@ public class OppgavestyringTest {
         .opprettet(LocalDateTime.now())
         .build());
 
-    var ferdignoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var ferdigfanger = ArgumentCaptor.forClass(Done.class);
+    var ferdignoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
 
     // when
     oppgavestyring.rydddeISigneringsoppgaver();
@@ -123,10 +124,8 @@ public class OppgavestyringTest {
         farskapserklaering.getFar().getFoedselsnummer());
 
     assertAll(
-        () -> assertThat(ferdignokkel.getSystembruker()).isEqualTo(
-            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerBrukernavn()),
-        () -> assertThat(ferdig.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
-        () -> assertThat(ferdig.getFodselsnummer()).isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
+        () -> assertThat(ferdignokkel.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
+        () -> assertThat(ferdignokkel.getFodselsnummer()).isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
         () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
         () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue()
     );
@@ -148,7 +147,8 @@ public class OppgavestyringTest {
     ferdigstiltFarskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     ferdigstiltFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager()));
+        LocalDateTime.now()
+            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
     ferdigstiltFarskapserklaering.setDeaktivert(null);
     ferdigstiltFarskapserklaering.getDokument().getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
@@ -161,8 +161,8 @@ public class OppgavestyringTest {
         .opprettet(LocalDateTime.now())
         .build());
 
-    var ferdignoekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var ferdigfanger = ArgumentCaptor.forClass(Done.class);
+    var ferdignoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
 
     // when
     oppgavestyring.rydddeISigneringsoppgaver();
@@ -178,10 +178,8 @@ public class OppgavestyringTest {
         farskapserklaering.getFar().getFoedselsnummer());
 
     assertAll(
-        () -> assertThat(ferdignokkel.getSystembruker()).isEqualTo(
-            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerBrukernavn()),
-        () -> assertThat(ferdig.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
-        () -> assertThat(ferdig.getFodselsnummer()).isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
+        () -> assertThat(ferdignokkel.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
+        () -> assertThat(ferdignokkel.getFodselsnummer()).isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
         () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
         () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue()
     );
@@ -198,7 +196,8 @@ public class OppgavestyringTest {
         henteBarnUtenFnr(5));
     // Setter signeringstidspunkt til innenfor levetiden til oppgaven
     farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjonOppgaveSynlighetAntallDager() - 5));
+        LocalDateTime.now().minusDays(
+            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager() - 5));
 
     // Skal ikke være mulig å signere fremover i tid. Er synlighet for oppgave hentet riktig inn?
     assert (farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()

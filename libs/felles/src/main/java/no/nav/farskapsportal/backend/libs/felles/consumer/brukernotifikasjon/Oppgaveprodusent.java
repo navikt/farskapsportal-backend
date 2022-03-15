@@ -1,15 +1,18 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.APPNAVN_FARSKAPSPORTAL;
+import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
+
 import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
-import no.nav.brukernotifikasjon.schemas.Oppgave;
-import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
-import no.nav.brukernotifikasjon.schemas.builders.OppgaveBuilder;
+import no.nav.brukernotifikasjon.schemas.builders.NokkelInputBuilder;
+import no.nav.brukernotifikasjon.schemas.builders.OppgaveInputBuilder;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
+import no.nav.brukernotifikasjon.schemas.input.OppgaveInput;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -29,10 +32,14 @@ public class Oppgaveprodusent {
   public void oppretteOppgaveForSigneringAvFarskapserklaering(int idFarskapserklaering, Forelder far, String oppgavetekst,
       boolean medEksternVarsling) {
 
-    var nokkel = new NokkelBuilder().withEventId(UUID.randomUUID().toString())
-        .withSystembruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn())
+    var nokkel = new NokkelInputBuilder()
+        .withEventId(UUID.randomUUID().toString())
+        .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+        .withFodselsnummer(far.getFoedselsnummer())
+        .withAppnavn(APPNAVN_FARSKAPSPORTAL)
+        .withNamespace(NAMESPACE_FARSKAPSPORTAL)
         .build();
-    var melding = oppretteOppgave(far.getFoedselsnummer(), oppgavetekst, medEksternVarsling, farskapsportalUrl);
+    var melding = oppretteOppgave(oppgavetekst, medEksternVarsling, farskapsportalUrl);
 
     var farsAktiveSigneringsoppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(idFarskapserklaering, far);
 
@@ -44,7 +51,7 @@ public class Oppgaveprodusent {
     }
   }
 
-  private void oppretteOppgave(Nokkel nokkel, Oppgave melding) {
+  private void oppretteOppgave(NokkelInput nokkel, OppgaveInput melding) {
     try {
       kafkaTemplate.send(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicOppgave(), nokkel, melding);
     } catch (Exception e) {
@@ -53,15 +60,16 @@ public class Oppgaveprodusent {
     }
   }
 
-  private Oppgave oppretteOppgave(String foedselsnummer, String oppgavetekst, boolean medEksternVarsling, URL farskapsportalUrl) {
+  private OppgaveInput oppretteOppgave(String oppgavetekst, boolean medEksternVarsling, URL farskapsportalUrl) {
 
-    return new OppgaveBuilder()
+    return new OppgaveInputBuilder()
         .withTidspunkt(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime())
-        .withFodselsnummer(foedselsnummer)
-        .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withEksternVarsling(medEksternVarsling)
         .withLink(farskapsportalUrl)
         .withSikkerhetsnivaa(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave())
+        .withSynligFremTil(
+            ZonedDateTime.now(ZoneId.of("UTC")).plusDays(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getLevetidOppgaveAntallDager())
+                .toLocalDateTime())
         .withTekst(oppgavetekst).build();
   }
 }
