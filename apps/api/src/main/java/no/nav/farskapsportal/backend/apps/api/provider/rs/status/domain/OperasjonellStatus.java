@@ -6,7 +6,7 @@ import lombok.Value;
 @Value
 @Builder
 public class OperasjonellStatus {
-  String name;
+  String serviceId;
   String status;
   String team;
   String timestamp;

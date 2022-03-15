@@ -11,24 +11,24 @@ spec:
       max_alerts: 0
       url: 'https://digitalstatus.ekstern.dev.nav.no/rest/Alert/test'
   alerts:
-    - alert: "Applikasjon { $labels.deployment }} nede i dev"
+    - alert: "62709d266c4f41c6923b95e7c2725324"
       expr: kube_deployment_status_replicas_available{deployment=~"farskapsportal.+"} == 0
-      for: 30m
+      for: 1m
       severity: danger
       sla: respond within 1h, during office hours
-      description: "App {{ $labels.deployment }} er nede i dev"
+      description: "App {{ $labels.app }} er nede i dev"
       action: "`kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for logger"
-    - alert: Høy feilrate i logger
+    - alert: "62709d266c4f41c6923b95e7c2725324"
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+",log_level=~"Error"}[5m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+"}[5m]))) > 10
-      for: 5m
+      for: 1m
       severity: danger
       sla: respond within 1h, during office hours
       description: "App {{ $labels.log_app }} har høy feilrate i logger"
       action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil. Link https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%22{{ $labels.log_app }}%22%20and%20level:(Error)%20and%20cluster:%22dev-gcp%22'),sort:!()) "
-    - alert: Høy andel HTTP serverfeil (5xx responser)
+    - alert: "62709d266c4f41c6923b95e7c2725324"
       severity: danger
       expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^5\\d\\d", backend=~"farskapsportal.+"}[3m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"farskapsportal.+"}[3m])))) > 1
-      for: 30m
+      for: 1m
       sla: respond within 1h, during office hours
       description: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
       action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser "
