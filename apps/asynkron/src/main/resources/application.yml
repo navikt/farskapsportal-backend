@@ -85,15 +85,15 @@ spring:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
       schema.registry:
-        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+        url.config: ${KAFKA_SCHEMA_REGISTRY}
       security.protocol: SASL_SSL
       sasl:
         mechanism: PLAIN
         jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
       ssl:
         truststore:
-          location: ${NAV_TRUSTSTORE_PATH}
-          password: ${NAV_TRUSTSTORE_PASSWORD}
+          location: ${KAFKA_TRUSTSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
 ---
 spring:
   config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test

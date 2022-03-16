@@ -3,15 +3,15 @@ spring:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
       schema.registry:
-        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
+        url.config: ${KAFKA_SCHEMA_REGISTRY}
       security.protocol: SASL_SSL
       sasl:
         mechanism: PLAIN
         jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
       ssl:
         truststore:
-          location: ${NAV_TRUSTSTORE_PATH}
-          password: ${NAV_TRUSTSTORE_PASSWORD}
+          location: ${KAFKA_TRUSTSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -43,9 +43,9 @@ farskapsportal.felles.egenskaper:
   brukernotifikasjon:
     grupperingsid-farskap: farskap
     skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
-    topic-beskjed: aapen-brukernotifikasjon-beskjed-v1
-    topic-ferdig: aapen-brukernotifikasjon-done-v1
-    topic-oppgave: aapen-brukernotifikasjon-oppgave-v1
+    topic-beskjed: min-side.aapen-brukernotifikasjon-beskjed-v1
+    topic-ferdig: min-side.aapen-brukernotifikasjon-done-v1
+    topic-oppgave: min-side.aapen-brukernotifikasjon-oppgave-v1
     synlighet-beskjed-antall-maaneder: 1
     levetid-oppgave-antall-dager: 40
     sikkerhetsnivaa-beskjed: 3

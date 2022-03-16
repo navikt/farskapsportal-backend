@@ -1,10 +1,5 @@
 name: asynkron-feature
 ingress: https://farskapsportal-asynkron-feature.dev.intern.nav.no
-kafka:
-  brokers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-  schema-registry:
-    host: kafka-schema-registry.nais-q.adeo.no
-    url: https://kafka-schema-registry.nais-q.adeo.no
 env:
   - name: ARKIVERINGSINTERVALL
     value: 180000
@@ -42,10 +37,6 @@ env:
     value: "true"
   - name: JOURNALPOSTAPI_URL
     value: https://dokarkiv-q1.dev.adeo.no
-  - name: KAFKA_BROKERS
-    value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-  - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
-    value: https://kafka-schema-registry.nais-q.adeo.no
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
   - name: POSTGRES_USER_NAME

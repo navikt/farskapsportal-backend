@@ -10,6 +10,9 @@ spec:
     application:
       enabled: true
   image: {{ image }}
+  spec:
+    kafka:
+      pool: nav-dev
   liveness:
     path: /internal/actuator/health
     initialDelay: 70

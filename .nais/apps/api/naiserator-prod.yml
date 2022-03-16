@@ -20,6 +20,9 @@ spec:
     path: /internal/actuator/health
     initialDelay: 70
     timeout: 1
+  spec:
+    kafka:
+      pool: nav-prod
   prometheus:
     enabled: true
     path: /internal/prometheus
