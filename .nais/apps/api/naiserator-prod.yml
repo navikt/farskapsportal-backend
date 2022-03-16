@@ -10,6 +10,8 @@ spec:
     application:
       enabled: true
   image: {{ image }}
+  kafka:
+    pool: nav-prod
   liveness:
     path: /internal/actuator/health
     initialDelay: 70
@@ -20,9 +22,6 @@ spec:
     path: /internal/actuator/health
     initialDelay: 70
     timeout: 1
-  spec:
-    kafka:
-      pool: nav-prod
   prometheus:
     enabled: true
     path: /internal/prometheus
