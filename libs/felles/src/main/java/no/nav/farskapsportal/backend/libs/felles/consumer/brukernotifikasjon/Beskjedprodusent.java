@@ -35,7 +35,7 @@ public class Beskjedprodusent {
     try {
       kafkaTemplate.send(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed(), nokkel, beskjed);
     } catch (Exception e) {
-      log.error("Opprettelse av beskjed til forelder med id {} feilet!", forelder.getId());
+      log.error("Opprettelse av beskjed til forelder med id {} feilet!", forelder.getId(), e);
     }
 
     var medEllerUten = medEksternVarsling ? "med" : "uten";
