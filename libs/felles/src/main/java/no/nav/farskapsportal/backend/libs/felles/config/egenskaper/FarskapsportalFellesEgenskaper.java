@@ -14,6 +14,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "classpath:felles-application.yml", factory = YamlPropertySourceFactory.class)
 public class FarskapsportalFellesEgenskaper {
 
+  private String appnavn;
   private String systembrukerBrukernavn;
   private String systembrukerPassord;
   private int maksAntallMaanederEtterFoedsel;

@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.APPNAVN_FARSKAPSPORTAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
@@ -83,7 +82,10 @@ public class FerdigprodusentTest {
 
     // when
     ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
-        new NokkelInputBuilder().withFodselsnummer(fnrFar).withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()).withAppnavn(APPNAVN_FARSKAPSPORTAL).withNamespace(NAMESPACE_FARSKAPSPORTAL).withEventId(oppgavebestilling.getEventId()).build());
+        new NokkelInputBuilder().withFodselsnummer(fnrFar)
+            .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+            .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn()).withNamespace(NAMESPACE_FARSKAPSPORTAL)
+            .withEventId(oppgavebestilling.getEventId()).build());
 
     //then
     verify(ferdigkoe, times(1))
@@ -127,7 +129,10 @@ public class FerdigprodusentTest {
 
     // when
     ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
-        new NokkelInputBuilder().withFodselsnummer(fnrFar).withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()).withAppnavn(APPNAVN_FARSKAPSPORTAL).withNamespace(NAMESPACE_FARSKAPSPORTAL).withEventId(oppgavebestilling.getEventId()).build());
+        new NokkelInputBuilder().withFodselsnummer(fnrFar)
+            .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+            .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
+            .withNamespace(NAMESPACE_FARSKAPSPORTAL).withEventId(oppgavebestilling.getEventId()).build());
 
     //then
     verify(ferdigkoe, times(0)).send(anyString(), any(NokkelInput.class), any(DoneInput.class));

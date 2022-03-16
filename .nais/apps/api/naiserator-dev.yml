@@ -35,6 +35,8 @@ spec:
   ingresses:
     - {{ ingress }}
   env:
+    - name: APPNAVN
+      value: {{ name }}
   {{#each env}}
     - name: {{this.name}}
       value: "{{this.value}}"

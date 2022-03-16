@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.APPNAVN_FARSKAPSPORTAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -88,7 +87,7 @@ public class BeskjedprodusentTest {
         () -> assertThat(LocalDate.ofInstant(Instant.ofEpochMilli(beskjed.getSynligFremTil()),
             ZoneId.of("UTC"))).isEqualTo(LocalDate.ofInstant(Instant.ofEpochMilli(beskjed.getTidspunkt()),
             TimeZone.getDefault().toZoneId()).plusMonths(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSynlighetBeskjedAntallMaaneder()))
-        );
+    );
   }
 
   private NokkelInput oppretteNokkel(String foedselsnummer) {
@@ -97,7 +96,7 @@ public class BeskjedprodusentTest {
         .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withFodselsnummer(foedselsnummer).withEventId(unikEventid)
         .withNamespace(NAMESPACE_FARSKAPSPORTAL)
-        .withAppnavn(APPNAVN_FARSKAPSPORTAL)
+        .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
         .build();
   }
 }

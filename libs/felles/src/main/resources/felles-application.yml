@@ -35,6 +35,7 @@ url:
     security-token-service: "/security-token-service/rest/v1/sts/token"
 
 farskapsportal.felles.egenskaper:
+  appnavn: ${APPNAVN}
   systembruker-brukernavn: srvfarskapsportal
   systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
   maks-antall-maaneder-etter-foedsel: 6

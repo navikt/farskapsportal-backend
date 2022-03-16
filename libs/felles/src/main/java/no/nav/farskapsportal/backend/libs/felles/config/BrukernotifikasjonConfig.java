@@ -30,7 +30,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class BrukernotifikasjonConfig {
 
   public static final String NAMESPACE_FARSKAPSPORTAL = "farskapsportal";
-  public static final String APPNAVN_FARSKAPSPORTAL = "Farskapsportal";
 
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 

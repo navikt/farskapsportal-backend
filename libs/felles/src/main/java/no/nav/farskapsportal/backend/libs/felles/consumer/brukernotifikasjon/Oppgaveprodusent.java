@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.APPNAVN_FARSKAPSPORTAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
 
 import java.net.URL;
@@ -36,7 +35,7 @@ public class Oppgaveprodusent {
         .withEventId(UUID.randomUUID().toString())
         .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
         .withFodselsnummer(far.getFoedselsnummer())
-        .withAppnavn(APPNAVN_FARSKAPSPORTAL)
+        .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
         .withNamespace(NAMESPACE_FARSKAPSPORTAL)
         .build();
     var melding = oppretteOppgave(oppgavetekst, medEksternVarsling, farskapsportalUrl);
