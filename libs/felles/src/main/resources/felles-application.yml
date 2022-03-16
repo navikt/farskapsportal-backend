@@ -64,8 +64,8 @@ url:
 ### misc
 BRUKERNOTIFIKASJON_PAA: true
 FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no"
-NAV_TRUSTSTORE_PATH: classpath:cert/server-selfsigned.jks
-NAV_TRUSTSTORE_PASSWORD: qwer1234
+KAFKA_TRUSTSTORE_PATH: classpath:cert/server-selfsigned.jks
+KAFKA_CREDSTORE_PASSWORD: qwer1234
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 APIKEY_PDLAPI_FP: keyForZoneCrossing
@@ -73,7 +73,7 @@ APIKEY_STS_FP: keyForZoneCrossing
 
 ### kafka
 KAFKA_BROKERS: 127.0.0.1:9092
-KAFKA_SCHEMA_REGISTRY_URL_CONFIG: http://localhost:8081
+KAFKA_SCHEMA_REGISTRY: http://localhost:8081
 
 spring.kafka.bootstrap-servers: localhost:9092
 spring.kafka.consumer.group-id: farskapsportal

@@ -41,7 +41,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class OppgavestyringTest {
 
-  private static final String BRUKERNOTIFIKASJON_TOPIC_FERDIG = "aapen-brukernotifikasjon-done-v1";
+  private static final String BRUKERNOTIFIKASJON_TOPIC_FERDIG = "min-side.aapen-brukernotifikasjon-done-v1";
   private static final String GRUPPERINGSID_FARSKAP = "farskap";
 
   @Autowired
