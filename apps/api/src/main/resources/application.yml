@@ -5,6 +5,32 @@ spring:
   flyway:
     placeholders:
       user: ${DB_USER_ASYNKRON}
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    producer:
+      acks: all
+      batch-size: 1
+      properties:
+        max.blcock.ms: 2000
+        enable.idempotence: true
+    properties:
+      basic.auth:
+        credentials.source: USER_INFO
+        user.info: ${KAFKA_SCHEMA_REGISTRY_USER}:${KAFKA_SCHEMA_REGISTRY_PASSWORD}
+      schema.registry:
+        url: ${KAFKA_SCHEMA_REGISTRY}
+      security.protocol: SSL
+      specific.avro.reader: true
+      ssl:
+        key.password: ${KAFKA_CREDSTORE_PASSWORD}
+        keystore:
+          location: ${KAFKA_KEYSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
+          type: PKCS12
+        truststore:
+          type: JKS
+          location: ${KAFKA_TRUSTSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
 
 springdoc:
   packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
@@ -143,6 +169,10 @@ FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/
 ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
+KAFKA_BROKERS: 127.0.0.1:9092
+KAFKA_SCHEMA_REGISTRY: http://localhost:8081
+NAV_TRUSTSTORE_PATH: certs/server-selfsigned.jks
+NAV_TRUSTSTORE_PASSWORD: qwer1234
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
@@ -181,6 +211,10 @@ farskapsportal-api.disable-esignering: false
 
 url.esignering: ${WIREMOCK_URL}
 
+spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.consumer.group-id: farskapsportal
+spring.kafka.consumer.auto-offset-reset: earliest
+
 ---
 
 spring.config.activate.on-profile: local
@@ -197,6 +231,8 @@ spring:
 WIREMOCK_URL: http://localhost:8096
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
+KAFKA_BROKERS: 127.0.0.1:9092
+KAFKA_SCHEMA_REGISTRY: http://localhost:8080
 BRUKERNOTIFIKASJON_PAA: false
 NAIS_CLUSTER_NAME: dev-gcp
 

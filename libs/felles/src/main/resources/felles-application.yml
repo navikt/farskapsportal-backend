@@ -1,4 +1,17 @@
 spring:
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+    hikari:
+      idle-timeout: 10001
+      max-lifetime: 30001
+      connectionTimeout: 1000
+      maximum-pool-size: 10
+      minimum-idle: 1
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     producer:
@@ -25,19 +38,6 @@ spring:
           type: JKS
           location: ${KAFKA_TRUSTSTORE_PATH}
           password: ${KAFKA_CREDSTORE_PASSWORD}
-  jpa:
-    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-    database: postgresql
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
-    hikari:
-      idle-timeout: 10001
-      max-lifetime: 30001
-      connectionTimeout: 1000
-      maximum-pool-size: 10
-      minimum-idle: 1
 
 url:
   pdl-api:
