@@ -48,6 +48,9 @@ public class BrukernotifikasjonConfig {
   @Value("${spring.kafka.properties.security.protocol}")
   private String securityProtocol;
 
+  @Value("${spring.kafka.properties.ssl.key.password}")
+  private String sslKeyPassword;
+
   public BrukernotifikasjonConfig(@Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
     this.farskapsportalFellesEgenskaper = farskapsportalFellesEgenskaper;
   }
@@ -58,7 +61,6 @@ public class BrukernotifikasjonConfig {
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
-    /*
     configProps.put("schema.registry.ssl.keystore.location", trustStorePath);
     configProps.put("schema.registry.ssl.keystore.password", trustStorePwd);
     configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
@@ -67,8 +69,8 @@ public class BrukernotifikasjonConfig {
     configProps.put("ssl.truststore.password", trustStorePwd);
     configProps.put("ssl.keystore.location", trustStorePath);
     configProps.put("ssl.keystore.password", trustStorePwd);
+    configProps.put("ssl.key.password", sslKeyPassword);
     configProps.put("security.protocol", securityProtocol);
-     */
     configProps.put("reconnect.backoff.ms", 100);
     return configProps;
   }
