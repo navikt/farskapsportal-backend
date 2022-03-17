@@ -59,6 +59,7 @@ spec:
       external:
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
+        - host: kafka-schema-registry.nais-q.adeo.no
       rules:
         - application: farskapsportal-api
         - application: farskapsportal-api-feature

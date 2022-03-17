@@ -60,5 +60,6 @@ spec:
         - host: api.signering.posten.no
         - host: folkeregisteret.api.skatteetaten.no
         - host: secretmanager.googleapis.com
+        - host: kafka-schema-registry.nais.adeo.no
       rules:
         - application: farskapsportal-api
