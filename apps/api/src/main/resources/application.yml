@@ -210,7 +210,6 @@ farskapsportal-api:
 wiremock.server:
   files: classpath:/__files
   stubs: classpath:/stubs
-
 ---
 spring:
   config.activate.on-profile: remote-postgres
