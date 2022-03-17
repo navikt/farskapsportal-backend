@@ -81,19 +81,7 @@ spring:
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
   devtools.add-properties: false
-  kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
-    properties:
-      schema.registry:
-        url.config: ${KAFKA_SCHEMA_REGISTRY}
-      security.protocol: SASL_SSL
-      sasl:
-        mechanism: PLAIN
-        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
-      ssl:
-        truststore:
-          location: ${KAFKA_TRUSTSTORE_PATH}
-          password: ${KAFKA_CREDSTORE_PASSWORD}
+
 ---
 spring:
   config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test

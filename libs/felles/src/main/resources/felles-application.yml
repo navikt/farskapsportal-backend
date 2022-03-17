@@ -1,15 +1,28 @@
 spring:
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
+    producer:
+      acks: all
+      batch-size: 1
+      properties:
+        max.blcock.ms: 2000
+        enable.idempotence: true
     properties:
+      basic.auth:
+        credentials.source: USER_INFO
+        user.info: ${KAFKA_SCHEMA_REGISTRY_USER}:${KAFKA_SCHEMA_REGISTRY_PASSWORD}
       schema.registry:
-        url.config: ${KAFKA_SCHEMA_REGISTRY}
-      security.protocol: SASL_SSL
-      sasl:
-        mechanism: PLAIN
-        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
+        url: ${KAFKA_SCHEMA_REGISTRY}
+      security.protocol: SSL
+      specific.avro.reader: true
       ssl:
+        key.password: ${KAFKA_CREDSTORE_PASSWORD}
+        keystore:
+          location: ${KAFKA_KEYSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
+          type: PKCS12
         truststore:
+          type: JKS
           location: ${KAFKA_TRUSTSTORE_PATH}
           password: ${KAFKA_CREDSTORE_PASSWORD}
   jpa:

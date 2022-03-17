@@ -36,7 +36,7 @@ public class BrukernotifikasjonConfig {
   @Value("${spring.kafka.bootstrap-servers}")
   private String bootstrapAddress;
 
-  @Value("${spring.kafka.properties.schema.registry.url.config}")
+  @Value("${spring.kafka.properties.schema.registry.url}")
   private String kafkaSchemaRegistryUrlConfig;
 
   @Value("${spring.kafka.properties.ssl.truststore.location}")
@@ -44,12 +44,6 @@ public class BrukernotifikasjonConfig {
 
   @Value("${spring.kafka.properties.ssl.truststore.password}")
   private String trustStorePwd;
-
-  @Value("${spring.kafka.properties.sasl.jaas.config}")
-  private String saslJaasConfig;
-
-  @Value("${spring.kafka.properties.sasl.mechanism}")
-  private String saslMechanism;
 
   @Value("${spring.kafka.properties.security.protocol}")
   private String securityProtocol;
@@ -64,6 +58,7 @@ public class BrukernotifikasjonConfig {
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    /*
     configProps.put("schema.registry.ssl.keystore.location", trustStorePath);
     configProps.put("schema.registry.ssl.keystore.password", trustStorePwd);
     configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
@@ -73,8 +68,7 @@ public class BrukernotifikasjonConfig {
     configProps.put("ssl.keystore.location", trustStorePath);
     configProps.put("ssl.keystore.password", trustStorePwd);
     configProps.put("security.protocol", securityProtocol);
-    configProps.put("sasl.jaas.config", saslJaasConfig);
-    configProps.put("sasl.mechanism", saslMechanism);
+     */
     configProps.put("reconnect.backoff.ms", 100);
     return configProps;
   }
