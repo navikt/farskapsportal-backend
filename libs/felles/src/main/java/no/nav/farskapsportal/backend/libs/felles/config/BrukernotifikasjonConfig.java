@@ -2,6 +2,7 @@ package no.nav.farskapsportal.backend.libs.felles.config;
 
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -33,11 +34,17 @@ public class BrukernotifikasjonConfig {
 
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
+  @Value("${spring.kafka.properties.basic.auth.user.info}")
+  private String aivenSchemaRegistryCredentials;
+
   @Value("${spring.kafka.bootstrap-servers}")
   private String bootstrapAddress;
 
   @Value("${spring.kafka.properties.schema.registry.url}")
   private String kafkaSchemaRegistryUrlConfig;
+
+  @Value("${spring.kafka.properties.ssl.keystore.location}")
+  private String keyStorePath;
 
   @Value("${spring.kafka.properties.ssl.truststore.location}")
   private String trustStorePath;
@@ -60,14 +67,17 @@ public class BrukernotifikasjonConfig {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
-    configProps.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
-    configProps.put("schema.registry.ssl.keystore.location", trustStorePath);
+    configProps.put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, aivenSchemaRegistryCredentials);
+    configProps.put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, aivenSchemaRegistryCredentials);
+    configProps.put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
+    configProps.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    configProps.put("schema.registry.ssl.keystore.location", keyStorePath);
     configProps.put("schema.registry.ssl.keystore.password", trustStorePwd);
     configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
     configProps.put("schema.registry.ssl.truststore.password", trustStorePwd);
     configProps.put("ssl.truststore.location", trustStorePath);
     configProps.put("ssl.truststore.password", trustStorePwd);
-    configProps.put("ssl.keystore.location", trustStorePath);
+    configProps.put("ssl.keystore.location", keyStorePath);
     configProps.put("ssl.keystore.password", trustStorePwd);
     configProps.put("ssl.key.password", sslKeyPassword);
     configProps.put("security.protocol", securityProtocol);
