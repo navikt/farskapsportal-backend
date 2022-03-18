@@ -62,4 +62,3 @@ spec:
         - host: secretmanager.googleapis.com
       rules:
         - application: farskapsportal-api
-  webproxy: true

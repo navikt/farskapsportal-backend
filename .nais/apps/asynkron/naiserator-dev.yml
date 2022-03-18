@@ -62,4 +62,3 @@ spec:
       rules:
         - application: farskapsportal-api
         - application: farskapsportal-api-feature
-  webproxy: true
