@@ -5,32 +5,6 @@ spring:
   flyway:
     placeholders:
       user: ${DB_USER_ASYNKRON}
-  kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
-    producer:
-      acks: all
-      batch-size: 1
-      properties:
-        max.blcock.ms: 2000
-        enable.idempotence: true
-    properties:
-      basic.auth:
-        credentials.source: USER_INFO
-        user.info: ${KAFKA_SCHEMA_REGISTRY_USER}:${KAFKA_SCHEMA_REGISTRY_PASSWORD}
-      schema.registry:
-        url: ${KAFKA_SCHEMA_REGISTRY}
-      security.protocol: SSL
-      specific.avro.reader: true
-      ssl:
-        key.password: ${KAFKA_CREDSTORE_PASSWORD}
-        keystore:
-          location: ${KAFKA_KEYSTORE_PATH}
-          password: ${KAFKA_CREDSTORE_PASSWORD}
-          type: PKCS12
-        truststore:
-          type: JKS
-          location: ${KAFKA_TRUSTSTORE_PATH}
-          password: ${KAFKA_CREDSTORE_PASSWORD}
 
 springdoc:
   packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }

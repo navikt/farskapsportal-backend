@@ -192,6 +192,10 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-common</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

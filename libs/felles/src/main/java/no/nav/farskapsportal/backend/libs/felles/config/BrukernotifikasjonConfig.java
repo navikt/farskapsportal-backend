@@ -1,7 +1,10 @@
 package no.nav.farskapsportal.backend.libs.felles.config;
 
+import static io.netty.util.NetUtil.getHostname;
+
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -17,7 +20,10 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Fer
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Oppgaveprodusent;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.config.SslConfigs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,28 +39,25 @@ public class BrukernotifikasjonConfig {
 
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
-  @Value("${spring.kafka.properties.basic.auth.user.info}")
+  @Value("${KAFKA_SCHEMA_REGISTRY_USER}:${KAFKA_SCHEMA_REGISTRY_PASSWORD}")
   private String aivenSchemaRegistryCredentials;
 
-  @Value("${spring.kafka.bootstrap-servers}")
+  @Value("${KAFKA_BROKERS}")
   private String bootstrapAddress;
 
-  @Value("${spring.kafka.properties.schema.registry.url}")
+  @Value("${KAFKA_SCHEMA_REGISTRY}")
   private String kafkaSchemaRegistryUrlConfig;
 
-  @Value("${spring.kafka.properties.ssl.keystore.location}")
+  @Value("${KAFKA_KEYSTORE_PATH}")
   private String keyStorePath;
 
-  @Value("${spring.kafka.properties.ssl.truststore.location}")
+  @Value("${KAFKA_TRUSTSTORE_PATH}")
   private String trustStorePath;
 
-  @Value("${spring.kafka.properties.ssl.truststore.password}")
+  @Value("${KAFKA_CREDSTORE_PASSWORD}")
   private String trustStorePwd;
 
-  @Value("${spring.kafka.properties.security.protocol}")
-  private String securityProtocol;
-
-  @Value("${spring.kafka.properties.ssl.key.password}")
+  @Value("${KAFKA_CREDSTORE_PASSWORD}")
   private String sslKeyPassword;
 
   public BrukernotifikasjonConfig(@Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
@@ -63,23 +66,32 @@ public class BrukernotifikasjonConfig {
 
   private Map<String, Object> getKafkaConfigProps() {
     Map<String, Object> configProps = new HashMap<>();
+    configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 1);
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
+    configProps.put(ProducerConfig.CLIENT_ID_CONFIG, NAMESPACE_FARSKAPSPORTAL + getHostname(new InetSocketAddress(0)));
+    configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 40000);
+    configProps.put(ProducerConfig.ACKS_CONFIG, "all");
+    configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
     configProps.put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, aivenSchemaRegistryCredentials);
     configProps.put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
     configProps.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    configProps.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
     configProps.put("schema.registry.ssl.keystore.location", keyStorePath);
     configProps.put("schema.registry.ssl.keystore.password", trustStorePwd);
     configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
     configProps.put("schema.registry.ssl.truststore.password", trustStorePwd);
-    configProps.put("ssl.truststore.location", trustStorePath);
-    configProps.put("ssl.truststore.password", trustStorePwd);
-    configProps.put("ssl.keystore.location", keyStorePath);
-    configProps.put("ssl.keystore.password", trustStorePwd);
-    configProps.put("ssl.key.password", sslKeyPassword);
-    configProps.put("security.protocol", securityProtocol);
+    configProps.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, trustStorePath);
+    configProps.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, trustStorePwd);
+    configProps.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keyStorePath);
+    configProps.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, trustStorePwd);
+    configProps.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, sslKeyPassword);
+    configProps.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "PKCS12");
+    configProps.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "JKS");
+    configProps.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
     configProps.put("reconnect.backoff.ms", 100);
+    configProps.put("specific.avro.reader", "true");
     return configProps;
   }
 
