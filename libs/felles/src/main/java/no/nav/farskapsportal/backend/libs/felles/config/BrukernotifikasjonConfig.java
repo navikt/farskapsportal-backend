@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.config;
 
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import java.net.MalformedURLException;
@@ -67,7 +66,6 @@ public class BrukernotifikasjonConfig {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
-    configProps.put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, aivenSchemaRegistryCredentials);
     configProps.put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, aivenSchemaRegistryCredentials);
     configProps.put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
     configProps.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
