@@ -80,6 +80,9 @@ BRUKERNOTIFIKASJON_PAA: true
 FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no"
 KAFKA_TRUSTSTORE_PATH: classpath:cert/server-selfsigned.jks
 KAFKA_CREDSTORE_PASSWORD: qwer1234
+KAFKA_SCHEMA_REGISTRY_USER: user
+KAFKA_SCHEMA_REGISTRY_PASSWORD: secret
+KAFKA_KEYSTORE_PATH: /var/test
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 APIKEY_PDLAPI_FP: keyForZoneCrossing
@@ -92,7 +95,6 @@ KAFKA_SCHEMA_REGISTRY: http://localhost:8081
 spring.kafka.bootstrap-servers: localhost:9092
 spring.kafka.consumer.group-id: farskapsportal
 spring.kafka.consumer.auto-offset-reset: earliest
-
 
 ---
 ### H2 ###
