@@ -16,6 +16,8 @@ spec:
           kind: Project
         role: roles/cloudsql.client
   image: {{ image }}
+  kafka:
+    pool: nav-dev
   liveness:
     path: /internal/actuator/health
     initialDelay: 70
@@ -42,6 +44,8 @@ spec:
   ingresses:
     - {{ ingress }}
   env:
+    - name: APPNAVN
+      value: {{ name }}
   {{#each env}}
     - name: {{this.name}}
       value: "{{this.value}}"

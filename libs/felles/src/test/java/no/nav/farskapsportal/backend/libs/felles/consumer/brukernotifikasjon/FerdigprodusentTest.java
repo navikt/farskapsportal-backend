@@ -1,9 +1,10 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteFarskapserklaering;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,9 +18,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import no.nav.brukernotifikasjon.schemas.Done;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
-import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder;
+import no.nav.brukernotifikasjon.schemas.builders.NokkelInputBuilder;
+import no.nav.brukernotifikasjon.schemas.input.DoneInput;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
@@ -48,7 +49,7 @@ public class FerdigprodusentTest {
   @Autowired
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
   @MockBean
-  private KafkaTemplate<Nokkel, Done> ferdigkoe;
+  private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
   @Autowired
   private Ferdigprodusent ferdigprodusent;
   @Autowired
@@ -65,13 +66,15 @@ public class FerdigprodusentTest {
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var ferdigfanger = ArgumentCaptor.forClass(Done.class);
+    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
 
     var fnrFar = "11111122222";
 
-    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(6));
-    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
+    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
+        henteBarnUtenFnr(6));
+    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
+        .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
     var oppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
@@ -79,7 +82,10 @@ public class FerdigprodusentTest {
 
     // when
     ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
-        new NokkelBuilder().withSystembruker("srvfarskapsportal").withEventId(oppgavebestilling.getEventId()).build());
+        new NokkelInputBuilder().withFodselsnummer(fnrFar)
+            .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+            .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn()).withNamespace(NAMESPACE_FARSKAPSPORTAL)
+            .withEventId(oppgavebestilling.getEventId()).build());
 
     //then
     verify(ferdigkoe, times(1))
@@ -96,12 +102,8 @@ public class FerdigprodusentTest {
     var ferdigmelding = ferdigmeldinger.get(0);
 
     assertAll(
-        () -> assertThat(ferdigmelding.getFodselsnummer()).isEqualTo(fnrFar),
-        () -> assertThat(ferdigmelding.getGrupperingsId()).isEqualTo(
-            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(ferdigmelding.getTidspunkt()), ZoneId.of("UTC")))
             .isBetween(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2), ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime()),
-        () -> assertThat(noekkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(noekkel.getEventId()).isEqualTo(oppgavebestilling.getEventId())
     );
   }
@@ -115,8 +117,10 @@ public class FerdigprodusentTest {
 
     var fnrFar = "11111122222";
 
-    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(6));
-    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
+    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
+        henteBarnUtenFnr(6));
+    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
+        .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
     var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
     var oppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
@@ -125,9 +129,12 @@ public class FerdigprodusentTest {
 
     // when
     ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
-        new NokkelBuilder().withSystembruker("srvfarskapsportal").withEventId(oppgavebestilling.getEventId()).build());
+        new NokkelInputBuilder().withFodselsnummer(fnrFar)
+            .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+            .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
+            .withNamespace(NAMESPACE_FARSKAPSPORTAL).withEventId(oppgavebestilling.getEventId()).build());
 
     //then
-    verify(ferdigkoe, times(0)).send(anyString(), any(Nokkel.class), any(Done.class));
+    verify(ferdigkoe, times(0)).send(anyString(), any(NokkelInput.class), any(DoneInput.class));
   }
 }

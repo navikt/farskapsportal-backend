@@ -26,6 +26,10 @@
       <artifactId>springdoc-openapi-ui</artifactId>
       <version>${springdoc-openapi-ui.version}</version>
     </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

@@ -14,8 +14,8 @@ import static org.mockito.Mockito.verify;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import no.nav.brukernotifikasjon.schemas.Nokkel;
-import no.nav.brukernotifikasjon.schemas.Oppgave;
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
+import no.nav.brukernotifikasjon.schemas.input.OppgaveInput;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
@@ -41,7 +41,7 @@ public class OppgaveprodusentTest {
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @MockBean
-  private KafkaTemplate<Nokkel, Oppgave> oppgavekoe;
+  private KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
 
   @Autowired
   private Oppgaveprodusent oppgaveprodusent;
@@ -62,8 +62,8 @@ public class OppgaveprodusentTest {
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var noekkelfanger = ArgumentCaptor.forClass(Nokkel.class);
-    var oppgavefanger = ArgumentCaptor.forClass(Oppgave.class);
+    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
+    var oppgavefanger = ArgumentCaptor.forClass(OppgaveInput.class);
 
     var far = Forelder.builder().foedselsnummer("11111122222").build();
     var oppgavetekst = "Vennligst signer farskapserklæringen";
@@ -103,13 +103,12 @@ public class OppgaveprodusentTest {
     var oppgave = oppgaver.get(0);
 
     assertAll(
-        () -> assertThat(oppgave.getFodselsnummer()).isEqualTo(far.getFoedselsnummer()),
+        () -> assertThat(noekkel.getFodselsnummer()).isEqualTo(far.getFoedselsnummer()),
         () -> assertThat(oppgave.getEksternVarsling()).isEqualTo(eksternVarsling),
         () -> assertThat(oppgave.getTekst()).isEqualTo(oppgavetekst),
-        () -> assertThat(oppgave.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
+        () -> assertThat(noekkel.getGrupperingsId()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap()),
         () -> assertThat(oppgave.getSikkerhetsnivaa()).isEqualTo(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave()),
         () -> assertThat(oppgave.getTidspunkt()).isBetween(Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () -> assertThat(noekkel.getSystembruker()).isEqualTo(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn()),
         () -> assertThat(noekkel.getEventId()).isEqualTo(oppgavebestilling.get().getEventId())
 
     );
@@ -138,6 +137,6 @@ public class OppgaveprodusentTest {
         oppgavetekst, eksternVarsling);
 
     //then
-    verify(oppgavekoe, times(0)).send(anyString(), any(Nokkel.class), any(Oppgave.class));
+    verify(oppgavekoe, times(0)).send(anyString(), any(NokkelInput.class), any(OppgaveInput.class));
   }
 }

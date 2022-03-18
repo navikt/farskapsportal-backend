@@ -13,11 +13,6 @@ gcp:
       users:
         asynkron:
           name: asynkron_prod
-kafka:
-  brokers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
-  schema-registry:
-    host: kafka-schema-registry.nais.adeo.no
-    url: https://kafka-schema-registry.nais.adeo.no
 env:
   - name: APIGW_URL
     value: https://api-gw.oera.no
@@ -53,9 +48,5 @@ env:
     value: "false"
   - name: JOURNALPOSTAPI_URL
     value: https://dokarkiv.adeo.no
-  - name: KAFKA_BROKERS
-    value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
-  - name: KAFKA_SCHEMA_REGISTRY_URL_CONFIG
-    value: https://kafka-schema-registry.nais.adeo.no
   - name: SKATT_URL
     value: https://folkeregisteret.api.skatteetaten.no

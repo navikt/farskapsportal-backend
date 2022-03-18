@@ -19,6 +19,7 @@ public class Brukernotifikasjon {
   private String topicOppgave;
   private String grupperingsidFarskap;
   private int synlighetBeskjedAntallMaaneder;
+  private int levetidOppgaveAntallDager;
   private int sikkerhetsnivaaBeskjed;
   private int sikkerhetsnivaaOppgave;
   private boolean skruddPaa;

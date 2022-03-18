@@ -41,7 +41,6 @@ virksomhetssertifikat:
 farskapsportal.asynkron.egenskaper:
   arkiveringsintervall: ${ARKIVERINGSINTERVALL}
   arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
-  brukernotifikasjon-oppgave-synlighet-antall-dager: 40
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
   oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
@@ -82,19 +81,6 @@ spring:
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
   devtools.add-properties: false
-  kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
-    properties:
-      schema.registry:
-        url.config: ${KAFKA_SCHEMA_REGISTRY_URL_CONFIG}
-      security.protocol: SASL_SSL
-      sasl:
-        mechanism: PLAIN
-        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username=srvfarskapsportal password="${SRVFARSKAPSPORTAL_PWD}";
-      ssl:
-        truststore:
-          location: ${NAV_TRUSTSTORE_PATH}
-          password: ${NAV_TRUSTSTORE_PASSWORD}
 ---
 spring:
   config.activate.on-profile: test, local, scheduled-test, skatt-ssl-test
