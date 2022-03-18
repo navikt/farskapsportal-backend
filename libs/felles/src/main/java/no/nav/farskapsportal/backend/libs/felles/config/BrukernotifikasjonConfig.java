@@ -78,10 +78,12 @@ public class BrukernotifikasjonConfig {
     configProps.put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
     configProps.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
     configProps.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+    /*
     configProps.put("schema.registry.ssl.keystore.location", keyStorePath);
     configProps.put("schema.registry.ssl.keystore.password", trustStorePwd);
     configProps.put("schema.registry.ssl.truststore.location", trustStorePath);
     configProps.put("schema.registry.ssl.truststore.password", trustStorePwd);
+     */
     configProps.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, trustStorePath);
     configProps.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, trustStorePwd);
     configProps.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keyStorePath);
