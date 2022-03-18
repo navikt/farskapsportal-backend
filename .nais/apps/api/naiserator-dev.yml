@@ -71,4 +71,4 @@ spec:
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
-        - host: kafka-schema-registry.nais-q.adeo.no
+  webproxy: true
