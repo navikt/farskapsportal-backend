@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.digipost.signature.client.core.DocumentType;
 import no.digipost.signature.client.core.IdentifierInSignedDocuments;
 import no.digipost.signature.client.core.PAdESReference;
 import no.digipost.signature.client.core.XAdESReference;
@@ -83,7 +84,7 @@ public class DifiESignaturConsumer {
     var tittel = tekstvelger(Tekst.DOKUMENT_TITTEL, skriftspraak);
     var dokumentnavn = tekstvelger(Tekst.DOKUMENT_FILNAVN, skriftspraak);
 
-    var directDocument = DirectDocument.builder(tittel, dokumentnavn, dokument.getDokumentinnhold().getInnhold()).build();
+    var directDocument = DirectDocument.builder(tittel, dokument.getDokumentinnhold().getInnhold()).type(DocumentType.PDF).build();
 
     var exitUrls = ExitUrls
         .of(URI.create(farskapsportalApiEgenskaper.getEsignering().getSuksessUrl() + "/id_farskapserklaering/" + idFarskapserklaering),
@@ -92,10 +93,12 @@ public class DifiESignaturConsumer {
 
     var morSignerer = DirectSigner.withPersonalIdentificationNumber(mor.getFoedselsnummer()).build();
     var farSignerer = DirectSigner.withPersonalIdentificationNumber(far.getFoedselsnummer()).build();
-    var directJob = DirectJob.builder(directDocument, exitUrls, List.of(morSignerer, farSignerer))
+
+    var directJob = DirectJob.builder(tittel, List.of(directDocument), List.of(morSignerer, farSignerer), exitUrls)
         .withReference(UUID.randomUUID().toString())
         .withIdentifierInSignedDocuments(IdentifierInSignedDocuments.PERSONAL_IDENTIFICATION_NUMBER_AND_NAME)
         .build();
+    
     DirectJobResponse directJobResponse;
     try {
       directJobResponse = client.create(directJob);
