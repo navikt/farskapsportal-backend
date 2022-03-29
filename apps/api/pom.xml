@@ -29,7 +29,7 @@
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google.api.gax.version>2.5.0</google.api.gax.version>
     <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
-    <jackson-core.version>2.12.6</jackson-core.version>
+    <jackson-core.version>2.13.2</jackson-core.version>
     <jersey-hk2.version>2.35</jersey-hk2.version>
     <jsoup.version>1.14.3</jsoup.version>
     <openhtml.version>1.0.10</openhtml.version>
