@@ -82,6 +82,26 @@ public class PdlApiConsumerTest {
     }
 
     @Test
+    public void skalHenteKjoennMedSyntetiskIdent() {
+
+      // given
+      var fnrMor = "03827297045";
+      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+
+      var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
+      kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
+
+      List<HentPersonSubResponse> subResponses = List.of(new HentPersonKjoenn(kjoennshistorikk));
+      pdlApiStub.runPdlApiHentPersonStub(subResponses);
+
+      // when
+      var kjoenn = pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor);
+
+      // then
+      Assertions.assertEquals(KjoennType.KVINNE, kjoenn.getKjoenn());
+    }
+
+    @Test
     @DisplayName("Skal hente kjønn hvis person eksisterer")
     public void skalHenteKjoennHvisPersonEksisterer() {
 

@@ -83,6 +83,7 @@ public class PersonopplysningService {
   }
 
   public boolean harNorskBostedsadresse(String foedselsnummer) {
+
     var bostedsadresseDto = pdlApiConsumer.henteBostedsadresse(foedselsnummer);
     if (bostedsadresseDto.getVegadresse() != null && bostedsadresseDto.getVegadresse().getAdressenavn() != null) {
       log.info("Personen er registrert med norsk vegadresse på postnummer: {}", bostedsadresseDto.getVegadresse().getPostnummer());
@@ -212,7 +213,7 @@ public class PersonopplysningService {
         .filter(kjoennDto -> kjoennDto.getMetadata().getHistorisk() == true)
         .flatMap(kjoennDto -> kjoennDto.getMetadata().getEndringer().stream())
         .filter(e -> e.getType().equals(Type.OPPRETT))
-        .map(e ->e.getRegistrert())
+        .map(e -> e.getRegistrert())
         .min(LocalDateTime::compareTo)
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ElDSTE_INNSLAG));
 

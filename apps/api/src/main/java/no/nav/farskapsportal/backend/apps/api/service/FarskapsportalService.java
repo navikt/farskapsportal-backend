@@ -525,7 +525,7 @@ public class FarskapsportalService {
         .getAntallFeiledeForsoek()) {
       kontrollereNavnOgNummerFar(fnrMor, request.getNavn(), registrertNavnFar.sammensattNavn());
     } else {
-     throw berikeOgKasteKontrollereNavnFarException(fnrMor, new FeilNavnOppgittException(Feilkode.MAKS_ANTALL_FORSOEK, request.getNavn(), null));
+      throw berikeOgKasteKontrollereNavnFarException(fnrMor, new FeilNavnOppgittException(Feilkode.MAKS_ANTALL_FORSOEK, request.getNavn(), null));
     }
   }
 
@@ -557,7 +557,7 @@ public class FarskapsportalService {
     try {
       return personopplysningService.henteNavn(request.getFoedselsnummer());
     } catch (RessursIkkeFunnetException rife) {
-       throw berikeOgKasteKontrollereNavnFarException(fnrMor, new PersonIkkeFunnetException(request.getNavn(), null));
+      throw berikeOgKasteKontrollereNavnFarException(fnrMor, new PersonIkkeFunnetException(request.getNavn(), null));
     }
   }
 
