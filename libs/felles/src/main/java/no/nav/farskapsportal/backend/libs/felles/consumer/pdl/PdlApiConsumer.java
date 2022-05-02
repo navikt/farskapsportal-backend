@@ -255,7 +255,7 @@ public class PdlApiConsumer {
       log.info("Ident er numerisk");
       return true;
     } catch (NumberFormatException e) {
-      log.error(feilmelding);
+      log.error(feilmelding, ident);
       return false;
     }
   }
