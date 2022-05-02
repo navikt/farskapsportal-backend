@@ -95,8 +95,12 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
+   return () -> henteIdentFraToken(oidcTokenManager);
+  }
+
+  private String henteIdentFraToken(OidcTokenManager oidcTokenManager) {
     var ident = SecurityUtils.hentePid(oidcTokenManager.hentIdToken());
-    return () -> erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentIdToken());
+    return erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentIdToken());
   }
 
   @FunctionalInterface
