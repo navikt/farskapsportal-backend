@@ -252,8 +252,10 @@ public class PdlApiConsumer {
   public static boolean erNumerisk(String ident, String feilmelding) {
     try {
       Long.parseLong(ident);
+      log.info("Ident er numerisk");
       return true;
     } catch (NumberFormatException e) {
+      log.error(feilmelding);
       return false;
     }
   }
