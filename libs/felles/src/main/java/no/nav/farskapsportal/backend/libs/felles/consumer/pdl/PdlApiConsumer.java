@@ -249,18 +249,15 @@ public class PdlApiConsumer {
     return response;
   }
 
-  public static boolean erNumerisk(String ident, String feilmelding) {
+  public static void erNumerisk(String ident, String feilmelding) {
     try {
       Long.parseLong(ident);
-      log.info("Ident er numerisk");
-      return true;
     } catch (NumberFormatException e) {
-      log.error(feilmelding, ident);
-      return false;
+      log.error(feilmelding);
     }
   }
 
-  public static boolean erNumerisk(String ident) {
-    return erNumerisk(ident, "Personens ident er ikke numerisk");
+  public static void erNumerisk(String ident) {
+    erNumerisk(ident, "Personens ident er ikke numerisk");
   }
 }
