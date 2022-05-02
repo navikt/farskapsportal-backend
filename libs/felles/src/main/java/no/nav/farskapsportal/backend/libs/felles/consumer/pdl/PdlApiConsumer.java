@@ -210,7 +210,6 @@ public class PdlApiConsumer {
 
   @Retryable(value = Exception.class, backoff = @Backoff(delay = 500))
   private GraphQLResponse hentePersondokument(String ident, String query, boolean inkludereHistorikk) {
-    erNumerisk(ident);
     val graphQlRequest = GraphQLRequest.builder().query(query).variables(Map.of("historikk", inkludereHistorikk, "ident", ident)).build();
 
     var endpoint = consumerEndpoint.retrieveEndpoint(PDL_API_GRAPHQL);
@@ -247,17 +246,5 @@ public class PdlApiConsumer {
       throw new PdlApiErrorException(errors);
     });
     return response;
-  }
-
-  public static void erNumerisk(String ident, String feilmelding) {
-    try {
-      Long.parseLong(ident);
-    } catch (NumberFormatException e) {
-      log.error(feilmelding);
-    }
-  }
-
-  public static void erNumerisk(String ident) {
-    erNumerisk(ident, "Personens ident er ikke numerisk");
   }
 }

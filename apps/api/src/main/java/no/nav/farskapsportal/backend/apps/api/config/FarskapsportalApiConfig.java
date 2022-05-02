@@ -95,7 +95,8 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
-    return () -> SecurityUtils.hentePid(oidcTokenManager.hentIdToken());
+    var ident = SecurityUtils.hentePid(oidcTokenManager.hentIdToken());
+    return () -> erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentIdToken());
   }
 
   @FunctionalInterface
@@ -139,6 +140,17 @@ public class FarskapsportalApiConfig {
     @Override
     public void addFormatters(FormatterRegistry registry) {
       registry.addConverter(new StringToEnumConverter());
+    }
+  }
+
+  public static boolean erNumerisk(String ident) {
+    try {
+      Long.parseLong(ident);
+      log.info("Identen er numerisk");
+      return true;
+    } catch (NumberFormatException e) {
+      log.warn("Identen er ikke numerisk");
+      return false;
     }
   }
 }
