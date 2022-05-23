@@ -13,10 +13,6 @@ env:
     value: fpdb-main
   - name: DEAKTIVERINGSRATE
     value: "0 15 13 * * ?"
-  - name: DISCOVERY_URL
-    value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
-  - name: AUD_FP
-    value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN

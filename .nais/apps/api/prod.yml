@@ -18,10 +18,6 @@ env:
     value: https://api-gw.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
-  - name: DISCOVERY_URL
-    value: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
-  - name: AUD_FP
-    value: f45035f2-9a27-46f7-917c-0569a03285cd
   - name: DB_USER_ASYNKRON
     value: asynkron_prod
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
