@@ -19,7 +19,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!-- navikt -->
-    <token-validation-spring.version>1.3.19</token-validation-spring.version>
+    <token-validation-spring.version>2.0.21</token-validation-spring.version>
 
     <!-- other -->
     <apache.commons-lang.version>3.12.0</apache.commons-lang.version>
@@ -340,7 +340,7 @@
 
     <dependency>
       <groupId>no.nav.security</groupId>
-      <artifactId>token-validation-test-support</artifactId>
+      <artifactId>token-validation-spring-test</artifactId>
       <version>${token-validation-spring.version}</version>
       <scope>test</scope>
     </dependency>
