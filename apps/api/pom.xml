@@ -30,7 +30,11 @@
     <google.api.gax.version>2.5.0</google.api.gax.version>
     <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
     <jersey-hk2.version>2.36</jersey-hk2.version>
+<<<<<<< HEAD
     <jsoup.version>1.15.2</jsoup.version>
+=======
+    <jsoup.version>1.15.1</jsoup.version>
+>>>>>>> 27802c529d742b60824537610b298367f49fb5c7
     <openhtml.version>1.0.10</openhtml.version>
     <signature-api-client-java.version>7.0-RC3</signature-api-client-java.version>
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
