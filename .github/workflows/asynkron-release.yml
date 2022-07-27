@@ -11,7 +11,7 @@ on:
       - '**/asynkron-ci.yml'
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/farskapsportal-asynkron:${{ github.sha }}
+  IMAGE: ghcr.io/${{ github.repository }}/farskapsportal-asynkron:${{ github.sha }}
 
 jobs:
   verify:
@@ -53,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/asynkron/target/app.jar .
-          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+          docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
   deploy:
     runs-on: ubuntu-latest
