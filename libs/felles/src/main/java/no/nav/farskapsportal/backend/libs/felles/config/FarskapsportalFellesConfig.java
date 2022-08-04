@@ -17,6 +17,8 @@ import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -37,6 +39,8 @@ import org.springframework.web.client.RestTemplate;
 @EnableJpaRepositories("no.nav.farskapsportal.backend.libs.felles.persistence.dao")
 @Import({BrukernotifikasjonConfig.class, RestTemplateFellesConfig.class})
 public class FarskapsportalFellesConfig {
+
+  public static final Logger SECURE_LOGGER = LoggerFactory.getLogger("secureLogger");
 
   public static final String PROFILE_LIVE = "live";
   public static final String PROFILE_LOCAL = "local";

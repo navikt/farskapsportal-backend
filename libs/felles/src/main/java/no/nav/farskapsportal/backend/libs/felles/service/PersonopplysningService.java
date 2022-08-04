@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.service;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SECURE_LOGGER;
+
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.time.LocalDate;
@@ -11,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.CustomLog;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.Kjoenn;
@@ -108,6 +111,7 @@ public class PersonopplysningService {
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
+    SECURE_LOGGER.info("Henter fødselsdato for person med ident {}");
     return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedselsdato();
   }
 
