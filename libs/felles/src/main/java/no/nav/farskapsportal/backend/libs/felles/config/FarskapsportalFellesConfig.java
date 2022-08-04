@@ -40,7 +40,7 @@ import org.springframework.web.client.RestTemplate;
 @Import({BrukernotifikasjonConfig.class, RestTemplateFellesConfig.class})
 public class FarskapsportalFellesConfig {
 
-  public static final Logger SECURE_LOGGER = LoggerFactory.getLogger("secureLogger");
+  public static final Logger SIKKER_LOGG = LoggerFactory.getLogger("secureLogger");
 
   public static final String PROFILE_LIVE = "live";
   public static final String PROFILE_LOCAL = "local";

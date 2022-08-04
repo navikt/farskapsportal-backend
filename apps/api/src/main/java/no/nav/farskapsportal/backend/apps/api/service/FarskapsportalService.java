@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.service;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -84,6 +86,8 @@ public class FarskapsportalService {
   }
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
+
+    SIKKER_LOGG.info("Henter brukerinformasjon for person med ident {}", fnrPaaloggetBruker);
 
     var brukersForelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetBruker);
     Set<FarskapserklaeringDto> avventerSignereringPaaloggetBruker = new HashSet<>();
