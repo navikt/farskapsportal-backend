@@ -39,6 +39,8 @@ spec:
   env:
     - name: APPNAVN
       value: {{ name }}
+    - name: SPRING_PROFILES_ACTIVE
+      value: live, nais
   {{#each env}}
     - name: {{this.name}}
       value: "{{this.value}}"
