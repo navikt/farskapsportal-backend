@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.service;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.time.LocalDate;
@@ -108,6 +110,7 @@ public class PersonopplysningService {
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
+    SIKKER_LOGG.info("Henter fødselsdato for person med ident {}", foedselsnummer);
     return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedselsdato();
   }
 
