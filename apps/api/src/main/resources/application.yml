@@ -87,9 +87,11 @@ spring:
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
+  spring.datasource.initialization-mode: always
+  data.jpa.repositories.bootstrap-mode: default
   h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
-  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+  jpa.hibernate.ddl-auto: create-drop
+  jpa.database-platform: org.hibernate.dialect.H2Dialect
 
 ---
 ### POSTGRES ###
@@ -121,11 +123,12 @@ DB_USER_ASYNKRON: asynkron_feature
 ---
 ### MOCK AZURE ###
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test
+  config.activate.on-profile: test, local-postgres, remote-postgres, integration-test
 
 no.nav.security.jwt:
+  expirythreshold: 1
   issuer.selvbetjening:
-    discoveryurl: http://metadata
+    discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
 
@@ -136,7 +139,7 @@ spring:
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
-WIREMOCK_URL: http://localhost:8096
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/
@@ -195,14 +198,22 @@ spring.config.activate.on-profile: local
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
+  port: 0
   files: classpath:/__files
   stubs: classpath:/stubs
+
+no.nav.security.jwt:
+  expirythreshold: 1
+  issuer.selvbetjening:
+    discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
 
 ---
 spring:
   config.activate.on-profile: local-postgres, remote-postgres
 
-WIREMOCK_URL: http://localhost:8096
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 KAFKA_BROKERS: 127.0.0.1:9092
@@ -218,6 +229,7 @@ farskapsportal-api:
   systembruker.passord: se-vault
 
 wiremock.server:
+  port: 0
   files: classpath:/__files
   stubs: classpath:/stubs
 ---
@@ -247,6 +259,7 @@ virksomhetssertifikat:
     hemmelighetversjon: 2
 
 wiremock.server:
+  port: 0
   files: classpath:/__files
   stubs: classpath:/stubs
 

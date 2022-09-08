@@ -43,8 +43,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -52,6 +54,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {FarskapsportalFellesTestConfig.class,
     BrukernotifikasjonConfig.class})
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureWireMock(port=0)
 public class BrukernotifikasjonConsumerTest {
 
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";
@@ -61,24 +64,15 @@ public class BrukernotifikasjonConsumerTest {
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE = "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final Barn BARN = TestUtils.henteBarnUtenFnr(5);
 
-  @Autowired
-  Mapper mapper;
-  @Autowired
-  private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  @Autowired
-  private PersistenceService persistenceService;
-  @Autowired
-  private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired
-  private OppgavebestillingDao oppgavebestillingDao;
-  @MockBean
-  private KafkaTemplate<NokkelInput, BeskjedInput> beskjedkoe;
-  @MockBean
-  private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
-  @MockBean
-  private KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
-  @Autowired
-  private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  private @Value("${wiremock.server.port}") String wiremockPort;
+  private @Autowired BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired OppgavebestillingDao oppgavebestillingDao;
+  private @MockBean KafkaTemplate<NokkelInput, BeskjedInput> beskjedkoe;
+  private @MockBean KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
+  private @MockBean KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
+  private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Test
   void skalInformereForeldreOmTilgjengeligFarskapserklaering() {
@@ -323,8 +317,8 @@ public class BrukernotifikasjonConsumerTest {
     farskapserklaeringDao.deleteAll();
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
         .build();
 
     var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(MOR).far(FAR).barn(BARN).dokument(dokument).build();
@@ -372,8 +366,8 @@ public class BrukernotifikasjonConsumerTest {
     farskapserklaeringDao.deleteAll();
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
         .build();
 
     var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(henteForelder(Forelderrolle.MOR))
@@ -411,8 +405,8 @@ public class BrukernotifikasjonConsumerTest {
     farskapserklaeringDao.deleteAll();
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
+        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
         .build();
     var farskapserklaeringSomVenterPaaFarsSignatur = Farskapserklaering.builder().mor(henteForelder(Forelderrolle.MOR))
         .far(henteForelder(Forelderrolle.FAR)).barn(TestUtils.henteBarnUtenFnr(5)).dokument(dokument).build();

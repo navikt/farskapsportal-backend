@@ -5,11 +5,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
-import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
@@ -20,8 +18,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 @Slf4j
@@ -33,19 +29,6 @@ public class RestTemplateAsynkronConfig {
 
   public RestTemplateAsynkronConfig(@Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper) {
     this.farskapsportalAsynkronEgenskaper = farskapsportalAsynkronEgenskaper;
-  }
-
-  @Bean
-  @Qualifier("journalpostapi")
-  @Scope("prototype")
-  public HttpHeaderRestTemplate journalpostApiRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-      @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
-    httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
-    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + securityTokenServiceConsumer
-        .hentIdTokenForServicebruker(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerBrukernavn(),
-            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getSystembrukerPassord()));
-    return httpHeaderRestTemplate;
   }
 
   @Bean

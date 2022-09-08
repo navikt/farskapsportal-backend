@@ -46,10 +46,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
@@ -57,6 +59,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("PersistenceServiceTest")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
+@AutoConfigureWireMock(port=0)
 public class PersistenceServiceTest {
 
   private static final Forelder MOR = TestUtils.henteForelder(Forelderrolle.MOR);
@@ -65,8 +68,9 @@ public class PersistenceServiceTest {
   private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn("Fetter").etternavn("Anton").build();
   private static final Barn UFOEDT_BARN = TestUtils.henteBarnUtenFnr(17);
   private static final Barn NYFOEDT_BARN = TestUtils.henteBarnMedFnr(LocalDate.now().minusWeeks(2));
-  private static final Farskapserklaering FARSKAPSERKLAERING = TestUtils.henteFarskapserklaering(MOR, FAR, UFOEDT_BARN);
 
+  @Value("${wiremock.server.port}")
+  String wiremockPort;
   @MockBean
   private PersonopplysningService personopplysningServiceMock;
   @Autowired
@@ -127,11 +131,12 @@ public class PersistenceServiceTest {
     void lagreFarskapserklaering() {
 
       // given
+      forelderDao.deleteAll();
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
       // when
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
 
       var hentetFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
 
@@ -149,13 +154,13 @@ public class PersistenceServiceTest {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
-      var deaktivertFarskapserklaeringMedSammeMorFarOgBarn = TestUtils.henteFarskapserklaering(MOR, FAR, NYFOEDT_BARN);
+      var deaktivertFarskapserklaeringMedSammeMorFarOgBarn = henteFarskapserklaering(MOR, FAR, NYFOEDT_BARN);
       var lagretDeaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(
           deaktivertFarskapserklaeringMedSammeMorFarOgBarn);
       lagretDeaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(lagretDeaktivertFarskapserklaering);
 
-      var duplikatAktivFarskapserklaering = TestUtils.henteFarskapserklaering(MOR, FAR, NYFOEDT_BARN);
+      var duplikatAktivFarskapserklaering = henteFarskapserklaering(MOR, FAR, NYFOEDT_BARN);
 
       // when
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(duplikatAktivFarskapserklaering);
@@ -181,11 +186,11 @@ public class PersistenceServiceTest {
 
       // given
       farskapserklaeringDao.save(
-          TestUtils.henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR), TestUtils.henteForelder(Forelderrolle.FAR),
+          henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR), TestUtils.henteForelder(Forelderrolle.FAR),
               TestUtils.henteBarnUtenFnr(17)));
 
       // when, then
-      assertThrows(ValideringException.class, () -> persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING));
+      assertThrows(ValideringException.class, () -> persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN)));
     }
 
     @Test
@@ -228,7 +233,7 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
 
-      var farskapserklaering = TestUtils.henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR),
+      var farskapserklaering = henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR),
           TestUtils.henteForelder(Forelderrolle.FAR),
           TestUtils.henteBarnUtenFnr(17));
       return farskapserklaeringDao.save(farskapserklaering);
@@ -262,8 +267,8 @@ public class PersistenceServiceTest {
           .findFirst().get();
 
       assertAll(
-          () -> assertEquals(FARSKAPSERKLAERING.getFar().getFoedselsnummer(), hentetFarskapserklaering.getFar().getFoedselsnummer()),
-          () -> assertEquals(FARSKAPSERKLAERING.getBarn().getTermindato(), hentetFarskapserklaering.getBarn().getTermindato()),
+          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getFar().getFoedselsnummer(), hentetFarskapserklaering.getFar().getFoedselsnummer()),
+          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getBarn().getTermindato(), hentetFarskapserklaering.getBarn().getTermindato()),
           () -> assertThat(hentetFarskapserklaering.getDeaktivert()).isNull()
       );
     }
@@ -410,7 +415,7 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
       return farskapserklaeringDao.save(
-          TestUtils.henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR), TestUtils.henteForelder(Forelderrolle.FAR),
+          henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR), TestUtils.henteForelder(Forelderrolle.FAR),
               TestUtils.henteBarnUtenFnr(17)));
     }
 
@@ -629,7 +634,7 @@ public class PersistenceServiceTest {
     void skalKasteValideringExceptionDersomMorHarEksisterendeFarskapserklaeringOgOppretterNyMedTermindato() {
 
       // given
-      persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
 
       // when, then
       var valideringException = assertThrows(ValideringException.class,
@@ -647,8 +652,8 @@ public class PersistenceServiceTest {
       var fnrMorUtenEksisterendeFarskapserklaering = LocalDate.now().minusYears(29).format(DateTimeFormatter.ofPattern("ddMMyy")) + "12245";
 
       var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-          .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).build())
-          .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
+          .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).build())
+          .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
           .build();
 
       var farskapserklaering = Farskapserklaering.builder().barn(NYFOEDT_BARN).mor(MOR).far(FAR).dokument(dokument).build();
@@ -676,7 +681,7 @@ public class PersistenceServiceTest {
     void skalIkkeKasteExceptionDersomMorHarEnEksisterendeDeaktivertFarskapserklaering() {
 
       // given
-      var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(FARSKAPSERKLAERING);
+      var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
       deaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(deaktivertFarskapserklaering);
 
@@ -690,5 +695,16 @@ public class PersistenceServiceTest {
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(),
               mapper.toDto(UFOEDT_BARN)));
     }
+  }
+
+  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
+        .signeringsinformasjonMor(
+            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
+        .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 }

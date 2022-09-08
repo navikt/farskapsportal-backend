@@ -6,7 +6,6 @@ import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsu
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_FAR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_MOR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteNyligFoedtBarn;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
@@ -67,6 +66,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
@@ -89,6 +89,7 @@ import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.Hen
 import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.stub.StsStub;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -97,6 +98,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -114,7 +116,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @DisplayName("FarskapsportalController")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
 @ActiveProfiles(PROFILE_TEST)
-@AutoConfigureWireMock(port = 8096)
+@AutoConfigureWireMock(port = 0)
+@EnableMockOAuth2Server
 public class FarskapsportalControllerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
@@ -132,6 +135,8 @@ public class FarskapsportalControllerTest {
   private static final BostedsadresseDto BOSTEDSADRESSE = getBostedsadresse(true);
   private static final String REDIRECT_URL = "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
 
+  @Value("${wiremock.server.port}")
+  String wiremockPort;
   @LocalServerPort
   private int localServerPort;
   @Autowired
@@ -1291,7 +1296,7 @@ public class FarskapsportalControllerTest {
       doAnswer(invocation -> {
         Object[] args = invocation.getArguments();
         var dokument = (Dokument) args[1];
-        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-mor")).build());
+        dokument.setSigneringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-mor")).build());
         return dokument;
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
@@ -1342,7 +1347,7 @@ public class FarskapsportalControllerTest {
       var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaeringUtenSignaturer);
       lagretFarskapserklaering.getDokument()
           .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
-      lagretFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status"));
+      lagretFarskapserklaering.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
       var registrertNavnMor = NAVN_MOR;
@@ -1365,16 +1370,16 @@ public class FarskapsportalControllerTest {
 
       when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
-              .bekreftelseslenke(lageUri("/confirmation"))
+              .bekreftelseslenke(lageUri(wiremockPort, "/confirmation"))
               .statuslenke(tilUri(statuslenke))
               .statusSignering(StatusSignering.PAAGAAR)
-              .padeslenke(lageUri("/pades"))
+              .padeslenke(lageUri(wiremockPort, "/pades"))
               .signaturer(List.of(
                   SignaturDto.builder()
                       .signatureier(MOR.getFoedselsnummer())
                       .harSignert(true)
                       .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
-                      .xadeslenke(lageUri("/xades"))
+                      .xadeslenke(lageUri(wiremockPort, "/xades"))
                       .build()))
               .build());
 
@@ -1438,16 +1443,16 @@ public class FarskapsportalControllerTest {
 
       when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
-              .bekreftelseslenke(lageUri("/confirmation"))
+              .bekreftelseslenke(lageUri(wiremockPort, "/confirmation"))
               .statuslenke(new URI(statuslenke)).statusSignering(StatusSignering.SUKSESS)
-              .padeslenke(lageUri("/pades"))
+              .padeslenke(lageUri(wiremockPort, "/pades"))
 
               .signaturer(List.of(
                   SignaturDto.builder()
                       .signatureier(FAR.getFoedselsnummer())
                       .harSignert(true)
                       .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
-                      .xadeslenke(lageUri("/xades"))
+                      .xadeslenke(lageUri(wiremockPort, "/xades"))
                       .build())).build());
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
@@ -1485,11 +1490,11 @@ public class FarskapsportalControllerTest {
       oppgavebestillingDao.deleteAll();
 
       // given
-      var oppdatertPades = lageUri("/pades-opppdatert");
+      var oppdatertPades = lageUri(wiremockPort, "/pades-opppdatert");
       var farskapserklaeringSignertAvMor = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
           henteBarnUtenFnr(5));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
-      lagretFarskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status"));
+      lagretFarskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
@@ -1519,14 +1524,14 @@ public class FarskapsportalControllerTest {
 
       when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
-              .statuslenke(lageUri("/status"))
-              .bekreftelseslenke(lageUri("/confirmation"))
+              .statuslenke(lageUri(wiremockPort, "/status"))
+              .bekreftelseslenke(lageUri(wiremockPort, "/confirmation"))
               .statusSignering(StatusSignering.SUKSESS)
               .padeslenke(oppdatertPades)
               .signaturer(List.of(SignaturDto.builder()
                   .signatureier(FAR.getFoedselsnummer())
                   .harSignert(true)
-                  .xadeslenke(lageUri("/xades"))
+                  .xadeslenke(lageUri(wiremockPort, "/xades"))
                   .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
                   .build()))
               .build());
@@ -1569,7 +1574,7 @@ public class FarskapsportalControllerTest {
           henteBarnUtenFnr(5));
       bestillingAvNyFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
       var nyopprettetFarskapserklaering = farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
-      nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl("/status"));
+      nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
       nyopprettetFarskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       var farskapserklaering = farskapserklaeringDao.save(nyopprettetFarskapserklaering);
@@ -1587,8 +1592,8 @@ public class FarskapsportalControllerTest {
 
       when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
-              .statuslenke(lageUri("/status"))
-              .bekreftelseslenke(lageUri("/confirmation"))
+              .statuslenke(lageUri(wiremockPort, "/status"))
+              .bekreftelseslenke(lageUri(wiremockPort, "/confirmation"))
               // Mor avbryter signering => status blir feilet
               .statusSignering(StatusSignering.FEILET)
               .padeslenke(null)
@@ -1633,7 +1638,7 @@ public class FarskapsportalControllerTest {
       var bestillingAvNyFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
           henteBarnUtenFnr(5));
       var farskapserklaeringSignertAvMor = farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
-      farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status"));
+      farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
       farskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
@@ -1651,8 +1656,8 @@ public class FarskapsportalControllerTest {
 
       when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenReturn(
           DokumentStatusDto.builder()
-              .statuslenke(lageUri("/status"))
-              .bekreftelseslenke(lageUri("/confirmation"))
+              .statuslenke(lageUri(wiremockPort, "/status"))
+              .bekreftelseslenke(lageUri(wiremockPort, "/confirmation"))
               // Far avbryter signering => status blir feilet
               .statusSignering(StatusSignering.FEILET)
               .padeslenke(null)
@@ -1698,7 +1703,7 @@ public class FarskapsportalControllerTest {
       var bestillingAvNyFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
           henteBarnUtenFnr(5));
       var farskapserklaeringSignertAvMor = farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
-      farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status"));
+      farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
       farskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
@@ -1749,7 +1754,7 @@ public class FarskapsportalControllerTest {
       var farskapserklaeringSignertAvMor = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
           henteBarnUtenFnr(5));
       var lagretFarskapserklaeringSignertAvMor = farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
-      lagretFarskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl("/status"));
+      lagretFarskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
       lagretFarskapserklaeringSignertAvMor.getDokument().setDokumentinnhold(Dokumentinnhold.builder()
           .innhold("Jeg erklærer med dette farskap til barnet...".getBytes()).build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
@@ -1806,8 +1811,8 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var nyRedirectUrl = lageUri("/redirect-url-far");
-      var undertegnerUrlFar = lageUri("/signer-url-far");
+      var nyRedirectUrl = lageUri(wiremockPort, "/redirect-url-far");
+      var undertegnerUrlFar = lageUri(wiremockPort, "/signer-url-far");
 
       var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
 
@@ -1833,8 +1838,8 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.deleteAll();
 
       // given
-      var nyRedirectUrl = lageUri("/redirect-url-far");
-      var undertegnerUrlFar = lageUri("/signer-url-far");
+      var nyRedirectUrl = lageUri(wiremockPort, "/redirect-url-far");
+      var undertegnerUrlFar = lageUri(wiremockPort, "/signer-url-far");
 
       var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setUndertegnerUrl(undertegnerUrlFar.toString());
@@ -2044,6 +2049,17 @@ public class FarskapsportalControllerTest {
           () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING)
       );
     }
+  }
+
+  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
+        .signeringsinformasjonMor(
+            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
+        .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 }
 

@@ -59,9 +59,11 @@ Ved lokal kjøring brukes Spring-boot-instansen FarskapsportalApplicationLocal. 
 med Spring-profilen local (se application.yml). Local-profilen benytter Wiremock for eksterne avhengigheter (security-token-service, pdl-api, Skatt,
 og Joark). Data til Wiremock-stubbene leses inn fra test/resources/stubs-mappa.
 
-Testtoken for lokalprofilen hentes fra http://localhost:8080/jwt.
+Kjør følgende GET for å lage cookie med test-token til lokal kjøring (fra token-support): http://localhost:8080/local/cookie?issuerId=selvbetjening&audience=aud-localhost.
+CURLs kan etter dette kjøres direkte fra Swagger uten eksplisitt å legge inn Bearer-token.
 
 Swagger URL: http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
+
 
 ##### Brukernotifikasjon
 

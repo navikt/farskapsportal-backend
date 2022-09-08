@@ -7,11 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiEndpoint;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.FarskapsportalJoarkMapper;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiConsumer;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.joark.JournalpostApiEndpoint;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiEndpoint;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
@@ -78,19 +75,6 @@ public class FarskapsportalAsynkronConfig {
   }
 
   @Bean
-  public JournalpostApiConsumer journalpostApiConsumer(
-      @Qualifier("journalpostapi") RestTemplate restTemplate,
-      @Value("${url.joark.base-url}") String journalpostapiUrl,
-      @Value("${url.joark.opprette-journalpost}") String journalpostapiEndpoint,
-      ConsumerEndpoint consumerEndpoint,
-      FarskapsportalJoarkMapper farskapsportalJoarkMapper) {
-    consumerEndpoint.addEndpoint(JournalpostApiEndpoint.ARKIVERE_JOURNALPOST, journalpostapiEndpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostapiUrl));
-    log.info("Oppretter JournalpostApiConsumer med url {}", journalpostapiUrl);
-    return new JournalpostApiConsumer(restTemplate, consumerEndpoint, farskapsportalJoarkMapper);
-  }
-
-  @Bean
   SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
       @Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
@@ -100,4 +84,6 @@ public class FarskapsportalAsynkronConfig {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
+
+
 }

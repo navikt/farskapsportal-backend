@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -17,6 +18,11 @@
     <module>libs</module>
   </modules>
   <properties>
+    <!-- navikt -->
+    <token-validation-spring.version>2.1.4</token-validation-spring.version>
+    <bidrag-commons.version>0.7.9</bidrag-commons.version>
+
+    <!-- other -->
     <java.version>17</java.version>
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven-compiler-plugin.version.version>3.8.1</maven-compiler-plugin.version.version>
@@ -38,6 +44,21 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>no.nav.bidrag</groupId>
+        <artifactId>bidrag-commons</artifactId>
+        <version>${bidrag-commons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>no.nav.security</groupId>
+        <artifactId>token-validation-spring</artifactId>
+        <version>${token-validation-spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>no.nav.security</groupId>
+        <artifactId>token-validation-spring-test</artifactId>
+        <version>${token-validation-spring.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.checkerframework</groupId>
         <artifactId>checker-qual</artifactId>

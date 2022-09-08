@@ -43,7 +43,7 @@ farskapsportal.felles.egenskaper:
 spring:
   config.activate.on-profile: test
 
-WIREMOCK_URL: http://localhost:8096
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}

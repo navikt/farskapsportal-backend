@@ -184,16 +184,8 @@ public class PersistenceService {
     }
   }
 
-  public Set<Farskapserklaering> henteFarskapserklaeringerHvorFarIkkeBorSammenMedMorOgErSendtTilSkattMenIkkeJoark() {
-    return farskapserklaeringDao.henteFarskapserklaeringerSomTidligereErForsoektSendtTilJoark();
-  }
-
   public Set<Integer> henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt() {
     return farskapserklaeringDao.henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
-  }
-
-  public Set<Integer> henteIdTilFarskapserklaeringerSomVenterPaaFarsSignatur() {
-    return farskapserklaeringDao.henteIdTilFarskapserklaeringerSomVenterPaaFarsSignatur();
   }
 
   @Transactional

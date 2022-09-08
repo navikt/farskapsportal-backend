@@ -11,9 +11,6 @@ management:
   endpoint.health.show-details: always
 
 url:
-  joark:
-    base-url: ${JOURNALPOSTAPI_URL}
-    opprette-journalpost: /rest/journalpostapi/v1/journalpost
   farskapsportal:
     url: ${FARSKAPSPORTAL_URL}
     api:
@@ -50,11 +47,6 @@ farskapsportal.asynkron.egenskaper:
   levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
   levetid-oversendte-farskapserklaeringer-i-dager: 30
   levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
-  joark:
-    maks-antall-forbindelser: 5
-    maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 10000
-    maks-ventetid-forbindelse: 10000
   skatt:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
@@ -101,7 +93,6 @@ DEAKTIVERINGSRATE: "1 * * * * ?"
 
 url:
   farskapsportal.api.url: http://localhost
-  joark.base-url: ${WIREMOCK_URL}
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
   skatt.base-url: http://localhost
@@ -163,6 +154,7 @@ spring.config.activate.on-profile: local
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
+  port: 0
   files: classpath:/__files
   stubs: classpath:/stubs
 

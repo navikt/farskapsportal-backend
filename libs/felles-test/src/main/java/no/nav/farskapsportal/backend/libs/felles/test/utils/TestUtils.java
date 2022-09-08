@@ -23,13 +23,13 @@ public class TestUtils {
   public static final NavnDto NAVN_FAR = NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build();
   public static final NavnDto NAVN_MOR = NavnDto.builder().fornavn("Ronaldina").etternavn("McDonald").build();
 
-  public static String lageUrl(String kontekst) {
-    return "http://localhost:8096" + kontekst;
+  public static String lageUrl(String port, String kontekst) {
+    return "http://localhost:" + port + kontekst;
   }
 
-  public static URI lageUri(String kontekst) {
+  public static URI lageUri(String port, String kontekst) {
     try {
-      return new URI(lageUrl(kontekst));
+      return new URI(lageUrl(port, kontekst));
     } catch (URISyntaxException uriSyntaxException) {
       throw new RuntimeException("Feil syntaks i test URI");
     }
@@ -41,17 +41,6 @@ public class TestUtils {
     } catch (URISyntaxException uriSyntaxException) {
       throw new RuntimeException("Feil syntaks i test URI");
     }
-  }
-
-  public static Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
-
-    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl("redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("/redirect-far")).build())
-        .build();
-
-    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 
   public static Barn henteBarnUtenFnr(int antallUkerTilTermindato) {

@@ -55,7 +55,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("PdlApiConsumer")
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(classes = {FarskapsportalFellesTestConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWireMock(port = 8096)
+@AutoConfigureWireMock(port = 0)
 public class PdlApiConsumerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);

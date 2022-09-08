@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Profile;
 
 @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_INTEGRATION_TEST})
 @Configuration
-@AutoConfigureWireMock(port = 8096)
+@AutoConfigureWireMock(port = 0)
 public class FarskapsportalApiLocalConfig {
 
   public static final String PADES = "/pades";
@@ -25,14 +25,14 @@ public class FarskapsportalApiLocalConfig {
 
   @Autowired
   private DifiESignaturStub difiESignaturStub;
-
+/*
   @Bean
   public Options wireMockOptions() {
     final WireMockConfiguration options = WireMockSpring.options();
-    options.port(8096);
+    options.port(0);
     return options;
   }
-
+*/
   @Bean
   @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   public void runStubs() {

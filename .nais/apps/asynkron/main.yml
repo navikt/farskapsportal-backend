@@ -31,8 +31,8 @@ env:
     value: http://farskapsportal-api.farskapsportal.svc.cluster.local
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
-  - name: JOURNALPOSTAPI_URL
-    value: https://dokarkiv-q2.dev.adeo.no
+  - name: OPPGAVEAPI_URL
+    value: https://oppgave.dev.intern.nav.no/api/v1/oppgaver
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-dev-169c:europe-north1:fp-main
   - name: POSTGRES_USER_NAME

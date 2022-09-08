@@ -20,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -35,6 +36,9 @@ public class DifiESignaturConsumerIntegrationTest {
   private static final ForelderDto FAR = ForelderDto.builder()
       .foedselsnummer("11029400522")
       .navn(NavnDto.builder().fornavn("Treig").etternavn("Tranflaske").build()).build();
+
+  @Value("${wiremock.server.port}")
+  String wiremockPort;
 
   @Autowired
   DirectClient directClientMock;
@@ -88,7 +92,7 @@ public class DifiESignaturConsumerIntegrationTest {
       difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(FarskapsportalApiLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(wiremockPort, FarskapsportalApiLocalConfig.PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);

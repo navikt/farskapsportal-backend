@@ -32,10 +32,10 @@ env:
     value: https://farskapsportal.nav.no
   - name: FARSKAPSPORTAL_API_URL
     value: http://farskapsportal-api.farskapsportal.svc.cluster.local
+  - name: OPPGAVEAPI_URL
+    value: https://oppgave.nais.adeo.no/api/v1/oppgaver
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "false"
-  - name: JOURNALPOSTAPI_URL
-    value: https://dokarkiv.adeo.no
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-prod-f231:europe-north1:fp-prod
   - name: POSTGRES_USER_NAME

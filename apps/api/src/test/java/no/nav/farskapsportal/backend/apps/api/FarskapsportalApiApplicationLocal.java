@@ -6,7 +6,6 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
-import com.google.common.net.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -18,35 +17,35 @@ import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.security.KeyStoreConfig;
-import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
-import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
-import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
 @ComponentScan(excludeFilters = {
     @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = {FarskapsportalApiApplication.class})})
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"},
     topics = {"aapen-brukernotifikasjon-nyBeskjed-v1", "aapen-brukernotifikasjon-done-v1", "aapen-brukernotifikasjon-nyOppgave-v1"})
 @EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
-@Import(TokenGeneratorConfiguration.class)
 @Slf4j
+@EnableMockOAuth2Server
+@EntityScan("no.nav.farskapsportal.backend.libs.entity")
 public class FarskapsportalApiApplicationLocal {
 
   private static final String NAV_ORGNR = "123456789";
@@ -58,20 +57,6 @@ public class FarskapsportalApiApplicationLocal {
     SpringApplication app = new SpringApplication(FarskapsportalApiApplicationLocal.class);
     app.setAdditionalProfiles(profile);
     app.run(args);
-  }
-
-  private static String generateTestToken() {
-    TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
-    return "Bearer " + testTokenGeneratorResource.issueToken("localhost-idtoken");
-  }
-
-  @Bean
-  HttpHeaderTestRestTemplate httpHeaderTestRestTemplate() {
-    TestRestTemplate testRestTemplate = new TestRestTemplate(new RestTemplateBuilder());
-    HttpHeaderTestRestTemplate httpHeaderTestRestTemplate = new HttpHeaderTestRestTemplate(testRestTemplate);
-    httpHeaderTestRestTemplate.add(HttpHeaders.AUTHORIZATION, FarskapsportalApiApplicationLocal::generateTestToken);
-
-    return httpHeaderTestRestTemplate;
   }
 
   @Bean
@@ -94,6 +79,7 @@ public class FarskapsportalApiApplicationLocal {
     return ClientConfiguration.builder(keyStoreConfig).trustStore(Certificates.TEST).serviceUri(new URI(esigneringUrl + "/esignering"))
         .globalSender(new Sender(NAV_ORGNR)).build();
   }
+
 
   @Configuration
   @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})

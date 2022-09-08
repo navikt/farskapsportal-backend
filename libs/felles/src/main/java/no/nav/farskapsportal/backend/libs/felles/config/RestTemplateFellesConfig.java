@@ -70,4 +70,16 @@ public class RestTemplateFellesConfig {
     httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeyPdlApi);
     return httpHeaderRestTemplate;
   }
+
+  @Bean("oppgave-api")
+  @Scope("prototype")
+  public HttpHeaderRestTemplate oppgaveApiRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+  @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
+
+    httpHeaderRestTemplate.addHeaderGenerator(AUTHORIZATION,
+        () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
+            farskapsportalFellesEgenskaper.getSystembrukerPassord()));
+
+    return httpHeaderRestTemplate;
+  }
 }
