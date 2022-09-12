@@ -2,12 +2,18 @@ package no.nav.farskapsportal.backend.libs.dto.oppgave;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.Value;
-
-@Value
-@Builder
-public class OppretteOppgaveForespoersel {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
+public class Oppgaveforespoersel {
 
   public static final String OPPGAVETYPE_VURDER_DOKUMENT = "VUR";
   public static final String ENHETSNUMMER_SYSTEM = "9999";
@@ -15,15 +21,15 @@ public class OppretteOppgaveForespoersel {
   public static final String ENHETSNUMMER_FARSKAP = "4833";
   public static final String TEMA_BIDRAG = "BID";
 
-  String journalpostId;
-  String oppgavetype = OPPGAVETYPE_VURDER_DOKUMENT;
-  String opprettetAvEnhetsnr = ENHETSNUMMER_SYSTEM;
-  String prioritet =  PRIORITET_HOEY;
-  String tildeltEnhetsnr = ENHETSNUMMER_FARSKAP;
-  String tema =  TEMA_BIDRAG;
-  String aktivDato = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));
-  String saksreferanse  = null;
-  String beskrivelse = null;
-  String tilordnetRessurs= null;
-  String fristFerdigstillelse = null;
+  private String journalpostId;
+  private String oppgavetype = OPPGAVETYPE_VURDER_DOKUMENT;
+  private String opprettetAvEnhetsnr = ENHETSNUMMER_SYSTEM;
+  private String prioritet =  PRIORITET_HOEY;
+  private String tildeltEnhetsnr = ENHETSNUMMER_FARSKAP;
+  private String tema =  TEMA_BIDRAG;
+  private String aktivDato = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));
+  private String saksreferanse  = null;
+  private String beskrivelse = null;
+  private String tilordnetRessurs= null;
+  private String fristFerdigstillelse = null;
 }

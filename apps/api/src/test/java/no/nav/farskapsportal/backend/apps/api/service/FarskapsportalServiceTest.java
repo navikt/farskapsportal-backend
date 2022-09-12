@@ -83,6 +83,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrolle
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -92,10 +93,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("FarskapserklaeringService")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
+@AutoConfigureWireMock(port = 0)
+@EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)
 public class FarskapsportalServiceTest {
 

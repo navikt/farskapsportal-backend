@@ -8,10 +8,8 @@ import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.validation.annotation.Validated;
 
 @Builder
-@Validated
 @Slf4j
 public class ArkivereFarskapserklaeringer {
 

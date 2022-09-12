@@ -35,21 +35,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class PersistenceService {
 
   private final OppgavebestillingDao oppgavebestillingDao;
-
   private final PersonopplysningService personopplysningService;
-
   private final FarskapserklaeringDao farskapserklaeringDao;
-
-  private final FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
-
   private final BarnDao barnDao;
-
   private final ForelderDao forelderDao;
-
   private final StatusKontrollereFarDao statusKontrollereFarDao;
-
   private final MeldingsloggDao meldingsloggDao;
-
   private final Mapper mapper;
 
   public BarnDto henteBarn(int id) {

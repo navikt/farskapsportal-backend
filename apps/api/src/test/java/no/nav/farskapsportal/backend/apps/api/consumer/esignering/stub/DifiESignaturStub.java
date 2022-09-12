@@ -8,8 +8,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -17,17 +17,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class DifiESignaturStub {
 
-  public final static String SIGNER_URL_MOR = "http://localhost:8096/api/12345678910/direct/signature-jobs/1/signers/1";
-  public final static String SIGNER_URL_FAR = "http://localhost:8096/api/11111122222/direct/signature-jobs/1/signers/1";
+  public final static String PATH_SIGNER_URL_MOR = "/api/12345678910/direct/signature-jobs/1/signers/1";
+  public final static String PATH_SIGNER_URL_FAR = "/api/11111122222/direct/signature-jobs/1/signers/1";
+
+  @Value("${wiremock.server.port}")
+  String wiremockPort;
 
   public void runOppretteSigneringsjobbStub(String statusUrl, String redirectUrlMor, String redirectUrlFar) {
+
+    var baseWireMockUrl = "http://localhost:" + wiremockPort;
+
     stubFor(
         post(urlPathMatching("/esignering.*"))
             .willReturn(
                 aResponse()
                     .withHeader("Content-Type", MediaType.APPLICATION_XML_VALUE)
                     .withStatus(200)
-                    .withBody(mockDirectSignatureJobResponse(statusUrl, SIGNER_URL_MOR, SIGNER_URL_FAR, redirectUrlMor, redirectUrlFar)))
+                    .withBody(mockDirectSignatureJobResponse(statusUrl, baseWireMockUrl + PATH_SIGNER_URL_MOR, baseWireMockUrl + PATH_SIGNER_URL_FAR,
+                        redirectUrlMor, redirectUrlFar)))
     );
   }
 

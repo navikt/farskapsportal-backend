@@ -52,6 +52,7 @@ farskapsportal.asynkron.egenskaper:
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 120000
     maks-ventetid-forbindelse: 130000
+  vurdereOpprettelseAvOppgave: ${VURDERE_OPPGAVE_INTERVALL}
 
 ---
 spring:
@@ -88,8 +89,8 @@ server:
     enabled: false
 
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
-WIREMOCK_URL: http://localhost:8096
 DEAKTIVERINGSRATE: "1 * * * * ?"
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
 url:
   farskapsportal.api.url: http://localhost

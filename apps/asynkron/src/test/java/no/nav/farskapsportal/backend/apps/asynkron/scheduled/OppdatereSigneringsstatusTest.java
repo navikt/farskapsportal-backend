@@ -2,8 +2,8 @@ package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteFarskapserklaering;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -12,7 +12,12 @@ import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApp
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -40,6 +46,9 @@ public class OppdatereSigneringsstatusTest {
 
   @Autowired
   private FarskapserklaeringDao farskapserklaeringDao;
+
+  @Value("${wiremock.server.port}")
+  String wiremockPort;
 
   private OppdatereSigneringsstatus oppdatereSigneringsstatus;
 
@@ -224,5 +233,16 @@ public class OppdatereSigneringsstatusTest {
 
     // then
     verify(farskapsportalApiConsumer, times(0)).synkronisereSigneringsstatus(farskapserklaering.getId());
+  }
+
+  public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
+        .signeringsinformasjonMor(
+            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
+        .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 }

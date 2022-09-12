@@ -5,7 +5,7 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveForespoersel;
+import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveRespons;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -16,7 +16,7 @@ public class OppgaveApiConsumer {
 
   private final RestTemplate restTemplate;
 
-  public long oppretteOppgave(OppretteOppgaveForespoersel opprettOppgaveforespoersel) {
+  public long oppretteOppgave(Oppgaveforespoersel opprettOppgaveforespoersel) {
 
     SIKKER_LOGG.debug("oppretter oppgave: " + opprettOppgaveforespoersel);
     log.info("oppretter oppgave med type {}", opprettOppgaveforespoersel.getOppgavetype());

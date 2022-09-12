@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(classes = {FarskapsportalFellesTestConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("SecurityTokenServiceConsumer")
-@AutoConfigureWireMock(port = 8096)
+@AutoConfigureWireMock(port = 0)
 public class SecurityTokenServiceConsumerTest {
 
   @Autowired

@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -68,6 +70,7 @@ public class FarskapsportalAsynkronTestApplication {
 
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(skattBaseUrl));
+
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
 

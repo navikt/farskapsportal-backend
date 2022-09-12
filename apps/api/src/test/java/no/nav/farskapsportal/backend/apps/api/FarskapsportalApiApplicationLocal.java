@@ -44,7 +44,6 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
     topics = {"aapen-brukernotifikasjon-nyBeskjed-v1", "aapen-brukernotifikasjon-done-v1", "aapen-brukernotifikasjon-nyOppgave-v1"})
 @EnableJwtTokenValidation(ignore = {"org.springdoc", "org.springframework"})
 @Slf4j
-@EnableMockOAuth2Server
 @EntityScan("no.nav.farskapsportal.backend.libs.entity")
 public class FarskapsportalApiApplicationLocal {
 

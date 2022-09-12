@@ -45,6 +45,8 @@ env:
     value: 1
   - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
     value: "0 0 11 ? * TUE"
+  - name: VURDERE_OPPGAVE_INTERVALL
+    value: "0 0 8 ? * MON"
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-main-password

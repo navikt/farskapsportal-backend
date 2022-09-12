@@ -22,7 +22,6 @@ public class FarskapsportalAsynkronEgenskaper {
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   private int arkiveringsintervall;
-  private boolean arkivereIJoark;
   private String deaktiveringsrate;
   private int levetidIkkeFerdigstilteSigneringsoppdragIDager;
   private int levetidOversendteFarskapserklaeringerIDager;

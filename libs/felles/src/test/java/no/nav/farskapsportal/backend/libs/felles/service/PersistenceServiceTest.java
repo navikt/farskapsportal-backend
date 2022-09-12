@@ -37,8 +37,10 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
 import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
+import org.aspectj.lang.annotation.Before;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -103,6 +105,14 @@ public class PersistenceServiceTest {
   @AutoConfigureTestDatabase(replace = Replace.ANY)
   class Lagre {
 
+    @BeforeEach
+    void resetGeneratedValue() {
+      MOR.setId(0);
+      FAR.setId(0);
+      UFOEDT_BARN.setId(0);
+    }
+
+
     @Test
     @DisplayName("Lagre dokument")
     void lagreDokument() {
@@ -131,9 +141,9 @@ public class PersistenceServiceTest {
     void lagreFarskapserklaering() {
 
       // given
-      forelderDao.deleteAll();
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
+      forelderDao.deleteAll();
 
       // when
       var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
@@ -681,6 +691,7 @@ public class PersistenceServiceTest {
     void skalIkkeKasteExceptionDersomMorHarEnEksisterendeDeaktivertFarskapserklaering() {
 
       // given
+      UFOEDT_BARN.setId(0);
       var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
       deaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(deaktivertFarskapserklaering);
