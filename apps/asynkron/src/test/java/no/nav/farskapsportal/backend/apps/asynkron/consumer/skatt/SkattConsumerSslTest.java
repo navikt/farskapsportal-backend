@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -42,8 +43,9 @@ public class SkattConsumerSslTest {
   @Qualifier("usikret")
   private SkattConsumer skattConsumerUsikret;
 
-  @Value("${wiremock.server.port}")
-  String wiremockPort;
+  @Autowired
+  private ServletWebServerApplicationContext webServerAppCtxt;
+
 
   @Test
   void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
@@ -89,8 +91,8 @@ public class SkattConsumerSslTest {
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")
         .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
+            Signeringsinformasjon.builder().redirectUrl(lageUrl(Integer.toString(webServerAppCtxt.getWebServer().getPort()), "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(Integer.toString(webServerAppCtxt.getWebServer().getPort()), "/redirect-far")).build())
         .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();

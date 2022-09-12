@@ -197,6 +197,11 @@
     </dependency>
 
     <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-tilgangskontroll</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>no.nav.security</groupId>
       <artifactId>token-validation-spring</artifactId>
       <exclusions>

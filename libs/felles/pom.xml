@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>libs</artifactId>
     <groupId>no.nav.farskapsportal.backend.libs</groupId>
@@ -12,7 +13,6 @@
 
   <properties>
     <asm.version>9.1</asm.version>
-    <bidrag-tilgangskontroll.version>1.10.0</bidrag-tilgangskontroll.version>
     <brukernotifikasjon-schemas.version>v2.5.1</brukernotifikasjon-schemas.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <javassist.version>3.28.0-GA</javassist.version>
@@ -93,13 +93,24 @@
       <artifactId>dtos</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-tilgangskontroll</artifactId>
-      <version>${bidrag-tilgangskontroll.version}</version>
+      <artifactId>bidrag-commons</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>no.nav.security</groupId>
+          <artifactId>token-validation-spring</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>no.nav.security</groupId>
+          <artifactId>token-client-spring</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-
     <dependency>
       <groupId>no.nav.farskapsportal.backend.libs</groupId>
       <artifactId>entities</artifactId>

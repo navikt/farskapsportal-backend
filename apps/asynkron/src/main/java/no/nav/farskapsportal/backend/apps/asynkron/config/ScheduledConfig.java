@@ -5,6 +5,8 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.DeaktivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.OppdatereSigneringsstatus;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
@@ -29,6 +31,18 @@ public class ScheduledConfig {
 
   public ScheduledConfig(@Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper) {
     this.farskapsportalAsynkronEgenskaper = farskapsportalAsynkronEgenskaper;
+  }
+
+  @Bean
+  public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(
+      PersistenceService persistenceService,
+      SkattConsumer skattConsumer) {
+
+    return ArkivereFarskapserklaeringer.builder()
+        .intervallMellomForsoek(farskapsportalAsynkronEgenskaper.getArkiveringsintervall())
+        .persistenceService(persistenceService)
+        .skattConsumer(skattConsumer)
+        .build();
   }
 
   @Bean

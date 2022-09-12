@@ -4,14 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.status.ActuatorHealth;
 import no.nav.farskapsportal.backend.libs.dto.status.OperasjonellStatus;
 import no.nav.farskapsportal.backend.libs.dto.status.Status;
-import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -26,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Validated
 @RestController
-@Unprotected
 @RequestMapping("/internal/farskapsportal")
 public class StatusController {
 

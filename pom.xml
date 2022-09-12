@@ -21,6 +21,7 @@
     <!-- navikt -->
     <token-validation-spring.version>2.1.4</token-validation-spring.version>
     <bidrag-commons.version>0.7.9</bidrag-commons.version>
+    <bidrag-tilgangskontroll.version>1.10.0</bidrag-tilgangskontroll.version>
 
     <!-- other -->
     <java.version>17</java.version>
@@ -48,6 +49,11 @@
         <groupId>no.nav.bidrag</groupId>
         <artifactId>bidrag-commons</artifactId>
         <version>${bidrag-commons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>no.nav.bidrag</groupId>
+        <artifactId>bidrag-tilgangskontroll</artifactId>
+        <version>${bidrag-tilgangskontroll.version}</version>
       </dependency>
       <dependency>
         <groupId>no.nav.security</groupId>
