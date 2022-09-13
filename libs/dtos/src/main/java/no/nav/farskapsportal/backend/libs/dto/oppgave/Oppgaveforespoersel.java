@@ -21,7 +21,6 @@ public class Oppgaveforespoersel {
   public static final String ENHETSNUMMER_FARSKAP = "4833";
   public static final String TEMA_BIDRAG = "BID";
 
-  private String journalpostId;
   private String oppgavetype = OPPGAVETYPE_VURDER_DOKUMENT;
   private String opprettetAvEnhetsnr = ENHETSNUMMER_SYSTEM;
   private String prioritet =  PRIORITET_HOEY;
