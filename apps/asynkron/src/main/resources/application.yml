@@ -41,7 +41,6 @@ farskapsportal.asynkron.egenskaper:
   deaktiveringsrate: ${DEAKTIVERINGSRATE}
   oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
   oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
-  varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
   oppdatere-signeringsstatus-min-antall-timer-etter-far-ble-sendt-til-signering: 1
   varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
   levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
@@ -52,7 +51,8 @@ farskapsportal.asynkron.egenskaper:
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 120000
     maks-ventetid-forbindelse: 130000
-  vurdereOpprettelseAvOppgave: ${VURDERE_OPPGAVE_INTERVALL}
+  varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
+  vurdere-opprettelse-av-oppgave: ${VURDERE_OPPGAVE_INTERVALL}
 
 ---
 spring:

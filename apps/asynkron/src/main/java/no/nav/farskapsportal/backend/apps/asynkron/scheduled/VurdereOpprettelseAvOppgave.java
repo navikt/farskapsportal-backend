@@ -21,6 +21,9 @@ public class VurdereOpprettelseAvOppgave {
 
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.vurdere_oppgaveintervall}")
   public void VǘurdereOpprettelseAvOppgave() {
+
+    log.info("Vurderer opprettelse av oppgave for foreldre som ikke bor sammen ved fødsel.");
+
     var dato1 = LocalDate.now().MIN;
     var dato2 = LocalDateTime.now().MIN;
     var farskapseerklaeringerDetSkalOpprettesOppgaverFor = farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(dato1, dato2);
