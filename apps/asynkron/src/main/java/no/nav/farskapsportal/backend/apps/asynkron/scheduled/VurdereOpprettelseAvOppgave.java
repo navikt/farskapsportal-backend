@@ -19,7 +19,7 @@ public class VurdereOpprettelseAvOppgave {
 
   private OppgaveApiConsumer oppgaveApiConsumer;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.vurdere_oppgaveintervall}")
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.vurdere-opprettelse-av-oppgave}")
   public void VǘurdereOpprettelseAvOppgave() {
 
     log.info("Vurderer opprettelse av oppgave for foreldre som ikke bor sammen ved fødsel.");
