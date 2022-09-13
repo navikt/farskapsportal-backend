@@ -16,12 +16,15 @@ url:
     api:
       url: ${FARSKAPSPORTAL_API_URL}
       synkronisere-signeringsstatus: /api/v1/asynkron/statussynkronisering/farskapserklaering/%s
+  oppgave:
+    base-url: ${OPPGAVE_URL}
+    opprette: /api/v1/oppgaver
   pdl-api:
     base-url: ${APIGW_URL}
-    graphql: "/pdl-api/graphql"
+    graphql: /pdl-api/graphql
   sts:
     base-url: ${APIGW_URL}
-    security-token-service: "/security-token-service/rest/v1/sts/token"
+    security-token-service: /security-token-service/rest/v1/sts/token
   skatt:
     base-url: ${SKATT_URL}
     registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
@@ -53,6 +56,23 @@ farskapsportal.asynkron.egenskaper:
     maks-ventetid-forbindelse: 130000
   varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
   vurdere-opprettelse-av-oppgave: ${VURDERE_OPPGAVE_INTERVALL}
+
+
+AZURE_BASE: https://login.microsoftonline.com/
+
+no.nav.security.jwt:
+  client.registration:
+    oppgave:
+      token-endpoint-url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+      grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+      scope: api://oppgave/.default
+      authentication:
+        client-id: id
+        client-secret: secret
+        client-auth-method: client_secret_post
+  issuer.aad:
+    discovery_url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+    accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
 
 ---
 spring:
@@ -92,6 +112,17 @@ SRVFARSKAPSPORTAL_PWD: top_hemmelig
 DEAKTIVERINGSRATE: "1 * * * * ?"
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
+AZURE_APP_TENANT_ID: aad
+AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
+
+no.nav.security.jwt:
+  oppgave:
+    token-endpoint-url: ${AZURE_BASE}
+  issuer.aad:
+    discoveryurl: ${AZURE_BASE}/.well-known/openid-configuration
+    acceptedaudience: aud-localhost
+    cookiename: localhost-idtoken
+
 url:
   farskapsportal.api.url: http://localhost
   pdl-api.base-url: ${WIREMOCK_URL}
@@ -129,6 +160,7 @@ farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
 farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
 farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "* * 1 * * ?"
 farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.vurdere-opprettelse-av-oppgave: "* * 1 * * ?"
 ---
 spring.config.activate.on-profile: local
 farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600

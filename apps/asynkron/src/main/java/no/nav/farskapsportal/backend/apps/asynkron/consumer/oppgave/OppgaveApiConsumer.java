@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveRespons;
+import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class OppgaveApiConsumer {
 
   private final RestTemplate restTemplate;
+  private final ConsumerEndpoint consumerEndpoint;
 
   public long oppretteOppgave(Oppgaveforespoersel opprettOppgaveforespoersel) {
 

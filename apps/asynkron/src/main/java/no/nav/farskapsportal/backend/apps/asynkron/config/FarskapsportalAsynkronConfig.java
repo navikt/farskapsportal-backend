@@ -9,6 +9,8 @@ import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiEndpoint;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumerEndpoint;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
@@ -64,14 +66,24 @@ public class FarskapsportalAsynkronConfig {
   }
 
   @Bean
-  public FarskapsportalApiConsumer farskapsportalApiConsumer(@Qualifier("base") RestTemplate restTemplate,
+  public FarskapsportalApiConsumer farskapsportalApiConsumer(
+      @Qualifier("base") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.url}") String baseUrl,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
-      ConsumerEndpoint consumerEndpoint) {
+      ConsumerEndpoint consumerEndpoint){
     consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME, synkronisereSigneringsstatusEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter FarskapsportalApiConsumer med url {}", baseUrl);
     return new FarskapsportalApiConsumer(restTemplate, consumerEndpoint);
+  }
+
+  @Bean
+  public OppgaveApiConsumer oppgaveApiConsumer(
+      @Qualifier("oppgave") RestTemplate restTemplate,
+      @Value("url.oppgave.opprette") String oppretteOppgaveEndpoint,
+      ConsumerEndpoint consumerEndpoint) {
+    consumerEndpoint.addEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
+    return new OppgaveApiConsumer(restTemplate, consumerEndpoint);
   }
 
   @Bean

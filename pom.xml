@@ -41,6 +41,7 @@
     <servlet-api.version>2.5</servlet-api.version>
     <google.spring-cloud-gcp-starter-sql-postgresql.version>3.3.0</google.spring-cloud-gcp-starter-sql-postgresql.version>
     <google-oauth-client.version>1.33.3</google-oauth-client.version>
+    <okhttp3.version>4.9.2</okhttp3.version>
   </properties>
 
   <dependencyManagement>
@@ -134,6 +135,19 @@
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>
         <version>${servlet-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>mockwebserver</artifactId>
+        <version>${okhttp3.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${okhttp3.version}</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

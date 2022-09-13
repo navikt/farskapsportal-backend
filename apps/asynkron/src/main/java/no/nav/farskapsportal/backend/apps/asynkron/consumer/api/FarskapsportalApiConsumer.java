@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 public class FarskapsportalApiConsumer {
 
   private final RestTemplate restTemplate;
-
   private final ConsumerEndpoint consumerEndpoint;
 
   public void synkronisereSigneringsstatus(int idFarskapserklaering) {

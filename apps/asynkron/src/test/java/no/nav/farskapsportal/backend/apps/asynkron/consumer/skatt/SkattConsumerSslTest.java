@@ -22,7 +22,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
@@ -32,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("SkattConsumerSslTest")
 @ActiveProfiles(PROFILE_SKATT_SSL_TEST)
 @DirtiesContext
-@SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = {FarskapsportalAsynkronTestApplication.class, SkattSecurityTestConfig.class}, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerSslTest {
 
   @Autowired

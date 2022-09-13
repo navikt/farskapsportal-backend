@@ -7,15 +7,31 @@ import static org.mockito.Mockito.verify;
 import no.nav.farskapsportal.backend.apps.asynkron.config.ScheduledConfig;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.security.token.support.client.spring.ClientConfigurationProperties;
+import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
+import no.nav.security.token.support.spring.MultiIssuerProperties;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 
 @ActiveProfiles(PROFILE_SCHEDULED_TEST)
 @SpringJUnitConfig(ScheduledConfig.class)
 public class ArkivereFarskapserklaeringerSchedulingTest {
+
+  // Deaktiverer token-support-bønner
+  @MockBean
+  private MultiIssuerConfiguration multiIssuerConfiguration;
+  @MockBean
+  private MultiIssuerProperties multiIssuerProperties;
+  @MockBean
+  private ClientConfigurationProperties clientConfigurationProperties;
 
   @MockBean
   private PersistenceService persistenceService;

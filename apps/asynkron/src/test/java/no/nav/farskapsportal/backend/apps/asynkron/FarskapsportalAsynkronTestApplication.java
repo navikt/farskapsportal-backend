@@ -16,6 +16,8 @@ import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
+import no.nav.security.mock.oauth2.MockOAuth2Server;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -32,6 +34,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +47,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
+@EnableMockOAuth2Server
 @EnableAutoConfiguration
 @ComponentScan("no.nav.farskapsportal.backend")
 @SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)

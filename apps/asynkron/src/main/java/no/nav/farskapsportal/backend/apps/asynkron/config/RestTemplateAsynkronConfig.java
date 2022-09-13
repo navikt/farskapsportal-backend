@@ -5,6 +5,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.security.service.SecurityTokenService;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
@@ -15,6 +16,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -51,6 +54,19 @@ public class RestTemplateAsynkronConfig {
     requestFactory.setConnectTimeout(farskapsportalAsynkronEgenskaper.getSkatt().getMaksVentetidForbindelse());
 
     httpHeaderRestTemplate.setRequestFactory(requestFactory);
+
+    return httpHeaderRestTemplate;
+  }
+
+  @Bean
+  @Qualifier("oppgave")
+  public HttpHeaderRestTemplate oppgaevRestTemplate(
+      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+      @Value("url.oppgave.base-url") String oppgaveRootUrl,
+      SecurityTokenService securityTokenService) {
+
+    httpHeaderRestTemplate.getInterceptors().add(securityTokenService.authTokenInterceptor("oppgave"));
+    httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(oppgaveRootUrl));
 
     return httpHeaderRestTemplate;
   }

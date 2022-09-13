@@ -96,20 +96,6 @@
     <dependency>
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-commons</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>no.nav.security</groupId>
-          <artifactId>token-validation-spring</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>no.nav.security</groupId>
-          <artifactId>token-client-spring</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>no.nav.farskapsportal.backend.libs</groupId>

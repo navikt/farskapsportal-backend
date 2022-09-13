@@ -5,12 +5,14 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.DeaktivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.OppdatereSigneringsstatus;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Varsel;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.VurdereOpprettelseAvOppgave;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -89,6 +91,17 @@ public class ScheduledConfig {
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .persistenceService(persistenceService)
+        .build();
+  }
+
+  @Bean
+  public VurdereOpprettelseAvOppgave vurdereOpprettelseAvOppgave(
+      FarskapserklaeringDao farskapserklaeringDao,
+      OppgaveApiConsumer oppgaveApiConsumer
+  ) {
+    return VurdereOpprettelseAvOppgave.builder()
+        .farskapserklaeringDao(farskapserklaeringDao)
+        .oppgaveApiConsumer(oppgaveApiConsumer)
         .build();
   }
 }

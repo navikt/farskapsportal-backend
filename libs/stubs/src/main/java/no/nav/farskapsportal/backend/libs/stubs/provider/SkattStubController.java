@@ -7,7 +7,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.skatt.api.MeldingOmRegistreringAvFarskap;
+import no.nav.security.token.support.core.api.Unprotected;
 import org.apache.commons.io.IOUtils;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
+@Profile("${!live}")
 @RequestMapping("/folkeregisteret/mottak/api")
 public class SkattStubController {
 
+  @Unprotected
   @PostMapping(value = "/registrering_av_farskap_v1.vedlegg", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_PDF_VALUE,
       MediaType.APPLICATION_XML_VALUE})
   public ResponseEntity<Void> registrereFarskap(@RequestParam("melding") String xml, @RequestParam("vedlegg") MultipartFile vedlegg,

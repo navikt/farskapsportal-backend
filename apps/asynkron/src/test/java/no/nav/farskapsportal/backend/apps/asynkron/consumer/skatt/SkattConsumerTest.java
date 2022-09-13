@@ -14,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
-import no.nav.farskapsportal.backend.apps.asynkron.config.FarskapsportalAsynkronConfig;
-import no.nav.farskapsportal.backend.apps.asynkron.config.RestTemplateAsynkronConfig;
 import no.nav.farskapsportal.backend.apps.asynkron.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
@@ -24,7 +22,6 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.backend.libs.stubs.StubsRunner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +36,11 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureWireMock(port = 0)
 @DirtiesContext
-@SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {FarskapsportalAsynkronTestApplication.class, SkattSecurityTestConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SkattConsumerTest {
 
   @Autowired
   private SkattConsumer skattConsumer;
-
   @Autowired
   private ServletWebServerApplicationContext webServerAppCtxt;
 
