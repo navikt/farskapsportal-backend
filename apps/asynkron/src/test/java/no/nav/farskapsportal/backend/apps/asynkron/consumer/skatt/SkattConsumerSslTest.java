@@ -31,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("SkattConsumerSslTest")
 @ActiveProfiles(PROFILE_SKATT_SSL_TEST)
 @DirtiesContext
-@SpringBootTest(classes = {FarskapsportalAsynkronTestApplication.class, SkattSecurityTestConfig.class}, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerSslTest {
 
   @Autowired

@@ -26,6 +26,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 @Slf4j
 @Configuration
+@EnableSecurityConfiguration
 @ComponentScan("no.nav.farskapsportal")
 public class RestTemplateAsynkronConfig {
 

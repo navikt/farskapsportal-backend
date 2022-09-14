@@ -36,7 +36,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureWireMock(port = 0)
 @DirtiesContext
-@SpringBootTest(classes = {FarskapsportalAsynkronTestApplication.class, SkattSecurityTestConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SkattConsumerTest {
 
   @Autowired
