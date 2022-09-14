@@ -20,7 +20,6 @@ import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,9 +33,9 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class OppgavestyringTest {
 
-  @Autowired
-  private PersistenceService persistenceService;
-  private @MockBean FarskapserklaeringDao farskapserklaeringDao;
+
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
   private Oppgavestyring oppgavestyring;
 
@@ -54,14 +53,16 @@ public class OppgavestyringTest {
 
     // given
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
-    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), nyfoedtBarn, LocalDateTime.now().minusDays(1)));
+    var farskapserklaering = henteFarskapserklaering(
+        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), nyfoedtBarn, LocalDateTime.now().minusDays(1));
+
+    var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
     // when
     oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
-    assert(true);
+    assert (true);
   }
 
   private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn, LocalDateTime signeringstidspunktFar) {

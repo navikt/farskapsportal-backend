@@ -97,9 +97,4 @@ public class FarskapsportalAsynkronConfig {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
-
-  @Bean
-  public RequestContextListener requestContextListener() {
-    return new RequestContextListener();
-  }
 }
