@@ -98,11 +98,6 @@ public class ArkivereFarskapserklaeringerTest {
     @Test
     void skalOppdatereMeldingsloggVedOverfoeringTilSkatt() {
 
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-      meldingsloggDao.deleteAll();
-
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("98953");
 
@@ -131,10 +126,6 @@ public class ArkivereFarskapserklaeringerTest {
     void skalSetteTidspunktForOverfoeringVedOverfoeringTilSkatt() {
 
       // given
-      meldingsloggDao.deleteAll();
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
       Farskapserklaering farskapserklaering1 = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
 
       var lagretSignertFarskapserklaering1 = persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
@@ -168,10 +159,6 @@ public class ArkivereFarskapserklaeringerTest {
     void skalIkkeOverfoereErklaeringSomIkkeErSignertAvBeggeParter() {
 
       // given
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-      meldingsloggDao.deleteAll();
-
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("43215");
       farskapserklaering.setMeldingsidSkatt(null);
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(null);

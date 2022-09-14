@@ -67,8 +67,8 @@ no.nav.security.jwt:
       grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
       scope: api://oppgave/.default
       authentication:
-        client-id: id
-        client-secret: secret
+        client-id: ${AZURE_APP_CLIENT_ID}
+        client-secret: ${AZURE_APP_CLIENT_SECRET}
         client-auth-method: client_secret_post
   issuer.aad:
     discovery_url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration

@@ -23,7 +23,9 @@ public class OppgaveApiConsumer {
     SIKKER_LOGG.debug("oppretter oppgave: " + opprettOppgaveforespoersel);
     log.info("oppretter oppgave med type {}", opprettOppgaveforespoersel.getOppgavetype());
 
-    var oppgaveResponse = restTemplate.postForEntity("/", opprettOppgaveforespoersel, OppretteOppgaveRespons.class);
+    var oppgaveResponse = restTemplate.postForEntity(
+        consumerEndpoint.retrieveEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME), opprettOppgaveforespoersel,
+        OppretteOppgaveRespons.class);
 
     SIKKER_LOGG.debug("oppgaveResponse: " + oppgaveResponse);
 

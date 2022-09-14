@@ -47,27 +47,23 @@ public class OppgavestyringTest {
     oppgavestyring.vurdereOpprettelseAvOppgave();
   }
 
-  private Farskapserklaering henteFarskapserklaeringNyfoedtSignertAvMor(String persnrBarn) {
-    var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnMedFnr(LocalDate.now().minusWeeks(3), persnrBarn));
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering.setFarBorSammenMedMor(true);
-    farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-    farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
-    return farskapserklaering;
-  }
-
-  public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn, LocalDateTime signeringstidspunktFar) {
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")
         .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl("8080", "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("8080", "/redirect-far")).build())
+            Signeringsinformasjon.builder().redirectUrl(lageUrl("8080", "redirect-mor"))
+                .signeringstidspunkt(signeringstidspunktFar.minusMinutes(10))
+                .xadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8)).build())
+        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("8080", "/redirect-far"))
+            .signeringstidspunkt(signeringstidspunktFar)
+            .xadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8)).build())
+        .dokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build())
         .build();
 
-    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    farskapserklaering.setFarBorSammenMedMor(true);
+    farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
+
+    return farskapserklaering;
   }
 }
