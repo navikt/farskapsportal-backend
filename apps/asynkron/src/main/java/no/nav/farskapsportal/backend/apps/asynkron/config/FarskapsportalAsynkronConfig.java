@@ -26,6 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextListener;
 
 @Slf4j
 @Configuration
@@ -97,5 +98,8 @@ public class FarskapsportalAsynkronConfig {
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
 
-
+  @Bean
+  public RequestContextListener requestContextListener() {
+    return new RequestContextListener();
+  }
 }
