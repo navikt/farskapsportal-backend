@@ -71,7 +71,7 @@ public class BrukernotifikasjonstyringTest {
   @MockBean
   private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
 
-  private Brukernotifikasjonstyring oppgavestyring;
+  private Brukernotifikasjonstyring brukernotifikasjonstyring;
 
 
   @BeforeEach
@@ -80,7 +80,7 @@ public class BrukernotifikasjonstyringTest {
     MockitoAnnotations.openMocks(this); //without this you will get NPE
 
     // Bønnen er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
-    oppgavestyring = Brukernotifikasjonstyring.builder()
+    brukernotifikasjonstyring = Brukernotifikasjonstyring.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .farskapserklaeringDao(farskapserklaeringDao)
@@ -120,7 +120,7 @@ public class BrukernotifikasjonstyringTest {
     var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
 
     // when
-    oppgavestyring.rydddeISigneringsoppgaver();
+    brukernotifikasjonstyring.rydddeISigneringsoppgaver();
 
     // then
     verify(ferdigkoe, times(1))
@@ -174,7 +174,7 @@ public class BrukernotifikasjonstyringTest {
     var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
 
     // when
-    oppgavestyring.rydddeISigneringsoppgaver();
+    brukernotifikasjonstyring.rydddeISigneringsoppgaver();
 
     // then
     verify(ferdigkoe, times(1))
@@ -222,7 +222,7 @@ public class BrukernotifikasjonstyringTest {
         .build());
 
     // when
-    oppgavestyring.rydddeISigneringsoppgaver();
+    brukernotifikasjonstyring.rydddeISigneringsoppgaver();
 
     // then
     var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());

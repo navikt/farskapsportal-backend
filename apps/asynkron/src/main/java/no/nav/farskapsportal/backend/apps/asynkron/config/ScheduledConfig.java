@@ -68,7 +68,7 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public Brukernotifikasjonstyring oppgavestyring(
+  public Brukernotifikasjonstyring brukernotifikasjonstyring(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       FarskapserklaeringDao farskapserklaeringDao,
       PersistenceService persistenceService) {
@@ -95,7 +95,7 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public Oppgavestyring oppgavestyring(
+  public Oppgavestyring brukernotifikasjonstyring(
       FarskapserklaeringDao farskapserklaeringDao,
       OppgaveApiConsumer oppgaveApiConsumer
   ) {
