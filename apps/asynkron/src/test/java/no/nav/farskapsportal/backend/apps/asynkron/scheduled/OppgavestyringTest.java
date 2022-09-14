@@ -42,19 +42,20 @@ public class OppgavestyringTest {
 
   @BeforeEach
   void setup() {
+    farskapserklaeringDao.deleteAll();
+
     oppgavestyring = Oppgavestyring.builder()
         .oppgaveApiConsumer(oppgaveApiConsumer)
         .farskapserklaeringDao(farskapserklaeringDao).build();
   }
 
-  @Disabled
   @Test
   void test() {
 
     // given
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
-    persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), nyfoedtBarn, LocalDateTime.now()));
+    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(
+        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), nyfoedtBarn, LocalDateTime.now().minusDays(1)));
 
     // when
     oppgavestyring.vurdereOpprettelseAvOppgave();
@@ -77,8 +78,9 @@ public class OppgavestyringTest {
         .build();
 
     var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
-    farskapserklaering.setFarBorSammenMedMor(true);
+    farskapserklaering.setFarBorSammenMedMor(false);
     farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
+    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     return farskapserklaering;
   }
