@@ -5,6 +5,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.SecurityTokenService;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
@@ -26,6 +27,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 @Slf4j
 @Configuration
 @ComponentScan("no.nav.farskapsportal")
+@EnableSecurityConfiguration
 public class RestTemplateAsynkronConfig {
 
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
