@@ -95,7 +95,7 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public Oppgavestyring brukernotifikasjonstyring(
+  public Oppgavestyring oppgavestyring(
       FarskapserklaeringDao farskapserklaeringDao,
       OppgaveApiConsumer oppgaveApiConsumer
   ) {
