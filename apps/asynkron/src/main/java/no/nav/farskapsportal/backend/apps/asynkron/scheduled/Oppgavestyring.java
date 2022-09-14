@@ -1,32 +1,38 @@
 package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.time.LocalTime;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
-import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
-import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
+import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
-import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.validation.annotation.Validated;
 
-@Builder
 @Slf4j
+@Builder
+@Validated
 public class Oppgavestyring {
 
-  private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  private PersistenceService persistenceService;
-  private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private FarskapserklaeringDao farskapserklaeringDao;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgavestyringsintervall}")
-  public void rydddeISigneringsoppgaver() {
-    var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver();
+  private OppgaveApiConsumer oppgaveApiConsumer;
 
-    log.info("Fant {} farskapserklæringer med aktive signeringsoppgaver.", farskapserklaeringerMedAktiveOppgaver.size());
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.vurdere-opprettelse-av-oppgave}")
+  public void vurdereOpprettelseAvOppgave() {
 
-    for (int farskapserklaeringsId : farskapserklaeringerMedAktiveOppgaver) {
+    log.info("Vurderer opprettelse av oppgave for foreldre som ikke bor sammen ved fødsel.");
+
+    var grenseverdiTermindato = LocalDate.now().minusWeeks(2);
+    var grenseverdiSigneringstidspunktFar = LocalDateTime.now().with(LocalTime.MIDNIGHT);
+    var farskapseerklaeringerDetSkalOpprettesOppgaverFor = farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(grenseverdiTermindato, grenseverdiSigneringstidspunktFar);
+
+    log.info("Fant {} farskapserklæringer som gjelder foreldre som ikke bor sammen som det skal opprettes oppgave om bidrag for.",
+        farskapseerklaeringerDetSkalOpprettesOppgaverFor.size());
+
+    for (int farskapserklaeringsId : farskapseerklaeringerDetSkalOpprettesOppgaverFor) {
       var farskapserklaering = farskapserklaeringDao.findById(farskapserklaeringsId);
 
       // Sletter oppgaver relatert til ferdigstilte eller deaktiverte erklæringer
@@ -34,19 +40,10 @@ public class Oppgavestyring {
           && (farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null
           || farskapserklaering.get().getDeaktivert() != null)) {
 
-        var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaeringsId,
-            farskapserklaering.get().getFar());
-
-        log.info("Fant {} aktive signeringsoppgaver knyttet til ferdigstilt/ deaktivert farskapserklæring med id {}.", aktiveOppgaver.size(),
-            farskapserklaeringsId);
-
-        for (Oppgavebestilling oppgave : aktiveOppgaver) {
-          log.info("Sletter utdatert signeringsoppgave for far (id {}) i farskapserklæring (id {})", farskapserklaering.get().getFar().getId(),
-              farskapserklaeringsId);
-
-          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.get().getFar());
-        }
+        var oppgaveforespoersel = new Oppgaveforespoersel().toBuilder().build();
+            oppgaveApiConsumer.oppretteOppgave(oppgaveforespoersel);
       }
     }
   }
+
 }

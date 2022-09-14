@@ -10,9 +10,9 @@ import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.DeaktivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.OppdatereSigneringsstatus;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Brukernotifikasjonstyring;
 import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Varsel;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.VurdereOpprettelseAvOppgave;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -68,12 +68,12 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public Oppgavestyring oppgavestyring(
+  public Brukernotifikasjonstyring oppgavestyring(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       FarskapserklaeringDao farskapserklaeringDao,
       PersistenceService persistenceService) {
 
-    return Oppgavestyring.builder()
+    return Brukernotifikasjonstyring.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .farskapserklaeringDao(farskapserklaeringDao)
@@ -95,11 +95,11 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public VurdereOpprettelseAvOppgave vurdereOpprettelseAvOppgave(
+  public Oppgavestyring oppgavestyring(
       FarskapserklaeringDao farskapserklaeringDao,
       OppgaveApiConsumer oppgaveApiConsumer
   ) {
-    return VurdereOpprettelseAvOppgave.builder()
+    return Oppgavestyring.builder()
         .farskapserklaeringDao(farskapserklaeringDao)
         .oppgaveApiConsumer(oppgaveApiConsumer)
         .build();
