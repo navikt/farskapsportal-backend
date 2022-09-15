@@ -62,7 +62,7 @@ public class OppgavestyringTest {
     oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
-    assert (true);
+    assert(true);
   }
 
   private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn, LocalDateTime signeringstidspunktFar) {
