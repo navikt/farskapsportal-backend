@@ -129,6 +129,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- navikt -->
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-client-spring</artifactId>
+    </dependency>
+
     <!-- other -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

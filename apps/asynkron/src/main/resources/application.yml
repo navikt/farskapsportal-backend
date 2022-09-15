@@ -64,8 +64,8 @@ no.nav.security.jwt:
   client.registration:
     oppgave:
       token-endpoint-url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
-      grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-      scope: api://oppgave/.default
+      grant-type: client_credentials
+      scope: oppgave
       authentication:
         client-id: ${AZURE_APP_CLIENT_ID}
         client-secret: ${AZURE_APP_CLIENT_SECRET}
@@ -116,8 +116,9 @@ AZURE_APP_TENANT_ID: aad
 AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
 
 no.nav.security.jwt:
-  oppgave:
-    token-endpoint-url: ${AZURE_BASE}
+  client.registration:
+    oppgave:
+      token-endpoint-url: ${AZURE_BASE}
   issuer.aad:
     discoveryurl: ${AZURE_BASE}/.well-known/openid-configuration
     acceptedaudience: aud-localhost

@@ -19,7 +19,7 @@
   </modules>
   <properties>
     <!-- navikt -->
-    <token-validation-spring.version>2.1.4</token-validation-spring.version>
+    <token-support.version>2.1.4</token-support.version>
     <bidrag-commons.version>0.7.9</bidrag-commons.version>
     <bidrag-tilgangskontroll.version>1.10.0</bidrag-tilgangskontroll.version>
 
@@ -58,13 +58,18 @@
       </dependency>
       <dependency>
         <groupId>no.nav.security</groupId>
+        <artifactId>token-client-spring</artifactId>
+        <version>${token-support.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>no.nav.security</groupId>
         <artifactId>token-validation-spring</artifactId>
-        <version>${token-validation-spring.version}</version>
+        <version>${token-support.version}</version>
       </dependency>
       <dependency>
         <groupId>no.nav.security</groupId>
         <artifactId>token-validation-spring-test</artifactId>
-        <version>${token-validation-spring.version}</version>
+        <version>${token-support.version}</version>
       </dependency>
       <dependency>
         <groupId>org.checkerframework</groupId>

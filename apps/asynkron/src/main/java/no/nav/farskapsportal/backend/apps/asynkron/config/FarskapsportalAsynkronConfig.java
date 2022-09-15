@@ -17,6 +17,7 @@ import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
+import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ import org.springframework.web.context.request.RequestContextListener;
 
 @Slf4j
 @Configuration
+@EnableOAuth2Client
 @ComponentScan("no.nav.farskapsportal.backend")
 public class FarskapsportalAsynkronConfig {
 

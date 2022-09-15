@@ -4,19 +4,19 @@ import static no.nav.farskapsportal.backend.apps.asynkron.config.FarskapsportalA
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.config.ScheduledConfig;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties;
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.spring.MultiIssuerProperties;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -25,13 +25,13 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @SpringJUnitConfig(ScheduledConfig.class)
 public class ArkivereFarskapserklaeringerSchedulingTest {
 
-  // Deaktiverer token-support-bønner
-  @MockBean
-  private MultiIssuerConfiguration multiIssuerConfiguration;
-  @MockBean
-  private MultiIssuerProperties multiIssuerProperties;
-  @MockBean
-  private ClientConfigurationProperties clientConfigurationProperties;
+  // Deaktiverer diverse bønner
+  private @MockBean MultiIssuerConfiguration multiIssuerConfiguration;
+  private @MockBean MultiIssuerProperties multiIssuerProperties;
+  private @MockBean ClientConfigurationProperties clientConfigurationProperties;
+  private @MockBean TokenValidationContextHolder tokenValidationContextHolder;
+  private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
+  private @MockBean @Qualifier("oppgaveRestTemplate") HttpHeaderRestTemplate oppgaveRestTemplate;
 
   @MockBean
   private PersistenceService persistenceService;
