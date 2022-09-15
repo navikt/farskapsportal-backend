@@ -65,7 +65,7 @@ no.nav.security.jwt:
     oppgave:
       token-endpoint-url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
       grant-type: client_credentials
-      scope: oppgave
+      scope: api://${OPPGAVE_SCOPE}/.default
       authentication:
         client-id: ${AZURE_APP_CLIENT_ID}
         client-secret: ${AZURE_APP_CLIENT_SECRET}

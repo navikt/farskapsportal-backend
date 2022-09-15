@@ -33,6 +33,8 @@ env:
     value: "true"
   - name: OPPGAVEAPI_URL
     value: https://oppgave.dev.intern.nav.no/api/v1/oppgaver
+  - name: OPPGAVE_SCOPE
+    value: dev-fss.oppgavehandtering.oppgave
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
   - name: POSTGRES_USER_NAME
