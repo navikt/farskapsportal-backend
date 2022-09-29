@@ -27,6 +27,7 @@ import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,9 +38,10 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("MapperTest")
-@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
-@AutoConfigureWireMock(port = 0)
+@EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureWireMock(port = 0)
+@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
 public class MapperTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
