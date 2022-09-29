@@ -16,6 +16,7 @@ url:
     api:
       url: ${FARSKAPSPORTAL_API_URL}
       synkronisere-signeringsstatus: /api/v1/asynkron/statussynkronisering/farskapserklaering/%s
+      hente-aktoerid: /api/v1/asynkron/aktoerid/hente
   oppgave:
     base-url: ${OPPGAVE_URL}
     opprette: /api/v1/oppgaver
@@ -27,7 +28,7 @@ url:
     security-token-service: /security-token-service/rest/v1/sts/token
   skatt:
     base-url: ${SKATT_URL}
-    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
+    registrering-av-farskap: /folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg
 
 virksomhetssertifikat:
   prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
@@ -61,9 +62,19 @@ farskapsportal.asynkron.egenskaper:
 AZURE_BASE: https://login.microsoftonline.com/
 
 no.nav.security.jwt:
+  common:
+    token-endpoint-url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
   client.registration:
+    farskapsportal-api:
+      token-endpoint-url: ${no.nav.security.jwt.common.token-endpoint-url}
+      grant-type: client_credentials
+      scope: api://${FARSKAPSPORTAL_API_SCOPE}/.default
+      authentication:
+        client-id: ${AZURE_APP_CLIENT_ID}
+        client-secret: ${AZURE_APP_CLIENT_SECRET}
+        client-auth-method: client_secret_post
     oppgave:
-      token-endpoint-url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+      token-endpoint-url: ${no.nav.security.jwt.common.token-endpoint-url}
       grant-type: client_credentials
       scope: api://${OPPGAVE_SCOPE}/.default
       authentication:

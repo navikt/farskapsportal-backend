@@ -17,14 +17,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
-import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
+import no.nav.farskapsportal.backend.apps.api.model.Skriftspraak;
+import no.nav.farskapsportal.backend.apps.api.service.Mapper;
+import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -39,7 +39,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("PdfGeneratorConsumerTest")
 @ActiveProfiles(PROFILE_TEST)
 @EnableMockOAuth2Server
-@AutoConfigureWireMock(port=0)
+@AutoConfigureWireMock(port = 0)
 @SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
 public class PdfGeneratorConsumerTest {
 

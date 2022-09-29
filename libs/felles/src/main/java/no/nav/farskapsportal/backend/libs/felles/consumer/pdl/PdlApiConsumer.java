@@ -5,6 +5,7 @@ import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsu
 import static no.nav.farskapsportal.backend.libs.felles.util.Utils.toSingletonOrThrow;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +24,8 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.PdlDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.Personident;
+import no.nav.farskapsportal.backend.libs.dto.pdl.Personident.Identgruppe;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.VergemaalEllerFremtidsfullmaktDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseDto;
@@ -194,6 +197,12 @@ public class PdlApiConsumer {
     } else {
       return vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg;
     }
+  }
+
+  @Cacheable("identer")
+  public List<Personident> henteIdenter(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_VERGE, false);
+    return respons.getData().getHentIdenter().getIdenter();
   }
 
   private List<KjoennDto> henteKjoenn(String foedselsnummer, boolean inkludereHistorikk) {

@@ -28,6 +28,8 @@ env:
     value: farskap-keystore-credentials-json
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
     value: "3"
+  - name: FARSKAPSPORTAL_API_SCOPE
+    value: prod-gcp.farskapsportal.api
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal.nav.no
   - name: FARSKAPSPORTAL_API_URL
@@ -51,7 +53,7 @@ env:
   - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
     value: "0 0 14 ? * TUE"
   - name: VURDERE_OPPGAVE_INTERVALL
-    value: "0 0 8 ? * MON"
+    value: "0 0 8 ? * 1-5"
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-prod-password

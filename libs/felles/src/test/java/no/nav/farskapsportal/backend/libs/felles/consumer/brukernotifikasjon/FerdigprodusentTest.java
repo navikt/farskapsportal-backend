@@ -33,7 +33,6 @@ import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Farskapsporta
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,14 +46,12 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("Ferdigprodusent")
 @SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
-@AutoConfigureWireMock(port=0)
+@AutoConfigureWireMock(port = 0)
 @ActiveProfiles(PROFILE_TEST)
 public class FerdigprodusentTest {
 
   @Value("${wiremock.server.port}")
   private String wiremockPort;
-  @Autowired
-  private Mapper mapper;
   @Autowired
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
   @MockBean
@@ -146,6 +143,7 @@ public class FerdigprodusentTest {
     //then
     verify(ferdigkoe, times(0)).send(anyString(), any(NokkelInput.class), any(DoneInput.class));
   }
+
   private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")

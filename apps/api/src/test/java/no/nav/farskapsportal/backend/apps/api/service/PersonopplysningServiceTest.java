@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.service;
+package no.nav.farskapsportal.backend.apps.api.service;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.KODE_LAND_NORGE;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_FAR;
@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.EndringDto;
@@ -39,7 +40,6 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.UtenlandskAdres
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -57,9 +57,9 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PersonopplysningService")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalFellesTestConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
-@AutoConfigureWireMock(port=0)
+@AutoConfigureWireMock(port = 0)
 public class PersonopplysningServiceTest {
 
   private static final Forelder MOR = TestUtils.henteForelder(Forelderrolle.MOR);

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import lombok.Data;
 import lombok.Getter;
+import no.nav.farskapsportal.backend.libs.dto.pdl.HentIdenter;
 import no.nav.farskapsportal.backend.libs.dto.pdl.PersonDto;
 
 @Data
@@ -20,5 +21,6 @@ public class GraphQLResponse {
   public static class Data {
 
     PersonDto hentPerson;
+    HentIdenter hentIdenter;
   }
 }

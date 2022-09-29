@@ -38,7 +38,6 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -54,7 +53,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {FarskapsportalFellesTestConfig.class,
     BrukernotifikasjonConfig.class})
 @ActiveProfiles(PROFILE_TEST)
-@AutoConfigureWireMock(port=0)
+@AutoConfigureWireMock(port = 0)
 public class BrukernotifikasjonConsumerTest {
 
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING = "Du har mottatt en farskapserklæring som venter på din signatur.";

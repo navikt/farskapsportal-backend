@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
+import no.nav.farskapsportal.backend.apps.api.model.Skriftspraak;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;

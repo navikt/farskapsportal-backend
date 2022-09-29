@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.util;
+package no.nav.farskapsportal.backend.apps.api.service;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_FAR;
@@ -14,19 +14,19 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.DokumentDto;
-import no.nav.farskapsportal.backend.libs.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
-import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
-import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,8 +37,8 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("MapperTest")
-@SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
-@AutoConfigureWireMock(port=0)
+@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
+@AutoConfigureWireMock(port = 0)
 @ActiveProfiles(PROFILE_TEST)
 public class MapperTest {
 
@@ -190,27 +190,13 @@ public class MapperTest {
   @DisplayName("Skal mappe mellom DTO og entitet for Dokument")
   class DokumentMapping {
 
-    @Test
-    @DisplayName("Skal mappe dokument, DTO til entitet")
-    void skalMappeDokumentDtoTilEntitet() {
-
-      // given, when
-      var dokument = mapper.toEntity(DOKUMENT_DTO);
-
-      // then
-      assertAll(() -> assertEquals(DOKUMENT_DTO.getDokumentnavn(), dokument.getNavn()),
-          () -> assertEquals(DOKUMENT_DTO.getSignertAvFar(), dokument.getSigneringsinformasjonFar().getSigneringstidspunkt()),
-          () -> assertEquals(DOKUMENT_DTO.getSignertAvMor(), dokument.getSigneringsinformasjonMor().getSigneringstidspunkt()),
-          () -> assertEquals(DOKUMENT_DTO.getRedirectUrlFar().toString(), dokument.getSigneringsinformasjonFar().getRedirectUrl()),
-          () -> assertEquals(DOKUMENT_DTO.getRedirectUrlMor().toString(), dokument.getSigneringsinformasjonMor().getRedirectUrl()));
-    }
 
     @Test
     @DisplayName("Skal mappe dokument, entitet til DTO")
     void skalMappeDokumentEntitetTilDto() {
 
       // given
-      var dokument = mapper.toEntity(DOKUMENT_DTO);
+      var dokument = toEntity(DOKUMENT_DTO);
 
       // when
       var dokumentDto = mapper.toDto(dokument);
@@ -231,29 +217,11 @@ public class MapperTest {
   class FarskapserklaeringMapping {
 
     @Test
-    @DisplayName("Skal mappe farskapserklaering, DTO til entitet")
-    void skalMappeFarskapserklaeringDtoTilEntitet() {
-
-      // given
-      var farskapserklaeringDto = FarskapserklaeringDto.builder().far(FAR_DTO).mor(MOR_DTO).barn(BarnDto.builder().termindato(TERMINDATO).build())
-          .dokument(DOKUMENT_DTO).build();
-
-      // when
-      var farskapserklaering = mapper.toEntity(farskapserklaeringDto);
-
-      // then
-      assertAll(() -> assertEquals(FAR.getFoedselsnummer(), farskapserklaering.getFar().getFoedselsnummer()),
-          () -> assertEquals(MOR_DTO.getFoedselsnummer(), farskapserklaering.getMor().getFoedselsnummer()),
-          () -> assertEquals(TERMINDATO, farskapserklaering.getBarn().getTermindato())
-      );
-    }
-
-    @Test
     @DisplayName("Skal mappe farskapserklaering - Entitet til DTO")
     void skalMappeFarskapserklaeringEntitetTilDto() {
 
       // given
-      var dokument = mapper.toEntity(DOKUMENT_DTO);
+      var dokument = toEntity(DOKUMENT_DTO);
       var far = mapper.toEntity(FAR_DTO);
       var mor = mapper.toEntity(MOR_DTO);
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
@@ -277,7 +245,7 @@ public class MapperTest {
     void skalMappeFarskapserklaeringSomErSendtTilSkattEntitetTilDto() {
 
       // given
-      var dokument = mapper.toEntity(DOKUMENT_DTO);
+      var dokument = toEntity(DOKUMENT_DTO);
       var far = mapper.toEntity(FAR_DTO);
       var mor = mapper.toEntity(MOR_DTO);
       var farskapserklaering = Farskapserklaering.builder().far(far).mor(mor).dokument(dokument).barn(Barn.builder().termindato(TERMINDATO).build())
@@ -343,5 +311,21 @@ public class MapperTest {
           () -> assertThat(tidspunktSisteFeiledeForsoek).isEqualTo(entitet.getTidspunktForNullstilling()),
           () -> assertThat(antallFeiledeForsoek).isEqualTo(entitet.getAntallFeiledeForsoek()));
     }
+  }
+
+  private Dokument toEntity(DokumentDto dokumentDto) {
+    var signeringsinformasjonMor = Signeringsinformasjon.builder()
+        .redirectUrl(dokumentDto.getRedirectUrlMor().toString())
+        .signeringstidspunkt(dokumentDto.getSignertAvMor()).build();
+
+    var signeringsinformasjonFar = Signeringsinformasjon.builder()
+        .redirectUrl(dokumentDto.getRedirectUrlFar().toString())
+        .signeringstidspunkt(dokumentDto.getSignertAvFar()).build();
+
+    return Dokument.builder()
+        .signeringsinformasjonMor(signeringsinformasjonMor)
+        .signeringsinformasjonFar(signeringsinformasjonFar)
+        .navn(dokumentDto.getDokumentnavn())
+        .build();
   }
 }

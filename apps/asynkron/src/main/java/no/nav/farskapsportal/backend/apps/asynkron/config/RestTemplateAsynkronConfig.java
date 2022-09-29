@@ -20,6 +20,8 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +41,26 @@ public class RestTemplateAsynkronConfig {
 
   public RestTemplateAsynkronConfig(@Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper) {
     this.farskapsportalAsynkronEgenskaper = farskapsportalAsynkronEgenskaper;
+  }
+
+  @Bean
+  public HttpHeaderRestTemplate farskapsportalApiRestTemplate(
+      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+      @Value("${url.farskapsportal.api.url}") String farskapsportalApiRootUrl,
+      ClientConfigurationProperties clientConfigurationProperties,
+      OAuth2AccessTokenService oAuth2AccessTokenService) {
+
+    ClientProperties clientProperties =
+        Optional.ofNullable(clientConfigurationProperties.getRegistration().get("farskapsportal-api"))
+            .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for farskapsportalApi"));
+
+    httpHeaderRestTemplate.getInterceptors().add(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService));
+    httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
+    httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
+
+    log.info("Oppretter farskapsportalApiRestTemplate med url {}", farskapsportalApiRootUrl);
+
+    return httpHeaderRestTemplate;
   }
 
   @Bean

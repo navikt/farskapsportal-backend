@@ -4,7 +4,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
-import no.nav.farskapsportal.backend.apps.api.api.FarskapserklaeringFeilResponse;
+import no.nav.farskapsportal.backend.apps.api.model.FarskapserklaeringFeilResponse;
 import no.nav.farskapsportal.backend.libs.dto.StatusKontrollereFarDto;
 import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiErrorException;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
@@ -12,7 +12,6 @@ import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeile
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
-import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
 import no.nav.farskapsportal.backend.libs.felles.exception.OppretteSigneringsjobbException;
 import no.nav.farskapsportal.backend.libs.felles.exception.PersonIkkeFunnetException;

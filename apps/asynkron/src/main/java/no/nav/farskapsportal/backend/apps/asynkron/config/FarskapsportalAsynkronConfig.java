@@ -78,12 +78,13 @@ public class FarskapsportalAsynkronConfig {
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
       @Qualifier("base") RestTemplate restTemplate,
-      @Value("${url.farskapsportal.api.url}") String baseUrl,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
+      @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint){
+
     consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME, synkronisereSigneringsstatusEndpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    log.info("Oppretter FarskapsportalApiConsumer med url {}", baseUrl);
+    consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME, henteAktoeridEndpoint);
+
     return new FarskapsportalApiConsumer(restTemplate, consumerEndpoint);
   }
 

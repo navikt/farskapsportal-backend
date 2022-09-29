@@ -16,18 +16,21 @@ import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
-import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.backend.apps.api.model.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
+import no.nav.farskapsportal.backend.apps.api.service.Mapper;
+import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
+import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
-import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.flywaydb.core.Flyway;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +57,15 @@ public class FarskapsportalApiConfig {
         .components(new Components()
             .addSecuritySchemes("bearer-key", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
         ).info(new io.swagger.v3.oas.models.info.Info().title("farskapsportal-api").version("v1"));
+  }
+
+  @Bean
+  public PersonopplysningService personopplysningService(ModelMapper modelMapper, PdlApiConsumer pdlApiConsumer,
+      FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
+    return PersonopplysningService.builder()
+        .modelMapper(modelMapper)
+        .pdlApiConsumer(pdlApiConsumer)
+        .farskapsportalFellesEgenskaper(farskapsportalFellesEgenskaper).build();
   }
 
   @Bean
@@ -95,7 +107,7 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
-   return () -> henteIdentFraToken(oidcTokenManager);
+    return () -> henteIdentFraToken(oidcTokenManager);
   }
 
   private String henteIdentFraToken(OidcTokenManager oidcTokenManager) {

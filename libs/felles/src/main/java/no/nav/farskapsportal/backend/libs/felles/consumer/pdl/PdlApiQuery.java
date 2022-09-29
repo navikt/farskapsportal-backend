@@ -25,6 +25,7 @@ public class PdlApiQuery {
   public static final String HENT_PERSON_NAVN = readGraphQLQueryFromFile("graphql/hent-person-navn-query.graphql");
   public static final String HENT_PERSON_SIVILSTAND = readGraphQLQueryFromFile("graphql/hent-person-sivilstand-query.graphql");
   public static final String HENT_PERSON_VERGE = readGraphQLQueryFromFile("graphql/hent-person-verge-query.graphql");
+  public static final String HENT_IDENTER = readGraphQLQueryFromFile("graphql/hent-identer.graphql");
 
   private static String readGraphQLQueryFromFile(String file) {
     val resource = new ClassPathResource(file);

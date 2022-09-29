@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
-import no.nav.farskapsportal.backend.apps.api.api.StatusSignering;
+import no.nav.farskapsportal.backend.apps.api.model.StatusSignering;
 
 @Value
 @Builder

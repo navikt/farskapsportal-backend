@@ -1,7 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.service;
 
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_FAR;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_MOR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -10,13 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
@@ -36,23 +34,20 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
-import org.aspectj.lang.annotation.Before;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -61,7 +56,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("PersistenceServiceTest")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
-@AutoConfigureWireMock(port=0)
+@AutoConfigureWireMock(port = 0)
 public class PersistenceServiceTest {
 
   private static final Forelder MOR = TestUtils.henteForelder(Forelderrolle.MOR);
@@ -73,8 +68,6 @@ public class PersistenceServiceTest {
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
-  @MockBean
-  private PersonopplysningService personopplysningServiceMock;
   @Autowired
   private PersistenceService persistenceService;
   @Autowired
@@ -86,18 +79,9 @@ public class PersistenceServiceTest {
   @Autowired
   private StatusKontrollereFarDao statusKontrollereFarDao;
   @Autowired
-  private Mapper mapper;
+  private ModelMapper modelMapper;
   @Autowired
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
-
-  private void standardPersonopplysningerMocks(Forelder far, Forelder mor) {
-    when(personopplysningServiceMock.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
-    when(personopplysningServiceMock.henteFoedselsdato(far.getFoedselsnummer())).thenReturn(FOEDSELSDATO_FAR);
-
-    when(personopplysningServiceMock.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(mor.getFoedselsnummer())).thenReturn(FOEDSELSDATO_MOR);
-    when(personopplysningServiceMock.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
-  }
 
   @Nested
   @DisplayName("Lagre")
@@ -213,7 +197,6 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullsettingAvForsoek = 1;
-      when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
 
       // when
       var lagretStatusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
@@ -267,8 +250,6 @@ public class PersistenceServiceTest {
       // given
       lagreFarskapserklaeringSignertAvMor();
 
-      standardPersonopplysningerMocks(FAR, MOR);
-
       // when
       var hentedeFarskapserklaeringer = persistenceService.henteFarsErklaeringer(FAR.getFoedselsnummer());
 
@@ -277,24 +258,12 @@ public class PersistenceServiceTest {
           .findFirst().get();
 
       assertAll(
-          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getFar().getFoedselsnummer(), hentetFarskapserklaering.getFar().getFoedselsnummer()),
-          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getBarn().getTermindato(), hentetFarskapserklaering.getBarn().getTermindato()),
+          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getFar().getFoedselsnummer(),
+              hentetFarskapserklaering.getFar().getFoedselsnummer()),
+          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getBarn().getTermindato(),
+              hentetFarskapserklaering.getBarn().getTermindato()),
           () -> assertThat(hentetFarskapserklaering.getDeaktivert()).isNull()
       );
-    }
-
-    @Test
-    @DisplayName("Skal hente lagret barn")
-    void skalHenteLagretBarn() {
-
-      // given
-      var lagretFarskapserklaering = lagreFarskapserklaering();
-
-      // when
-      var hentetBarn = persistenceService.henteBarn(lagretFarskapserklaering.getBarn().getId());
-
-      // then
-      assertEquals(lagretFarskapserklaering.getBarn().getTermindato(), hentetBarn.getTermindato());
     }
 
     @Test
@@ -501,7 +470,6 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
 
       // when
       var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
@@ -524,7 +492,6 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
@@ -548,7 +515,6 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
@@ -649,7 +615,7 @@ public class PersistenceServiceTest {
       // when, then
       var valideringException = assertThrows(ValideringException.class,
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(),
-              mapper.toDto(UFOEDT_BARN)));
+              modelMapper.map(UFOEDT_BARN, BarnDto.class)));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.ERKLAERING_EKSISTERER_MOR);
@@ -672,7 +638,7 @@ public class PersistenceServiceTest {
       // when
       var valideringException = assertThrows(ValideringException.class, () -> persistenceService
           .ingenKonfliktMedEksisterendeFarskapserklaeringer(fnrMorUtenEksisterendeFarskapserklaering, FAR.getFoedselsnummer(),
-              mapper.toDto(NYFOEDT_BARN)));
+              modelMapper.map(NYFOEDT_BARN, BarnDto.class)));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.ERKLAERING_EKSISTERER_BARN);
@@ -684,7 +650,7 @@ public class PersistenceServiceTest {
       // given, when, then
       assertDoesNotThrow(
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(),
-              mapper.toDto(UFOEDT_BARN)));
+              modelMapper.map(UFOEDT_BARN, BarnDto.class)));
     }
 
     @Test
@@ -704,7 +670,7 @@ public class PersistenceServiceTest {
 
       assertDoesNotThrow(
           () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(),
-              mapper.toDto(UFOEDT_BARN)));
+              modelMapper.map(UFOEDT_BARN, BarnDto.class)));
     }
   }
 

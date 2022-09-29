@@ -7,13 +7,11 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
-import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Meldingslogg;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
@@ -26,8 +24,8 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.exception.FantIkkeEntititetException;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import no.nav.farskapsportal.backend.libs.felles.util.Utils;
+import org.modelmapper.ModelMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -35,18 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class PersistenceService {
 
   private final OppgavebestillingDao oppgavebestillingDao;
-  private final PersonopplysningService personopplysningService;
   private final FarskapserklaeringDao farskapserklaeringDao;
   private final BarnDao barnDao;
   private final ForelderDao forelderDao;
   private final StatusKontrollereFarDao statusKontrollereFarDao;
   private final MeldingsloggDao meldingsloggDao;
-  private final Mapper mapper;
-
-  public BarnDto henteBarn(int id) {
-    var barn = barnDao.findById(id).orElseThrow(() -> new FantIkkeEntititetException(String.format("Fant ikke barn med id %d i databasen", id)));
-    return mapper.toDto(barn);
-  }
+  private final ModelMapper modelMapper;
 
   public Forelder henteForelder(int id) {
     return forelderDao.findById(id)
@@ -69,7 +61,7 @@ public class PersistenceService {
   public Farskapserklaering lagreNyFarskapserklaering(Farskapserklaering nyFarskapserklaering) {
 
     ingenKonfliktMedEksisterendeFarskapserklaeringer(nyFarskapserklaering.getMor().getFoedselsnummer(),
-        nyFarskapserklaering.getFar().getFoedselsnummer(), mapper.toDto(nyFarskapserklaering.getBarn()));
+        nyFarskapserklaering.getFar().getFoedselsnummer(), modelMapper.map(nyFarskapserklaering.getBarn(), BarnDto.class));
 
     var eksisterendeMor = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getMor().getFoedselsnummer());
     var eksisterendeFar = forelderDao.henteForelderMedFnr(nyFarskapserklaering.getFar().getFoedselsnummer());
@@ -266,15 +258,10 @@ public class PersistenceService {
     }
   }
 
-  private ForelderDto henteForelder(String fnr) {
-    var navnDto = personopplysningService.henteNavn(fnr);
-    return ForelderDto.builder().foedselsnummer(fnr).navn(navnDto).build();
-  }
-
   private StatusKontrollereFar lagreNyStatusKontrollereFar(String fnrMor, String registrertNavnFar, String oppgittNavnFar,
       LocalDateTime tidspunktForNullstilling) {
     var eksisterendeMor = forelderDao.henteForelderMedFnr(fnrMor);
-    var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(mapper.toEntity(henteForelder(fnrMor))));
+    var mor = eksisterendeMor.orElseGet(() -> forelderDao.save(Forelder.builder().foedselsnummer(fnrMor).build()));
     log.warn("Mor med id {}, oppgav feil navn på far. Legger til nytt innslag i statusKontrollereFar-tabellen", mor.getId());
     var statusKontrollereFar = StatusKontrollereFar.builder()
         .mor(mor)

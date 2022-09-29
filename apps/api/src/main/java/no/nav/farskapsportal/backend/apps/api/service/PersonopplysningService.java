@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.service;
+package no.nav.farskapsportal.backend.apps.api.service;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
@@ -10,10 +10,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.Kjoenn;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
@@ -24,6 +27,8 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
+import no.nav.farskapsportal.backend.libs.dto.pdl.Personident;
+import no.nav.farskapsportal.backend.libs.dto.pdl.Personident.Identgruppe;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.VergeEllerFullmektigDto;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
@@ -123,6 +128,12 @@ public class PersonopplysningService {
         .filter(Objects::nonNull)
         .filter(verge -> harVerge(verge.getVergeEllerFullmektig()) == true)
         .collect(Collectors.toList()).isEmpty();
+  }
+
+  public Optional<String> henteAktoerid(String foedselsnummer) {
+    var aktoerPersonident = pdlApiConsumer.henteIdenter(foedselsnummer).stream().filter(Predicate.not(Personident::isHistorisk))
+        .filter(pi -> Identgruppe.AKTORID.equals(pi.getGruppe())).findFirst();
+    return aktoerPersonident.isPresent() ? Optional.of(aktoerPersonident.get().getIdent()) : Optional.empty();
   }
 
   private boolean harVerge(VergeEllerFullmektigDto verge) {

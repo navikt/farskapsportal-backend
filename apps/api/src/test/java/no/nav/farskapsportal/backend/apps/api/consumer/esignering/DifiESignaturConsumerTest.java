@@ -24,7 +24,7 @@ import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectJob;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
-import no.nav.farskapsportal.backend.apps.api.api.Skriftspraak;
+import no.nav.farskapsportal.backend.apps.api.model.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;

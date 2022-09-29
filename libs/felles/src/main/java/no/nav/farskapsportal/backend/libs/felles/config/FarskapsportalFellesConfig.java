@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.config;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumerEndpointName;
@@ -14,11 +13,10 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
-import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -76,10 +74,8 @@ public class FarskapsportalFellesConfig {
   @Bean
   public PersistenceService persistenceService(
       OppgavebestillingDao oppgavebestillingDao,
-      PersonopplysningService personopplysningService,
       FarskapserklaeringDao farskapserklaeringDao,
-      FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper,
-      Mapper mapper,
+      @Autowired ModelMapper modelMapper,
       BarnDao barnDao,
       ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao,
@@ -87,22 +83,12 @@ public class FarskapsportalFellesConfig {
 
     return new PersistenceService(
         oppgavebestillingDao,
-        personopplysningService,
         farskapserklaeringDao,
         barnDao,
         forelderDao,
         kontrollereFarDao,
         meldingsloggDao,
-        mapper);
-  }
-
-  @Bean
-  public PersonopplysningService personopplysningService(ModelMapper modelMapper, PdlApiConsumer pdlApiConsumer,
-      FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
-    return PersonopplysningService.builder()
-        .modelMapper(modelMapper)
-        .pdlApiConsumer(pdlApiConsumer)
-        .farskapsportalFellesEgenskaper(farskapsportalFellesEgenskaper).build();
+        modelMapper);
   }
 
   @Bean

@@ -1,21 +1,19 @@
-package no.nav.farskapsportal.backend.libs.felles.util;
+package no.nav.farskapsportal.backend.apps.api.service;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
-import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.DokumentDto;
 import no.nav.farskapsportal.backend.libs.dto.FarskapserklaeringDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.StatusKontrollereFarDto;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.Dokument;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,20 +35,13 @@ public class Mapper {
     return modelMapper.map(barn, BarnDto.class);
   }
 
-  public Dokument toEntity(DokumentDto dokumentDto) {
-    var signeringsinformasjonMor = Signeringsinformasjon.builder()
-        .redirectUrl(dokumentDto.getRedirectUrlMor().toString())
-        .signeringstidspunkt(dokumentDto.getSignertAvMor()).build();
-
-    var signeringsinformasjonFar = Signeringsinformasjon.builder()
-        .redirectUrl(dokumentDto.getRedirectUrlFar().toString())
-        .signeringstidspunkt(dokumentDto.getSignertAvFar()).build();
-
-    return Dokument.builder()
-        .signeringsinformasjonMor(signeringsinformasjonMor)
-        .signeringsinformasjonFar(signeringsinformasjonFar)
-        .navn(dokumentDto.getDokumentnavn())
-        .build();
+  public ForelderDto toDto(Forelder forelder) {
+    var foedselsdato = personopplysningService.henteFoedselsdato(forelder.getFoedselsnummer());
+    var navnDto = modelMapper(personopplysningService.henteNavn(forelder.getFoedselsnummer()), NavnDto.class);
+    var forelderDto = modelMapper.map(forelder, ForelderDto.class);
+    forelderDto.setFoedselsdato(foedselsdato);
+    forelderDto.setNavn(navnDto);
+    return forelderDto;
   }
 
   public DokumentDto toDto(Dokument dokument) {
@@ -79,23 +70,6 @@ public class Mapper {
 
   public <T, V> T modelMapper(V v, Class<T> tClass) {
     return modelMapper.map(v, tClass);
-  }
-
-  public ForelderDto toDto(Forelder forelder) {
-    var foedselsdato = personopplysningService.henteFoedselsdato(forelder.getFoedselsnummer());
-    var navnDto = modelMapper(personopplysningService.henteNavn(forelder.getFoedselsnummer()), NavnDto.class);
-    var forelderDto = modelMapper.map(forelder, ForelderDto.class);
-    forelderDto.setFoedselsdato(foedselsdato);
-    forelderDto.setNavn(navnDto);
-    return forelderDto;
-  }
-
-  public Farskapserklaering toEntity(FarskapserklaeringDto farskapserklaeringDto) {
-
-    var dokument = toEntity(farskapserklaeringDto.getDokument());
-    var farskapserklaering = modelMapper.map(farskapserklaeringDto, Farskapserklaering.class);
-    farskapserklaering.setDokument(dokument);
-    return farskapserklaering;
   }
 
   public FarskapserklaeringDto toDto(Farskapserklaering farskapserklaering) {

@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.api.api;
+package no.nav.farskapsportal.backend.apps.api.model;
 
 import lombok.Builder;
 import lombok.Getter;
