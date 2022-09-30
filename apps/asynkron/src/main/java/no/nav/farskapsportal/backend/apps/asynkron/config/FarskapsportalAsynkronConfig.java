@@ -79,7 +79,7 @@ public class FarskapsportalAsynkronConfig {
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
       @Qualifier("base") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
-      @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String henteAktoeridEndpoint,
+      @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint){
 
     consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME, synkronisereSigneringsstatusEndpoint);
