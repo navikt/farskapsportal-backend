@@ -12,6 +12,7 @@ import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRequest;
 import no.nav.security.token.support.core.api.Protected;
+import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping("/api/v1/asynkron")
-@Protected
+@ProtectedWithClaims(issuer = "aad")
 public class AsynkronController {
 
   @Autowired
