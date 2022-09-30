@@ -218,7 +218,7 @@ public class OppgavestyringTest {
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isEqualTo(tidspunktOppgaveSendt)
+        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBetween(tidspunktOppgaveSendt.minusSeconds(10), tidspunktOppgaveSendt.plusSeconds(10))
     );
   }
 

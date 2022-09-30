@@ -92,7 +92,7 @@ public class RestResponseExceptionResolver {
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, "En intern feil har oppstått!");
-
+    
     var httpStatus = feilkodeTilHttpStatus(e.getFeilkode());
 
     return ResponseEntity.status(httpStatus).body(new ResponseEntity<>(e.getMessage(), headers, httpStatus));
@@ -138,6 +138,7 @@ public class RestResponseExceptionResolver {
   }
 
   private HttpStatus feilkodeTilHttpStatus(Feilkode feilkode) {
+
     switch (feilkode) {
       case ESIGNERING_UKJENT_TOKEN:
         return HttpStatus.NOT_FOUND;

@@ -13,6 +13,7 @@ import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRequest;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
+import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -68,7 +69,8 @@ public class AsynkronControllerTest {
     void skalReturnereHttpStatusGoneVedEsigneringStatusFeiletException() {
 
       // given
-      doThrow(EsigneringStatusFeiletException.class).when(farskapsportalService).synkronisereSigneringsstatusFar(anyInt());
+      var esigneringStatusFeiletException = new EsigneringStatusFeiletException(Feilkode.ESIGNERING_STATUS_FEILET);
+      doThrow(esigneringStatusFeiletException).when(farskapsportalService).synkronisereSigneringsstatusFar(anyInt());
 
       // when
       var respons = httpHeaderTestRestTemplate.exchange(initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10, HttpMethod.PUT, null,
