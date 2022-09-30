@@ -98,6 +98,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -140,7 +141,8 @@ public class FarskapsportalControllerTest {
   @LocalServerPort
   private int localServerPort;
   @Autowired
-  private HttpHeaderTestRestTemplate httpHeaderTestRestTemplate;
+  @Qualifier("api")
+  private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
   @Autowired
   private StsStub stsStub;
   @Autowired
@@ -348,7 +350,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrMor);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -399,7 +401,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -456,7 +458,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -508,7 +510,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -551,7 +553,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -588,7 +590,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(fnrMor);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -629,7 +631,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       // then
       assertAll(
@@ -654,7 +656,7 @@ public class FarskapsportalControllerTest {
       var ny = persistenceService.lagreNyFarskapserklaering(signertFarskapserklaering);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -726,7 +728,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(kvinneSomHarSkiftetKjoenn.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteBrukerinformasjon(), HttpMethod.GET, null, BrukerinformasjonResponse.class);
 
       var brukerinformasjonResponse = respons.getBody();
 
@@ -795,7 +797,7 @@ public class FarskapsportalControllerTest {
           fnrFar);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
           initHttpEntity(request),
           HttpStatus.class);
 
@@ -845,7 +847,7 @@ public class FarskapsportalControllerTest {
           MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
           initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(fornavnFar + " " + etternavnFar).build()),
           HttpStatus.class);
 
@@ -884,7 +886,7 @@ public class FarskapsportalControllerTest {
                   .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build())), FAR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
           initHttpEntity(
               KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer()).navn(NAVN_FAR.sammensattNavn()).build()),
           FarskapserklaeringFeilResponse.class);
@@ -919,7 +921,7 @@ public class FarskapsportalControllerTest {
           MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
           initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer("01058011446").navn("Borat Sagdiyev").build()),
           FarskapserklaeringFeilResponse.class);
 
@@ -969,7 +971,7 @@ public class FarskapsportalControllerTest {
               new HentPersonDoedsfall(null)), fnrFar);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
           initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
           FarskapserklaeringFeilResponse.class);
 
@@ -1032,7 +1034,7 @@ public class FarskapsportalControllerTest {
 
       // when
       for (int i = 1; i <= farskapsportalApiEgenskaper.getFarskapsportalFellesEgenskaper().getKontrollFarMaksAntallForsoek(); i++) {
-        var respons = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+        var respons = httpHeaderTestRestTemplateApi.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
             initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
             FarskapserklaeringFeilResponse.class);
 
@@ -1049,7 +1051,7 @@ public class FarskapsportalControllerTest {
 
       // when
       var tidspunktSisteForsoek = LocalDateTime.now();
-      var resultatEtterOppbruktAntallForsoek = httpHeaderTestRestTemplate.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
+      var resultatEtterOppbruktAntallForsoek = httpHeaderTestRestTemplateApi.exchange(initKontrollereOpplysningerFar(), HttpMethod.POST,
           initHttpEntity(KontrollerePersonopplysningerRequest.builder().foedselsnummer(fnrFar).navn(oppgittNavnFar).build()),
           FarskapserklaeringFeilResponse.class);
 
@@ -1084,7 +1086,7 @@ public class FarskapsportalControllerTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(mapper.toDto(BARN_UTEN_FNR))
               .opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
@@ -1107,7 +1109,7 @@ public class FarskapsportalControllerTest {
       brukeStandardMocks(MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(
               OppretteFarskapserklaeringRequest.builder().barn(mapper.toDto(BARN_UTEN_FNR)).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
                   .build()),
@@ -1131,7 +1133,7 @@ public class FarskapsportalControllerTest {
           .termindato(LocalDate.now().plusWeeks(farskapsportalApiEgenskaper.getMaksAntallUkerTilTermindato() + 1)).build();
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST, initHttpEntity(
           OppretteFarskapserklaeringRequest.builder().barn(barnMedTermindatoForLangtFremITid).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
               .build()), OppretteFarskapserklaeringResponse.class);
 
@@ -1154,7 +1156,7 @@ public class FarskapsportalControllerTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(
               OppretteFarskapserklaeringRequest.builder().barn(mapper.toDto(BARN_UTEN_FNR)).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR)
                   .build()),
@@ -1179,7 +1181,7 @@ public class FarskapsportalControllerTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(
               OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(mapper.toDto(BARN_UTEN_FNR)).opplysningerOmFar(
                   KontrollerePersonopplysningerRequest.builder().navn(NAVN_FAR.sammensattNavn()).build()).build()),
@@ -1204,7 +1206,7 @@ public class FarskapsportalControllerTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(
               OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(mapper.toDto(BARN_UTEN_FNR)).opplysningerOmFar(
                   KontrollerePersonopplysningerRequest.builder().foedselsnummer(FAR.getFoedselsnummer()).build()).build()),
@@ -1229,7 +1231,7 @@ public class FarskapsportalControllerTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).opplysningerOmFar(
                   KontrollerePersonopplysningerRequest.builder().navn(NAVN_FAR.sammensattNavn()).foedselsnummer(FAR.getFoedselsnummer()).build())
               .build()),
@@ -1248,7 +1250,7 @@ public class FarskapsportalControllerTest {
       brukeStandardMocks(MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(
               OppretteFarskapserklaeringRequest.builder().barn(mapper.toDto(BARN_MED_FNR)).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
@@ -1301,7 +1303,7 @@ public class FarskapsportalControllerTest {
       }).when(difiESignaturConsumer).oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(OppretteFarskapserklaeringRequest.builder().skriftspraak(Skriftspraak.BOKMAAL).barn(mapper.toDto(BARN_UTEN_FNR))
               .opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
@@ -1320,7 +1322,7 @@ public class FarskapsportalControllerTest {
       brukeStandardMocksPdlApiAngiSivilstandMor(sivilstandMor);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initNyFarskapserklaering(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initNyFarskapserklaering(), HttpMethod.POST,
           initHttpEntity(
               OppretteFarskapserklaeringRequest.builder().barn(mapper.toDto(BARN_MED_FNR)).opplysningerOmFar(KONTROLLEREOPPLYSNINGER_OM_FAR).build()),
           OppretteFarskapserklaeringResponse.class);
@@ -1386,7 +1388,7 @@ public class FarskapsportalControllerTest {
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(lagretFarskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
               .queryParam("id_farskapserklaering", farskapserklaeringUtenSignaturer.getId())
               .queryParam("status_query_token", "Sjalalala-lala").build().encode()
@@ -1459,7 +1461,7 @@ public class FarskapsportalControllerTest {
           .thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
               .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId()).queryParam("status_query_token", "Sjalalala-lala")
               .build().encode()
@@ -1540,7 +1542,7 @@ public class FarskapsportalControllerTest {
           .thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
               .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId()).queryParam("status_query_token", "Sjalalala-lala")
               .build().encode()
@@ -1606,7 +1608,7 @@ public class FarskapsportalControllerTest {
               .build());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("id_farskapserklaering", farskapserklaering.getId())
               .queryParam("status_query_token", "Sjalalala-lala").build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
@@ -1670,7 +1672,7 @@ public class FarskapsportalControllerTest {
               .build());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
               .queryParam("id_farskapserklaering", farskapserklaeringSignertAvMor.getId())
               .queryParam("status_query_token", "Sjalalala-lala").build().encode()
@@ -1722,7 +1724,7 @@ public class FarskapsportalControllerTest {
       when(difiESignaturConsumer.henteStatus(any(), any(), any())).thenThrow(new EsigneringConsumerException(Feilkode.ESIGNERING_UKJENT_TOKEN));
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect()).queryParam("id_farskapserklaering", 1)
               .queryParam("status_query_token", "Sjalalala-lala").build().encode()
               .toString(), HttpMethod.PUT, null, FarskapserklaeringDto.class);
@@ -1789,7 +1791,7 @@ public class FarskapsportalControllerTest {
           .thenReturn(lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
               .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId())
               .queryParam("status_query_token", "Sjalalala-lala").build().encode()
@@ -1823,7 +1825,7 @@ public class FarskapsportalControllerTest {
       when(difiESignaturConsumer.henteNyRedirectUrl(undertegnerUrlFar)).thenReturn(nyRedirectUrl);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(
+      var respons = httpHeaderTestRestTemplateApi.exchange(
           UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId()).build()
               .encode().toString(), HttpMethod.POST, null, String.class);
 
@@ -1852,7 +1854,7 @@ public class FarskapsportalControllerTest {
 
       // when
       try {
-        respons = httpHeaderTestRestTemplate
+        respons = httpHeaderTestRestTemplateApi
             .exchange(
                 UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl()).queryParam("id_farskapserklaering", lagretFarskapserklaering.getId() + 1)
                     .build().encode().toString(),
@@ -1909,7 +1911,7 @@ public class FarskapsportalControllerTest {
           FAR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
           initHttpEntity(
               OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true).build()),
           OppdatereFarskapserklaeringResponse.class);
@@ -1945,7 +1947,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(MOR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
           initHttpEntity(
               OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(false).build()),
           FarskapserklaeringFeilResponse.class);
@@ -1968,7 +1970,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn("12345678910");
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
+      var respons = httpHeaderTestRestTemplateApi.exchange(initOppdatereFarskapserklaering(), HttpMethod.PUT,
           initHttpEntity(
               OppdatereFarskapserklaeringRequest.builder().idFarskapserklaering(lagretFarskapserklaering.getId()).farBorSammenMedMor(true).build()),
           FarskapserklaeringFeilResponse.class);
@@ -2003,7 +2005,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(farskapserklaering);
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, byte[].class);
+      var respons = httpHeaderTestRestTemplateApi.exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, byte[].class);
 
       // then
       assertArrayEquals(farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), respons.getBody());
@@ -2021,7 +2023,7 @@ public class FarskapsportalControllerTest {
       farskapserklaeringDao.save(farskapserklaering);
 
       // when
-      var respons = httpHeaderTestRestTemplate
+      var respons = httpHeaderTestRestTemplateApi
           .exchange(initHenteDokumentinnhold(farskapserklaering.getId()), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
 
       // then
@@ -2040,7 +2042,7 @@ public class FarskapsportalControllerTest {
       when(oidcTokenSubjectExtractor.hentPaaloggetPerson()).thenReturn(FAR.getFoedselsnummer());
 
       // when
-      var respons = httpHeaderTestRestTemplate
+      var respons = httpHeaderTestRestTemplateApi
           .exchange(initHenteDokumentinnhold(idFarskapserklaeringSomIkkeFinnes), HttpMethod.GET, null, FarskapserklaeringFeilResponse.class);
 
       // then

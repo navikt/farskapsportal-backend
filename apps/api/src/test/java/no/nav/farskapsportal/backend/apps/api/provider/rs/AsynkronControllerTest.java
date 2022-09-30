@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -41,7 +42,8 @@ public class AsynkronControllerTest {
   private int localServerPort;
 
   @Autowired
-  private HttpHeaderTestRestTemplate httpHeaderTestRestTemplate;
+  @Qualifier("asynkron")
+  private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateAsynkron;
 
   @MockBean
   private FarskapsportalService farskapsportalService;
@@ -57,7 +59,7 @@ public class AsynkronControllerTest {
     void skalGiAcceptedDersomFarskapserklaeringProsesseresNormalt() {
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10, HttpMethod.PUT, null,
+      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10, HttpMethod.PUT, null,
           Void.class);
 
       // then
@@ -73,7 +75,7 @@ public class AsynkronControllerTest {
       doThrow(esigneringStatusFeiletException).when(farskapsportalService).synkronisereSigneringsstatusFar(anyInt());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10, HttpMethod.PUT, null,
+      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10, HttpMethod.PUT, null,
           Void.class);
 
       // then
@@ -100,7 +102,7 @@ public class AsynkronControllerTest {
       Mockito.when(personopplysningService.henteAktoerid(personident)).thenReturn(Optional.of(aktoerident));
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteAktoeridForPerson(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initHenteAktoeridForPerson(), HttpMethod.POST,
           initHttpEntity(HenteAktoeridRequest.builder().personident(personident).build()), String.class);
 
       // then
@@ -119,7 +121,7 @@ public class AsynkronControllerTest {
       Mockito.when(personopplysningService.henteAktoerid(personident)).thenReturn(Optional.empty());
 
       // when
-      var respons = httpHeaderTestRestTemplate.exchange(initHenteAktoeridForPerson(), HttpMethod.POST,
+      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initHenteAktoeridForPerson(), HttpMethod.POST,
           initHttpEntity(HenteAktoeridRequest.builder().personident(personident).build()), String.class);
 
       // then

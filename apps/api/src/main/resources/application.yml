@@ -130,10 +130,16 @@ spring:
 
 no.nav.security.jwt:
   expirythreshold: 1
-  issuer.selvbetjening:
-    discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
+  issuer:
+    aad:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+    selvbetjening:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+
 
 ---
 spring:
@@ -207,10 +213,16 @@ wiremock.server:
 
 no.nav.security.jwt:
   expirythreshold: 1
-  issuer.selvbetjening:
-    discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
+  issuer:
+    aad:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+    selvbetjening:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+
 
 ---
 spring:
