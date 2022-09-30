@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,7 +59,9 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
   public ResponseEntity<BrukerinformasjonResponse> henteBrukerinformasjon() {
     log.info("Henter brukerinformasjon");
-    var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(oidcTokenSubjectExtractor.hentPaaloggetPerson());
+    var personident = oidcTokenSubjectExtractor.hentPaaloggetPerson();
+    SIKKER_LOGG.info("Henter brukerinformasjon for person med ident {}", personident);
+    var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(personident);
     return new ResponseEntity<>(brukerinformasjon, HttpStatus.OK);
   }
 
