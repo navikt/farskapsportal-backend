@@ -98,10 +98,12 @@ public class ScheduledConfig {
 
   @Bean
   public Oppgavestyring oppgavestyring(
+      FarskapsportalApiConsumer farskapsportalApiConsumer,
       FarskapserklaeringDao farskapserklaeringDao,
       OppgaveApiConsumer oppgaveApiConsumer
   ) {
     return Oppgavestyring.builder()
+        .farskapsportalApiConsumer(farskapsportalApiConsumer)
         .farskapserklaeringDao(farskapserklaeringDao)
         .oppgaveApiConsumer(oppgaveApiConsumer)
         .build();

@@ -41,7 +41,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class OppgavestyringTest {
 
-
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @MockBean FarskapsportalApiConsumer farskapsportalApiConsumer;
