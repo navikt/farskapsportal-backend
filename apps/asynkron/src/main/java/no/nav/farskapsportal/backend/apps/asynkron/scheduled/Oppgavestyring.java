@@ -16,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 
 @Slf4j
 @Builder
-@Validated
 public class Oppgavestyring {
 
   private FarskapsportalApiConsumer farskapsportalApiConsumer;
