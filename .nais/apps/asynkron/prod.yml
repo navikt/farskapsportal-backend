@@ -29,7 +29,7 @@ env:
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
     value: "3"
   - name: FARSKAPSPORTAL_API_SCOPE
-    value: prod-gcp.farskapsportal.api
+    value: prod-gcp.farskapsportal.farskapsportal-api
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal.nav.no
   - name: FARSKAPSPORTAL_API_URL
