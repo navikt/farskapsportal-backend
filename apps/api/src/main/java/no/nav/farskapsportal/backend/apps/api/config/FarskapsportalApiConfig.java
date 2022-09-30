@@ -100,7 +100,7 @@ public class FarskapsportalApiConfig {
   @Bean
   public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
     return () -> Optional.ofNullable(tokenValidationContextHolder).map(TokenValidationContextHolder::getTokenValidationContext)
-        .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(FarskapsportalApiApplication.ISSUER)).map(Optional::get)
+        .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(FarskapsportalApiApplication.ISSUER_SELVBETJENING)).map(Optional::get)
         .map(JwtToken::getTokenAsString)
         .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }

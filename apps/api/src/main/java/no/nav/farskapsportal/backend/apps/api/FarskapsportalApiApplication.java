@@ -4,8 +4,6 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -18,7 +16,8 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
 public class FarskapsportalApiApplication {
 
-  public static final String ISSUER = "selvbetjening";
+  public static final String ISSUER_SELVBETJENING = "selvbetjening";
+  public static final String ISSUER_AZURE_AD = "aad";
 
   public static void main(String[] args) {
 

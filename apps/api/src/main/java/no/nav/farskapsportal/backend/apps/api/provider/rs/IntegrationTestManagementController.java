@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @ConditionalOnExpression("${INTEGRATION_TEST_CONTROLLER_PAA:false}")
 @RequestMapping("/dev/integration-test/management")
-@ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER)
+@ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER_SELVBETJENING)
 @Slf4j
 public class IntegrationTestManagementController {
 

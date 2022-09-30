@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication.ISSUER_AZURE_AD;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping("/api/v1/asynkron")
-@ProtectedWithClaims(issuer = "aad")
+@ProtectedWithClaims(issuer = ISSUER_AZURE_AD)
 public class AsynkronController {
 
   @Autowired
