@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @Validated
-@Unprotected
 @RestController
 @RequestMapping("/api/v1/asynkron")
+@ProtectedWithClaims(issuer = ISSUER_AZURE_AD)
 public class AsynkronController {
 
   @Autowired
