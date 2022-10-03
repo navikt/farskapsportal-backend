@@ -72,7 +72,7 @@ no.nav.security.jwt:
       authentication:
         client-id: ${AZURE_APP_CLIENT_ID}
         client-secret: ${AZURE_APP_CLIENT_SECRET}
-        client-auth-method: client_secret_post
+        client-auth-method: client_secret_basic
     oppgave:
       token-endpoint-url: ${no.nav.security.jwt.common.token-endpoint-url}
       grant-type: client_credentials
@@ -80,7 +80,7 @@ no.nav.security.jwt:
       authentication:
         client-id: ${AZURE_APP_CLIENT_ID}
         client-secret: ${AZURE_APP_CLIENT_SECRET}
-        client-auth-method: client_secret_post
+        client-auth-method: client_secret_basic
   issuer.aad:
     discovery_url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
     accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
