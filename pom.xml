@@ -19,7 +19,7 @@
   </modules>
   <properties>
     <!-- navikt -->
-    <token-support.version>2.1.4</token-support.version>
+    <token-support.version>2.1.6</token-support.version>
     <bidrag-commons.version>0.7.9</bidrag-commons.version>
     <bidrag-tilgangskontroll.version>1.10.0</bidrag-tilgangskontroll.version>
 
