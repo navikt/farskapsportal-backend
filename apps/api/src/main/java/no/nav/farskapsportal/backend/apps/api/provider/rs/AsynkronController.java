@@ -13,6 +13,7 @@ import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRequest;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
+import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @Validated
+@Unprotected
 @RestController
 @RequestMapping("/api/v1/asynkron")
-@ProtectedWithClaims(issuer = ISSUER_AZURE_AD)
 public class AsynkronController {
 
   @Autowired
