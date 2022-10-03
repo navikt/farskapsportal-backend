@@ -37,7 +37,6 @@ public class StatusController {
     this.restTemplate = thisRestTemplate;
   }
 
-  @Unprotected
   @GetMapping(value = "/status")
   @Operation(description = "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn",
       security = {@SecurityRequirement(name = "bearer-key")})
