@@ -74,13 +74,15 @@ spring:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
     database: postgresql
 
-no.nav.security.jwt.issuer:
-  selvbetjening:
-    discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
-    accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
-  aad:
-    discoveryurl: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
-    accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
+no.nav.security.jwt:
+  expirythreshold: 1
+  issuer:
+    aad:
+      discoveryurl: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
+    selvbetjening:
+      discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+      accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
 ---
 ### H2 ###

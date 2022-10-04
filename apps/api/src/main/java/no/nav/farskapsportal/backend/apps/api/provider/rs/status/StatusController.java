@@ -23,9 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
-@Validated
-@RestController
 @Unprotected
+@RestController
 @RequestMapping("/internal/farskapsportal")
 public class StatusController {
 
