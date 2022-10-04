@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
+import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal.PADES;
+import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal.XADES;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.tilUri;
@@ -22,11 +24,10 @@ import lombok.SneakyThrows;
 import no.digipost.signature.client.core.exceptions.SenderNotSpecifiedException;
 import no.digipost.signature.client.direct.DirectClient;
 import no.digipost.signature.client.direct.DirectJob;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
-import no.nav.farskapsportal.backend.apps.api.model.Skriftspraak;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
+import no.nav.farskapsportal.backend.apps.api.model.Skriftspraak;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
@@ -49,13 +50,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
 @DisplayName("DifiESignaturConsumer")
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(PROFILE_TEST)
-@SpringBootTest(classes = {FarskapsportalApiApplicationLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {FarskapsportalApiApplicationLocal.class})
+@SpringBootTest(classes = {FarskapsportalApiTestConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 0)
 @EnableMockOAuth2Server
 public class DifiESignaturConsumerTest {
@@ -69,7 +68,7 @@ public class DifiESignaturConsumerTest {
       .navn(NavnDto.builder().fornavn("Rask").etternavn("Karaffel").build()).build();
 
   private static final String PATH_STATUS_URL = "/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1/status";
-  private static final String PATH_PADES_URL = "/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1" + FarskapsportalApiLocalConfig.PADES;
+  private static final String PATH_PADES_URL = "/api/" + MOR.getFoedselsnummer() + "/direct/signature-jobs/1" + PADES;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
@@ -225,10 +224,10 @@ public class DifiESignaturConsumerTest {
       ClassLoader classLoader = getClass().getClassLoader();
       var inputStream = classLoader.getResourceAsStream("__files/farskapserklaering.pdf");
       var originaltInnhold = inputStream.readAllBytes();
-      difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
+      difiESignaturStub.runGetSignedDocument(PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(wiremockPort, FarskapsportalApiLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(wiremockPort, PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);
@@ -242,10 +241,10 @@ public class DifiESignaturConsumerTest {
     void skalHenteXadesXml() {
 
       // given
-      difiESignaturStub.runGetXades(FarskapsportalApiLocalConfig.XADES);
+      difiESignaturStub.runGetXades(XADES);
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(lageUri(wiremockPort, FarskapsportalApiLocalConfig.XADES));
+      var dokumentStatusDto = difiESignaturConsumer.henteXadesXml(lageUri(wiremockPort, XADES));
 
       // then
       assertNotNull(dokumentStatusDto);

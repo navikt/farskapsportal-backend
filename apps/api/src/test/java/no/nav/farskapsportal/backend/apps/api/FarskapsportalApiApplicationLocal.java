@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL_POSTGRES;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_REMOTE_POSTGRES;
@@ -17,6 +18,7 @@ import no.digipost.signature.client.Certificates;
 import no.digipost.signature.client.ClientConfiguration;
 import no.digipost.signature.client.core.Sender;
 import no.digipost.signature.client.security.KeyStoreConfig;
+import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.flywaydb.core.Flyway;
@@ -47,6 +49,8 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 @EntityScan("no.nav.farskapsportal.backend.libs.entity")
 public class FarskapsportalApiApplicationLocal {
 
+  public static final String PADES = "/pades";
+  public static final String XADES = "/xades";
   private static final String NAV_ORGNR = "123456789";
 
   public static void main(String... args) {
@@ -56,18 +60,6 @@ public class FarskapsportalApiApplicationLocal {
     SpringApplication app = new SpringApplication(FarskapsportalApiApplicationLocal.class);
     app.setAdditionalProfiles(profile);
     app.run(args);
-  }
-
-  @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
-  public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader) throws IOException {
-    try (InputStream inputStream = resourceLoader.getClassLoader().getResourceAsStream("esigneringkeystore.jceks")) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Fant ikke esigneringkeystore.jceks");
-      } else {
-        return KeyStoreConfig.fromJavaKeyStore(inputStream, "selfsigned", "changeit", "changeit");
-      }
-    }
   }
 
   @Bean
@@ -94,7 +86,17 @@ public class FarskapsportalApiApplicationLocal {
   }
 
   @Configuration
-  @Profile(PROFILE_LOCAL)
+  @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_INTEGRATION_TEST})
   @EnableMockOAuth2Server
-  static class MockOauthServerLocalConfig {}
+  class MockOauthServerLocalConfig {
+
+    @Autowired
+    private DifiESignaturStub difiESignaturStub;
+
+    @Bean
+    public void runStubs() {
+      difiESignaturStub.runGetSignedDocument(PADES);
+      difiESignaturStub.runGetXades(XADES);
+    }
+  }
 }
