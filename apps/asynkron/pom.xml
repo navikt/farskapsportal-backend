@@ -135,6 +135,11 @@
       <artifactId>token-client-spring</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-validation-spring</artifactId>
+    </dependency>
+
     <!-- other -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
