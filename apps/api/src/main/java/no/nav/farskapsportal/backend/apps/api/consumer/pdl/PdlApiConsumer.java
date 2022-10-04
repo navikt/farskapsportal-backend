@@ -1,11 +1,10 @@
-package no.nav.farskapsportal.backend.libs.felles.consumer.pdl;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl;
 
 import static java.util.stream.Collectors.toList;
-import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumerEndpointName.PDL_API_GRAPHQL;
+import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumerEndpointName.PDL_API_GRAPHQL;
 import static no.nav.farskapsportal.backend.libs.felles.util.Utils.toSingletonOrThrow;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,6 +16,8 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLRequest;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
@@ -25,13 +26,10 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.PdlDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.Personident;
-import no.nav.farskapsportal.backend.libs.dto.pdl.Personident.Identgruppe;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.VergemaalEllerFremtidsfullmaktDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.graphql.GraphQLRequest;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.UnrecoverableException;

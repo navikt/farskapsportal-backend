@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.consumer.pdl;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl;
 
 import java.util.List;
 import java.util.StringJoiner;

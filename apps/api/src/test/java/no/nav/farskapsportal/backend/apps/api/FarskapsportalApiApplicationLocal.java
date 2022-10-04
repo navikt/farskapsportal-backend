@@ -83,7 +83,6 @@ public class FarskapsportalApiApplicationLocal {
   @Configuration
   @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   static class FlywayConfiguration {
-
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron) {
 
@@ -93,4 +92,9 @@ public class FarskapsportalApiApplicationLocal {
       Flyway.configure().ignoreMissingMigrations(true).baselineOnMigrate(true).dataSource(dataSource).placeholders(placeholders).load().migrate();
     }
   }
+
+  @Configuration
+  @Profile(PROFILE_LOCAL)
+  @EnableMockOAuth2Server
+  static class MockOauthServerLocalConfig {}
 }

@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.consumer.pdl;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.consumer.pdl.graphql;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;

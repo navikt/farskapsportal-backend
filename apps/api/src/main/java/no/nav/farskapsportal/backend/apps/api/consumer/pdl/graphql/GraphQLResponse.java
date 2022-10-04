@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.consumer.pdl.graphql;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
