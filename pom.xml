@@ -50,6 +50,16 @@
         <groupId>no.nav.bidrag</groupId>
         <artifactId>bidrag-commons</artifactId>
         <version>${bidrag-commons.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-validation-spring</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-client-spring</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>no.nav.bidrag</groupId>
