@@ -201,6 +201,6 @@ spring.config.activate.on-profile: local
 wiremock.server:
   port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
 
 

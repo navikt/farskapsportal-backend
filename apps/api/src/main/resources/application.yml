@@ -209,7 +209,7 @@ spring.config.activate.on-profile: local
 wiremock.server:
   port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
 
 no.nav.security.jwt:
   expirythreshold: 1
@@ -246,7 +246,7 @@ farskapsportal-api:
 wiremock.server:
   port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
 ---
 spring:
   config.activate.on-profile: remote-postgres
@@ -276,7 +276,7 @@ virksomhetssertifikat:
 wiremock.server:
   port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
 
 ---
 
