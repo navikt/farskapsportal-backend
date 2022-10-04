@@ -18,8 +18,6 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
-import no.nav.security.token.support.core.context.TokenValidationContextHolder;
-import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +27,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextListener;
 
 @Slf4j
 @Configuration
@@ -38,11 +35,6 @@ import org.springframework.web.context.request.RequestContextListener;
 public class FarskapsportalAsynkronConfig {
 
   public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
-
-  @Bean
-  public TokenValidationContextHolder oidcRequestContextHolder() {
-    return new SpringTokenValidationContextHolder();
-  }
 
   @Bean
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
@@ -80,7 +72,7 @@ public class FarskapsportalAsynkronConfig {
       @Qualifier("farskapsportalApiRestTemplate") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
-      ConsumerEndpoint consumerEndpoint){
+      ConsumerEndpoint consumerEndpoint) {
 
     consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME, synkronisereSigneringsstatusEndpoint);
     consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME, henteAktoeridEndpoint);
