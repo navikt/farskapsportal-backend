@@ -43,7 +43,6 @@ public class FarskapsportalController {
 
   @Autowired
   private FarskapsportalService farskapsportalService;
-
   @Autowired
   private FarskapsportalApiConfig.OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
 
