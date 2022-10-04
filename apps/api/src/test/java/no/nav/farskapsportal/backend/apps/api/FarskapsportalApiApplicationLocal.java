@@ -88,6 +88,7 @@ public class FarskapsportalApiApplicationLocal {
   @Configuration
   @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_INTEGRATION_TEST})
   @EnableMockOAuth2Server
+  @AutoConfigureWireMock(port = 0)
   class MockOauthServerLocalConfig {
 
     @Autowired
