@@ -41,7 +41,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;

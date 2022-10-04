@@ -4,7 +4,10 @@
   "url": "/pdl-api/graphql",
   "bodyPatterns" : [ {
     "matches" : ".*12345678910.*"
-  }]
+  },
+    {
+      "matches" : ".*hentPerson.*"
+    }]
 },
 "response": {
   "status": 200,

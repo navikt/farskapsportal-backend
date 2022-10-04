@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.stub;
+package no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;

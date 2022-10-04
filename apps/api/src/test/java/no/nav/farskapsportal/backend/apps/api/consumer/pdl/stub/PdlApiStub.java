@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;

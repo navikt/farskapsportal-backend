@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.farskapsportal.backend.apps.api.model.FarskapserklaeringFeilResponse;
 import no.nav.farskapsportal.backend.libs.dto.StatusKontrollereFarDto;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiErrorException;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiErrorException;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;

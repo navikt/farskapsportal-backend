@@ -2,8 +2,6 @@ package no.nav.farskapsportal.backend.libs.felles.config;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceEndpointName;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.BarnDao;
@@ -47,18 +45,6 @@ public class FarskapsportalFellesConfig {
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";
   public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
   public static String KODE_LAND_NORGE = "NOR";
-
-  @Bean
-  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${url.pdl-api.base-url}") String baseUrl,
-      @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
-      ConsumerEndpoint consumerEndpoint) {
-    consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
-    return PdlApiConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
-  }
-
 
   @Bean
   SecurityTokenServiceConsumer securityTokenServiceConsumer(@Qualifier("sts") RestTemplate restTemplate,

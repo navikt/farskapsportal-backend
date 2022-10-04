@@ -1,8 +1,8 @@
-package no.nav.farskapsportal.backend.libs.felles.consumer.pdl;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl;
 
+import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
+import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
-import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
-import static no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FAR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -14,6 +14,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonBostedsadresse;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonDoedsfall;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFoedsel;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonKjoenn;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonNavn;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonSivilstand;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonSubResponse;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonVergeEllerFremtidsfullmakt;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.PdlApiStub;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
@@ -27,21 +39,9 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.VergemaalEllerFremtidsfullmakt
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonBostedsadresse;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonDoedsfall;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonFoedsel;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonKjoenn;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonNavn;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonSivilstand;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonSubResponse;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.HentPersonVergeEllerFremtidsfullmakt;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.pdl.stub.PdlApiStub;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.stub.StsStub;
-import org.junit.jupiter.api.Assertions;
+import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.StsStub;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -52,10 +52,11 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
-@DisplayName("PdlApiConsumer")
+@EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)
-@SpringBootTest(classes = {FarskapsportalFellesTestConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DisplayName("PdlApiConsumer")
 @AutoConfigureWireMock(port = 0)
+@SpringBootTest(classes = {FarskapsportalApiApplicationLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PdlApiConsumerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
@@ -98,7 +99,7 @@ public class PdlApiConsumerTest {
       var kjoenn = pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor);
 
       // then
-      Assertions.assertEquals(KjoennType.KVINNE, kjoenn.getKjoenn());
+      assertEquals(KjoennType.KVINNE, kjoenn.getKjoenn());
     }
 
     @Test
@@ -119,7 +120,7 @@ public class PdlApiConsumerTest {
       var kjoenn = pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor);
 
       // then
-      Assertions.assertEquals(KjoennType.KVINNE, kjoenn.getKjoenn());
+      assertEquals(KjoennType.KVINNE, kjoenn.getKjoenn());
     }
 
     @Test

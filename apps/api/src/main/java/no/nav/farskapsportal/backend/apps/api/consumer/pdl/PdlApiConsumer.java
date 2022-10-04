@@ -199,7 +199,7 @@ public class PdlApiConsumer {
 
   @Cacheable("identer")
   public List<Personident> henteIdenter(String foedselsnummer) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_VERGE, false);
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_IDENTER, false);
     return respons.getData().getHentIdenter().getIdenter();
   }
 

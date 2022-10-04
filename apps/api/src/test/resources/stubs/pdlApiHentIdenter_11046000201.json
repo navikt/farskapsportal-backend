@@ -1,0 +1,18 @@
+{
+"request": {
+  "method": "POST",
+  "url": "/pdl-api/graphql",
+  "bodyPatterns" : [ {
+    "matches" : ".*11046000201.*"
+  }, {
+    "matches" : ".*hentIdenter.*"
+  }]
+},
+"response": {
+  "status": 200,
+  "body": "{\"data\":{\"hentIdenter\":{ \"identer\":[{\"ident\":\"11046000201\",\"gruppe\":\"FOLKEREGISTERIDENT\",\"historisk\": \"false\" }, {\"ident\":\"1855600016675\",\"gruppe\":\"AKTORID\",\"historisk\": \"false\" }]}}}",
+  "headers": {
+  "Content-Type": "application/json"
+}
+}
+}

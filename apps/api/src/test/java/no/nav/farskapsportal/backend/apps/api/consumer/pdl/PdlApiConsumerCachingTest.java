@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.libs.felles.consumer.pdl;
+package no.nav.farskapsportal.backend.apps.api.consumer.pdl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
