@@ -49,11 +49,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 @DisplayName("DifiESignaturConsumer")
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(classes = {FarskapsportalApiApplicationLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes = {FarskapsportalApiApplicationLocal.class})
 @AutoConfigureWireMock(port = 0)
 @EnableMockOAuth2Server
 public class DifiESignaturConsumerTest {
