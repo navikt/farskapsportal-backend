@@ -12,6 +12,8 @@ gcp:
         asynkron:
           name: asynkron_feature
 env:
+  - name: JAVA_TOOL_OPTIONS
+    value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dlogging.level.no.nav.security.token.support=DEBUG
   - name: APIGW_URL
     value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
