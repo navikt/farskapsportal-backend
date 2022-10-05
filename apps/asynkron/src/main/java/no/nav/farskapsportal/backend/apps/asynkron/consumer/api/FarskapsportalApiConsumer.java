@@ -33,13 +33,11 @@ public class FarskapsportalApiConsumer {
     SIKKER_LOGG.info("Henter aktørid for personident {}", henteAktoeridRequest.getPersonident());
 
     ResponseEntity<String> respons = null;
+    
     try {
       respons = restTemplate.exchange(
-          String.format(consumerEndpoint.retrieveEndpoint(
-              FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME)),
-          HttpMethod.POST,
-          new HttpEntity<>(String.class, null),
-          String.class);
+          String.format(consumerEndpoint.retrieveEndpoint(FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME)),
+          HttpMethod.POST, new HttpEntity<>(henteAktoeridRequest), String.class);
     } catch (RestClientException rce) {
       log.warn("Kall mot farskapsportal-api for henting av aktørid feilet med http-statuskokde {}", respons.getStatusCode());
       SIKKER_LOGG.warn("Kall mot farskapsportal-api for henting av aktørid  for personident {} feilet med http-statuskokde {}",
