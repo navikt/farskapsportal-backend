@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,15 +32,23 @@ public class FarskapsportalApiConsumer {
     log.info("Henter aktørid for person.");
     SIKKER_LOGG.info("Henter aktørid for personident {}", henteAktoeridRequest.getPersonident());
 
-    var respons = restTemplate.exchange(
-        String.format(consumerEndpoint.retrieveEndpoint(
-            FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME)),
-        HttpMethod.POST,
-        new HttpEntity<>(String.class, null),
-        String.class);
+    ResponseEntity<String> respons = null;
+    try {
+      respons = restTemplate.exchange(
+          String.format(consumerEndpoint.retrieveEndpoint(
+              FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME)),
+          HttpMethod.POST,
+          new HttpEntity<>(String.class, null),
+          String.class);
+    } catch (RestClientException rce) {
+      log.warn("Kall mot farskapsportal-api for henting av aktørid feilet med http-statuskokde {}", respons.getStatusCode());
+      SIKKER_LOGG.warn("Kall mot farskapsportal-api for henting av aktørid  for personident {} feilet med http-statuskokde {}",
+          henteAktoeridRequest.getPersonident(), respons.getStatusCode());
+      throw rce;
+    }
 
     log.info("Mottok {}-respons fra farskapsportal-api", respons.getStatusCode());
-    log.info("Fant aktørid {} for personident {}", respons.getBody(), henteAktoeridRequest.getPersonident());
+    SIKKER_LOGG.info("Fant aktørid {} for personident {}", respons.getBody(), henteAktoeridRequest.getPersonident());
 
     return HttpStatus.OK.equals(respons.getStatusCode()) && respons.getBody() != null && !respons.getBody().isBlank()
         ? Optional.of(respons.getBody()) : Optional.empty();
