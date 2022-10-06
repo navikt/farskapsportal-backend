@@ -137,6 +137,7 @@ no.nav.security.jwt:
 
 url:
   farskapsportal.api.url: http://localhost
+  oppgave.base-url: http://localhost
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
   skatt.base-url: http://localhost
