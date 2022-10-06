@@ -34,7 +34,7 @@ env:
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: OPPGAVEAPI_URL
-    value: https://oppgave.dev.intern.nav.no
+    value: https://oppgave.dev-fss-pub.nais.io
   - name: OPPGAVE_SCOPE
     value: dev-fss.oppgavehandtering.oppgave
   - name: POSTGRES_CONNECTION_NAME
