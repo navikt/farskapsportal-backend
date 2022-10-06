@@ -18,7 +18,7 @@ url:
       synkronisere-signeringsstatus: /api/v1/asynkron/statussynkronisering/farskapserklaering/%s
       hente-aktoerid: /api/v1/asynkron/aktoerid/hente
   oppgave:
-    base-url: ${OPPGAVE_URL}
+    base-url: ${OPPGAVEAPI_URL}
     opprette: /api/v1/oppgaver
   pdl-api:
     base-url: ${APIGW_URL}

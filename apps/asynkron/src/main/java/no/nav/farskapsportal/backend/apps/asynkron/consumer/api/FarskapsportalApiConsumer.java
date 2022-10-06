@@ -33,7 +33,7 @@ public class FarskapsportalApiConsumer {
     SIKKER_LOGG.info("Henter aktørid for personident {}", henteAktoeridRequest.getPersonident());
 
     ResponseEntity<String> respons = null;
-    
+
     try {
       respons = restTemplate.exchange(
           String.format(consumerEndpoint.retrieveEndpoint(FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME)),
