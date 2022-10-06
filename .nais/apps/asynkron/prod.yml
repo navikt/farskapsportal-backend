@@ -35,7 +35,7 @@ env:
   - name: FARSKAPSPORTAL_API_URL
     value: http://farskapsportal-api.farskapsportal.svc.cluster.local
   - name: OPPGAVEAPI_URL
-    value: https://oppgave.nais.adeo.no/api/v1/oppgaver
+    value: https://oppgave.nais.adeo.no
   - name: OPPGAVE_SCOPE
     value: prod-fss.oppgavehandtering.oppgave
   - name: INTEGRATION_TEST_CONTROLLER_PAA
