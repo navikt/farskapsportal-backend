@@ -90,7 +90,7 @@ public class FarskapsportalAsynkronConfig {
   @Bean
   public OppgaveApiConsumer oppgaveApiConsumer(
       @Qualifier("oppgave") RestTemplate restTemplate,
-      @Value("url.oppgave.opprette") String oppretteOppgaveEndpoint,
+      @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
     return new OppgaveApiConsumer(restTemplate, consumerEndpoint);

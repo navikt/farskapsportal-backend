@@ -91,7 +91,7 @@ public class RestTemplateAsynkronConfig {
   @Qualifier("oppgave")
   public HttpHeaderRestTemplate oppgaveRestTemplate(
       @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-      @Value("url.oppgave.base-url") String oppgaveRootUrl,
+      @Value("${url.oppgave.base-url}") String oppgaveRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
 
