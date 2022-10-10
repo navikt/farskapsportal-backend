@@ -12,9 +12,9 @@ management:
 
 url:
   farskapsportal:
-    url: ${FARSKAPSPORTAL_URL}
+    base-url: ${FARSKAPSPORTAL_URL}
     api:
-      url: ${FARSKAPSPORTAL_API_URL}
+      base-url: ${FARSKAPSPORTAL_API_URL}
       synkronisere-signeringsstatus: /api/v1/asynkron/statussynkronisering/farskapserklaering/%s
       hente-aktoerid: /api/v1/asynkron/aktoerid/hente
   oppgave:
@@ -123,11 +123,17 @@ SRVFARSKAPSPORTAL_PWD: top_hemmelig
 DEAKTIVERINGSRATE: "1 * * * * ?"
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/mappings
+
 AZURE_APP_TENANT_ID: aad
 AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
 
 no.nav.security.jwt:
   client.registration:
+    farskapsportal-api:
+      token-endpoint-url: ${AZURE_BASE}
     oppgave:
       token-endpoint-url: ${AZURE_BASE}
   issuer.aad:
@@ -136,11 +142,10 @@ no.nav.security.jwt:
     cookiename: localhost-idtoken
 
 url:
-  farskapsportal.api.url: http://localhost
-  oppgave.base-url: http://localhost
-  pdl-api.base-url: ${WIREMOCK_URL}
+  farskapsportal.api.base-url: http://localhost
+  oppgave.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  skatt.base-url: http://localhost
+  skatt.base-url: http://localhost:8080
 
 ---
 spring.config.activate.on-profile: skatt-ssl-test

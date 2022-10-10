@@ -24,6 +24,7 @@
     <bidrag-tilgangskontroll.version>1.10.0</bidrag-tilgangskontroll.version>
 
     <!-- other -->
+    <commons-io.version>2.2</commons-io.version>
     <java.version>17</java.version>
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven-compiler-plugin.version.version>3.8.1</maven-compiler-plugin.version.version>
@@ -42,6 +43,8 @@
     <google.spring-cloud-gcp-starter-sql-postgresql.version>3.3.0</google.spring-cloud-gcp-starter-sql-postgresql.version>
     <google-oauth-client.version>1.33.3</google-oauth-client.version>
     <okhttp3.version>4.9.2</okhttp3.version>
+    <wiremock-jre8-standalone.version>2.34.0</wiremock-jre8-standalone.version>
+    <spring-cloud-contract-wiremock.version>3.1.4</spring-cloud-contract-wiremock.version>
   </properties>
 
   <dependencyManagement>
@@ -92,6 +95,11 @@
         <version>${commons-cli.version}</version>
       </dependency>
       <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${jackson-core.version}</version>
@@ -115,6 +123,12 @@
         <groupId>com.google.cloud</groupId>
         <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
         <version>${google.spring-cloud-gcp-starter-sql-postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-contract-wiremock</artifactId>
+        <version>${spring-cloud-contract-wiremock.version}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.google.api</groupId>
@@ -157,11 +171,16 @@
         <version>${okhttp3.version}</version>
         <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
         <version>${okhttp3.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-jre8-standalone</artifactId>
+        <version>${wiremock-jre8-standalone.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

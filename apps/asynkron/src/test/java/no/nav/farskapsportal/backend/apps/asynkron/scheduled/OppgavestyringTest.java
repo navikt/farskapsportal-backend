@@ -15,6 +15,7 @@ import java.util.Optional;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumerTest;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRequest;
 import no.nav.farskapsportal.backend.libs.entity.Barn;

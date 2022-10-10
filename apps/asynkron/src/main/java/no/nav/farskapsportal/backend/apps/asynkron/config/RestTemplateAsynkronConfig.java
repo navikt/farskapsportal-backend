@@ -4,11 +4,12 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
-import no.nav.bidrag.commons.security.service.SecurityTokenService;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
+import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.security.token.support.client.core.ClientProperties;
@@ -20,8 +21,6 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +30,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
@@ -44,9 +45,28 @@ public class RestTemplateAsynkronConfig {
   }
 
   @Bean
-  public HttpHeaderRestTemplate farskapsportalApiRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-      @Value("${url.farskapsportal.api.url}") String farskapsportalApiRootUrl,
+  @Qualifier("asynkron-base")
+  public RestTemplate restTemplate() {
+    RestTemplate restTemplate = new RestTemplate();
+
+    List<ClientHttpRequestInterceptor> interceptors
+        = restTemplate.getInterceptors();
+    if (CollectionUtils.isEmpty(interceptors)) {
+      interceptors = new ArrayList<>();
+    }
+
+    var correlationId = UUID.randomUUID().toString();
+    log.info("Genererer correlationId {} for asynkron", correlationId);
+    interceptors.add(new HttpClientRequestInterceptor(CorrelationIdFilter.CORRELATION_ID_HEADER, correlationId));
+    restTemplate.setInterceptors(interceptors);
+    return restTemplate;
+  }
+
+  @Bean
+  @Qualifier("farskapsportal-api")
+  public RestTemplate farskapsportalApiRestTemplate(
+      @Qualifier("asynkron-base") RestTemplate restTemplate,
+      @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
 
@@ -54,18 +74,20 @@ public class RestTemplateAsynkronConfig {
         Optional.ofNullable(clientConfigurationProperties.getRegistration().get("farskapsportal-api"))
             .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for farskapsportalApi"));
 
-    httpHeaderRestTemplate.getInterceptors().add(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService));
-    httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
-    httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
+    restTemplate.getInterceptors().add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
 
     log.info("Oppretter farskapsportalApiRestTemplate med url {}", farskapsportalApiRootUrl);
 
-    return httpHeaderRestTemplate;
+    return restTemplate;
   }
 
   @Bean
   @Qualifier("skatt")
-  public HttpHeaderRestTemplate skattRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate, KeyStoreConfig keyStoreConfig)
+  public RestTemplate skattRestTemplate(
+      @Qualifier("asynkron-base") RestTemplate restTemplate,
+      @Value("${url.skatt.base-url}") String baseUrl,
+      KeyStoreConfig keyStoreConfig)
       throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
 
     var socketFactory = new SSLConnectionSocketFactory(new SSLContextBuilder()
@@ -82,15 +104,16 @@ public class RestTemplateAsynkronConfig {
     requestFactory.setReadTimeout(farskapsportalAsynkronEgenskaper.getSkatt().getMaksVentetidLesing());
     requestFactory.setConnectTimeout(farskapsportalAsynkronEgenskaper.getSkatt().getMaksVentetidForbindelse());
 
-    httpHeaderRestTemplate.setRequestFactory(requestFactory);
+    restTemplate.setRequestFactory(requestFactory);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
 
-    return httpHeaderRestTemplate;
+    return restTemplate;
   }
 
   @Bean
   @Qualifier("oppgave")
-  public HttpHeaderRestTemplate oppgaveRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+  public RestTemplate oppgaveRestTemplate(
+      @Qualifier("asynkron-base") RestTemplate restTemplate,
       @Value("${url.oppgave.base-url}") String oppgaveRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
@@ -99,13 +122,15 @@ public class RestTemplateAsynkronConfig {
         Optional.ofNullable(clientConfigurationProperties.getRegistration().get("oppgave"))
             .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for oppgave"));
 
-    httpHeaderRestTemplate.getInterceptors().add(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService));
-    httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(oppgaveRootUrl));
+    restTemplate.getInterceptors().add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
 
-    return httpHeaderRestTemplate;
+    log.info("Oppretter oppgaveRestTemplate med baseurl {}", oppgaveRootUrl);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(oppgaveRootUrl));
+
+    return restTemplate;
   }
 
-  private ClientHttpRequestInterceptor bearerTokenInterceptor(
+  private ClientHttpRequestInterceptor accessTokenInterceptor(
       ClientProperties clientProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService
   ) {

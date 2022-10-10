@@ -20,7 +20,6 @@
     <modelmapper.version>2.4.5</modelmapper.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
-    <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
     <google.spring-cloud-gcp.version>2.0.11</google.spring-cloud-gcp.version>
   </properties>
 
@@ -177,9 +176,14 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8-standalone</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-contract-wiremock</artifactId>
-      <version>${spring-cloud-contract-wiremock.version}</version>
       <scope>test</scope>
     </dependency>
 

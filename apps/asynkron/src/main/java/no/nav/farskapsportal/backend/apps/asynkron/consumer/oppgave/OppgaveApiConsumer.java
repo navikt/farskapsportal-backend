@@ -4,10 +4,12 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveRespons;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -28,7 +30,7 @@ public class OppgaveApiConsumer {
     log.info("oppretter oppgave med type {}", opprettOppgaveforespoersel.getOppgavetype());
 
     var oppgaveResponse = restTemplate.postForEntity(
-        consumerEndpoint.retrieveEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME), opprettOppgaveforespoersel,
+        consumerEndpoint.retrieveEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME), new HttpEntity<>(opprettOppgaveforespoersel),
         OppretteOppgaveRespons.class);
 
     SIKKER_LOGG.debug("oppgaveResponse: " + oppgaveResponse);

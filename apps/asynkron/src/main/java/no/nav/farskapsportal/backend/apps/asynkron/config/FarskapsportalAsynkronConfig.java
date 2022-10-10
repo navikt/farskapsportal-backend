@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -76,7 +77,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
-      @Qualifier("farskapsportalApiRestTemplate") RestTemplate restTemplate,
+      @Qualifier("farskapsportal-api") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint) {
@@ -90,20 +91,20 @@ public class FarskapsportalAsynkronConfig {
   @Bean
   public OppgaveApiConsumer oppgaveApiConsumer(
       @Qualifier("oppgave") RestTemplate restTemplate,
+      @Value("${url.oppgave.base-url}") String oppgaveRootUrl,
       @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
       ConsumerEndpoint consumerEndpoint) {
+    log.info("Oppretter oppgaveApiConsumer med baseurl {}", oppgaveRootUrl);
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(oppgaveRootUrl));
     consumerEndpoint.addEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
     return new OppgaveApiConsumer(restTemplate, consumerEndpoint);
   }
 
   @Bean
   SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
-      @Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
-    log.info("Oppretter SkattConsumer med url {}", baseUrl);
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, endpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
 }

@@ -49,13 +49,9 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @AllArgsConstructor
 public class SkattConsumer {
-
   private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
-
   private final RestTemplate restTemplate;
-
   private final ConsumerEndpoint consumerEndpoint;
-
   @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
   public LocalDateTime registrereFarskap(Farskapserklaering farskapserklaering) {
 
@@ -109,7 +105,7 @@ public class SkattConsumer {
           HttpMethod.POST,
           requestEntity, Void.class);
       if (!respons.getStatusCode().equals(HttpStatus.ACCEPTED)) {
-        log.error("Mottok ikke-godkjent Http-kode {} ved overføring til Skatt", respons.getStatusCodeValue());
+        log.error("Mottok Http-kode {}, ved overføring til Skatt", respons.getStatusCodeValue());
         throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
       }
       return LocalDateTime.parse(meldingOmRegistreringAvFarskap.getInnsending().getAvsendersInnsendingstidspunkt().getDateTime());
@@ -118,7 +114,6 @@ public class SkattConsumer {
       throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET, e);
     }
   }
-
   private HttpEntity<ByteArrayResource> oppretteVedlegg(MediaType mediaType, byte[] data, String dokumentnavn) {
     HttpHeaders requestHeadersVedlegg = new HttpHeaders();
     requestHeadersVedlegg.setContentType(mediaType);// extract mediatype from file extension
@@ -132,7 +127,6 @@ public class SkattConsumer {
 
     return new HttpEntity<>(fileAsResource, requestHeadersVedlegg);
   }
-
   private String tilStreng(MeldingOmRegistreringAvFarskap meldingOmRegistreringAvFarskap) {
     try {
       var xmlString = new StringWriter();

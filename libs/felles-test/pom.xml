@@ -10,10 +10,6 @@
   <artifactId>felles-test</artifactId>
   <name>farskapsportal-backend :: libs :: felles-test</name>
 
-  <properties>
-    <wiremock-standalone.version>2.27.2</wiremock-standalone.version>
-  </properties>
-
   <dependencies>
 
     <dependency>
@@ -30,8 +26,7 @@
 
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-standalone</artifactId>
-      <version>${wiremock-standalone.version}</version>
+      <artifactId>wiremock-jre8-standalone</artifactId>
       <scope>compile</scope>
     </dependency>
   </dependencies>

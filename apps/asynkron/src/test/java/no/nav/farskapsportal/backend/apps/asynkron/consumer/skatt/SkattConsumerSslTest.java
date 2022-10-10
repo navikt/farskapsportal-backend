@@ -5,6 +5,8 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -17,13 +19,17 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -34,64 +40,80 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerSslTest {
 
-  @Autowired
-  @Qualifier("sikret")
-  private SkattConsumer skattConsumerSikret;
+  @MockBean
+  private OAuth2AccessTokenService oAuth2AccessTokenService;
 
-  @Autowired
-  @Qualifier("usikret")
-  private SkattConsumer skattConsumerUsikret;
+  @MockBean
+  private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
 
   @Autowired
   private ServletWebServerApplicationContext webServerAppCtxt;
 
 
-  @Test
-  void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
+  @Nested
+  class SikkerProtokoll {
 
-    // given
-    var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+    @Autowired
+    private @Qualifier("sikret") SkattConsumer skattConsumerSikret;
 
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+    @Test
+    void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
 
-    farskapserklaering.setMeldingsidSkatt("123");
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
-    farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      // given
+      when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+      var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
 
-    // when, then
-    Assertions.assertDoesNotThrow(() -> skattConsumerSikret.registrereFarskap(farskapserklaering));
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+
+      farskapserklaering.setMeldingsidSkatt("123");
+      farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+      farskapserklaering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+
+      // when, then
+      Assertions.assertDoesNotThrow(() -> skattConsumerSikret.registrereFarskap(farskapserklaering));
+    }
   }
 
-  @Test
-  void skalKasteSkattConsumerExceptionDersomKommunikasjonMotSkattSkjerOverUsikretProtokoll() {
+  @Nested
+  class UsikkerProtokoll {
 
-    // given
-    var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
+    @Autowired
+    private @Qualifier("usikret") SkattConsumer skattConsumerUsikret;
 
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+    @Test
+    void skalKasteSkattConsumerExceptionDersomKommunikasjonMotSkattSkjerOverUsikretProtokoll() {
 
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+      // given
+      var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
 
-    farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
 
-    farskapserklaering.setMeldingsidSkatt("123");
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
 
-    // when, then
-    assertThrows(SkattConsumerException.class, () -> skattConsumerUsikret.registrereFarskap(farskapserklaering));
+      farskapserklaering.getDokument()
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+
+      farskapserklaering.setMeldingsidSkatt("123");
+      farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+
+      // when, then
+      assertThrows(SkattConsumerException.class, () -> skattConsumerUsikret.registrereFarskap(farskapserklaering));
+    }
   }
 
   public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
 
     var dokument = Dokument.builder().navn("farskapserklaering.pdf")
         .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(Integer.toString(webServerAppCtxt.getWebServer().getPort()), "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(Integer.toString(webServerAppCtxt.getWebServer().getPort()), "/redirect-far")).build())
+            Signeringsinformasjon.builder().redirectUrl(lageUrl(Integer.toString(webServerAppCtxt.getWebServer().getPort()), "redirect-mor"))
+                .signeringstidspunkt(LocalDateTime.now()).build())
+        .signeringsinformasjonFar(
+            Signeringsinformasjon.builder().redirectUrl(lageUrl(Integer.toString(webServerAppCtxt.getWebServer().getPort()), "/redirect-far"))
+                .build())
         .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();

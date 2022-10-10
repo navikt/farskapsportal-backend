@@ -33,8 +33,6 @@
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
 
     <!-- test -->
-    <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
-    <wiremock-standalone.version>2.19.0</wiremock-standalone.version>
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
 
   </properties>
@@ -357,16 +355,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-contract-wiremock</artifactId>
-      <version>${spring-cloud-contract-wiremock.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-standalone</artifactId>
-      <version>${wiremock-standalone.version}</version>
+      <artifactId>wiremock-jre8-standalone</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -385,6 +375,12 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-contract-wiremock</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

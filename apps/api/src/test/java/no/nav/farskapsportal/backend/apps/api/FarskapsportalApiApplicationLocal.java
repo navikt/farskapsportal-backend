@@ -7,8 +7,6 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -36,7 +34,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
@@ -75,6 +72,7 @@ public class FarskapsportalApiApplicationLocal {
   @Configuration
   @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   static class FlywayConfiguration {
+
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron) {
 

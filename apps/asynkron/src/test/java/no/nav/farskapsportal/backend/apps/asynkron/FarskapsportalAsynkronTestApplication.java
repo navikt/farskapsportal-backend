@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
@@ -47,7 +46,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableAutoConfiguration
 @EnableMockOAuth2Server
 @ComponentScan("no.nav.farskapsportal.backend")
-@SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class FarskapsportalAsynkronTestApplication {
 
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
@@ -65,7 +64,7 @@ public class FarskapsportalAsynkronTestApplication {
   }
 
   @Bean
-  SkattConsumer skattConsumer(@Qualifier("base") HttpHeaderRestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+  SkattConsumer skattConsumer(@Qualifier("asynkron-base") RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
     var skattBaseUrl = baseUrl + ":" + webServerAppCtxt.getWebServer().getPort();
@@ -107,7 +106,7 @@ public class FarskapsportalAsynkronTestApplication {
 
     @Bean
     @Qualifier(PROFILE_SKATT_SSL_TEST)
-    public HttpHeaderRestTemplate skattLocalIntegrationRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+    public RestTemplate skattLocalIntegrationRestTemplate(@Qualifier("asynkron-base") RestTemplate restTemplate) {
 
       KeyStore keyStore;
       HttpComponentsClientHttpRequestFactory requestFactory;
@@ -132,13 +131,13 @@ public class FarskapsportalAsynkronTestApplication {
         requestFactory.setReadTimeout(10000);
         requestFactory.setConnectTimeout(10000);
 
-        httpHeaderRestTemplate.setRequestFactory(requestFactory);
+        restTemplate.setRequestFactory(requestFactory);
 
       } catch (Exception exception) {
         exception.printStackTrace();
       }
 
-      return httpHeaderRestTemplate;
+      return restTemplate;
     }
 
     @Bean
@@ -166,7 +165,7 @@ public class FarskapsportalAsynkronTestApplication {
 
     @Bean
     @Qualifier("usikret")
-    SkattConsumer skattConsumerUsikret(@Qualifier("base") RestTemplate restTemplate,
+    SkattConsumer skattConsumerUsikret(@Qualifier("asynkron-base") RestTemplate restTemplate,
         @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
       var baseUrl = "http://localhost:" + localServerPort;

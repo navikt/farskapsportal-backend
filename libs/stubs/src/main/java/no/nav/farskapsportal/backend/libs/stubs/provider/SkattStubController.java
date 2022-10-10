@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,7 @@ public class SkattStubController {
   @Unprotected
   @PostMapping(value = "/registrering_av_farskap_v1.vedlegg", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_PDF_VALUE,
       MediaType.APPLICATION_XML_VALUE})
-  public ResponseEntity<Void> registrereFarskap(@RequestParam("melding") String xml, @RequestParam("vedlegg") MultipartFile vedlegg,
+  public ResponseEntity<Void> registrereFarskap(@RequestHeader("X-Correlation-ID") String correlationid, @RequestParam("melding") String xml, @RequestParam("vedlegg") MultipartFile vedlegg,
       @RequestParam("melding2") MultipartFile vedlegg2, @RequestParam("melding3") MultipartFile vedlegg3)
       throws IOException, JAXBException {
     log.info("Vedlegg og Melding");

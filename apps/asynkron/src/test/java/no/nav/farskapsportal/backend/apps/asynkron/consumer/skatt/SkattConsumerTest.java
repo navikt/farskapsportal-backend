@@ -10,6 +10,8 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lag
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -22,11 +24,14 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
@@ -44,6 +49,12 @@ public class SkattConsumerTest {
   @Autowired
   private ServletWebServerApplicationContext webServerAppCtxt;
 
+  @MockBean
+  private OAuth2AccessTokenService oAuth2AccessTokenService;
+
+  @MockBean
+  private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+
   @Test
   void skalReturnereTidspunktForOverfoeringDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {
 
@@ -55,6 +66,8 @@ public class SkattConsumerTest {
     farskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
+
+    when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
 
     // when
     var tidspunktForOverfoering = skattConsumer.registrereFarskap(farskapserklaering);
