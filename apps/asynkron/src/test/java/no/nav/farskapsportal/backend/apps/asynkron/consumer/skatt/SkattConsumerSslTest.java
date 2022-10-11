@@ -10,7 +10,9 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
+import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication.SkattStubSslConfiguration;
 import no.nav.farskapsportal.backend.apps.asynkron.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
@@ -33,10 +35,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 @DisplayName("SkattConsumerSslTest")
 @ActiveProfiles(PROFILE_SKATT_SSL_TEST)
 @DirtiesContext
+@ContextConfiguration(classes = {SkattStubSslConfiguration.class})
 @SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerSslTest {
 
@@ -75,6 +79,7 @@ public class SkattConsumerSslTest {
       // when, then
       Assertions.assertDoesNotThrow(() -> skattConsumerSikret.registrereFarskap(farskapserklaering));
     }
+
   }
 
   @Nested
@@ -87,6 +92,7 @@ public class SkattConsumerSslTest {
     void skalKasteSkattConsumerExceptionDersomKommunikasjonMotSkattSkjerOverUsikretProtokoll() {
 
       // given
+      when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
       var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
 
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));

@@ -46,7 +46,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableAutoConfiguration
 @EnableMockOAuth2Server
 @ComponentScan("no.nav.farskapsportal.backend")
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class FarskapsportalAsynkronTestApplication {
 
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
@@ -90,7 +90,7 @@ public class FarskapsportalAsynkronTestApplication {
   @Lazy
   @Configuration
   @Profile({PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
-  static class SkattStubSslConfiguration {
+  public static class SkattStubSslConfiguration {
 
     @Value("${server.port}")
     private int localServerPort;

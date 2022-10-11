@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
+import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumerTest;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;

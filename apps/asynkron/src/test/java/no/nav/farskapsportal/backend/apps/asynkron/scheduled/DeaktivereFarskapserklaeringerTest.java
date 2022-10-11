@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -41,7 +42,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DirtiesContext
 @ActiveProfiles(PROFILE_TEST)
 @ExtendWith(OutputCaptureExtension.class)
-@SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class DeaktivereFarskapserklaeringerTest {
 
   @Autowired

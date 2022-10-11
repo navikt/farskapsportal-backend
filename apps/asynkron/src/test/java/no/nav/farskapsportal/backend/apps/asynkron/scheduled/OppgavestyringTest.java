@@ -15,9 +15,7 @@ import java.util.Optional;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumerTest;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
-import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRequest;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
@@ -71,8 +69,7 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(false);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(
-        HenteAktoeridRequest.builder().personident(farskapserklaering.getMor().getFoedselsnummer()).build()))
+    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
@@ -104,8 +101,7 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(false);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(
-            HenteAktoeridRequest.builder().personident(farskapserklaering.getMor().getFoedselsnummer()).build()))
+    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
@@ -137,8 +133,7 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(true);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(
-            HenteAktoeridRequest.builder().personident(farskapserklaering.getMor().getFoedselsnummer()).build()))
+    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
@@ -168,8 +163,7 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(false);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(
-            HenteAktoeridRequest.builder().personident(farskapserklaering.getMor().getFoedselsnummer()).build()))
+    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
@@ -203,8 +197,7 @@ public class OppgavestyringTest {
     farskapserklaering.setOppgaveSendt(tidspunktOppgaveSendt);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(
-            HenteAktoeridRequest.builder().personident(farskapserklaering.getMor().getFoedselsnummer()).build()))
+    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
@@ -218,7 +211,8 @@ public class OppgavestyringTest {
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBetween(tidspunktOppgaveSendt.minusSeconds(10), tidspunktOppgaveSendt.plusSeconds(10))
+        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBetween(tidspunktOppgaveSendt.minusSeconds(10),
+            tidspunktOppgaveSendt.plusSeconds(10))
     );
   }
 

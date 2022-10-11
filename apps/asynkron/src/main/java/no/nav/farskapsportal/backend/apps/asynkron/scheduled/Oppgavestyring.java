@@ -8,11 +8,9 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
-import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRequest;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.validation.annotation.Validated;
 
 @Slf4j
 @Builder
@@ -50,8 +48,7 @@ public class Oppgavestyring {
             "barn oppgitt med termin " + barn.getTermindato().format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT_I_BESKRIVELSE)))
             : String.format(OPPGAVEBESKRIVELSE_GENERELL, "barnet");
 
-        var aktoerid = farskapsportalApiConsumer.henteAktoerid(
-            HenteAktoeridRequest.builder().personident(farskapserklaering.get().getMor().getFoedselsnummer()).build());
+        var aktoerid = farskapsportalApiConsumer.henteAktoerid(farskapserklaering.get().getMor().getFoedselsnummer());
 
         if (aktoerid.isPresent()) {
           var oppgaveforespoersel = new Oppgaveforespoersel().toBuilder()

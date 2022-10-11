@@ -28,10 +28,11 @@ public class FarskapsportalApiConsumer {
   private final ConsumerEndpoint consumerEndpoint;
 
   @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 30000))
-  public Optional<String> henteAktoerid(@Valid @RequestBody HenteAktoeridRequest henteAktoeridRequest) {
+  public Optional<String> henteAktoerid(String personident) {
     log.info("Henter aktørid for person.");
-    SIKKER_LOGG.info("Henter aktørid for personident {}", henteAktoeridRequest.getPersonident());
+    SIKKER_LOGG.info("Henter aktørid for personident {}", personident);
 
+    var henteAktoeridRequest = HenteAktoeridRequest.builder().personident(personident).build();
     ResponseEntity<String> respons = null;
 
     try {

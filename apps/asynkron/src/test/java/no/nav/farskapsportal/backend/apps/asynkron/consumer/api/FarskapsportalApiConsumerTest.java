@@ -1,14 +1,17 @@
-package no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave;
+package no.nav.farskapsportal.backend.apps.asynkron.consumer.api;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronApplication;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import lombok.val;
 import no.nav.farskapsportal.backend.apps.asynkron.config.FarskapsportalAsynkronConfig;
 import no.nav.farskapsportal.backend.apps.asynkron.config.RestTemplateAsynkronConfig;
-import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import org.junit.jupiter.api.Test;
@@ -17,41 +20,38 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 @ActiveProfiles(PROFILE_TEST)
-@DirtiesContext
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {RestTemplateAsynkronConfig.class, FarskapsportalAsynkronConfig.class})
-public class OppgaveApiConsumerTest {
+public class FarskapsportalApiConsumerTest {
 
   @Autowired
-  private OppgaveApiConsumer oppgaveApiConsumer;
+  private FarskapsportalApiConsumer farskapsportalApiConsumer;
 
   @MockBean
   private OAuth2AccessTokenService oAuth2AccessTokenService;
-
   @MockBean
   private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
 
   @Test
-  void skalOppretteOppgave() {
+  void skalHenteAktoerid() {
 
     // given
-    var oppgaveIdIStub = 50;  // Se mappings/oppgave-stub.json
-    var oppgaveforespoersel = new Oppgaveforespoersel().toBuilder()
-        .aktoerId("123")
-        .beskrivelse("testing 1-2").build();
-
+    val aktoeridFraStub = "505060601010"; // se mappings/farskapsportal-api-stub.json
+    var personident =  LocalDate.now().minusYears (28).format(DateTimeFormatter.ofPattern("ddMMyy"))  + "23154";
     when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
 
     // when
-    var oppgaveid = oppgaveApiConsumer.oppretteOppgave(oppgaveforespoersel);
+    var aktoerid = farskapsportalApiConsumer.henteAktoerid(personident);
 
     // then
-    assertThat(oppgaveid).isEqualTo(oppgaveIdIStub);
+    assertAll(
+        () -> assertThat(aktoerid).isPresent(),
+        () -> assertThat(aktoerid.get()).isEqualTo(aktoeridFraStub)
+    );
   }
 }

@@ -1,0 +1,18 @@
+{
+  "request": {
+    "urlPath": "/api/v1/asynkron/aktoerid/hente",
+    "method": "POST",
+    "headers": {
+      "X-Correlation-ID": {
+        "matches": ".*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": "505060601010",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
