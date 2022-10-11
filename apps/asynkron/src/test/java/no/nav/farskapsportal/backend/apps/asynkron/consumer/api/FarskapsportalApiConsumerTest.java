@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import lombok.val;
+import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.FarskapsportalAsynkronConfig;
 import no.nav.farskapsportal.backend.apps.asynkron.config.RestTemplateAsynkronConfig;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
@@ -25,13 +25,12 @@ import org.springframework.test.context.ContextConfiguration;
 
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {RestTemplateAsynkronConfig.class, FarskapsportalAsynkronConfig.class})
+@SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes = {String.class, FarskapsportalAsynkronConfig.class, RestTemplateAsynkronConfig.class})
 public class FarskapsportalApiConsumerTest {
 
   @Autowired
   private FarskapsportalApiConsumer farskapsportalApiConsumer;
-
   @MockBean
   private OAuth2AccessTokenService oAuth2AccessTokenService;
   @MockBean
@@ -42,7 +41,7 @@ public class FarskapsportalApiConsumerTest {
 
     // given
     val aktoeridFraStub = "505060601010"; // se mappings/farskapsportal-api-stub.json
-    var personident =  LocalDate.now().minusYears (28).format(DateTimeFormatter.ofPattern("ddMMyy"))  + "23154";
+    var personident = LocalDate.now().minusYears(28).format(DateTimeFormatter.ofPattern("ddMMyy")) + "23154";
     when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
 
     // when

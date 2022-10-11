@@ -142,7 +142,7 @@ no.nav.security.jwt:
     cookiename: localhost-idtoken
 
 url:
-  farskapsportal.api.base-url: http://localhost
+  farskapsportal.api.base-url: ${WIREMOCK_URL}
   oppgave.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
   skatt.base-url: http://localhost:8080

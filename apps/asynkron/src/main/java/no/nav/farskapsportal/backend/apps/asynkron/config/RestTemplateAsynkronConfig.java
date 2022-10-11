@@ -66,7 +66,6 @@ public class RestTemplateAsynkronConfig {
   @Qualifier("farskapsportal-api")
   public RestTemplate farskapsportalApiRestTemplate(
       @Qualifier("asynkron-base") RestTemplate restTemplate,
-      @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
 
@@ -75,9 +74,6 @@ public class RestTemplateAsynkronConfig {
             .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for farskapsportalApi"));
 
     restTemplate.getInterceptors().add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
-
-    log.info("Oppretter farskapsportalApiRestTemplate med url {}", farskapsportalApiRootUrl);
 
     return restTemplate;
   }
