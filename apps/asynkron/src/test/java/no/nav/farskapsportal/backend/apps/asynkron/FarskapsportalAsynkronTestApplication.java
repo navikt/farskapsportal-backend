@@ -31,12 +31,15 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -61,6 +64,7 @@ public class FarskapsportalAsynkronTestApplication {
   }
 
   @Bean
+  @Scope("prototype")
   SkattConsumer skattConsumer(@Qualifier("asynkron-base") RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
@@ -100,6 +104,12 @@ public class FarskapsportalAsynkronTestApplication {
     private String keystoreName;
 
     @Bean
+    ServletWebServerApplicationContext servletWebServerApplicationContext() {
+      return new ServletWebServerApplicationContext();
+    }
+
+    @Bean
+    @Scope("prototype")
     @Qualifier(PROFILE_SKATT_SSL_TEST)
     public RestTemplate skattLocalIntegrationRestTemplate(@Qualifier("asynkron-base") RestTemplate restTemplate) {
 
