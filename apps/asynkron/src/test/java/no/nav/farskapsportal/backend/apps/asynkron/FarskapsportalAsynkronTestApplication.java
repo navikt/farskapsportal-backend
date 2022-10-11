@@ -51,9 +51,6 @@ public class FarskapsportalAsynkronTestApplication {
 
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
 
-  @Autowired
-  private ServletWebServerApplicationContext webServerAppCtxt;
-
   public static void main(String[] args) {
 
     String profile = args.length < 1 ? PROFILE_TEST : args[0];
@@ -67,10 +64,8 @@ public class FarskapsportalAsynkronTestApplication {
   SkattConsumer skattConsumer(@Qualifier("asynkron-base") RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
-    var skattBaseUrl = baseUrl + ":" + webServerAppCtxt.getWebServer().getPort();
-
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(skattBaseUrl));
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
 
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
