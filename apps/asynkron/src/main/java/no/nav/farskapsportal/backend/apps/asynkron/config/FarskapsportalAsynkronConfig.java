@@ -77,7 +77,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
-      @Qualifier("farskapsportal-api") RestTemplate restTemplate,
+      @Autowired @Qualifier("farskapsportal-api") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint) {
@@ -90,7 +90,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public OppgaveApiConsumer oppgaveApiConsumer(
-      @Qualifier("oppgave") RestTemplate restTemplate,
+      @Autowired @Qualifier("oppgave") RestTemplate restTemplate,
       @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
@@ -99,7 +99,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
-      @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+      @Autowired @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, endpoint);
     return new SkattConsumer(restTemplate, consumerEndpoint);
