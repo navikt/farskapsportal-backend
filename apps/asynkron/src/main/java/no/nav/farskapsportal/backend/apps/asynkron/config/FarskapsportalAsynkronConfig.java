@@ -77,7 +77,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
-      @Qualifier("farskapsportal-api") RestTemplate restTemplate,
+      @Qualifier("api") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,

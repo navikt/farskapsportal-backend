@@ -63,7 +63,7 @@ public class RestTemplateAsynkronConfig {
   }
 
   @Bean
-  @Qualifier("farskapsportal-api")
+  @Qualifier("api")
   public RestTemplate farskapsportalApiRestTemplate(
       @Qualifier("asynkron-base") RestTemplate restTemplate,
       ClientConfigurationProperties clientConfigurationProperties,
