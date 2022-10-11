@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
@@ -77,8 +78,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
-      @Qualifier("api") RestTemplate restTemplate,
-      @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
+      @Qualifier("farskapsportal-api") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint) {
@@ -86,7 +86,7 @@ public class FarskapsportalAsynkronConfig {
     consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.SYNKRONISERE_SIGNERINGSSTATUS_ENDPOINT_NAME, synkronisereSigneringsstatusEndpoint);
     consumerEndpoint.addEndpoint(FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME, henteAktoeridEndpoint);
 
-    return new FarskapsportalApiConsumer(restTemplate, farskapsportalApiRootUrl, consumerEndpoint);
+    return new FarskapsportalApiConsumer(restTemplate, consumerEndpoint);
   }
 
   @Bean

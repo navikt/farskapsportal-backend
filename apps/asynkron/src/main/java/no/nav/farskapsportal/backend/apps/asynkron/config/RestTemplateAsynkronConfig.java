@@ -28,6 +28,7 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
@@ -45,6 +46,7 @@ public class RestTemplateAsynkronConfig {
   }
 
   @Bean
+  @Scope("prototype")
   @Qualifier("asynkron-base")
   public RestTemplate restTemplate() {
     RestTemplate restTemplate = new RestTemplate();
@@ -63,9 +65,11 @@ public class RestTemplateAsynkronConfig {
   }
 
   @Bean
-  @Qualifier("api")
+  @Scope("prototype")
+  @Qualifier("farskapsportal-api")
   public RestTemplate farskapsportalApiRestTemplate(
       @Qualifier("asynkron-base") RestTemplate restTemplate,
+      @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
 
@@ -74,11 +78,13 @@ public class RestTemplateAsynkronConfig {
             .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for farskapsportalApi"));
 
     restTemplate.getInterceptors().add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
 
     return restTemplate;
   }
 
   @Bean
+  @Scope("prototype")
   @Qualifier("skatt")
   public RestTemplate skattRestTemplate(
       @Qualifier("asynkron-base") RestTemplate restTemplate,
@@ -107,6 +113,7 @@ public class RestTemplateAsynkronConfig {
   }
 
   @Bean
+  @Scope("prototype")
   @Qualifier("oppgave")
   public RestTemplate oppgaveRestTemplate(
       @Qualifier("asynkron-base") RestTemplate restTemplate,

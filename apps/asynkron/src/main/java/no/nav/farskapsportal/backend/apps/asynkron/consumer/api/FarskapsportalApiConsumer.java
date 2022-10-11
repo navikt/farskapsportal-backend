@@ -7,7 +7,6 @@ import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRe
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ public class FarskapsportalApiConsumer {
 
   public static final Logger SIKKER_LOGG = LoggerFactory.getLogger("secureLogger");
   private final RestTemplate restTemplate;
-  private final String baseUrl;
   private final ConsumerEndpoint consumerEndpoint;
 
   @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 30000))
@@ -36,9 +34,8 @@ public class FarskapsportalApiConsumer {
     ResponseEntity<String> respons = null;
 
     try {
-      respons = restTemplate.exchange(
-          baseUrl + consumerEndpoint.retrieveEndpoint(FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME),
-          HttpMethod.POST, new HttpEntity<>(henteAktoeridRequest), String.class);
+      respons = restTemplate.exchange(consumerEndpoint.retrieveEndpoint(FarskapsportalApiEndpoint.HENTE_AKTOERID_ENDPOINT_NAME), HttpMethod.POST,
+          new HttpEntity<>(henteAktoeridRequest), String.class);
     } catch (RestClientException rce) {
       log.warn("Kall mot farskapsportal-api for henting av aktørid feilet med http-statuskokde {}", respons.getStatusCode());
       SIKKER_LOGG.warn("Kall mot farskapsportal-api for henting av aktørid  for personident {} feilet med http-statuskokde {}",
