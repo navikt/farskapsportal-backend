@@ -46,7 +46,7 @@ public class OppgavestyringTest {
   private static final String OPPGAVE_DATOFORMAT_I_BESKRIVELSE = "dd.MM.YYYY";
 
   private static final String OPPGAVEBESKRIVELSE_GENERELL = "ELEKTRONISK ERKLÆRING -"
-      + " Farskap for %s er erklært elektronisk. Far har oppgitt at han ikke bor sammen med mor. Vurder om det skal tas opp bidragssak.";
+      + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
 
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
@@ -83,11 +83,16 @@ public class OppgavestyringTest {
     var oppgaveforespoerselfanger = ArgumentCaptor.forClass(Oppgaveforespoersel.class);
 
     // when
+    when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
     var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
     var oppgaveforespoersel = oppgaveforespoerselfanger.getAllValues();
+
+    var barn = farskapserklaering.getBarn();
+    var far = farskapserklaering.getFar();
+    var mor = farskapserklaering.getMor();
 
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
@@ -98,7 +103,7 @@ public class OppgavestyringTest {
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10)),
         () -> assertThat(oppgaveforespoersel.size()).isEqualTo(1),
         () -> assertThat(oppgaveforespoersel.get(0).getBeskrivelse()).isEqualTo(String.format(OPPGAVEBESKRIVELSE_GENERELL,
-            "barn oppgitt med fødselsnummer " + farskapserklaering.getBarn().getFoedselsnummer())),
+            "barn med fødselsnummer " + barn.getFoedselsnummer(), far.getFoedselsnummer(), mor.getFoedselsnummer())),
         () -> assertThat(oppgaveforespoersel.get(0).getAktoerId()).isEqualTo(morsAktoerid),
         () -> assertThat(oppgaveforespoersel.get(0).getOppgavetype()).isEqualTo("GEN"),
         () -> assertThat(oppgaveforespoersel.get(0).getBehandlingstype()).isEqualTo("ae0118"),
@@ -135,6 +140,9 @@ public class OppgavestyringTest {
     var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
     var oppgaveforespoersel = oppgaveforespoerselfanger.getAllValues();
+    var barn = farskapserklaering.getBarn();
+    var far = farskapserklaering.getFar();
+    var mor = farskapserklaering.getMor();
 
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
@@ -145,7 +153,8 @@ public class OppgavestyringTest {
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10)),
         () -> assertThat(oppgaveforespoersel.size()).isEqualTo(1),
         () -> assertThat(oppgaveforespoersel.get(0).getBeskrivelse()).isEqualTo(String.format(OPPGAVEBESKRIVELSE_GENERELL,
-                "barn oppgitt med termin " + farskapserklaering.getBarn().getTermindato().format(DateTimeFormatter.ofPattern( OPPGAVE_DATOFORMAT_I_BESKRIVELSE)))),
+                "barn oppgitt med termin " + barn.getTermindato().format(DateTimeFormatter.ofPattern( OPPGAVE_DATOFORMAT_I_BESKRIVELSE))
+            ,far.getFoedselsnummer(), mor.getFoedselsnummer())),
         () -> assertThat(oppgaveforespoersel.get(0).getAktoerId()).isEqualTo(morsAktoerid),
         () -> assertThat(oppgaveforespoersel.get(0).getOppgavetype()).isEqualTo("GEN"),
         () -> assertThat(oppgaveforespoersel.get(0).getBehandlingstype()).isEqualTo("ae0118"),
@@ -220,7 +229,7 @@ public class OppgavestyringTest {
 
   @Test
   @DisplayName("Skal ikke opprette - Farskapserklæring det allerede er opprettet oppgave for")
-  void skalIkkeOppretteOppgaveForFarskapserklaeringSomGDetAlleredeErOpprettetOppgaveFor() {
+  void skalIkkeOppretteOppgaveForFarskapserklaeringSomDetAlleredeErOpprettetOppgaveFor() {
 
     // given
     var morsAktoerid = "40506070809010";

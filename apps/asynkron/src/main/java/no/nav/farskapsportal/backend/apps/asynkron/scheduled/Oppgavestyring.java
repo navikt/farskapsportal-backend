@@ -23,7 +23,7 @@ public class Oppgavestyring {
   private static final String OPPGAVE_DATOFORMAT_I_BESKRIVELSE = "dd.MM.YYYY";
 
   private static final String OPPGAVEBESKRIVELSE_GENERELL = "ELEKTRONISK ERKLÆRING -"
-      + " Farskap for %s er erklært elektronisk. Far har oppgitt at han ikke bor sammen med mor. Vurder om det skal tas opp bidragssak.";
+      + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
 
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.vurdere-opprettelse-av-oppgave}")
   public int vurdereOpprettelseAvOppgave() {
@@ -43,10 +43,15 @@ public class Oppgavestyring {
 
       if (farskapserklaering.isPresent() && (farskapserklaering.get().getSendtTilSkatt() != null)) {
         var barn = farskapserklaering.get().getBarn();
+        var far = farskapserklaering.get().getFar();
+        var mor = farskapserklaering.get().getMor();
+
         var beskrivelse = barn.getFoedselsnummer() == null
             ? String.format(OPPGAVEBESKRIVELSE_GENERELL,
-            "barn oppgitt med termin " + barn.getTermindato().format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT_I_BESKRIVELSE)))
-            : String.format(OPPGAVEBESKRIVELSE_GENERELL, "barn med fødselsnummer ", barn.getFoedselsnummer());
+            "barn oppgitt med termin " + barn.getTermindato().format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT_I_BESKRIVELSE)),
+            far.getFoedselsnummer(), mor.getFoedselsnummer())
+            : String.format(OPPGAVEBESKRIVELSE_GENERELL, "barn med fødselsnummer " + barn.getFoedselsnummer(), far.getFoedselsnummer(),
+                mor.getFoedselsnummer());
 
         var aktoerid = farskapsportalApiConsumer.henteAktoerid(farskapserklaering.get().getMor().getFoedselsnummer());
 
