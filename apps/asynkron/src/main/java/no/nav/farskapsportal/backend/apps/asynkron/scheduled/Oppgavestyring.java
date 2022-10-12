@@ -80,15 +80,9 @@ public class Oppgavestyring {
       }
     }
 
-    var antallErklaeringerDetIkkeBleOpprettetOppgaveFor = farskapseerklaeringerDetSkalOpprettesOppgaverFor.size() - teller;
+    log.info("Det ble opprettet oppgave for {} av {} identifiserte farskapserklæringer", teller,
+        farskapseerklaeringerDetSkalOpprettesOppgaverFor.size());
 
-    if (antallErklaeringerDetIkkeBleOpprettetOppgaveFor < 1) {
-      log.info("Det ble opprettet oppgave for {} av {} identifiserte farskapserklæringer", teller,
-          farskapseerklaeringerDetSkalOpprettesOppgaverFor.size());
-    } else {
-      log.warn("Oppgave ble ikke opprettet for {} av de {} identifiserte farskapserklæringene", antallErklaeringerDetIkkeBleOpprettetOppgaveFor,
-          antallErklaeringerDetIkkeBleOpprettetOppgaveFor);
-    }
     return teller;
   }
 }
