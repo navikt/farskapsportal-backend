@@ -7,15 +7,18 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
+import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
@@ -27,7 +30,7 @@ import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -39,6 +42,11 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(classes = FarskapsportalAsynkronTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class OppgavestyringTest {
+
+  private static final String OPPGAVE_DATOFORMAT_I_BESKRIVELSE = "dd.MM.YYYY";
+
+  private static final String OPPGAVEBESKRIVELSE_GENERELL = "ELEKTRONISK ERKLÆRING -"
+      + " Farskap for %s er erklært elektronisk. Far har oppgitt at han ikke bor sammen med mor. Vurder om det skal tas opp bidragssak.";
 
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
@@ -69,14 +77,17 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(false);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
+    when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
+
+    var oppgaveforespoerselfanger = ArgumentCaptor.forClass(Oppgaveforespoersel.class);
 
     // when
     var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+    var oppgaveforespoersel = oppgaveforespoerselfanger.getAllValues();
 
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
@@ -84,7 +95,17 @@ public class OppgavestyringTest {
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(1),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBefore(LocalDateTime.now().plusMinutes(10)),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10))
+        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10)),
+        () -> assertThat(oppgaveforespoersel.size()).isEqualTo(1),
+        () -> assertThat(oppgaveforespoersel.get(0).getBeskrivelse()).isEqualTo(String.format(OPPGAVEBESKRIVELSE_GENERELL,
+            "barn oppgitt med fødselsnummer " + farskapserklaering.getBarn().getFoedselsnummer())),
+        () -> assertThat(oppgaveforespoersel.get(0).getAktoerId()).isEqualTo(morsAktoerid),
+        () -> assertThat(oppgaveforespoersel.get(0).getOppgavetype()).isEqualTo("GEN"),
+        () -> assertThat(oppgaveforespoersel.get(0).getBehandlingstype()).isEqualTo("ae0118"),
+        () -> assertThat(oppgaveforespoersel.get(0).getTildeltEnhetsnr()).isEqualTo("4860"),
+        () -> assertThat(oppgaveforespoersel.get(0).getOpprettetAvEnhetsnr()).isEqualTo("9999"),
+        () -> assertThat(oppgaveforespoersel.get(0).getPrioritet()).isEqualTo("NORM"),
+        () -> assertThat(oppgaveforespoersel.get(0).getTema()).isEqualTo("BID")
     );
   }
 
@@ -101,14 +122,19 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(false);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
+    when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
+    var oppgaveforespoerselfanger = ArgumentCaptor.forClass(Oppgaveforespoersel.class);
+
     // when
+    when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
     var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+    var oppgaveforespoersel = oppgaveforespoerselfanger.getAllValues();
 
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
@@ -116,7 +142,17 @@ public class OppgavestyringTest {
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(1),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBefore(LocalDateTime.now().plusMinutes(10)),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10))
+        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10)),
+        () -> assertThat(oppgaveforespoersel.size()).isEqualTo(1),
+        () -> assertThat(oppgaveforespoersel.get(0).getBeskrivelse()).isEqualTo(String.format(OPPGAVEBESKRIVELSE_GENERELL,
+                "barn oppgitt med termin " + farskapserklaering.getBarn().getTermindato().format(DateTimeFormatter.ofPattern( OPPGAVE_DATOFORMAT_I_BESKRIVELSE)))),
+        () -> assertThat(oppgaveforespoersel.get(0).getAktoerId()).isEqualTo(morsAktoerid),
+        () -> assertThat(oppgaveforespoersel.get(0).getOppgavetype()).isEqualTo("GEN"),
+        () -> assertThat(oppgaveforespoersel.get(0).getBehandlingstype()).isEqualTo("ae0118"),
+        () -> assertThat(oppgaveforespoersel.get(0).getTildeltEnhetsnr()).isEqualTo("4860"),
+        () -> assertThat(oppgaveforespoersel.get(0).getOpprettetAvEnhetsnr()).isEqualTo("9999"),
+        () -> assertThat(oppgaveforespoersel.get(0).getPrioritet()).isEqualTo("NORM"),
+        () -> assertThat(oppgaveforespoersel.get(0).getTema()).isEqualTo("BID")
     );
   }
 
@@ -133,7 +169,7 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(true);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
+    when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
@@ -163,7 +199,7 @@ public class OppgavestyringTest {
     farskapserklaering.setFarBorSammenMedMor(false);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
+    when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
@@ -197,7 +233,7 @@ public class OppgavestyringTest {
     farskapserklaering.setOppgaveSendt(tidspunktOppgaveSendt);
 
     var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-    Mockito.when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
+    when(farskapsportalApiConsumer.henteAktoerid(farskapserklaering.getMor().getFoedselsnummer()))
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
