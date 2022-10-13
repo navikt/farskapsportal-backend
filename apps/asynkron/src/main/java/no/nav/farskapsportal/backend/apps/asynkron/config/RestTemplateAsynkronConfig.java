@@ -7,9 +7,9 @@ import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.security.token.support.client.core.ClientProperties;
@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
@@ -47,26 +48,28 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("asynk-base")
-  public HttpHeaderRestTemplate httpHeaderRestTemplate() {
+  public RestTemplate restTemplate() {
 
-    HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
+    var restTemplate = new RestTemplate();
 
     List<ClientHttpRequestInterceptor> interceptors
-        = httpHeaderRestTemplate.getInterceptors();
+        = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
       interceptors = new ArrayList<>();
     }
-    interceptors.add(new HttpClientRequestInterceptor(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter.fetchCorrelationIdForThread()));
-    httpHeaderRestTemplate.setInterceptors(interceptors);
+    var correlationId = UUID.randomUUID().toString();
+    log.info("Genererer correlationId {} for asynkron", correlationId);
+    interceptors.add(new HttpClientRequestInterceptor(CorrelationIdFilter.CORRELATION_ID_HEADER, correlationId));
+    restTemplate.setInterceptors(interceptors);
 
-    return httpHeaderRestTemplate;
+    return restTemplate;
   }
 
   @Bean
   @Scope("prototype")
   @Qualifier("farskapsportal-api")
-  public HttpHeaderRestTemplate farskapsportalApiRestTemplate(
-      @Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate,
+  public RestTemplate farskapsportalApiRestTemplate(
+      @Qualifier("asynk-base") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
@@ -84,8 +87,8 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("skatt")
-  public HttpHeaderRestTemplate skattRestTemplate(
-      @Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate,
+  public RestTemplate skattRestTemplate(
+      @Qualifier("asynk-base") RestTemplate restTemplate,
       @Value("${url.skatt.base-url}") String baseUrl,
       KeyStoreConfig keyStoreConfig)
       throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
@@ -113,8 +116,8 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("oppgave")
-  public HttpHeaderRestTemplate oppgaveRestTemplate(
-      @Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate,
+  public RestTemplate oppgaveRestTemplate(
+      @Qualifier("asynk-base") RestTemplate restTemplate,
       @Value("${url.oppgave.base-url}") String oppgaveRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {

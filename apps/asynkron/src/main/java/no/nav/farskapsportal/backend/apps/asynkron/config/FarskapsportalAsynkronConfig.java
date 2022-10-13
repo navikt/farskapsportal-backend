@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
@@ -75,7 +76,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
-      @Qualifier("farskapsportal-api") HttpHeaderRestTemplate restTemplate,
+      @Qualifier("farskapsportal-api") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint) {
@@ -88,7 +89,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public OppgaveApiConsumer oppgaveApiConsumer(
-      @Qualifier("oppgave") HttpHeaderRestTemplate restTemplate,
+      @Qualifier("oppgave") RestTemplate restTemplate,
       @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
@@ -96,7 +97,7 @@ public class FarskapsportalAsynkronConfig {
   }
 
   @Bean
-  SkattConsumer skattConsumer(@Qualifier("skatt") HttpHeaderRestTemplate restTemplate,
+  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, endpoint);

@@ -19,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.web.client.RestTemplate;
 
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
@@ -29,11 +30,11 @@ public class ArkivereFarskapserklaeringerSchedulingTest {
 
   // Deaktiverer diverse bønner
   @MockBean
-  private @Qualifier("oppgave") HttpHeaderRestTemplate oppgaveRestTemplate;
+  private @Qualifier("oppgave") RestTemplate oppgaveRestTemplate;
   @MockBean
-  private @Qualifier("farskapsportal-api") HttpHeaderRestTemplate farskapsportalApiRestTemplate;
+  private @Qualifier("farskapsportal-api") RestTemplate farskapsportalApiRestTemplate;
   @MockBean
-  private @Qualifier("asynk-base") HttpHeaderRestTemplate httpHeaderRestTemplate;
+  private @Qualifier("asynk-base") RestTemplate asynkBaseRestTemplate;
 
   @MockBean
   private PersistenceService persistenceService;
