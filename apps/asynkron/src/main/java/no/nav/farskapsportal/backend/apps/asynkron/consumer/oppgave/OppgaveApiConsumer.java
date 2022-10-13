@@ -4,7 +4,6 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
@@ -15,11 +14,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @AllArgsConstructor
@@ -38,7 +35,8 @@ public class OppgaveApiConsumer {
     h.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
     var oppgaveResponse = restTemplate.exchange(
-        consumerEndpoint.retrieveEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME), HttpMethod.POST, new HttpEntity<>(opprettOppgaveforespoersel,h),
+        consumerEndpoint.retrieveEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME), HttpMethod.POST,
+        new HttpEntity<>(opprettOppgaveforespoersel, h),
         OppretteOppgaveRespons.class);
 
     SIKKER_LOGG.debug("oppgaveResponse: " + oppgaveResponse);

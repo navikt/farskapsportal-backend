@@ -24,14 +24,10 @@ import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
@@ -79,7 +75,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
-      @Qualifier("farskapsportal-api") RestTemplate restTemplate,
+      @Qualifier("farskapsportal-api") HttpHeaderRestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint) {
@@ -100,7 +96,7 @@ public class FarskapsportalAsynkronConfig {
   }
 
   @Bean
-  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
+  SkattConsumer skattConsumer(@Qualifier("skatt") HttpHeaderRestTemplate restTemplate,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, endpoint);

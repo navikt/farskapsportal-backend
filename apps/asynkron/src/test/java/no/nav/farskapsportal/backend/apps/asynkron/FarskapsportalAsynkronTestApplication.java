@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
@@ -65,7 +66,7 @@ public class FarskapsportalAsynkronTestApplication {
 
   @Bean
   @Scope("prototype")
-  SkattConsumer skattConsumer(@Qualifier("asynkron-base") RestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+  SkattConsumer skattConsumer(@Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
@@ -111,7 +112,7 @@ public class FarskapsportalAsynkronTestApplication {
     @Bean
     @Scope("prototype")
     @Qualifier(PROFILE_SKATT_SSL_TEST)
-    public RestTemplate skattLocalIntegrationRestTemplate(@Qualifier("asynkron-base") RestTemplate restTemplate) {
+    public HttpHeaderRestTemplate skattLocalIntegrationRestTemplate(@Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate) {
 
       KeyStore keyStore;
       HttpComponentsClientHttpRequestFactory requestFactory;
@@ -147,7 +148,7 @@ public class FarskapsportalAsynkronTestApplication {
 
     @Bean
     @Qualifier(PROFILE_INTEGRATION_TEST)
-    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate,
+    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) HttpHeaderRestTemplate restTemplate,
         @Value("${url.skatt.base-url}") String baseUrl,
         @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
       log.info("Oppretter SkattConsumer med url {}", baseUrl);
@@ -158,7 +159,7 @@ public class FarskapsportalAsynkronTestApplication {
 
     @Bean
     @Qualifier("sikret")
-    SkattConsumer skattConsumerSikret(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate,
+    SkattConsumer skattConsumerSikret(@Qualifier(PROFILE_SKATT_SSL_TEST) HttpHeaderRestTemplate restTemplate,
         @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
       var baseUrl = "https://localhost:" + localServerPort;
@@ -170,7 +171,7 @@ public class FarskapsportalAsynkronTestApplication {
 
     @Bean
     @Qualifier("usikret")
-    SkattConsumer skattConsumerUsikret(@Qualifier("asynkron-base") RestTemplate restTemplate,
+    SkattConsumer skattConsumerUsikret(@Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate,
         @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
       var baseUrl = "http://localhost:" + localServerPort;

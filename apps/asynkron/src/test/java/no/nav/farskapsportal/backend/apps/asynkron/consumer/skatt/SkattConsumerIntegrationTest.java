@@ -139,7 +139,7 @@ public class SkattConsumerIntegrationTest {
     log.info("Oppretter SkattConsumer med url {}", baseUrl);
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
 
-    RestTemplate restTemplate = getSkattRestTemplate();
+    HttpHeaderRestTemplate restTemplate = getSkattRestTemplate();
 
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     return new SkattConsumer(restTemplate, consumerEndpoint);

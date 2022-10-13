@@ -11,6 +11,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.skatt.api.Barn;
 import no.nav.farskapsportal.backend.libs.dto.skatt.api.Boolsk;
@@ -50,7 +51,7 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor
 public class SkattConsumer {
   private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
-  private final RestTemplate restTemplate;
+  private final HttpHeaderRestTemplate restTemplate;
   private final ConsumerEndpoint consumerEndpoint;
   @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
   public LocalDateTime registrereFarskap(Farskapserklaering farskapserklaering) {

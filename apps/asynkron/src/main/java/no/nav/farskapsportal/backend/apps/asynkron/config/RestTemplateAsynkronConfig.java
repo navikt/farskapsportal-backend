@@ -7,7 +7,6 @@ import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
@@ -33,7 +32,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
@@ -48,27 +46,8 @@ public class RestTemplateAsynkronConfig {
 
   @Bean
   @Scope("prototype")
-  @Qualifier("asynkron-base")
-  public RestTemplate restTemplate() {
-    RestTemplate restTemplate = new RestTemplate();
-
-    List<ClientHttpRequestInterceptor> interceptors
-        = restTemplate.getInterceptors();
-    if (CollectionUtils.isEmpty(interceptors)) {
-      interceptors = new ArrayList<>();
-    }
-
-    var correlationId = UUID.randomUUID().toString();
-    log.info("Genererer correlationId {} for asynkron", correlationId);
-    interceptors.add(new HttpClientRequestInterceptor(CorrelationIdFilter.CORRELATION_ID_HEADER, correlationId));
-    restTemplate.setInterceptors(interceptors);
-    return restTemplate;
-  }
-
-  @Bean
-  @Scope("prototype")
   @Qualifier("asynk-base")
-  public HttpHeaderRestTemplate httpHeaderRestTemplateAsynkBase() {
+  public HttpHeaderRestTemplate httpHeaderRestTemplate() {
 
     HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
@@ -86,8 +65,8 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("farskapsportal-api")
-  public RestTemplate farskapsportalApiRestTemplate(
-      @Qualifier("asynkron-base") RestTemplate restTemplate,
+  public HttpHeaderRestTemplate farskapsportalApiRestTemplate(
+      @Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate,
       @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
@@ -105,8 +84,8 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("skatt")
-  public RestTemplate skattRestTemplate(
-      @Qualifier("base") RestTemplate restTemplate,
+  public HttpHeaderRestTemplate skattRestTemplate(
+      @Qualifier("asynk-base") HttpHeaderRestTemplate restTemplate,
       @Value("${url.skatt.base-url}") String baseUrl,
       KeyStoreConfig keyStoreConfig)
       throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
