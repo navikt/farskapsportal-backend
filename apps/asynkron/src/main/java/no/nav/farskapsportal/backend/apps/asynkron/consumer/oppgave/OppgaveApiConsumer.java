@@ -6,10 +6,14 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveRespons;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.annotation.Backoff;
@@ -21,7 +25,7 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor
 public class OppgaveApiConsumer {
 
-  private final RestTemplate restTemplate;
+  private final HttpHeaderRestTemplate restTemplate;
   private final ConsumerEndpoint consumerEndpoint;
 
   @Retryable(value = RestClientException.class, maxAttempts = 5, backoff = @Backoff(delay = 30000))
@@ -30,8 +34,11 @@ public class OppgaveApiConsumer {
     SIKKER_LOGG.debug("oppretter oppgave: " + opprettOppgaveforespoersel);
     log.info("oppretter oppgave med type {}", opprettOppgaveforespoersel.getOppgavetype());
 
-    var oppgaveResponse = restTemplate.postForEntity(
-        consumerEndpoint.retrieveEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME), new HttpEntity<>(opprettOppgaveforespoersel),
+    HttpHeaders h = new HttpHeaders();
+    h.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+    var oppgaveResponse = restTemplate.exchange(
+        consumerEndpoint.retrieveEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME), HttpMethod.POST, new HttpEntity<>(opprettOppgaveforespoersel,h),
         OppretteOppgaveRespons.class);
 
     SIKKER_LOGG.debug("oppgaveResponse: " + oppgaveResponse);

@@ -26,7 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 @DirtiesContext
 @AutoConfigureWireMock(port = 0)
 @SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {RestTemplateFellesConfig.class, RestTemplateAsynkronConfig.class, FarskapsportalAsynkronConfig.class})
+@ContextConfiguration(classes = {RestTemplateAsynkronConfig.class, FarskapsportalAsynkronConfig.class})
 public class OppgaveApiConsumerTest {
 
   @Autowired
