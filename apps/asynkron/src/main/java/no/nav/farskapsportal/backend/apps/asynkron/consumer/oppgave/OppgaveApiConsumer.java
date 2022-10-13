@@ -11,6 +11,7 @@ import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveRespons;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.RestClientException;

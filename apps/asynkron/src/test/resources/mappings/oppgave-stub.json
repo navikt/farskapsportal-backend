@@ -1,11 +1,7 @@
 {
   "request": {
     "urlPath": "/api/v1/oppgaver",
-    "method": "POST",
-    "headers": {
-      "X-Correlation-ID": {
-        "matches": ".*"
-      }
+    "method": "POST"
     }
   },
   "response": {

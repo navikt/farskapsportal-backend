@@ -65,7 +65,7 @@ public class Oppgavestyring {
             farskapserklaering.get().setOppgaveSendt(LocalDateTime.now());
             farskapserklaeringDao.save(farskapserklaering.get());
             teller++;
-            log.info("Oppgave sendt for farskapserklæring med id {}", farskapserklaering.get().getId());
+            log.info("Oppgave opprettet for farskapserklæring med id {}", farskapserklaering.get().getId());
           } else {
             log.warn("Opprettelse av oppgave feilet for farskapserklæring med id {}", farskapserklaering.get().getId());
           }
