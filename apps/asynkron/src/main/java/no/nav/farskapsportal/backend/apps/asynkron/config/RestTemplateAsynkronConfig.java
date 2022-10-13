@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.security.token.support.client.core.ClientProperties;
@@ -116,8 +115,8 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("oppgave")
-  public HttpHeaderRestTemplate oppgaveRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate restTemplate,
+  public RestTemplate oppgaveRestTemplate(
+      @Qualifier("base") RestTemplate restTemplate,
       @Value("${url.oppgave.base-url}") String oppgaveRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
