@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.apps.asynkron.consumer.api;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.libs.dto.asynkroncontroller.HenteAktoeridRequest;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 
 @Slf4j
@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 public class FarskapsportalApiConsumer {
 
   public static final Logger SIKKER_LOGG = LoggerFactory.getLogger("secureLogger");
-  private final RestTemplate restTemplate;
+  private final HttpHeaderRestTemplate restTemplate;
   private final ConsumerEndpoint consumerEndpoint;
 
   @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 30000))

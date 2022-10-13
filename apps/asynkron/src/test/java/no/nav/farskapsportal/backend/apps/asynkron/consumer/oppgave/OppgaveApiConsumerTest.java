@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.FarskapsportalAsynkronConfig;
 import no.nav.farskapsportal.backend.apps.asynkron.config.RestTemplateAsynkronConfig;
@@ -26,7 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 @DirtiesContext
 @AutoConfigureWireMock(port = 0)
 @SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {RestTemplateAsynkronConfig.class, FarskapsportalAsynkronConfig.class})
+@ContextConfiguration(classes = {RestTemplateFellesConfig.class, RestTemplateAsynkronConfig.class, FarskapsportalAsynkronConfig.class})
 public class OppgaveApiConsumerTest {
 
   @Autowired

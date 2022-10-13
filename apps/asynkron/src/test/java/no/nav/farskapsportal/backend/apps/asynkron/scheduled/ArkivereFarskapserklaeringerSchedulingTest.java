@@ -30,11 +30,9 @@ public class ArkivereFarskapserklaeringerSchedulingTest {
 
   // Deaktiverer diverse bønner
   @MockBean
-  private @Qualifier("oppgave") RestTemplate oppgaveRestTemplate;
+  private @Qualifier("oppgave") HttpHeaderRestTemplate oppgaveRestTemplate;
   @MockBean
-  private @Qualifier("farskapsportal-api") RestTemplate farskapsportalApiRestTemplate;
-  @MockBean
-  private @Qualifier("asynk-base") RestTemplate asynkBaseRestTemplate;
+  private @Qualifier("farskapsportal-api") HttpHeaderRestTemplate farskapsportalApiRestTemplate;
 
   @MockBean
   private PersistenceService persistenceService;

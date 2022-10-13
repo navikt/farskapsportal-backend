@@ -1,12 +1,7 @@
 {
   "request": {
     "urlPath": "/api/v1/asynkron/aktoerid/hente",
-    "method": "POST",
-    "headers": {
-      "X-Correlation-ID": {
-        "matches": ".*"
-      }
-    }
+    "method": "POST"
   },
   "response": {
     "status": 200,
