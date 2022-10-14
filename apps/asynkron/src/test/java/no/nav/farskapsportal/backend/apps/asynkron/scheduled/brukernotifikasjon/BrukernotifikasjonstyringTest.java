@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
+package no.nav.farskapsportal.backend.apps.asynkron.scheduled.brukernotifikasjon;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
@@ -82,7 +82,6 @@ public class BrukernotifikasjonstyringTest {
     // Bønnen er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
     brukernotifikasjonstyring = Brukernotifikasjonstyring.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .farskapserklaeringDao(farskapserklaeringDao)
         .persistenceService(persistenceService)
         .build();
@@ -100,7 +99,8 @@ public class BrukernotifikasjonstyringTest {
     var deaktivertFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     deaktivertFarskapserklaering.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
     deaktivertFarskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     deaktivertFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
@@ -152,7 +152,8 @@ public class BrukernotifikasjonstyringTest {
     var ferdigstiltFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     ferdigstiltFarskapserklaering.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 15));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 15));
     ferdigstiltFarskapserklaering.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     ferdigstiltFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(

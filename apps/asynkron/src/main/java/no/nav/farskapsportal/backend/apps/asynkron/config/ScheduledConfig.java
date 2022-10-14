@@ -7,12 +7,12 @@ import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.Farskapspor
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.ArkivereFarskapserklaeringer;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Brukernotifikasjonstyring;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.DeaktivereFarskapserklaeringer;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.OppdatereSigneringsstatus;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Oppgavestyring;
-import no.nav.farskapsportal.backend.apps.asynkron.scheduled.Varsel;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.arkiv.ArkivereFarskapserklaeringer;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.brukernotifikasjon.Brukernotifikasjonstyring;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.arkiv.DeaktivereFarskapserklaeringer;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.esignering.OppdatereSigneringsstatus;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.oppgave.Oppgavestyring;
+import no.nav.farskapsportal.backend.apps.asynkron.scheduled.brukernotifikasjon.Varsel;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -41,7 +41,7 @@ public class ScheduledConfig {
       SkattConsumer skattConsumer) {
 
     return ArkivereFarskapserklaeringer.builder()
-        .intervallMellomForsoek(farskapsportalAsynkronEgenskaper.getArkiveringsintervall())
+        .intervallMellomForsoek(farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
         .build();
@@ -53,7 +53,7 @@ public class ScheduledConfig {
       PersistenceService persistenceService) {
     return DeaktivereFarskapserklaeringer.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
+        .egenskaperArkiv(farskapsportalAsynkronEgenskaper.getArkiv())
         .persistenceService(persistenceService).build();
   }
 
@@ -75,7 +75,6 @@ public class ScheduledConfig {
 
     return Brukernotifikasjonstyring.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
         .farskapserklaeringDao(farskapserklaeringDao)
         .persistenceService(persistenceService)
         .build();
@@ -89,7 +88,7 @@ public class ScheduledConfig {
 
     return Varsel.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
+        .egenskaperBrukernotifikasjon(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon())
         .persistenceService(persistenceService)
         .build();
   }
@@ -102,6 +101,7 @@ public class ScheduledConfig {
   ) {
     return Oppgavestyring.builder()
         .farskapsportalApiConsumer(farskapsportalApiConsumer)
+        .egenskaperOppgavestyring(farskapsportalAsynkronEgenskaper.getOppgave())
         .farskapserklaeringDao(farskapserklaeringDao)
         .oppgaveApiConsumer(oppgaveApiConsumer)
         .build();

@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
+package no.nav.farskapsportal.backend.apps.asynkron.scheduled.brukernotifikasjon;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +15,9 @@ public class Brukernotifikasjonstyring {
 
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private PersistenceService persistenceService;
-  private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private FarskapserklaeringDao farskapserklaeringDao;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgavestyringsintervall}")
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall}")
   public void rydddeISigneringsoppgaver() {
     var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver();
 

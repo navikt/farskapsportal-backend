@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
+package no.nav.farskapsportal.backend.apps.asynkron.scheduled.esignering;
 
 import java.time.LocalDateTime;
 import lombok.Builder;

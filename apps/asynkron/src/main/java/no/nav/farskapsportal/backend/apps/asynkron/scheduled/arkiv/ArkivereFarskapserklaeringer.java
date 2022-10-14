@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
+package no.nav.farskapsportal.backend.apps.asynkron.scheduled.arkiv;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -17,7 +17,7 @@ public class ArkivereFarskapserklaeringer {
   private SkattConsumer skattConsumer;
   private int intervallMellomForsoek;
 
-  @Scheduled(initialDelayString = "${farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse}", fixedDelayString = "${farskapsportal.asynkron.egenskaper.arkiveringsintervall}")
+  @Scheduled(initialDelayString = "${farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse}", fixedDelayString = "${farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall}")
   public void vurdereArkivering() {
 
     log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til  Skatt.");

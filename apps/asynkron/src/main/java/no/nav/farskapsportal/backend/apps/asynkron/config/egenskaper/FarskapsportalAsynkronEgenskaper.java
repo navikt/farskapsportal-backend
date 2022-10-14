@@ -21,12 +21,10 @@ public class FarskapsportalAsynkronEgenskaper {
   @Autowired
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
-  private int arkiveringsintervall;
-  private String deaktiveringsrate;
-  private int levetidIkkeFerdigstilteSigneringsoppdragIDager;
-  private int levetidOversendteFarskapserklaeringerIDager;
-  private int levetidErklaeringerIkkeSignertAvMorIDager;
-  private int oppgavestyringsforsinkelse;
   private int oppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering;
+
+  private Arkiv arkiv;
+  private Brukernotifikasjon brukernotifikasjon;
+  private Oppgave oppgave;
   private Skatt skatt;
 }

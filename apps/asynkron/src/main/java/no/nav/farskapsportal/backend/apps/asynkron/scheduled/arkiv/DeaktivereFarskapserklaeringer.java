@@ -1,10 +1,10 @@
-package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
+package no.nav.farskapsportal.backend.apps.asynkron.scheduled.arkiv;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
+import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.Arkiv;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -15,10 +15,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class DeaktivereFarskapserklaeringer {
 
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
+  private Arkiv egenskaperArkiv;
   private PersistenceService persistenceService;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.deaktiveringsrate}", zone = "Europe/Oslo")
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.arkiv.deaktiveringsrate}", zone = "Europe/Oslo")
   public void deaktivereFarskapserklaeringer() {
     deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
     deaktivereFarskapserklaeringerSomErSendtTilSkatt();
@@ -28,8 +28,8 @@ public class DeaktivereFarskapserklaeringer {
   private void deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
     var antallErklaeringerSomBleDeaktivert = 0;
     var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
-        .minusDays(farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() < 40 ? 40
-            : farskapsportalAsynkronEgenskaper.getLevetidIkkeFerdigstilteSigneringsoppdragIDager());
+        .minusDays(egenskaperArkiv.getLevetidIkkeFerdigstilteSigneringsoppdragIDager() < 40 ? 40
+            : egenskaperArkiv.getLevetidIkkeFerdigstilteSigneringsoppdragIDager());
     var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
 
     var idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
@@ -74,8 +74,8 @@ public class DeaktivereFarskapserklaeringer {
     var antallErklaeringerSomBleDeaktivert = 0;
 
     var oversendtTilSkattFoer = LocalDate.now()
-        .minusDays(farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager() < 30 ? 30
-            : farskapsportalAsynkronEgenskaper.getLevetidOversendteFarskapserklaeringerIDager());
+        .minusDays(egenskaperArkiv.getLevetidOversendteFarskapserklaeringerIDager() < 30 ? 30
+            : egenskaperArkiv.getLevetidOversendteFarskapserklaeringerIDager());
     var tidspunktOversendtFoer = oversendtTilSkattFoer.atStartOfDay();
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering(
@@ -99,7 +99,7 @@ public class DeaktivereFarskapserklaeringer {
     var antallErklaeringerSomBleDeaktivert = 0;
 
     var morSendtTilSigneringFoer = LocalDateTime.now()
-        .minusDays(farskapsportalAsynkronEgenskaper.getLevetidErklaeringerIkkeSignertAvMorIDager());
+        .minusDays(egenskaperArkiv.getLevetidErklaeringerIkkeSignertAvMorIDager());
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilFarskapserklaeringerSomManglerMorsSignatur(
         morSendtTilSigneringFoer);

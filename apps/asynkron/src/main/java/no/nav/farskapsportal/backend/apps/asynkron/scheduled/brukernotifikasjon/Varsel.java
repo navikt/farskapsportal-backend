@@ -1,9 +1,9 @@
-package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
+package no.nav.farskapsportal.backend.apps.asynkron.scheduled.brukernotifikasjon;
 
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
+import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.Brukernotifikasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,13 +14,13 @@ public class Varsel {
 
   private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private PersistenceService persistenceService;
-  private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
+  private Brukernotifikasjon egenskaperBrukernotifikasjon;
 
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron}", zone = "Europe/Oslo")
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron}", zone = "Europe/Oslo")
   public void varsleOmManglendeSigneringsinfo() {
 
     var grensetidspunkt = LocalDateTime.now()
-        .minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse());
+        .minusDays(egenskaperBrukernotifikasjon.getOppgavestyringsforsinkelse());
 
     var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(grensetidspunkt);
 

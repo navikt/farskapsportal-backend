@@ -1,4 +1,4 @@
-package no.nav.farskapsportal.backend.apps.asynkron.scheduled;
+package no.nav.farskapsportal.backend.apps.asynkron.scheduled.esignering;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronTestApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
-import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumerTest;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
@@ -75,7 +74,8 @@ public class OppdatereSigneringsstatusTest {
     var farskapserklaeringSomManglerSigneringsstatus = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
@@ -104,7 +104,8 @@ public class OppdatereSigneringsstatusTest {
     var farskapserklaeringSomManglerSigneringsstatus = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
@@ -134,7 +135,8 @@ public class OppdatereSigneringsstatusTest {
     var farskapserklaeringSomManglerSigneringsstatus = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
@@ -162,7 +164,8 @@ public class OppdatereSigneringsstatusTest {
     var farskapserklaeringSomManglerSigneringsstatus = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
@@ -189,7 +192,8 @@ public class OppdatereSigneringsstatusTest {
     var farskapserklaeringSomManglerSigneringsstatus = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
@@ -216,7 +220,8 @@ public class OppdatereSigneringsstatusTest {
     var farskapserklaeringSomManglerSigneringsstatus = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
         henteBarnUtenFnr(5));
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getOppgavestyringsforsinkelse() + 1));
+        .setSigneringstidspunkt(
+            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
     farskapserklaeringSomManglerSigneringsstatus.getDokument()
         .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
     farskapserklaeringSomManglerSigneringsstatus.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(

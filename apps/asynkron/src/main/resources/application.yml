@@ -40,24 +40,27 @@ virksomhetssertifikat:
     hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
 farskapsportal.asynkron.egenskaper:
-  arkiveringsintervall: ${ARKIVERINGSINTERVALL}
-  arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
-  deaktiveringsrate: ${DEAKTIVERINGSRATE}
-  oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
-  oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
   oppdatere-signeringsstatus-min-antall-timer-etter-far-ble-sendt-til-signering: 1
-  varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
-  levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
-  levetid-oversendte-farskapserklaeringer-i-dager: 30
-  levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
+  brukernotifikasjon:
+    oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
+    oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
+    varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
+    varsle-om-manglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
+  arkiv:
+    arkiveringsintervall: ${ARKIVERINGSINTERVALL}
+    arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
+    deaktiveringsrate: ${DEAKTIVERINGSRATE}
+    levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
+    levetid-oversendte-farskapserklaeringer-i-dager: 30
+    levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
+  oppgave:
+    maks-antall-oppgaver-per-dag: 10
+    vurdere-opprettelse: ${VURDERE_OPPGAVE_INTERVALL}
   skatt:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 120000
     maks-ventetid-forbindelse: 130000
-  varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
-  vurdere-opprettelse-av-oppgave: ${VURDERE_OPPGAVE_INTERVALL}
-
 
 AZURE_BASE: https://login.microsoftonline.com/
 
@@ -173,19 +176,20 @@ sertifikat:
 
 ---
 spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
-farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
-farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
-farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
-farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "* * 1 * * ?"
-farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
-farskapsportal.asynkron.egenskaper.vurdere-opprettelse-av-oppgave: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
 ---
 spring.config.activate.on-profile: local
-farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
-farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
-farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
-farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "0 0/30 * * * ?"
-farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
 ---
 spring.config.activate.on-profile: integration-test
 
