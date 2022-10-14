@@ -31,7 +31,7 @@ public class Farskapserklaering implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @OneToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private Barn barn;
 
   @ManyToOne(cascade = CascadeType.PERSIST)

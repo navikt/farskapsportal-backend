@@ -53,6 +53,9 @@ Endepunktene er dokumentert med Swagger, og kan testes lokalt og på GCP dev:
 - LOKALT: http://localhost:8080/swagger-ui.html
 - DEV: https://farskapsportal-api-feature.dev.nav.no/swagger-ui.html
 
+### testpersoner
+Hent testpersoner fra Skatts Tenor testdata: https://www.skatteetaten.no/skjema/testdata/
+
 ### lokal kjøring
 
 Ved lokal kjøring brukes Spring-boot-instansen FarskapsportalApplicationLocal. Denne er satt opp med token-supports test-token, og kjøres som standard
