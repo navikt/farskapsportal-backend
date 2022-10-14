@@ -4,7 +4,6 @@ import static no.nav.farskapsportal.backend.apps.asynkron.config.FarskapsportalA
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.FarskapsportalAsynkronApplication;
 import no.nav.farskapsportal.backend.apps.asynkron.config.ScheduledConfig;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
@@ -19,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.web.client.RestTemplate;
 
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
@@ -29,9 +29,9 @@ public class ArkivereFarskapserklaeringerSchedulingTest {
 
   // Deaktiverer diverse bønner
   @MockBean
-  private @Qualifier("oppgave") HttpHeaderRestTemplate oppgaveRestTemplate;
+  private @Qualifier("oppgave") RestTemplate oppgaveRestTemplate;
   @MockBean
-  private @Qualifier("farskapsportal-api") HttpHeaderRestTemplate farskapsportalApiRestTemplate;
+  private @Qualifier("farskapsportal-api") RestTemplate farskapsportalApiRestTemplate;
 
   @MockBean
   private PersistenceService persistenceService;

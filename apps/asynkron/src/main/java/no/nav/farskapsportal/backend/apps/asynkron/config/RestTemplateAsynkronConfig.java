@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.security.token.support.client.core.ClientProperties;
@@ -28,11 +27,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
 @ComponentScan("no.nav.farskapsportal")
 public class RestTemplateAsynkronConfig {
+
+  public static final String X_CORRELATION_ID_HEADER_NAME = "X-Correlation-ID";
 
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
@@ -43,11 +45,12 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("farskapsportal-api")
-  public HttpHeaderRestTemplate farskapsportalApiRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate restTemplate,
+  public RestTemplate farskapsportalApiRestTemplate(
       @Value("${url.farskapsportal.api.base-url}") String farskapsportalApiRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
+
+    var restTemplate = new RestTemplate();
 
     ClientProperties clientProperties =
         Optional.ofNullable(clientConfigurationProperties.getRegistration().get("farskapsportal-api"))
@@ -62,8 +65,7 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("skatt")
-  public HttpHeaderRestTemplate skattRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate restTemplate,
+  public RestTemplate skattRestTemplate(
       @Value("${url.skatt.base-url}") String baseUrl,
       KeyStoreConfig keyStoreConfig)
       throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
@@ -82,6 +84,7 @@ public class RestTemplateAsynkronConfig {
     requestFactory.setReadTimeout(farskapsportalAsynkronEgenskaper.getSkatt().getMaksVentetidLesing());
     requestFactory.setConnectTimeout(farskapsportalAsynkronEgenskaper.getSkatt().getMaksVentetidForbindelse());
 
+    var restTemplate = new RestTemplate();
     restTemplate.setRequestFactory(requestFactory);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
 
@@ -91,8 +94,7 @@ public class RestTemplateAsynkronConfig {
   @Bean
   @Scope("prototype")
   @Qualifier("oppgave")
-  public HttpHeaderRestTemplate oppgaveRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate restTemplate,
+  public RestTemplate oppgaveRestTemplate(
       @Value("${url.oppgave.base-url}") String oppgaveRootUrl,
       ClientConfigurationProperties clientConfigurationProperties,
       OAuth2AccessTokenService oAuth2AccessTokenService) {
@@ -101,6 +103,7 @@ public class RestTemplateAsynkronConfig {
         Optional.ofNullable(clientConfigurationProperties.getRegistration().get("oppgave"))
             .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for oppgave"));
 
+    var restTemplate = new RestTemplate();
     restTemplate.getInterceptors().add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
 
     log.info("Oppretter oppgaveRestTemplate med baseurl {}", oppgaveRootUrl);

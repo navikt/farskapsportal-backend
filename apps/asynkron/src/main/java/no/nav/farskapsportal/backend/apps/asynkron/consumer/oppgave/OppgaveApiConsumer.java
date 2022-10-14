@@ -1,13 +1,12 @@
 package no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave;
 
+import static no.nav.farskapsportal.backend.apps.asynkron.config.RestTemplateAsynkronConfig.X_CORRELATION_ID_HEADER_NAME;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
 import java.util.Optional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveRespons;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
@@ -17,12 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @AllArgsConstructor
 public class OppgaveApiConsumer {
 
-  private final HttpHeaderRestTemplate restTemplate;
+  private final RestTemplate restTemplate;
   private final ConsumerEndpoint consumerEndpoint;
 
   @Retryable(value = RestClientException.class, maxAttempts = 5, backoff = @Backoff(delay = 30000))
@@ -48,7 +48,7 @@ public class OppgaveApiConsumer {
     HttpHeaders headers = new HttpHeaders();
 
     var correlationId = UUID.randomUUID().toString();
-    headers.add(CorrelationIdFilter.CORRELATION_ID_HEADER, correlationId);
+    headers.add(X_CORRELATION_ID_HEADER_NAME, correlationId);
 
     log.info("Legger inn X-Correlation-ID header {}", correlationId);
 

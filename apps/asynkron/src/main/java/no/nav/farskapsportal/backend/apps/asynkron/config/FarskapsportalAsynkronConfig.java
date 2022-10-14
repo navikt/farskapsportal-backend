@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiConsumer;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.api.FarskapsportalApiEndpoint;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.oppgave.OppgaveApiConsumer;
@@ -76,7 +75,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public FarskapsportalApiConsumer farskapsportalApiConsumer(
-      @Qualifier("farskapsportal-api") HttpHeaderRestTemplate restTemplate,
+      @Qualifier("farskapsportal-api") RestTemplate restTemplate,
       @Value("${url.farskapsportal.api.synkronisere-signeringsstatus}") String synkronisereSigneringsstatusEndpoint,
       @Value("${url.farskapsportal.api.hente-aktoerid}") String henteAktoeridEndpoint,
       ConsumerEndpoint consumerEndpoint) {
@@ -89,7 +88,7 @@ public class FarskapsportalAsynkronConfig {
 
   @Bean
   public OppgaveApiConsumer oppgaveApiConsumer(
-      @Qualifier("oppgave") HttpHeaderRestTemplate restTemplate,
+      @Qualifier("oppgave") RestTemplate restTemplate,
       @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
@@ -97,7 +96,7 @@ public class FarskapsportalAsynkronConfig {
   }
 
   @Bean
-  SkattConsumer skattConsumer(@Qualifier("skatt") HttpHeaderRestTemplate restTemplate,
+  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, endpoint);
