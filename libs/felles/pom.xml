@@ -21,7 +21,7 @@
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
-    <google.spring-cloud-gcp.version>2.0.11</google.spring-cloud-gcp.version>
+    <google.spring-cloud-gcp.version>3.4.0</google.spring-cloud-gcp.version>
   </properties>
 
   <dependencyManagement>
