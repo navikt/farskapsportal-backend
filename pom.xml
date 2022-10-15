@@ -32,7 +32,7 @@
     <osgi.core.version>6.0.0</osgi.core.version>
     <scala.version>2.13.8</scala.version>
     <servlet-api.version>2.5</servlet-api.version>
-    <google.spring-cloud-gcp-starter-sql-postgresql.version>3.3.0</google.spring-cloud-gcp-starter-sql-postgresql.version>
+    <google.spring-cloud-gcp-starter-sql-postgresql.version>3.4.0</google.spring-cloud-gcp-starter-sql-postgresql.version>
     <google-oauth-client.version>1.33.3</google-oauth-client.version>
   </properties>
 
