@@ -18,10 +18,6 @@ import java.security.UnrecoverableKeyException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
-import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
-import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
@@ -32,6 +28,8 @@ import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
@@ -145,11 +143,8 @@ public class SkattConsumerIntegrationTest {
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
 
-  private HttpHeaderRestTemplate getSkattRestTemplate()
+  private RestTemplate getSkattRestTemplate()
       throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
-
-    HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
-    httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
 
     var socketFactory = new SSLConnectionSocketFactory(new SSLContextBuilder()
         .loadTrustMaterial(null, new TrustAllStrategy())
@@ -165,9 +160,10 @@ public class SkattConsumerIntegrationTest {
     requestFactory.setReadTimeout(120000);
     requestFactory.setConnectTimeout(120000);
 
-    httpHeaderRestTemplate.setRequestFactory(requestFactory);
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setRequestFactory(requestFactory);
 
-    return httpHeaderRestTemplate;
+    return restTemplate;
   }
 }
 

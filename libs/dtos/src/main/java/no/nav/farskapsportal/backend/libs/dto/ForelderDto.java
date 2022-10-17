@@ -18,13 +18,13 @@ import org.springframework.validation.annotation.Validated;
 @AllArgsConstructor
 public class ForelderDto {
 
-  @Parameter(description = "Forelderens rolle", example = "MOR")
+  @Parameter(description = "Forelderens rolle", example = "FAR")
   private Forelderrolle forelderrolle;
 
   @Parameter(description = "Fødselsdato", example = "01.01.1990")
   private LocalDate foedselsdato;
 
-  @Parameter(description = "Forelderens fødselsnummer", example = "12345678910")
+  @Parameter(description = "Forelderens fødselsnummer", example = "11111122222")
   private @NonNull String foedselsnummer;
 
   @Parameter(description = "Forelderens navn")

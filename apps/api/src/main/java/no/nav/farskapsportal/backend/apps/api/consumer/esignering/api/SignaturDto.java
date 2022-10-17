@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import no.nav.farskapsportal.backend.apps.api.api.StatusSignering;
+import no.nav.farskapsportal.backend.apps.api.model.StatusSignering;
 
 @Builder
 @Getter

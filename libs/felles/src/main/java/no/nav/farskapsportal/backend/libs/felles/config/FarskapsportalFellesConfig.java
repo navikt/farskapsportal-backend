@@ -1,10 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.config;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.pdl.PdlApiConsumerEndpointName;
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceEndpointName;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.BarnDao;
@@ -14,11 +11,10 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
-import no.nav.farskapsportal.backend.libs.felles.service.PersonopplysningService;
-import no.nav.farskapsportal.backend.libs.felles.util.Mapper;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -51,18 +47,6 @@ public class FarskapsportalFellesConfig {
   public static String KODE_LAND_NORGE = "NOR";
 
   @Bean
-  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
-      @Value("${url.pdl-api.base-url}") String baseUrl,
-      @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
-      ConsumerEndpoint consumerEndpoint) {
-    consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-    log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
-    return PdlApiConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
-  }
-
-
-  @Bean
   SecurityTokenServiceConsumer securityTokenServiceConsumer(@Qualifier("sts") RestTemplate restTemplate,
       @Value("${url.sts.base-url}") String baseUrl,
       @Value("${url.sts.security-token-service}") String endpoint,
@@ -76,26 +60,21 @@ public class FarskapsportalFellesConfig {
   @Bean
   public PersistenceService persistenceService(
       OppgavebestillingDao oppgavebestillingDao,
-      PersonopplysningService personopplysningService,
       FarskapserklaeringDao farskapserklaeringDao,
-      FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper,
-      Mapper mapper,
+      @Autowired ModelMapper modelMapper,
       BarnDao barnDao,
       ForelderDao forelderDao,
       StatusKontrollereFarDao kontrollereFarDao,
       MeldingsloggDao meldingsloggDao) {
-    return new PersistenceService(oppgavebestillingDao, personopplysningService, farskapserklaeringDao, farskapsportalFellesEgenskaper, barnDao,
-        forelderDao, kontrollereFarDao,
-        meldingsloggDao, mapper);
-  }
 
-  @Bean
-  public PersonopplysningService personopplysningService(ModelMapper modelMapper, PdlApiConsumer pdlApiConsumer,
-      FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
-    return PersonopplysningService.builder()
-        .modelMapper(modelMapper)
-        .pdlApiConsumer(pdlApiConsumer)
-        .farskapsportalFellesEgenskaper(farskapsportalFellesEgenskaper).build();
+    return new PersistenceService(
+        oppgavebestillingDao,
+        farskapserklaeringDao,
+        barnDao,
+        forelderDao,
+        kontrollereFarDao,
+        meldingsloggDao,
+        modelMapper);
   }
 
   @Bean

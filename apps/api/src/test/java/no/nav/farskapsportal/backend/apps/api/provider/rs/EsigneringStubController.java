@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
 
@@ -19,6 +20,8 @@ import no.digipost.signature.api.xml.XMLDirectSignerStatusValue;
 import no.digipost.signature.api.xml.XMLSignerSpecificUrl;
 import no.digipost.signature.api.xml.XMLSignerStatus;
 import no.nav.security.token.support.core.api.Unprotected;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -34,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Setter
 @RequestMapping("/esignering")
 @Slf4j
-@ActiveProfiles(PROFILE_TEST)
+@ActiveProfiles({PROFILE_TEST, PROFILE_LOCAL})
 public class EsigneringStubController {
 
   private final static String FNR_MOR = "12345678910";
@@ -42,6 +45,9 @@ public class EsigneringStubController {
 
   private boolean morHarSignert = false;
   private boolean farHarSignert = false;
+
+  @Value("${wiremock.server.port}")
+  private String wiremockPort;
 
   @PostMapping(value = "/api/{fnrSignatoer}/direct/signature-jobs/1/redirect")
   public ResponseEntity<Void> signereDokument(@PathVariable("fnrSignatoer") String fnrSignatoer) {
@@ -77,15 +83,16 @@ public class EsigneringStubController {
     XMLDirectSignatureJobStatusResponse statusrespons = new XMLDirectSignatureJobStatusResponse();
     statusrespons.getStatuses().add(signerStatusMor);
     statusrespons.getStatuses().add(signerStatusFar);
-    statusrespons.setConfirmationUrl(lageUri("/confirmation"));
+    statusrespons.setConfirmationUrl(lageUri(wiremockPort, "/confirmation"));
     statusrespons.setSignatureJobStatus(
         morHarSignert && farHarSignert ? XMLDirectSignatureJobStatus.COMPLETED_SUCCESSFULLY : XMLDirectSignatureJobStatus.IN_PROGRESS);
-    statusrespons.setPadesUrl(lageUri("/pades"));
+    statusrespons.setPadesUrl(lageUri(wiremockPort, "/pades"));
     statusrespons.setSignatureJobId(1);
-    statusrespons.setDeleteDocumentsUrl(lageUri("/delete-docs"));
+    statusrespons.setDeleteDocumentsUrl(lageUri(wiremockPort, "/delete-docs"));
 
-    statusrespons.getXadesUrls().add(morHarSignert ? new XMLSignerSpecificUrl(lageUri("/" + FNR_MOR + "/xades"), FNR_MOR) : null);
-    statusrespons.getXadesUrls().add(morHarSignert && farHarSignert ? new XMLSignerSpecificUrl(lageUri("/" + FNR_FAR + "/xades"), FNR_FAR) : null);
+    statusrespons.getXadesUrls().add(morHarSignert ? new XMLSignerSpecificUrl(lageUri(wiremockPort, "/" + FNR_MOR + "/xades"), FNR_MOR) : null);
+    statusrespons.getXadesUrls()
+        .add(morHarSignert && farHarSignert ? new XMLSignerSpecificUrl(lageUri(wiremockPort, "/" + FNR_FAR + "/xades"), FNR_FAR) : null);
 
     var sw = new StringWriter();
 

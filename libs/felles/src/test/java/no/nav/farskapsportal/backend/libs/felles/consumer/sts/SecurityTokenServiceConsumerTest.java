@@ -6,8 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
-import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.stub.StsStub;
+import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.StsStub;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(classes = {FarskapsportalFellesTestConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("SecurityTokenServiceConsumer")
-@AutoConfigureWireMock(port = 8096)
+@AutoConfigureWireMock(port = 0)
 public class SecurityTokenServiceConsumerTest {
 
   @Autowired

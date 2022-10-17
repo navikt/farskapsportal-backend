@@ -18,13 +18,13 @@ import org.springframework.validation.annotation.Validated;
 @AllArgsConstructor
 public class NavnDto {
 
-  @Parameter(description = "Personens fornavn", example = "Karl Donald")
+  @Parameter(description = "Personens fornavn", example = "Rask")
   private String fornavn;
 
-  @Parameter(description = "Personens mellomnavn", example = "Jensen")
+  @Parameter(description = "Personens mellomnavn", example = "")
   private String mellomnavn;
 
-  @Parameter(description = "Personens etternavn", example = "Duck")
+  @Parameter(description = "Personens etternavn", example = "Karaffel")
   private String etternavn;
 
   public String sammensattNavn() {

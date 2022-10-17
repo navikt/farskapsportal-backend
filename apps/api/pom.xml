@@ -18,9 +18,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <!-- navikt -->
-    <token-validation-spring.version>2.1.4</token-validation-spring.version>
-
     <!-- other -->
     <apache.commons-lang.version>3.12.0</apache.commons-lang.version>
     <apache.commons-io.version>2.11.0</apache.commons-io.version>
@@ -29,15 +26,12 @@
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google.api.gax.version>2.5.0</google.api.gax.version>
     <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
-    <jersey-hk2.version>2.37</jersey-hk2.version>
     <jsoup.version>1.15.3</jsoup.version>
     <openhtml.version>1.0.10</openhtml.version>
     <signature-api-client-java.version>7.0-RC3</signature-api-client-java.version>
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
 
     <!-- test -->
-    <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
-    <wiremock-standalone.version>2.19.0</wiremock-standalone.version>
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
 
   </properties>
@@ -148,11 +142,6 @@
         <version>${google.api.gax.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.glassfish.jersey.inject</groupId>
-        <artifactId>jersey-hk2</artifactId>
-        <version>${jersey-hk2.version}</version>
-      </dependency>
-      <dependency>
         <groupId>com.sun.istack</groupId>
         <artifactId>istack-commons-runtime</artifactId>
         <version>${sun.istack-commons.version}</version>
@@ -200,9 +189,13 @@
     </dependency>
 
     <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-tilgangskontroll</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>no.nav.security</groupId>
       <artifactId>token-validation-spring</artifactId>
-      <version>${token-validation-spring.version}</version>
       <exclusions>
         <exclusion>
           <groupId>com.fasterxml.jackson.core</groupId>
@@ -231,6 +224,12 @@
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- other -->
@@ -247,17 +246,10 @@
     </dependency>
 
     <dependency>
-      <groupId>org.glassfish.jersey.inject</groupId>
-      <artifactId>jersey-hk2</artifactId>
-      <version>${jersey-hk2.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>no.digipost.signature</groupId>
       <artifactId>signature-api-client-java</artifactId>
       <version>${signature-api-client-java.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
@@ -340,7 +332,6 @@
     <dependency>
       <groupId>no.nav.security</groupId>
       <artifactId>token-validation-spring-test</artifactId>
-      <version>${token-validation-spring.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -357,16 +348,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-contract-wiremock</artifactId>
-      <version>${spring-cloud-contract-wiremock.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-standalone</artifactId>
-      <version>${wiremock-standalone.version}</version>
+      <artifactId>wiremock-jre8-standalone</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -376,6 +359,23 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-contract-wiremock</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

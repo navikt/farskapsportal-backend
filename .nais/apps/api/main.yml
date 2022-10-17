@@ -42,8 +42,6 @@ env:
     value: https://farskapsportal.dev.nav.no
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
-  - name: JOURNALPOSTAPI_URL
-    value: https://dokarkiv-q2.dev.adeo.no
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
 secret:

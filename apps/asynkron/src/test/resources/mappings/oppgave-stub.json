@@ -1,0 +1,18 @@
+{
+  "request": {
+    "urlPath": "/api/v1/oppgaver",
+    "method": "POST",
+    "headers": {
+      "X-Correlation-ID": {
+        "matches": ".*"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": "{ \"id\": \"50\" }",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -14,9 +14,6 @@ spring:
       minimum-idle: 1
 
 url:
-  pdl-api:
-    base-url: ${APIGW_URL}
-    graphql: "/pdl-api/graphql"
   sts:
     base-url: ${APIGW_URL}
     security-token-service: "/security-token-service/rest/v1/sts/token"
@@ -43,10 +40,9 @@ farskapsportal.felles.egenskaper:
 spring:
   config.activate.on-profile: test
 
-WIREMOCK_URL: http://localhost:8096
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
 url:
-  pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
 
 ### misc
@@ -59,7 +55,6 @@ KAFKA_SCHEMA_REGISTRY_PASSWORD: secret
 KAFKA_KEYSTORE_PATH: /var/test
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
-APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 
 ### kafka

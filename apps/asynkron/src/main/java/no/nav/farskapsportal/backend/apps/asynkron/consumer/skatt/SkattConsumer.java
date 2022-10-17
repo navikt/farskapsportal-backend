@@ -51,9 +51,7 @@ import org.springframework.web.client.RestTemplate;
 public class SkattConsumer {
 
   private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
-
   private final RestTemplate restTemplate;
-
   private final ConsumerEndpoint consumerEndpoint;
 
   @Retryable(value = RestClientException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
@@ -109,7 +107,7 @@ public class SkattConsumer {
           HttpMethod.POST,
           requestEntity, Void.class);
       if (!respons.getStatusCode().equals(HttpStatus.ACCEPTED)) {
-        log.error("Mottok ikke-godkjent Http-kode {} ved overføring til Skatt", respons.getStatusCodeValue());
+        log.error("Mottok Http-kode {}, ved overføring til Skatt", respons.getStatusCodeValue());
         throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
       }
       return LocalDateTime.parse(meldingOmRegistreringAvFarskap.getInnsending().getAvsendersInnsendingstidspunkt().getDateTime());

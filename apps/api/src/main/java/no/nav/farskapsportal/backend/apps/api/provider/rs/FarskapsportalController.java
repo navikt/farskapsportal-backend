@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -8,12 +10,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
-import no.nav.farskapsportal.backend.apps.api.api.BrukerinformasjonResponse;
-import no.nav.farskapsportal.backend.apps.api.api.KontrollerePersonopplysningerRequest;
-import no.nav.farskapsportal.backend.apps.api.api.OppdatereFarskapserklaeringRequest;
-import no.nav.farskapsportal.backend.apps.api.api.OppdatereFarskapserklaeringResponse;
-import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringRequest;
-import no.nav.farskapsportal.backend.apps.api.api.OppretteFarskapserklaeringResponse;
+import no.nav.farskapsportal.backend.apps.api.model.BrukerinformasjonResponse;
+import no.nav.farskapsportal.backend.apps.api.model.KontrollerePersonopplysningerRequest;
+import no.nav.farskapsportal.backend.apps.api.model.OppdatereFarskapserklaeringRequest;
+import no.nav.farskapsportal.backend.apps.api.model.OppdatereFarskapserklaeringResponse;
+import no.nav.farskapsportal.backend.apps.api.model.OppretteFarskapserklaeringRequest;
+import no.nav.farskapsportal.backend.apps.api.model.OppretteFarskapserklaeringResponse;
 import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.dto.FarskapserklaeringDto;
@@ -36,12 +38,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping("/api/v1/farskapsportal")
-@ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER)
+@ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER_SELVBETJENING)
 public class FarskapsportalController {
 
   @Autowired
   private FarskapsportalService farskapsportalService;
-
   @Autowired
   private FarskapsportalApiConfig.OidcTokenSubjectExtractor oidcTokenSubjectExtractor;
 
@@ -57,7 +58,9 @@ public class FarskapsportalController {
       @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
   public ResponseEntity<BrukerinformasjonResponse> henteBrukerinformasjon() {
     log.info("Henter brukerinformasjon");
-    var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(oidcTokenSubjectExtractor.hentPaaloggetPerson());
+    var personident = oidcTokenSubjectExtractor.hentPaaloggetPerson();
+    SIKKER_LOGG.info("Henter brukerinformasjon for person med ident {}", personident);
+    var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(personident);
     return new ResponseEntity<>(brukerinformasjon, HttpStatus.OK);
   }
 

@@ -25,14 +25,18 @@ env:
     value: farskap-keystore-credentials-json
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
     value: "2"
+  - name: FARSKAPSPORTAL_API_SCOPE
+    value: dev-gcp.farskapsportal.farskapsportal-api
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal.dev.nav.no
   - name: FARSKAPSPORTAL_API_URL
     value: http://farskapsportal-api.farskapsportal.svc.cluster.local
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
-  - name: JOURNALPOSTAPI_URL
-    value: https://dokarkiv-q2.dev.adeo.no
+  - name: OPPGAVEAPI_URL
+    value: https://oppgave.dev-fss-pub.nais.io
+  - name: OPPGAVE_SCOPE
+    value: dev-fss.oppgavehandtering.oppgave
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-dev-169c:europe-north1:fp-main
   - name: POSTGRES_USER_NAME
@@ -45,6 +49,8 @@ env:
     value: 1
   - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
     value: "0 0 11 ? * TUE"
+  - name: VURDERE_OPPGAVE_INTERVALL
+    value: "0 0 17 ? * 1-5"
 secret:
   - name: farskapsportal-api-secret
   - name: postgres-user-asynkron-main-password

@@ -4,34 +4,26 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.net.URI;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import lombok.Builder;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.apps.api.api.BrukerinformasjonResponse;
 import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.ActuatorHealth;
 import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.OperasjonellStatus;
 import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.Status;
 import no.nav.security.token.support.core.api.Unprotected;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
-@Validated
-@RestController
 @Unprotected
+@RestController
 @RequestMapping("/internal/farskapsportal")
 public class StatusController {
 

@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +24,8 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Validated
-@RestController
 @Unprotected
+@RestController
 @RequestMapping("/internal/farskapsportal")
 public class StatusController {
 

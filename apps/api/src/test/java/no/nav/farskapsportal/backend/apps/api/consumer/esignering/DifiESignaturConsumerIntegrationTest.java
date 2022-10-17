@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
+import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal.PADES;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.tilUri;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.util.UUID;
 import no.digipost.signature.client.direct.DirectClient;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiLocalConfig;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
@@ -20,12 +21,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("DifiESignaturConsumer")
 @ActiveProfiles(PROFILE_INTEGRATION_TEST)
-@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
+@SpringBootTest(classes = FarskapsportalApiTestConfig.class)
 public class DifiESignaturConsumerIntegrationTest {
 
   private static final ForelderDto MOR = ForelderDto.builder()
@@ -35,6 +37,9 @@ public class DifiESignaturConsumerIntegrationTest {
   private static final ForelderDto FAR = ForelderDto.builder()
       .foedselsnummer("11029400522")
       .navn(NavnDto.builder().fornavn("Treig").etternavn("Tranflaske").build()).build();
+
+  @Value("${wiremock.server.port}")
+  String wiremockPort;
 
   @Autowired
   DirectClient directClientMock;
@@ -85,10 +90,10 @@ public class DifiESignaturConsumerIntegrationTest {
       ClassLoader classLoader = getClass().getClassLoader();
       var inputStream = classLoader.getResourceAsStream("src/test/resources/__files/farskapserklaering.pdf");
       var originaltInnhold = inputStream.readAllBytes();
-      difiESignaturStub.runGetSignedDocument(FarskapsportalApiLocalConfig.PADES);
+      difiESignaturStub.runGetSignedDocument(PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(FarskapsportalApiLocalConfig.PADES));
+      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(wiremockPort, PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);

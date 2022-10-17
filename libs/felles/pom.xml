@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>libs</artifactId>
     <groupId>no.nav.farskapsportal.backend.libs</groupId>
@@ -12,7 +13,6 @@
 
   <properties>
     <asm.version>9.1</asm.version>
-    <bidrag-tilgangskontroll.version>1.10.0</bidrag-tilgangskontroll.version>
     <brukernotifikasjon-schemas.version>v2.5.1</brukernotifikasjon-schemas.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <javassist.version>3.28.0-GA</javassist.version>
@@ -20,7 +20,6 @@
     <modelmapper.version>2.4.5</modelmapper.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
-    <spring-cloud-contract-wiremock.version>2.2.3.RELEASE</spring-cloud-contract-wiremock.version>
     <google.spring-cloud-gcp.version>2.0.11</google.spring-cloud-gcp.version>
   </properties>
 
@@ -46,16 +45,10 @@
         <artifactId>javassist</artifactId>
         <version>${javassist.version}</version>
       </dependency>
-      <dependency>
-        <groupId>no.nav.bidrag</groupId>
-        <artifactId>bidrag-commons</artifactId>
-        <version>0.5.15</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
-
     <!-- spring -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -99,13 +92,10 @@
       <artifactId>dtos</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-tilgangskontroll</artifactId>
-      <version>${bidrag-tilgangskontroll.version}</version>
+      <artifactId>bidrag-commons</artifactId>
     </dependency>
-
     <dependency>
       <groupId>no.nav.farskapsportal.backend.libs</groupId>
       <artifactId>entities</artifactId>
@@ -186,9 +176,14 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8-standalone</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-contract-wiremock</artifactId>
-      <version>${spring-cloud-contract-wiremock.version}</version>
       <scope>test</scope>
     </dependency>
 

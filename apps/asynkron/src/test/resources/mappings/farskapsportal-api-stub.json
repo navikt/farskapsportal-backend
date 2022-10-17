@@ -1,0 +1,13 @@
+{
+  "request": {
+    "urlPath": "/api/v1/asynkron/aktoerid/hente",
+    "method": "POST"
+  },
+  "response": {
+    "status": 200,
+    "body": "505060601010",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

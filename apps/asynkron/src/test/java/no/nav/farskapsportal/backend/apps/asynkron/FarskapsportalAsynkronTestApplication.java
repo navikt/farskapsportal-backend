@@ -12,10 +12,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
+import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -35,6 +37,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -42,14 +45,12 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @EnableAutoConfiguration
+@EnableMockOAuth2Server
 @ComponentScan("no.nav.farskapsportal.backend")
 @SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class FarskapsportalAsynkronTestApplication {
 
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
-
-  @Autowired
-  private ServletWebServerApplicationContext webServerAppCtxt;
 
   public static void main(String[] args) {
 
@@ -61,13 +62,15 @@ public class FarskapsportalAsynkronTestApplication {
   }
 
   @Bean
-  SkattConsumer skattConsumer(@Qualifier("base") HttpHeaderRestTemplate restTemplate, @Value("${url.skatt.base-url}") String baseUrl,
+  @Scope("prototype")
+  SkattConsumer skattConsumer(@Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
 
-    var skattBaseUrl = baseUrl + ":" + webServerAppCtxt.getWebServer().getPort();
-
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(skattBaseUrl));
+
+    var restTemplate = new RestTemplate();
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+
     return new SkattConsumer(restTemplate, consumerEndpoint);
   }
 
@@ -86,7 +89,7 @@ public class FarskapsportalAsynkronTestApplication {
   @Lazy
   @Configuration
   @Profile({PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
-  static class SkattStubSslConfiguration {
+  public static class SkattStubSslConfiguration {
 
     @Value("${server.port}")
     private int localServerPort;
@@ -101,8 +104,14 @@ public class FarskapsportalAsynkronTestApplication {
     private String keystoreName;
 
     @Bean
+    ServletWebServerApplicationContext servletWebServerApplicationContext() {
+      return new ServletWebServerApplicationContext();
+    }
+
+    @Bean
+    @Scope("prototype")
     @Qualifier(PROFILE_SKATT_SSL_TEST)
-    public HttpHeaderRestTemplate skattLocalIntegrationRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+    public RestTemplate skattLocalIntegrationRestTemplate(@Qualifier("base") RestTemplate restTemplate) {
 
       KeyStore keyStore;
       HttpComponentsClientHttpRequestFactory requestFactory;
@@ -127,13 +136,13 @@ public class FarskapsportalAsynkronTestApplication {
         requestFactory.setReadTimeout(10000);
         requestFactory.setConnectTimeout(10000);
 
-        httpHeaderRestTemplate.setRequestFactory(requestFactory);
+        restTemplate.setRequestFactory(requestFactory);
 
       } catch (Exception exception) {
         exception.printStackTrace();
       }
 
-      return httpHeaderRestTemplate;
+      return restTemplate;
     }
 
     @Bean
@@ -170,5 +179,10 @@ public class FarskapsportalAsynkronTestApplication {
       restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
       return new SkattConsumer(restTemplate, consumerEndpoint);
     }
+  }
+
+  @Bean
+  public TokenValidationContextHolder oidcRequestContextHolder() {
+    return new SpringTokenValidationContextHolder();
   }
 }

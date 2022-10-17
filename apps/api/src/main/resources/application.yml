@@ -73,12 +73,16 @@ spring:
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-    database: postgresql
 
-no.nav:
-  security.jwt.issuer.selvbetjening:
-    discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
-    accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
+no.nav.security.jwt:
+  expirythreshold: 1
+  issuer:
+    aad:
+      discoveryurl: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
+    selvbetjening:
+      discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+      accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
 
 ---
 ### H2 ###
@@ -87,20 +91,21 @@ spring:
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
+  spring.datasource.initialization-mode: always
+  data.jpa.repositories.bootstrap-mode: default
   h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
-  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+  jpa.hibernate.ddl-auto: create-drop
+  jpa.database-platform: org.hibernate.dialect.H2Dialect
 
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test,  remote-postgres
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test, remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/postgres
-    password:
-    databaseName: postgres
+    url: jdbc:postgresql://localhost:5432/p2
+    databaseName: p2
     portNumber: 5432
     serverName: localhost
     hikari:
@@ -121,13 +126,20 @@ DB_USER_ASYNKRON: asynkron_feature
 ---
 ### MOCK AZURE ###
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test
+  config.activate.on-profile: test, local-postgres, remote-postgres, integration-test
 
 no.nav.security.jwt:
-  issuer.selvbetjening:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
+  expirythreshold: 1
+  issuer:
+    aad:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+    selvbetjening:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+
 
 ---
 spring:
@@ -136,7 +148,7 @@ spring:
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
-WIREMOCK_URL: http://localhost:8096
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/
@@ -195,14 +207,28 @@ spring.config.activate.on-profile: local
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
+  port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
+
+no.nav.security.jwt:
+  expirythreshold: 1
+  issuer:
+    aad:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+    selvbetjening:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
+      accepted_audience: aud-localhost
+      cookie_name: localhost-idtoken
+
 
 ---
 spring:
   config.activate.on-profile: local-postgres, remote-postgres
 
-WIREMOCK_URL: http://localhost:8096
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
 APIKEY_PDLAPI_FP: keyForZoneCrossing
 APIKEY_STS_FP: keyForZoneCrossing
 KAFKA_BROKERS: 127.0.0.1:9092
@@ -218,8 +244,9 @@ farskapsportal-api:
   systembruker.passord: se-vault
 
 wiremock.server:
+  port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
 ---
 spring:
   config.activate.on-profile: remote-postgres
@@ -247,8 +274,9 @@ virksomhetssertifikat:
     hemmelighetversjon: 2
 
 wiremock.server:
+  port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
 
 ---
 

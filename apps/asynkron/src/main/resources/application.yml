@@ -11,23 +11,24 @@ management:
   endpoint.health.show-details: always
 
 url:
-  joark:
-    base-url: ${JOURNALPOSTAPI_URL}
-    opprette-journalpost: /rest/journalpostapi/v1/journalpost
   farskapsportal:
-    url: ${FARSKAPSPORTAL_URL}
+    base-url: ${FARSKAPSPORTAL_URL}
     api:
-      url: ${FARSKAPSPORTAL_API_URL}
+      base-url: ${FARSKAPSPORTAL_API_URL}
       synkronisere-signeringsstatus: /api/v1/asynkron/statussynkronisering/farskapserklaering/%s
+      hente-aktoerid: /api/v1/asynkron/aktoerid/hente
+  oppgave:
+    base-url: ${OPPGAVEAPI_URL}
+    opprette: /api/v1/oppgaver
   pdl-api:
     base-url: ${APIGW_URL}
-    graphql: "/pdl-api/graphql"
+    graphql: /pdl-api/graphql
   sts:
     base-url: ${APIGW_URL}
-    security-token-service: "/security-token-service/rest/v1/sts/token"
+    security-token-service: /security-token-service/rest/v1/sts/token
   skatt:
     base-url: ${SKATT_URL}
-    registrering-av-farskap: "/folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg"
+    registrering-av-farskap: /folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg
 
 virksomhetssertifikat:
   prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
@@ -39,27 +40,53 @@ virksomhetssertifikat:
     hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
 farskapsportal.asynkron.egenskaper:
-  arkiveringsintervall: ${ARKIVERINGSINTERVALL}
-  arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
-  deaktiveringsrate: ${DEAKTIVERINGSRATE}
-  oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
-  oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
-  varsleOmManglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
   oppdatere-signeringsstatus-min-antall-timer-etter-far-ble-sendt-til-signering: 1
-  varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
-  levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
-  levetid-oversendte-farskapserklaeringer-i-dager: 30
-  levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
-  joark:
-    maks-antall-forbindelser: 5
-    maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 10000
-    maks-ventetid-forbindelse: 10000
+  brukernotifikasjon:
+    oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
+    oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
+    varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
+    varsle-om-manglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
+  arkiv:
+    arkiveringsintervall: ${ARKIVERINGSINTERVALL}
+    arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
+    deaktiveringsrate: ${DEAKTIVERINGSRATE}
+    levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
+    levetid-oversendte-farskapserklaeringer-i-dager: 30
+    levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
+  oppgave:
+    maks-antall-oppgaver-per-dag: 10
+    vurdere-opprettelse: ${VURDERE_OPPGAVE_INTERVALL}
   skatt:
     maks-antall-forbindelser: 5
     maks-antall-forbindelser-per-rute: 5
     maks-ventetid-lesing: 120000
     maks-ventetid-forbindelse: 130000
+
+AZURE_BASE: https://login.microsoftonline.com/
+
+no.nav.security.jwt:
+  common:
+    token-endpoint-url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+  client.registration:
+    farskapsportal-api:
+      token-endpoint-url: ${no.nav.security.jwt.common.token-endpoint-url}
+      grant-type: client_credentials
+      scope: api://${FARSKAPSPORTAL_API_SCOPE}/.default
+      authentication:
+        client-id: ${AZURE_APP_CLIENT_ID}
+        client-secret: ${AZURE_APP_CLIENT_SECRET}
+        client-auth-method: client_secret_basic
+    oppgave:
+      token-endpoint-url: ${no.nav.security.jwt.common.token-endpoint-url}
+      grant-type: client_credentials
+      scope: api://${OPPGAVE_SCOPE}/.default
+      authentication:
+        client-id: ${AZURE_APP_CLIENT_ID}
+        client-secret: ${AZURE_APP_CLIENT_SECRET}
+        client-auth-method: client_secret_basic
+  issuer.aad:
+    discovery_url: ${AZURE_BASE}/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+    accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
 
 ---
 spring:
@@ -79,7 +106,6 @@ spring:
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-    database: postgresql
   devtools.add-properties: false
 ---
 spring:
@@ -90,21 +116,37 @@ spring:
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
-  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
 server:
   ssl:
     enabled: false
 
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
-WIREMOCK_URL: http://localhost:8096
 DEAKTIVERINGSRATE: "1 * * * * ?"
+WIREMOCK_URL: http://localhost:${wiremock.server.port}
+
+wiremock.server:
+  files: classpath:/__files
+  stubs: classpath:/mappings
+
+AZURE_APP_TENANT_ID: aad
+AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
+
+no.nav.security.jwt:
+  client.registration:
+    farskapsportal-api:
+      token-endpoint-url: ${AZURE_BASE}
+    oppgave:
+      token-endpoint-url: ${AZURE_BASE}
+  issuer.aad:
+    discoveryurl: ${AZURE_BASE}/.well-known/openid-configuration
+    acceptedaudience: aud-localhost
+    cookiename: localhost-idtoken
 
 url:
-  farskapsportal.api.url: http://localhost
-  joark.base-url: ${WIREMOCK_URL}
-  pdl-api.base-url: ${WIREMOCK_URL}
+  farskapsportal.api.base-url: ${WIREMOCK_URL}
+  oppgave.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
-  skatt.base-url: http://localhost
+  skatt.base-url: http://localhost:8080
 
 ---
 spring.config.activate.on-profile: skatt-ssl-test
@@ -132,18 +174,20 @@ sertifikat:
 
 ---
 spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
-farskapsportal.asynkron.egenskaper.arkiveringsintervall: 600
-farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 200
-farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
-farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "* * 1 * * ?"
-farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
 ---
 spring.config.activate.on-profile: local
-farskapsportal.asynkron.egenskaper.arkiveringsintervall: 3600
-farskapsportal.asynkron.egenskaper.arkiveringsforsinkelse: 3600
-farskapsportal.asynkron.egenskaper.oppgavestyringsforsinkelse: 1
-farskapsportal.asynkron.egenskaper.oppgavestyringsintervall: "0 0/30 * * * ?"
-farskapsportal.asynkron.egenskaper.varsle-om-uferdig-erklaering-cron: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
 ---
 spring.config.activate.on-profile: integration-test
 
@@ -163,7 +207,8 @@ spring.config.activate.on-profile: local
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
+  port: 0
   files: classpath:/__files
-  stubs: classpath:/stubs
+  stubs: classpath:/mappings
 
 

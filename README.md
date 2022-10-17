@@ -53,15 +53,20 @@ Endepunktene er dokumentert med Swagger, og kan testes lokalt og på GCP dev:
 - LOKALT: http://localhost:8080/swagger-ui.html
 - DEV: https://farskapsportal-api-feature.dev.nav.no/swagger-ui.html
 
+### testpersoner
+Hent testpersoner fra Skatts Tenor testdata: https://www.skatteetaten.no/skjema/testdata/
+
 ### lokal kjøring
 
 Ved lokal kjøring brukes Spring-boot-instansen FarskapsportalApplicationLocal. Denne er satt opp med token-supports test-token, og kjøres som standard
 med Spring-profilen local (se application.yml). Local-profilen benytter Wiremock for eksterne avhengigheter (security-token-service, pdl-api, Skatt,
 og Joark). Data til Wiremock-stubbene leses inn fra test/resources/stubs-mappa.
 
-Testtoken for lokalprofilen hentes fra http://localhost:8080/jwt.
+Kjør følgende GET for å lage cookie med test-token til lokal kjøring (fra token-support): http://localhost:8080/local/cookie?issuerId=selvbetjening&audience=aud-localhost.
+CURLs kan etter dette kjøres direkte fra Swagger uten eksplisitt å legge inn Bearer-token.
 
 Swagger URL: http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
+
 
 ##### Brukernotifikasjon
 
