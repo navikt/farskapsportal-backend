@@ -23,7 +23,7 @@
     <bidrag-tilgangskontroll.version>1.10.0</bidrag-tilgangskontroll.version>
 
     <!-- other -->
-    <commons-io.version>2.2</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <java.version>17</java.version>
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven-compiler-plugin.version.version>3.8.1</maven-compiler-plugin.version.version>
