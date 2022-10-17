@@ -26,7 +26,6 @@
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google.api.gax.version>2.5.0</google.api.gax.version>
     <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
-    <jersey-hk2.version>2.37</jersey-hk2.version>
     <jsoup.version>1.15.3</jsoup.version>
     <openhtml.version>1.0.10</openhtml.version>
     <signature-api-client-java.version>7.0-RC3</signature-api-client-java.version>
@@ -143,11 +142,6 @@
         <version>${google.api.gax.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.glassfish.jersey.inject</groupId>
-        <artifactId>jersey-hk2</artifactId>
-        <version>${jersey-hk2.version}</version>
-      </dependency>
-      <dependency>
         <groupId>com.sun.istack</groupId>
         <artifactId>istack-commons-runtime</artifactId>
         <version>${sun.istack-commons.version}</version>
@@ -230,6 +224,12 @@
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- other -->
@@ -246,17 +246,10 @@
     </dependency>
 
     <dependency>
-      <groupId>org.glassfish.jersey.inject</groupId>
-      <artifactId>jersey-hk2</artifactId>
-      <version>${jersey-hk2.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>no.digipost.signature</groupId>
       <artifactId>signature-api-client-java</artifactId>
       <version>${signature-api-client-java.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>

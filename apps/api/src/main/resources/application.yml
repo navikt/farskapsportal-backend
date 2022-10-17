@@ -72,7 +72,7 @@ spring:
     locations: classpath:/db/migration
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    database: postgresql
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 no.nav.security.jwt:
   expirythreshold: 1
@@ -100,13 +100,12 @@ spring:
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test,  remote-postgres
+  config.activate.on-profile: local-postgres, remote-postgres, integration-test, remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/postgres
-    password:
-    databaseName: postgres
+    url: jdbc:postgresql://localhost:5432/p2
+    databaseName: p2
     portNumber: 5432
     serverName: localhost
     hikari:
@@ -120,7 +119,7 @@ spring:
     flyway.locations: classpath:/db/migration
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    database: postgresql
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 DB_USER_ASYNKRON: asynkron_feature
 
