@@ -72,17 +72,18 @@ public class DeaktivereFarskapserklaeringer {
 
   private void deaktivereFarskapserklaeringerSomErSendtTilSkatt() {
     var antallErklaeringerSomBleDeaktivert = 0;
+    var levetid = egenskaperArkiv.getLevetidOversendteFarskapserklaeringerIDager();
 
     var oversendtTilSkattFoer = LocalDate.now()
-        .minusDays(egenskaperArkiv.getLevetidOversendteFarskapserklaeringerIDager());
+        .minusDays(levetid);
     var tidspunktOversendtFoer = oversendtTilSkattFoer.atStartOfDay();
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering(
         tidspunktOversendtFoer);
 
     if (idTilFarskapserklaeringerSomSkalDeaktiveres.size() > 0) {
-      log.info("Fant {} ferdigstilte farskapserklæringer som har blitt overført til skatt og er klare for deaktivering.",
-          idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+      log.info("Fant {} ferdigstilte farskapserklæringer som har blitt overført til Skatt for minst {} dager siden, og er klare for deaktivering.",
+          idTilFarskapserklaeringerSomSkalDeaktiveres.size(), levetid);
       for (int farskapserklaeringsid : idTilFarskapserklaeringerSomSkalDeaktiveres) {
         antallErklaeringerSomBleDeaktivert =
             persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert
@@ -90,20 +91,22 @@ public class DeaktivereFarskapserklaeringer {
       }
       log.info("{} ferdigstilte farskapserklæringer ble i denne omgang deaktivert", antallErklaeringerSomBleDeaktivert);
     } else {
-      log.info("Fant ingen ferdigstilte farskapserklæringer som har blitt overført til skatt og er klare for deaktivering");
+      log.info("Fant ingen ferdigstilte farskapserklæringer som har blitt overført til Skatt for minst {} dager siden, og er klare for deaktivering",
+          levetid);
     }
   }
 
   private void deaktivereFarskapserklaeringerSomManglerMorsSignatur() {
     var antallErklaeringerSomBleDeaktivert = 0;
+    var levetid = egenskaperArkiv.getLevetidErklaeringerIkkeSignertAvMorIDager();
 
     var morSendtTilSigneringFoer = LocalDateTime.now()
-        .minusDays(egenskaperArkiv.getLevetidErklaeringerIkkeSignertAvMorIDager());
+        .minusDays(levetid);
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilFarskapserklaeringerSomManglerMorsSignatur(
         morSendtTilSigneringFoer);
     if (idTilFarskapserklaeringerSomSkalDeaktiveres.size() > 0) {
-      log.info("Fant {} farskapserklæringer som ikke er signert av mor -> deaktiverer disse.", idTilFarskapserklaeringerSomSkalDeaktiveres.size());
+      log.info("Fant {} farskapserklæringer som ikke er signert av mor etter {} dager -> deaktiverer disse.", idTilFarskapserklaeringerSomSkalDeaktiveres.size(),levetid);
       for (int farskapserklaeringsid : idTilFarskapserklaeringerSomSkalDeaktiveres) {
         antallErklaeringerSomBleDeaktivert =
             persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert
@@ -112,7 +115,7 @@ public class DeaktivereFarskapserklaeringer {
 
       log.info("{} usignerte farskapserklæringer ble i denne omgang deaktivert", antallErklaeringerSomBleDeaktivert);
     } else {
-      log.info("Fant ingen farskapserklæringer som ikke er signert av mor -> ingen å deaktivere.");
+      log.info("Fant ingen farskapserklæringer som ikke er signert av mor etter {} dager -> ingen å deaktivere.", levetid);
     }
   }
 }
