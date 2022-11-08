@@ -20,7 +20,7 @@ public class ArkivereFarskapserklaeringer {
   @Scheduled(initialDelayString = "${farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse}", fixedDelayString = "${farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall}")
   public void vurdereArkivering() {
 
-    log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til  Skatt.");
+    log.info("Ser etter ferdigstilte farskapserklæringer som skal overføres til Skatt.");
     var farskapserklaeringer = persistenceService.henteFarskapserklaeringerSomErKlareForOverfoeringTilSkatt();
     try {
       overfoereTilSkatt(farskapserklaeringer);

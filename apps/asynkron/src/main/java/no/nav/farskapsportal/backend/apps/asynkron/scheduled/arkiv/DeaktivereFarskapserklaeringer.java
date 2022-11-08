@@ -72,10 +72,9 @@ public class DeaktivereFarskapserklaeringer {
 
   private void deaktivereFarskapserklaeringerSomErSendtTilSkatt() {
     var antallErklaeringerSomBleDeaktivert = 0;
-    var levetid = egenskaperArkiv.getLevetidOversendteFarskapserklaeringerIDager();
 
-    var oversendtTilSkattFoer = LocalDate.now()
-        .minusDays(levetid);
+    var levetid = egenskaperArkiv.getLevetidOversendteFarskapserklaeringerIDager();
+    var oversendtTilSkattFoer = LocalDate.now().minusDays(levetid);
     var tidspunktOversendtFoer = oversendtTilSkattFoer.atStartOfDay();
 
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering(
@@ -106,7 +105,8 @@ public class DeaktivereFarskapserklaeringer {
     var idTilFarskapserklaeringerSomSkalDeaktiveres = persistenceService.henteIdTilFarskapserklaeringerSomManglerMorsSignatur(
         morSendtTilSigneringFoer);
     if (idTilFarskapserklaeringerSomSkalDeaktiveres.size() > 0) {
-      log.info("Fant {} farskapserklæringer som ikke er signert av mor etter {} dager -> deaktiverer disse.", idTilFarskapserklaeringerSomSkalDeaktiveres.size(),levetid);
+      log.info("Fant {} farskapserklæringer som ikke er signert av mor etter {} dager -> deaktiverer disse.",
+          idTilFarskapserklaeringerSomSkalDeaktiveres.size(), levetid);
       for (int farskapserklaeringsid : idTilFarskapserklaeringerSomSkalDeaktiveres) {
         antallErklaeringerSomBleDeaktivert =
             persistenceService.deaktivereFarskapserklaering(farskapserklaeringsid) ? ++antallErklaeringerSomBleDeaktivert
