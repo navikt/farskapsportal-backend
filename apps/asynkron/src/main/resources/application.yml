@@ -122,6 +122,7 @@ server:
 
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 DEAKTIVERINGSRATE: "1 * * * * ?"
+DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER: 1
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
 wiremock.server:
