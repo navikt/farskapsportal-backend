@@ -14,6 +14,8 @@ env:
     value: "true"
   - name: DB_NAME
     value: fpdb-prod
+  - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
+    value: 30
   - name: DEAKTIVERINGSRATE
     value: "0 30 13 * * ?"
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID

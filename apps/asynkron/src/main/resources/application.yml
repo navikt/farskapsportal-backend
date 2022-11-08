@@ -51,7 +51,7 @@ farskapsportal.asynkron.egenskaper:
     arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
     deaktiveringsrate: ${DEAKTIVERINGSRATE}
     levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
-    levetid-oversendte-farskapserklaeringer-i-dager: 30
+    levetid-oversendte-farskapserklaeringer-i-dager: ${DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER}
     levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
   oppgave:
     maks-antall-oppgaver-per-dag: 10
