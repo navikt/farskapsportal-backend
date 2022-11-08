@@ -27,18 +27,19 @@ public class DeaktivereFarskapserklaeringer {
 
   private void deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
     var antallErklaeringerSomBleDeaktivert = 0;
+    var levetid = egenskaperArkiv.getLevetidIkkeFerdigstilteSigneringsoppdragIDager();
     var eldsteGyldigeDatoForSigneringsoppdrag = LocalDate.now()
-        .minusDays(egenskaperArkiv.getLevetidIkkeFerdigstilteSigneringsoppdragIDager());
+        .minusDays(levetid);
     var utloepstidspunkt = eldsteGyldigeDatoForSigneringsoppdrag.atStartOfDay();
 
     var idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
         utloepstidspunkt);
 
     if (idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag.size() > 0) {
-      log.info("Fant {} ikke-ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn 40 dager. Deaktiverer disse.",
-          idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag.size());
+      log.info("Fant {} ikke-ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn {} dager. Deaktiverer disse.",
+          idTilFarskapserklaeringerMedUtgaatteSigneringsoppdrag.size(), levetid);
     } else {
-      log.info("Fant ingen ikke-ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn 40 dager");
+      log.info("Fant ingen ikke-ferdigstilte farskapserklæringer med signeringsoppdrag eldre enn {} dager", levetid);
       return;
     }
 
