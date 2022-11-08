@@ -12,7 +12,7 @@ env:
   - name: DB_NAME
     value: fpdb-main
   - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
-    value: 0
+    value: -150
   - name: DEAKTIVERINGSRATE
     value: "0 15 * * * ?"
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID

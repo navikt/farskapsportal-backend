@@ -14,7 +14,7 @@ env:
   - name: DB_NAME
     value: farskapsportaldb-feature
   - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
-    value: -1
+    value: -150
   - name: DEAKTIVERINGSRATE
     value: "0 0/15 * * * ?"
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
