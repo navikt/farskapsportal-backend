@@ -26,7 +26,7 @@
     <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
     <jsoup.version>1.15.3</jsoup.version>
     <openhtml.version>1.0.10</openhtml.version>
-    <signature-api-client-java.version>7.0-RC3</signature-api-client-java.version>
+    <signature-api-client-java.version>7.0-RC4</signature-api-client-java.version>
     <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
 
     <!-- test -->
