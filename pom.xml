@@ -44,8 +44,8 @@
     <google.spring-cloud-gcp-starter-sql-postgresql.version>3.3.0</google.spring-cloud-gcp-starter-sql-postgresql.version>
     <google-oauth-client.version>1.33.3</google-oauth-client.version>
     <okhttp3.version>4.9.2</okhttp3.version>
-    <wiremock-jre8-standalone.version>2.34.0</wiremock-jre8-standalone.version>
-    <spring-cloud-contract-wiremock.version>3.1.4</spring-cloud-contract-wiremock.version>
+    <wiremock-jre8-standalone.version>2.35.0</wiremock-jre8-standalone.version>
+    <spring-cloud-contract-wiremock.version>3.1.5</spring-cloud-contract-wiremock.version>
   </properties>
 
   <dependencyManagement>
