@@ -70,3 +70,4 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: deploy/.nais/apps/api/naiserator-prod.yml
           VARS: deploy/.nais/apps/api/prod.yml
+
