@@ -140,6 +140,7 @@ public class PersistenceService {
     if (farskapserklaering.isPresent() && farskapserklaering.get().getDeaktivert() == null) {
       return farskapserklaering.get();
     }
+    log.error("Fant ikke farskapserklæring med id {) i databasen", idFarskapserklaering);
     throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
   }
 
