@@ -113,6 +113,11 @@ Run/Debug-konfigen som vist i bildet under:
 
 ![img.png](img.png)
 
+##### Lokal kjøring mot Postgresdatabase på GCP
+Profilen remote-postgres kan brukes til å spinne opp en lokal instans av farskapsportal-api som benytter sentral postgres-instans på GCP. Denne krever 
+åpen Cloud SQL Proxy mot aktuell databaseinstans samt at miljøvariablene REMOTE_POSTGRES_USER og REMOTE_POSTGRES_PWD er satt med verdier til databasebruker 
+med nødvendige rettigheter.
+
 ##### Simulere signering lokalt
 
 Gjør et postkall mot signeringsendepunktet i EsigneringStubController for å simulere signering for en part:
