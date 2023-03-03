@@ -1,5 +1,5 @@
 name: asynkron
-ingress: https://farskapsportal-asynkron.dev.intern.nav.no
+ingress: https://farskapsportal-asynkron.intern.dev.nav.no
 env:
   - name: ARKIVERINGSINTERVALL
     value: 60000

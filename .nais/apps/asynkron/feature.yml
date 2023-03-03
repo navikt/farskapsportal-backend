@@ -1,5 +1,5 @@
 name: asynkron-feature
-ingress: https://farskapsportal-asynkron-feature.dev.intern.nav.no
+ingress: https://farskapsportal-asynkron-feature.intern.dev.nav.no
 env:
   - name: JAVA_TOOL_OPTIONS
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
