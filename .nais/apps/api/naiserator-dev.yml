@@ -75,6 +75,7 @@ spec:
         - application: asynkron
         - application: asynkron-feature
         - application: farskapsportal-ui
+        - application: farskapsportal-ui-feature
     outbound:
       external:
         - host: api.difitest.signering.posten.no
