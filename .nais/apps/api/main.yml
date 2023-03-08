@@ -33,13 +33,13 @@ env:
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
     value: "2"
   - name: ESIGNERING_SUKSESS_URL
-    value: https://farskapsportal.dev.nav.no/suksess
+    value: https://farskapsportal.ekstern.dev.nav.no/suksess
   - name: ESIGNERING_AVBRUTT_URL
-    value: https://farskapsportal.dev.nav.no/avbrutt
+    value: https://farskapsportal.ekstern.dev.nav.no/avbrutt
   - name: ESIGNERING_FEILET_URL
-    value: https://farskapsportal.dev.nav.no/feilet
+    value: https://farskapsportal.ekstern.dev.nav.no/feilet
   - name: FARSKAPSPORTAL_URL
-    value: https://farskapsportal.dev.nav.no
+    value: https://farskapsportal.ekstern.dev.nav.no
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: SKATT_URL

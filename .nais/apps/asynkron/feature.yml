@@ -32,7 +32,7 @@ env:
   - name: FARSKAPSPORTAL_API_SCOPE
     value: dev-gcp.farskapsportal.farskapsportal-api-feature
   - name: FARSKAPSPORTAL_URL
-    value: https://farskapsportal-feature.dev.nav.no
+    value: https://farskapsportal-feature.ekstern.dev.nav.no
   - name: FARSKAPSPORTAL_API_URL
     value: http://farskapsportal-api-feature.farskapsportal.svc.cluster.local
   - name: INTEGRATION_TEST_CONTROLLER_PAA
