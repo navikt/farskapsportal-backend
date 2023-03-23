@@ -32,7 +32,7 @@ env:
   - name: FARSKAPSPORTAL_URL
     value: https://farskapsportal.ekstern.dev.nav.no
   - name: FARSKAPSPORTAL_API_URL
-    value: http://farskapsportal-api.farskapsportal.svc.cluster.local
+    value: http://farskapsportal-api
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: OPPGAVEAPI_URL
