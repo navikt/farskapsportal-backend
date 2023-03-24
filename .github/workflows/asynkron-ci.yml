@@ -27,7 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: env.NOT_FOUND == 'true'
       - uses: actions/setup-java@v1
         if: env.NOT_FOUND == 'true'
@@ -63,7 +63,7 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: deploy
       - name: Deploy main to dev-gcp
