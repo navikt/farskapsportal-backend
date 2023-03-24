@@ -40,7 +40,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn -B --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml
+      - run: mvn install -B -e
       - uses: nais/docker-build-push@v0
         id: docker-push
         with:
@@ -56,7 +56,7 @@ jobs:
     name: Deploy docker image to dev
     needs: build
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: deploy
       - name: Deploy main to dev-gcp
