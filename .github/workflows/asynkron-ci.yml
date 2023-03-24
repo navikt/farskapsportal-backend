@@ -31,8 +31,6 @@ jobs:
         if: env.NOT_FOUND == 'true'
         with:
           java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
       - uses: actions/cache@v3
         if: env.NOT_FOUND == 'true'
         with:
@@ -40,7 +38,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn install -B -e
+      - run: mvn install -B
       - uses: nais/docker-build-push@v0
         id: docker-push
         with:

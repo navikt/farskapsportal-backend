@@ -51,7 +51,7 @@ jobs:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: mvn install -B -e
+      - run: mvn install -B
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
