@@ -14,7 +14,7 @@
     <asm.version>9.1</asm.version>
     <ejc.version>4.4.2</ejc.version>
     <google.api.gax.version>2.9.0</google.api.gax.version>
-    <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
+    <google-cloud-libraries-bom.version>26.11.0</google-cloud-libraries-bom.version>
     <handlebars.version>4.1.2</handlebars.version>
     <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     <jna.version>5.3.1</jna.version>
