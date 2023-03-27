@@ -61,8 +61,10 @@ spec:
   accessPolicy:
     outbound:
       external:
+        - host: api-gw.oera.no
         - host: api.signering.posten.no
         - host: folkeregisteret.api.skatteetaten.no
+        - host: oppgave.prod-fss-pub.nais.io
         - host: secretmanager.googleapis.com
       rules:
         - application: farskapsportal-api

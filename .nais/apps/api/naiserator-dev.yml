@@ -78,6 +78,7 @@ spec:
         - application: farskapsportal-ui-feature
     outbound:
       external:
+        - host: api-gw-q1.oera.no
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
