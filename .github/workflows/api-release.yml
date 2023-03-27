@@ -41,6 +41,8 @@ jobs:
         if: env.NOT_FOUND == 'true'
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
       - uses: actions/cache@v3
         with:
           path: ~/.m2

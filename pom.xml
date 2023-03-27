@@ -72,12 +72,6 @@
         <groupId>no.nav.security</groupId>
         <artifactId>token-client-spring</artifactId>
         <version>${token-support.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>no.nav.security</groupId>
