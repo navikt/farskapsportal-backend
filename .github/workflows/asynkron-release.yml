@@ -48,24 +48,20 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-maven/setup@v7
+      - run: mvn -B -e --settings .m2/maven-settings.xml clean install
+      - uses: nais/docker-build-push@v0
+        id: docker-push
         with:
-          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: mvn install -B
-      - name: Build and publish Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/asynkron/target/app.jar .
-          docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-          docker push ${IMAGE}
+          team: farskapsportal
+          image_suffix: asynk
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to prod
     needs: build
-
     steps:
       - uses: actions/checkout@v3
         with:
@@ -76,4 +72,5 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: deploy/.nais/apps/asynkron/naiserator-prod.yml
           VARS: deploy/.nais/apps/asynkron/prod.yml
+          IMAGE: ${{ needs.build.outputs.image }}
 
