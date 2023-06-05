@@ -62,6 +62,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class FarskapsportalApiConfig {
 
   private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
+
+  private static final String BEHANDLINGSNUMMER = "Behandlingsnummer";
+  private static final String BEHANDLINGSNUMMER_FARSKAP = "B145";
   private static final String TEMA = "Tema";
   private static final String TEMA_FAR = "FAR";
 
@@ -101,6 +104,7 @@ public class FarskapsportalApiConfig {
         () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
             farskapsportalFellesEgenskaper.getSystembrukerPassord()));
 
+    httpHeaderRestTemplate.addHeaderGenerator(BEHANDLINGSNUMMER, () -> BEHANDLINGSNUMMER_FARSKAP);
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 
     log.info("Setter {} for pdl-api", X_API_KEY);
