@@ -5,7 +5,7 @@ on:
       - '**'
       - '!release'
     paths:
-      - '.nais/alerts/dev/alerts-statusportal-dev.yml'
+      - '**/alerts/dev/alerts-statusportal-dev.yml'
       - '**/alerts-statusportal-dev-deploy.yml'
 jobs:
   apply-alerts:
