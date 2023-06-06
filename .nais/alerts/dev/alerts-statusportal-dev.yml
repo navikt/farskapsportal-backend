@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: status-alert
+  name: farskapsportal-prometheus
   namespace: farskapsportal
   labels:
     team: farskapsportal
