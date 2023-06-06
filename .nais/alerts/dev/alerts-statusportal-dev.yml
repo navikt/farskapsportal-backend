@@ -1,0 +1,49 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: status-alert
+  namespace: farskapsportal
+  labels:
+    team: farskapsportal
+spec:
+  groups:
+    - name: status-alerts
+      rules:
+        - alert: 'farskapsportal-api nede'
+          expr: kube_deployment_status_replicas_available{deployment=~"farskapsportal.+"} == 0
+          for: 2m
+          annotations:
+            consequence: 'Farskapsportal utilgjengelig'
+            nav_description: |- #SP parameter:
+              farskapsportal-api er utilgjengelig.
+          labels:
+            namespace: farskapsportal # required
+            sp_test_alert: sp-test-alert
+            alert_type: custom
+            nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #SP parameter: Service id fra statusplatformen
+            nav_status: down # SP parameter:  Feilstatus down|issue
+        - alert: 'farskapsportal-api: Høy feilrate i logger.'
+          expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+",log_level=~"Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+"}[3m]))) > 3
+          for: 2m
+          annotations:
+            nav_description: |- #SP parameter:
+              Høy feilrate i logger - poteniselt alvorlig problem for farskapsportal
+          labels:
+            namespace: farskapsportal # required
+            sp_test_alert: sp-test-alert
+            alert_type: custom
+            nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
+            nav_status: issue # Feilstatus down|issue
+        - alert: 'test alert will always trigger'
+          expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} > 99
+          for: 1m
+          annotations:
+            consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
+            action: "no need to do _anything_"
+            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
+            summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
+            sla: "no need to respond"
+          labels:
+            severity: "info"
+            sp_test_alert: sp-test-alert
+            alert_type: custom

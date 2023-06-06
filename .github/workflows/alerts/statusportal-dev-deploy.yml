@@ -5,10 +5,10 @@ on:
       - '**'
       - '!release'
     paths:
-      - '.nais/apps/api/alerts-dev.yml'
+      - '.nais/alerts/dev/alerts-statusportal-dev.yml'
 jobs:
   apply-alerts:
-    name: Apply alerts to cluster
+    name: Apply statusportal alerts to cluster
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,4 +18,4 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .nais/apps/api/alerts-dev.yml
+          RESOURCE: .nais/alerts/alerts-statusportal-dev.yml
