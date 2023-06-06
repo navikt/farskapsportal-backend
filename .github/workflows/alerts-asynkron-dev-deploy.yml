@@ -5,7 +5,7 @@ on:
       - '**'
       - '!release'
     paths:
-     - '.nais/alerts/dev/alerts-api-dev.yml'
+     - '.nais/alerts/dev/alerts-asynk-dev.yml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
@@ -18,4 +18,4 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .nais/alerts/dev/alerts-api-dev.yml
+          RESOURCE: .nais/alerts/dev/alerts-asynk-dev.yml

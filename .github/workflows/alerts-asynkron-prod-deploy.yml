@@ -4,7 +4,7 @@ on:
     branches:
       - release
     paths:
-      - '.nais/alerts/prod/alerts-api-prod.yml'
+      - '.nais/alerts/prod/alerts-asynk-prod.yml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
@@ -17,4 +17,4 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .nais/alerts/prod/alerts-api-prod.yml
+          RESOURCE: .nais/alerts/prod/alerts-asynk-prod.yml
