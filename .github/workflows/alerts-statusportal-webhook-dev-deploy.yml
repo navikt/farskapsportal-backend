@@ -5,7 +5,7 @@ on:
       - '**'
       - '!release'
     paths:
-      - '.nais/alerts/dev/statusportal-webhook-api-dev.yml'
+      - '.nais/alerts/dev/statusportal-webhook-dev.yml'
 jobs:
   apply-alerts:
     name: Apply statusportal webhook to cluster
