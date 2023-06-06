@@ -1,4 +1,4 @@
-name: Deploy api-alerts to dev-gcp
+name: Deploy statusportal webhook to dev-gcp
 on:
   push:
     branches:

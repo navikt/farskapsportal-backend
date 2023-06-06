@@ -5,6 +5,7 @@ metadata:
   namespace: farskapsportal
   labels:
     alertmanagerConfig: farskapsportal-testing-status-webhook
+    team: farskapsportal
 spec:
   receivers:
     - name: status_proxy
