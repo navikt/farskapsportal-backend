@@ -56,11 +56,6 @@ farskapsportal.asynkron.egenskaper:
   oppgave:
     maks-antall-oppgaver-per-dag: 10
     vurdere-opprettelse: ${VURDERE_OPPGAVE_INTERVALL}
-  skatt:
-    maks-antall-forbindelser: 5
-    maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 120000
-    maks-ventetid-forbindelse: 130000
 
 AZURE_BASE: https://login.microsoftonline.com/
 

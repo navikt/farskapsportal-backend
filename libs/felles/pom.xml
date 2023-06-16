@@ -17,7 +17,6 @@
     <javassist.version>3.28.0-GA</javassist.version>
     <kafka-avro-serializer.version>6.1.1</kafka-avro-serializer.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
-    <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
     <google.spring-cloud-gcp.version>4.1.0</google.spring-cloud-gcp.version>
   </properties>
 
@@ -48,6 +47,21 @@
 
   <dependencies>
     <!-- spring -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -134,6 +148,12 @@
       <groupId>io.confluent</groupId>
       <artifactId>kafka-avro-serializer</artifactId>
       <version>${kafka-avro-serializer.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>io.swagger</groupId>
+          <artifactId>swagger-annotations</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

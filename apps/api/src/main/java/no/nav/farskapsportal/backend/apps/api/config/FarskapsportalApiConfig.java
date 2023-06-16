@@ -5,6 +5,7 @@ import static no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFelle
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
@@ -54,53 +55,78 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Slf4j
 @Configuration
+@io.swagger.v3.oas.annotations.security.SecurityScheme(
+    bearerFormat = "JWT",
+    name = "bearer-key",
+    scheme = "bearer",
+    type = SecuritySchemeType.HTTP)
 @OpenAPIDefinition(
     info = @Info(title = "farskapsportal-api", version = "v1"),
-    security = @SecurityRequirement(name = "bearer-key")
-)
+    security = @SecurityRequirement(name = "bearer-key"))
 @ComponentScan("no.nav.farskapsportal.backend")
 public class FarskapsportalApiConfig {
 
   private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
-  private static final String TEMA = "Tema";
+  private static final String BEHANDLINGSNUMMER = "Behandlingsnummer";
+  private static final String BEHANDLINGSNUMMER_FARSKAP = "B145";
   private static final String TEMA_FAR = "FAR";
+  private static final String TEMA = "Tema";
 
-  @Autowired
-  private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Bean
   public OpenAPI openAPI() {
     return new OpenAPI()
-        .components(new Components()
-            .addSecuritySchemes("bearer-key", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
-        ).info(new io.swagger.v3.oas.models.info.Info().title("farskapsportal-api").version("v1"));
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "bearer-key",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")))
+        .info(new io.swagger.v3.oas.models.info.Info().title("farskapsportal-api").version("v1"));
   }
 
   @Bean
-  public PdlApiConsumer pdlApiConsumer(@Qualifier("pdl-api") RestTemplate restTemplate,
+  public PdlApiConsumer pdlApiConsumer(
+      @Qualifier("pdl-api") RestTemplate restTemplate,
       @Value("${url.pdl-api.base-url}") String baseUrl,
       @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
     log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
-    return PdlApiConsumer.builder().restTemplate(restTemplate).consumerEndpoint(consumerEndpoint).build();
+    return PdlApiConsumer.builder()
+        .restTemplate(restTemplate)
+        .consumerEndpoint(consumerEndpoint)
+        .build();
   }
 
   @Bean("pdl-api")
   @Scope("prototype")
-  public HttpHeaderRestTemplate pdlApiRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
+  public HttpHeaderRestTemplate pdlApiRestTemplate(
+      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
       @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
       @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
 
-    httpHeaderRestTemplate.addHeaderGenerator(AUTHORIZATION,
-        () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
-            farskapsportalFellesEgenskaper.getSystembrukerPassord()));
+    httpHeaderRestTemplate.addHeaderGenerator(
+        AUTHORIZATION,
+        () ->
+            "Bearer "
+                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
+                    farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
+                    farskapsportalFellesEgenskaper.getSystembrukerPassord()));
 
-    httpHeaderRestTemplate.addHeaderGenerator(NAV_CONSUMER_TOKEN,
-        () -> "Bearer " + securityTokenServiceConsumer.hentIdTokenForServicebruker(farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
-            farskapsportalFellesEgenskaper.getSystembrukerPassord()));
+    httpHeaderRestTemplate.addHeaderGenerator(
+        NAV_CONSUMER_TOKEN,
+        () ->
+            "Bearer "
+                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
+                    farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
+                    farskapsportalFellesEgenskaper.getSystembrukerPassord()));
 
+    httpHeaderRestTemplate.addHeaderGenerator(BEHANDLINGSNUMMER, () -> BEHANDLINGSNUMMER_FARSKAP);
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 
     log.info("Setter {} for pdl-api", X_API_KEY);
@@ -112,16 +138,20 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  public PersonopplysningService personopplysningService(ModelMapper modelMapper, PdlApiConsumer pdlApiConsumer,
+  public PersonopplysningService personopplysningService(
+      ModelMapper modelMapper,
+      PdlApiConsumer pdlApiConsumer,
       FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
     return PersonopplysningService.builder()
         .modelMapper(modelMapper)
         .pdlApiConsumer(pdlApiConsumer)
-        .farskapsportalFellesEgenskaper(farskapsportalFellesEgenskaper).build();
+        .farskapsportalFellesEgenskaper(farskapsportalFellesEgenskaper)
+        .build();
   }
 
   @Bean
-  public FarskapsportalService farskapsportalService(BrukernotifikasjonConsumer brukernotifikasjonConsumer,
+  public FarskapsportalService farskapsportalService(
+      BrukernotifikasjonConsumer brukernotifikasjonConsumer,
       FarskapsportalApiEgenskaper farskapsportalApiEgenskaper,
       DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer,
@@ -136,7 +166,8 @@ public class FarskapsportalApiConfig {
         .pdfGeneratorConsumer(pdfGeneratorConsumer)
         .persistenceService(persistenceService)
         .personopplysningService(personopplysningService)
-        .mapper(mapper).build();
+        .mapper(mapper)
+        .build();
   }
 
   @Bean
@@ -150,12 +181,18 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
-    return () -> Optional.ofNullable(tokenValidationContextHolder).map(TokenValidationContextHolder::getTokenValidationContext)
-        .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(FarskapsportalApiApplication.ISSUER_SELVBETJENING))
-        .map(Optional::get)
-        .map(JwtToken::getTokenAsString)
-        .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  public OidcTokenManager oidcTokenManager(
+      TokenValidationContextHolder tokenValidationContextHolder) {
+    return () ->
+        Optional.ofNullable(tokenValidationContextHolder)
+            .map(TokenValidationContextHolder::getTokenValidationContext)
+            .map(
+                tokenValidationContext ->
+                    tokenValidationContext.getJwtTokenAsOptional(
+                        FarskapsportalApiApplication.ISSUER_SELVBETJENING))
+            .map(Optional::get)
+            .map(JwtToken::getTokenAsString)
+            .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }
 
   @Bean
@@ -185,7 +222,9 @@ public class FarskapsportalApiConfig {
   public static class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron)
+    public FlywayConfiguration(
+        @Qualifier("dataSource") DataSource dataSource,
+        @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron)
         throws InterruptedException {
       Thread.sleep(30000);
       var placeholders = new HashMap<String, String>();

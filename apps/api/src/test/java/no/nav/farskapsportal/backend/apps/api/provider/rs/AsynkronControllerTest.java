@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -35,21 +35,20 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = FarskapsportalApiApplicationLocal.class)
 public class AsynkronControllerTest {
 
-  @LocalServerPort
-  private int localServerPort;
+  @LocalServerPort private int localServerPort;
 
   @Autowired
   @Qualifier("asynkron")
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateAsynkron;
 
-  @MockBean
-  private FarskapsportalService farskapsportalService;
+  @MockBean private FarskapsportalService farskapsportalService;
 
-  @MockBean
-  private PersonopplysningService personopplysningService;
+  @MockBean private PersonopplysningService personopplysningService;
 
   @Nested
   @DisplayName("Tester for endepunkt synkronisereSigneringsstatusForFarIFarskapserklaering")
@@ -58,29 +57,39 @@ public class AsynkronControllerTest {
     @Test
     void skalGiAcceptedDersomFarskapserklaeringProsesseresNormalt() {
 
+      var url = initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10;
       // when
-      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10, HttpMethod.PUT, null,
-          Void.class);
+      var respons =
+          httpHeaderTestRestTemplateAsynkron.exchange(
+              initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10,
+              HttpMethod.PUT,
+              initHttpEntity(null, null),
+              Void.class);
 
       // then
       assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-
     }
 
     @Test
     void skalReturnereHttpStatusGoneVedEsigneringStatusFeiletException() {
 
       // given
-      var esigneringStatusFeiletException = new EsigneringStatusFeiletException(Feilkode.ESIGNERING_STATUS_FEILET);
-      doThrow(esigneringStatusFeiletException).when(farskapsportalService).synkronisereSigneringsstatusFar(anyInt());
+      var esigneringStatusFeiletException =
+          new EsigneringStatusFeiletException(Feilkode.ESIGNERING_STATUS_FEILET);
+      doThrow(esigneringStatusFeiletException)
+          .when(farskapsportalService)
+          .synkronisereSigneringsstatusFar(anyInt());
 
       // when
-      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10, HttpMethod.PUT, null,
-          Void.class);
+      var respons =
+          httpHeaderTestRestTemplateAsynkron.exchange(
+              initSynkronisereSigneringsstatusForFarIFarskapserklaering() + 10,
+              HttpMethod.PUT,
+              initHttpEntity(null, null),
+              Void.class);
 
       // then
       assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.GONE);
-
     }
 
     private String initSynkronisereSigneringsstatusForFarIFarskapserklaering() {
@@ -99,17 +108,21 @@ public class AsynkronControllerTest {
       var personident = "1234";
       var aktoerident = "405060";
 
-      Mockito.when(personopplysningService.henteAktoerid(personident)).thenReturn(Optional.of(aktoerident));
+      Mockito.when(personopplysningService.henteAktoerid(personident))
+          .thenReturn(Optional.of(aktoerident));
 
       // when
-      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initHenteAktoeridForPerson(), HttpMethod.POST,
-          initHttpEntity(HenteAktoeridRequest.builder().personident(personident).build()), String.class);
+      var respons =
+          httpHeaderTestRestTemplateAsynkron.exchange(
+              initHenteAktoeridForPerson(),
+              HttpMethod.POST,
+              initHttpEntity(HenteAktoeridRequest.builder().personident(personident).build()),
+              String.class);
 
       // then
       assertAll(
           () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.OK),
-          () -> assertThat(respons.getBody()).isEqualTo(aktoerident)
-      );
+          () -> assertThat(respons.getBody()).isEqualTo(aktoerident));
     }
 
     @Test
@@ -121,20 +134,22 @@ public class AsynkronControllerTest {
       Mockito.when(personopplysningService.henteAktoerid(personident)).thenReturn(Optional.empty());
 
       // when
-      var respons = httpHeaderTestRestTemplateAsynkron.exchange(initHenteAktoeridForPerson(), HttpMethod.POST,
-          initHttpEntity(HenteAktoeridRequest.builder().personident(personident).build()), String.class);
+      var respons =
+          httpHeaderTestRestTemplateAsynkron.exchange(
+              initHenteAktoeridForPerson(),
+              HttpMethod.POST,
+              initHttpEntity(HenteAktoeridRequest.builder().personident(personident).build()),
+              String.class);
 
       // then
       assertAll(
           () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT),
-          () -> assertThat(respons.getBody()).isNull()
-      );
+          () -> assertThat(respons.getBody()).isNull());
     }
 
     private String initHenteAktoeridForPerson() {
-      return getBaseUrlForStubs() + "/api/v1/asynkron/aktoerid/hente/";
+      return getBaseUrlForStubs() + "/api/v1/asynkron/aktoerid/hente";
     }
-
   }
 
   private String getBaseUrlForStubs() {
@@ -166,4 +181,3 @@ public class AsynkronControllerTest {
     }
   }
 }
-

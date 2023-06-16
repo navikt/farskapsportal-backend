@@ -67,12 +67,13 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       + "and fe.dokument.signeringsinformasjonMor.sendtTilSignering < :morSendtTilSigneringFoer "
       + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is null")
   Set<Integer> henteIdTilFarskapserklaeringerSomManglerMorsSignatur(LocalDateTime morSendtTilSigneringFoer);
-
+  
   @Query("select fe.id from Farskapserklaering fe "
-      + "where fe.sendtTilSkatt is not null "
-      + "and fe.oppgaveSendt is null "
-      + "and fe.farBorSammenMedMor is false "
-      + "and (fe.barn.foedselsnummer is not null or (fe.barn.termindato is not null and fe.barn.termindato < :grenseTermindato)) "
-      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt < :grensetidspunktSignering")
+          + "where fe.sendtTilSkatt is not null "
+          + "and fe.oppgaveSendt is null "
+          + "and fe.farBorSammenMedMor = false "
+          + "and (fe.barn.foedselsnummer is not null or (fe.barn.termindato is not null and fe.barn.termindato < :grenseTermindato)) "
+          + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt < :grensetidspunktSignering")
   Set<Integer> henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(LocalDate grenseTermindato, LocalDateTime grensetidspunktSignering);
+
 }

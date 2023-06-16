@@ -10,7 +10,8 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyStore;
+import java.security.*;
+import java.security.cert.CertificateException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.asynkron.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
@@ -18,11 +19,16 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.TlsConfig;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.TrustAllStrategy;
+import org.apache.hc.core5.http.ssl.TLS;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +36,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -40,17 +45,21 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @EnableAutoConfiguration
 @EnableMockOAuth2Server
 @ComponentScan("no.nav.farskapsportal.backend")
-@SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = FarskapsportalAsynkronApplication.class,
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public class FarskapsportalAsynkronTestApplication {
 
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
+
+  private String keyStorePassword = "changeit";
+
+  private String keyStoreName = "esigneringkeystore.jceks";
 
   public static void main(String[] args) {
 
@@ -63,27 +72,30 @@ public class FarskapsportalAsynkronTestApplication {
 
   @Bean
   @Scope("prototype")
-  SkattConsumer skattConsumer(@Value("${url.skatt.base-url}") String baseUrl,
-      @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+  SkattConsumer skattConsumer(
+      @Value("${url.skatt.base-url}") String baseUrl,
+      @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+      ConsumerEndpoint consumerEndpoint) {
 
-    consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
+    consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
 
-    var restTemplate = new RestTemplate();
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+    var httpClientConnectionManager = PoolingHttpClientConnectionManagerBuilder.create().build();
 
-    return new SkattConsumer(restTemplate, consumerEndpoint);
+    return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
   }
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST, PROFILE_SKATT_SSL_TEST})
-  public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader) throws IOException {
-    try (InputStream inputStream = resourceLoader.getClassLoader().getResourceAsStream("esigneringkeystore.jceks")) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Fant ikke esigneringkeystore.jceks");
-      } else {
-        return KeyStoreConfig.fromJavaKeyStore(inputStream, "selfsigned", "changeit", "changeit");
-      }
-    }
+  @Profile({
+    PROFILE_TEST,
+    PROFILE_LOCAL,
+    PROFILE_LOCAL_POSTGRES,
+    PROFILE_REMOTE_POSTGRES,
+    PROFILE_SCHEDULED_TEST
+  })
+  public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader)
+      throws IOException {
+    return SkattStubSslConfiguration.createKeyStoreConfig(
+        resourceLoader, keyStorePassword, keyStoreName);
   }
 
   @Lazy
@@ -95,13 +107,34 @@ public class FarskapsportalAsynkronTestApplication {
     private int localServerPort;
 
     @Value("${sertifikat.passord}")
-    private String keystorePassword;
+    private String keyStorePassword;
 
     @Value("${sertifikat.keystore-type}")
-    private String keystoreType;
+    private String keyStoreType;
 
     @Value("${sertifikat.keystore-name}")
-    private String keystoreName;
+    private String keyStoreName;
+
+    public static KeyStoreConfig createKeyStoreConfig(
+        ResourceLoader resourceLoader, String keyStorePassword, String keyStoreName)
+        throws IOException {
+      try (InputStream inputStream =
+          resourceLoader.getClassLoader().getResourceAsStream(keyStoreName)) {
+        if (inputStream == null) {
+          throw new IllegalArgumentException("Fant ikke " + keyStoreName);
+        } else {
+          return KeyStoreConfig.fromJavaKeyStore(
+              inputStream, "selfsigned", keyStorePassword, keyStorePassword);
+        }
+      }
+    }
+
+    @Bean
+    public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader)
+        throws IOException {
+      return SkattStubSslConfiguration.createKeyStoreConfig(
+          resourceLoader, keyStorePassword, keyStoreName);
+    }
 
     @Bean
     ServletWebServerApplicationContext servletWebServerApplicationContext() {
@@ -109,80 +142,46 @@ public class FarskapsportalAsynkronTestApplication {
     }
 
     @Bean
-    @Scope("prototype")
-    @Qualifier(PROFILE_SKATT_SSL_TEST)
-    public RestTemplate skattLocalIntegrationRestTemplate(@Qualifier("base") RestTemplate restTemplate) {
-
-      KeyStore keyStore;
-      HttpComponentsClientHttpRequestFactory requestFactory;
-
-      try {
-        keyStore = KeyStore.getInstance(keystoreType);
-        var classPathResoure = new ClassPathResource(keystoreName);
-        var inputStream = classPathResoure.getInputStream();
-        keyStore.load(inputStream, keystorePassword.toCharArray());
-
-        var socketFactory = new SSLConnectionSocketFactory(new SSLContextBuilder()
-            .loadTrustMaterial(null, new TrustSelfSignedStrategy())
-            .loadKeyMaterial(keyStore, keystorePassword.toCharArray()).build(),
-            NoopHostnameVerifier.INSTANCE);
-
-        var httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory)
-            .setMaxConnTotal(5)
-            .setMaxConnPerRoute(5)
-            .build();
-
-        requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        requestFactory.setReadTimeout(10000);
-        requestFactory.setConnectTimeout(10000);
-
-        restTemplate.setRequestFactory(requestFactory);
-
-      } catch (Exception exception) {
-        exception.printStackTrace();
-      }
-
-      return restTemplate;
+    public TokenValidationContextHolder oidcRequestContextHolder() {
+      return new SpringTokenValidationContextHolder();
     }
 
     @Bean
     @Qualifier(PROFILE_INTEGRATION_TEST)
-    SkattConsumer skattConsumerIntegrationTest(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate,
+    SkattConsumer skattConsumerIntegrationTest(
         @Value("${url.skatt.base-url}") String baseUrl,
-        @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+        @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+        PoolingHttpClientConnectionManager httpClientConnectionManager) {
       log.info("Oppretter SkattConsumer med url {}", baseUrl);
-      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
-      restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-      return new SkattConsumer(restTemplate, consumerEndpoint);
+      var consumerEndpoint = new ConsumerEndpoint();
+      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
+
+      return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
     }
 
     @Bean
     @Qualifier("sikret")
-    SkattConsumer skattConsumerSikret(@Qualifier(PROFILE_SKATT_SSL_TEST) RestTemplate restTemplate,
-        @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+    SkattConsumer skattConsumerSikret(
+        @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+        PoolingHttpClientConnectionManager httpClientConnectionManagerSslTest) {
 
       var baseUrl = "https://localhost:" + localServerPort;
-
-      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
-      restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-      return new SkattConsumer(restTemplate, consumerEndpoint);
+      var consumerEndpoint = new ConsumerEndpoint();
+      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
+      return new SkattConsumer(httpClientConnectionManagerSslTest, consumerEndpoint);
     }
 
     @Bean
     @Qualifier("usikret")
-    SkattConsumer skattConsumerUsikret(@Qualifier("base") RestTemplate restTemplate,
-        @Value("${url.skatt.registrering-av-farskap}") String endpoint, ConsumerEndpoint consumerEndpoint) {
+    SkattConsumer skattConsumerUsikret(
+        @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+        ConsumerEndpoint consumerEndpoint) {
 
       var baseUrl = "http://localhost:" + localServerPort;
 
-      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, endpoint);
-      restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
-      return new SkattConsumer(restTemplate, consumerEndpoint);
+      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
+      var httpClientConnectionManager = PoolingHttpClientConnectionManagerBuilder.create().build();
+      return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
     }
-  }
-
-  @Bean
-  public TokenValidationContextHolder oidcRequestContextHolder() {
-    return new SpringTokenValidationContextHolder();
   }
 }

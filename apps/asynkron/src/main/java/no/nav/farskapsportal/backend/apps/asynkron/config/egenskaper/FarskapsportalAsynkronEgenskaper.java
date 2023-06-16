@@ -26,5 +26,4 @@ public class FarskapsportalAsynkronEgenskaper {
   private Arkiv arkiv;
   private Brukernotifikasjon brukernotifikasjon;
   private Oppgave oppgave;
-  private Skatt skatt;
 }
