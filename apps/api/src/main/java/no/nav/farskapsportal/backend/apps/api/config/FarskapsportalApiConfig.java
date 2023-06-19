@@ -180,37 +180,6 @@ public class FarskapsportalApiConfig {
     return new CorrelationIdFilter();
   }
 
-  @Bean
-  public OidcTokenManager oidcTokenManager(
-      TokenValidationContextHolder tokenValidationContextHolder) {
-    return () ->
-        Optional.ofNullable(tokenValidationContextHolder)
-            .map(TokenValidationContextHolder::getTokenValidationContext)
-            .map(
-                tokenValidationContext ->
-                    tokenValidationContext.getJwtTokenAsOptional(
-                        FarskapsportalApiApplication.ISSUER_SELVBETJENING))
-            .map(Optional::get)
-            .map(JwtToken::getTokenAsString)
-            .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
-  }
-
-  @Bean
-  public OidcTokenSubjectExtractor oidcTokenSubjectExtractor(OidcTokenManager oidcTokenManager) {
-    return () -> henteIdentFraToken(oidcTokenManager);
-  }
-
-  private String henteIdentFraToken(OidcTokenManager oidcTokenManager) {
-    var ident = SecurityUtils.hentePid(oidcTokenManager.hentIdToken());
-    return erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentIdToken());
-  }
-
-  @FunctionalInterface
-  public interface OidcTokenManager {
-
-    String hentIdToken();
-  }
-
   @FunctionalInterface
   public interface OidcTokenSubjectExtractor {
 
