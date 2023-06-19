@@ -223,7 +223,7 @@ public class PersistenceService {
   }
 
   public Set<Integer> henteIdTilOversendteFarskapserklaeringerSomErKlarForDeaktivering(LocalDateTime tidspunktOversendt) {
-    return farskapserklaeringDao.henteIdTilOversendteFarskapserklaeringerSomSkalDeaktiveres(tidspunktOversendt);
+    return farskapserklaeringDao.henteIdTilOversendteFarskapserklaeringerSomSkalDeaktiveres(tidspunktOversendt, tidspunktOversendt.toLocalDate());
   }
 
   public Set<Integer> henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(LocalDateTime farSendtTilSigneringFoer) {

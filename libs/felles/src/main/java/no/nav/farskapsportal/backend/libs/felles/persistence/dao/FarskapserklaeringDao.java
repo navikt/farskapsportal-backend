@@ -46,11 +46,11 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
 
   @Query("select fe.id from Farskapserklaering fe "
       + "where fe.deaktivert is null "
-      + "and fe.sendtTilSkatt is not null "
-      + "and fe.sendtTilSkatt < :sendtTilSkattFoer "
-      + "and (fe.barn.termindato is null or fe.barn.termindato < :sendtTilSkattFoer)")
+     + "and fe.sendtTilSkatt is not null "
+     + "and fe.sendtTilSkatt < :sendtTilSkattFoer "
+     + "and (fe.barn.termindato is null or fe.barn.termindato < :termindatoFoer)")
   Set<Integer> henteIdTilOversendteFarskapserklaeringerSomSkalDeaktiveres(
-      LocalDateTime sendtTilSkattFoer);
+      LocalDateTime sendtTilSkattFoer ,LocalDate termindatoFoer);
 
   @Query("select fe.id from Farskapserklaering fe "
       + "where fe.deaktivert is null "
