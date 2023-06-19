@@ -16,7 +16,6 @@ import org.springframework.context.annotation.ComponentScan;
 @Slf4j
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
 @EnableSecurityConfiguration
-@EnableJwtTokenValidation(ignore={"org.springdoc.webmvc.ui.SwaggerConfigResource", "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController","org.springdoc.webmvc.api.OpenApiWebMvcResource"})
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.api.config.egenskaper")
 @ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
 public class FarskapsportalApiApplication {

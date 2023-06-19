@@ -18,6 +18,7 @@ import no.digipost.signature.client.core.internal.security.ProvidesCertificateRe
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
       "aapen-brukernotifikasjon-nyOppgave-v1"
     })
 @EnableSecurityConfiguration
+@EnableJwtTokenValidation(ignore={"org.springdoc.webmvc.ui.SwaggerConfigResource", "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController","org.springdoc.webmvc.api.OpenApiWebMvcResource"})
 @Slf4j
 @EntityScan("no.nav.farskapsportal.backend.libs.entity")
 public class FarskapsportalApiApplicationLocal {

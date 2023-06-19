@@ -1,7 +1,6 @@
 server.shutdown: graceful
 
 spring:
-  main.allow-bean-definition-overriding: true
   devtools.add-properties: false
   flyway:
     placeholders:
