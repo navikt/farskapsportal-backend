@@ -95,7 +95,6 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
-      <version>${google.spring-cloud-gcp.version}</version>
     </dependency>
 
     <!-- internal -->
