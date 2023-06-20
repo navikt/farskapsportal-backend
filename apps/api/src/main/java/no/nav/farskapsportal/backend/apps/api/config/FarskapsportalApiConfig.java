@@ -12,14 +12,13 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.HashMap;
-import java.util.Optional;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.bidrag.commons.security.service.OidcTokenManager;
+import no.nav.bidrag.commons.security.utils.TokenUtils;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
-import no.nav.bidrag.tilgangskontroll.SecurityUtils;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
@@ -34,8 +33,6 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
-import no.nav.security.token.support.core.context.TokenValidationContextHolder;
-import no.nav.security.token.support.core.jwt.JwtToken;
 import org.apache.commons.lang3.Validate;
 import org.flywaydb.core.Flyway;
 import org.modelmapper.ModelMapper;
@@ -180,10 +177,8 @@ public class FarskapsportalApiConfig {
     return new CorrelationIdFilter();
   }
 
-  @FunctionalInterface
-  public interface OidcTokenSubjectExtractor {
-
-    String hentPaaloggetPerson();
+  public static String henteIdentFraToken() {
+    return TokenUtils.hentBruker();
   }
 
   @Configuration
