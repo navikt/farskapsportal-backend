@@ -78,6 +78,8 @@ no.nav.security.jwt:
 spring:
   cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
   config.activate.on-profile: live
+  cloud.gcp.sql.database-name: ${DB_NAME}
+  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
