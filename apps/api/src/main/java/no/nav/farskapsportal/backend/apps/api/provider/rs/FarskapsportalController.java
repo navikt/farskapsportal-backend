@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
+  @Autowired private FarskapsportalApiConfig.OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor;
 
   @GetMapping(value = "/brukerinformasjon")
   @Operation(
@@ -61,7 +62,7 @@ public class FarskapsportalController {
       })
   public ResponseEntity<BrukerinformasjonResponse> henteBrukerinformasjon() {
     log.info("Henter brukerinformasjon");
-    var personident = FarskapsportalApiConfig.henteIdentFraToken();
+    var personident = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     SIKKER_LOGG.info("Henter brukerinformasjon for person med ident {}", personident);
     var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(personident);
     return new ResponseEntity<>(brukerinformasjon, HttpStatus.OK);
@@ -91,7 +92,7 @@ public class FarskapsportalController {
   public ResponseEntity<Feilkode> kontrollereOpplysningerFar(
       @Valid @RequestBody KontrollerePersonopplysningerRequest request) {
     log.info("Starter kontroll av personopplysninger");
-    var fnrMor = FarskapsportalApiConfig.henteIdentFraToken();
+    var fnrMor = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     farskapsportalService.validereMor(fnrMor);
     farskapsportalService.kontrollereFar(fnrMor, request);
     log.info("Kontroll av personopplysninger fullført uten feil");
@@ -115,7 +116,7 @@ public class FarskapsportalController {
       })
   public ResponseEntity<OppretteFarskapserklaeringResponse> nyFarskapserklaering(
       @Valid @RequestBody OppretteFarskapserklaeringRequest request) {
-    var fnrPaaloggetPerson = FarskapsportalApiConfig.henteIdentFraToken();
+    var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
 
     // Sjekker om mor har oppgitt riktige opplysninger om far, samt at far tilfredsstiller krav til
     // digital erklæering
@@ -162,7 +163,7 @@ public class FarskapsportalController {
               required = true)
           @RequestParam(name = "status_query_token")
           String statusQueryToken) {
-    var fnrPaaloggetPerson = FarskapsportalApiConfig.henteIdentFraToken();
+    var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     var signertDokument =
         farskapsportalService.oppdatereStatusSigneringsjobb(
             fnrPaaloggetPerson, idFarskapserklaering, statusQueryToken);
@@ -191,7 +192,7 @@ public class FarskapsportalController {
               required = true)
           @RequestParam(name = "id_farskapserklaering")
           int idFarskapserklaering) {
-    var fnrPaaloggetPerson = FarskapsportalApiConfig.henteIdentFraToken();
+    var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     var redirectUrl =
         farskapsportalService.henteNyRedirectUrl(fnrPaaloggetPerson, idFarskapserklaering);
     return new ResponseEntity<>(redirectUrl.toString(), HttpStatus.OK);
@@ -214,7 +215,7 @@ public class FarskapsportalController {
       })
   public ResponseEntity<OppdatereFarskapserklaeringResponse> oppdatereFarskapserklaering(
       @Valid @RequestBody OppdatereFarskapserklaeringRequest request) {
-    var fnrPaaloggetPerson = FarskapsportalApiConfig.henteIdentFraToken();
+    var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     var respons =
         farskapsportalService.oppdatereFarskapserklaeringMedFarBorSammenInfo(
             fnrPaaloggetPerson, request);
@@ -239,7 +240,7 @@ public class FarskapsportalController {
         @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
       })
   public ResponseEntity<byte[]> henteDokument(@PathVariable int idFarskapserklaering) {
-    var fnrPaaloggetPerson = FarskapsportalApiConfig.henteIdentFraToken();
+    var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     var respons =
         farskapsportalService.henteDokumentinnhold(fnrPaaloggetPerson, idFarskapserklaering);
     return new ResponseEntity<>(respons, HttpStatus.OK);

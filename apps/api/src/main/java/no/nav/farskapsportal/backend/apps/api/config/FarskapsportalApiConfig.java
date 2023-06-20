@@ -16,9 +16,9 @@ import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
-import no.nav.bidrag.commons.security.utils.TokenUtils;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
+import no.nav.bidrag.tilgangskontroll.felles.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
@@ -70,6 +70,8 @@ public class FarskapsportalApiConfig {
   private static final String TEMA = "Tema";
 
   @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+
+  @Autowired private OidcTokenManager oidcTokenManager;
 
   @Bean
   public OpenAPI openAPI() {
@@ -177,8 +179,22 @@ public class FarskapsportalApiConfig {
     return new CorrelationIdFilter();
   }
 
-  public static String henteIdentFraToken() {
-    return TokenUtils.hentBruker();
+  @Bean
+  public OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor() {
+    return () -> henteIdentFraToken();
+  }
+
+  @FunctionalInterface
+  public interface OidcTokenPersonalIdExtractor {
+
+    String hentPaaloggetPerson();
+  }
+
+  private String henteIdentFraToken() {
+    var ident = SecurityUtils.hentePid(oidcTokenManager.hentToken());
+    return erNumerisk(ident)
+        ? ident
+        : SecurityUtils.henteSubject(oidcTokenManager.hentToken());
   }
 
   @Configuration
