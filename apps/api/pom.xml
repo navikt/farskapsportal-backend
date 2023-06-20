@@ -226,6 +226,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator-parent</artifactId>
+      <type>pom</type>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
       <scope>runtime</scope>
