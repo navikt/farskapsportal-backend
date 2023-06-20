@@ -16,6 +16,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper")
 public class FarskapsportalAsynkronApplication {
 
+  // testing
   public static void main(String[] args) {
 
     String profile = args.length < 1 ? PROFILE_LIVE : args[0];
