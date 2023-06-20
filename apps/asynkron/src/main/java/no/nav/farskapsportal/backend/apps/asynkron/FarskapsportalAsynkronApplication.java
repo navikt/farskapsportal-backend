@@ -12,7 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.ComponentScan;
 
 @Slf4j
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class, JdbcTemplateAutoConfiguration.class})
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
 @ComponentScan({"no.nav.farskapsportal.backend.apps.asynkron", "no.nav.farskapsportal.backend.libs"})
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.asynkron.config.egenskaper")
 public class FarskapsportalAsynkronApplication {
