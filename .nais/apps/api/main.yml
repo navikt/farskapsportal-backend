@@ -20,6 +20,8 @@ env:
     value: "true"
   - name: DB_USER_ASYNKRON
     value: asynkron_main
+  - name: POSTGRES_CONNECTION_NAME
+    value: farskapsportal-dev-169c:europe-north1:fp-main
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
