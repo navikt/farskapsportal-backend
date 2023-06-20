@@ -81,6 +81,8 @@ spring:
   cloud.gcp.sql.database-name: ${DB_NAME}
   cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       idle-timeout: 10001
