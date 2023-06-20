@@ -18,7 +18,7 @@
     <kafka-avro-serializer.version>6.1.1</kafka-avro-serializer.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
-    <google.spring-cloud-gcp.version>4.1.0</google.spring-cloud-gcp.version>
+    <google.spring-cloud-gcp.version>4.3.1</google.spring-cloud-gcp.version>
   </properties>
 
   <dependencyManagement>
