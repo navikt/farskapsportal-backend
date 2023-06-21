@@ -87,10 +87,10 @@ no.nav.security.jwt:
 spring:
   config.activate.on-profile: live
   cloud.gcp.sql.database-name: ${DB_DATABASE}
-  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
     username: ${POSTGRES_USER_NAME}
     password: ${POSTGRES_USER_PASSWORD}
+    url: jdbc:postgresql://127.0.0.1:5432/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       idle-timeout: 10001
