@@ -9,8 +9,6 @@ env:
     value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
-  - name: DB_NAME
-    value: fpdb-main
   - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
     value: -150
   - name: DEAKTIVERINGSRATE

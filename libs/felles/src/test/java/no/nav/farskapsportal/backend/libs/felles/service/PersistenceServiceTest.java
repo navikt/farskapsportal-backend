@@ -61,7 +61,6 @@ public class PersistenceServiceTest {
 
   private static final Forelder MOR = TestUtils.henteForelder(Forelderrolle.MOR);
   private static final Forelder FAR = TestUtils.henteForelder(Forelderrolle.FAR);
-  private static final NavnDto NAVN_MOR = NavnDto.builder().fornavn("Dolly").etternavn("Duck").build();
   private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn("Fetter").etternavn("Anton").build();
   private static final Barn UFOEDT_BARN = TestUtils.henteBarnUtenFnr(17);
   private static final Barn NYFOEDT_BARN = TestUtils.henteBarnMedFnr(LocalDate.now().minusWeeks(2));

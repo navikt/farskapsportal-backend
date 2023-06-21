@@ -38,7 +38,7 @@ public class StatusController {
   }
 
   @GetMapping(value = "/status")
-  @Operation(description = "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn",
+  @Operation(description = "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn.",
       security = {@SecurityRequirement(name = "bearer-key")})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Statusinformasjon hentet"),

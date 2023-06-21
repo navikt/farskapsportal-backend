@@ -20,6 +20,7 @@ import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCr
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +42,7 @@ public class FarskapsportalAsynkronConfig {
   public TokenValidationContextHolder oidcRequestContextHolder() {
     return new SpringTokenValidationContextHolder();
   }
+
 
   @Bean
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
@@ -96,10 +98,11 @@ public class FarskapsportalAsynkronConfig {
   }
 
   @Bean
-  SkattConsumer skattConsumer(@Qualifier("skatt") RestTemplate restTemplate,
+  SkattConsumer skattConsumer(PoolingHttpClientConnectionManager httpClientConnectionManager,
+      @Value("url.skatt.base-url") String skattBaseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
-    consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, endpoint);
-    return new SkattConsumer(restTemplate, consumerEndpoint);
+    consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, skattBaseUrl + endpoint);
+    return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
   }
 }

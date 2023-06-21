@@ -56,11 +56,6 @@ farskapsportal.asynkron.egenskaper:
   oppgave:
     maks-antall-oppgaver-per-dag: 10
     vurdere-opprettelse: ${VURDERE_OPPGAVE_INTERVALL}
-  skatt:
-    maks-antall-forbindelser: 5
-    maks-antall-forbindelser-per-rute: 5
-    maks-ventetid-lesing: 120000
-    maks-ventetid-forbindelse: 130000
 
 AZURE_BASE: https://login.microsoftonline.com/
 
@@ -91,7 +86,7 @@ no.nav.security.jwt:
 ---
 spring:
   config.activate.on-profile: live
-  cloud.gcp.sql.database-name: ${DB_NAME}
+  cloud.gcp.sql.database-name: ${DB_DATABASE}
   cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
     username: ${POSTGRES_USER_NAME}
@@ -104,8 +99,12 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 1
   jpa:
-    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.connection.provider_class: "org.hibernate.hikaricp.internal.HikariCPConnectionProvider"
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+
   devtools.add-properties: false
 ---
 spring:
@@ -115,7 +114,9 @@ spring:
   datasource.type: com.zaxxer.hikari.HikariDataSource
   datasource.url: jdbc:h2:mem:default
   h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
+  jpa:
+    hibernate.hbmddl-auto: create-drop
+
 server:
   ssl:
     enabled: false

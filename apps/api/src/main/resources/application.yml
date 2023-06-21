@@ -54,13 +54,36 @@ url:
 farskapsportal-api:
   disable-esignering: false
 
+no.nav.security.jwt:
+  expirythreshold: 1
+  client:
+    registration:
+      pdl:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://${PDL_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_post
+  issuer:
+    aad:
+      discoveryurl: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
+    selvbetjening:
+      discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+      accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
+
 ---
 spring:
   cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
   config.activate.on-profile: live
+  cloud.gcp.sql.database-name: ${DB_DATABASE}
+  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
     hikari:
       idle-timeout: 10001
       max-lifetime: 30001
@@ -72,30 +95,21 @@ spring:
     locations: classpath:/db/migration
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-
-no.nav.security.jwt:
-  expirythreshold: 1
-  issuer:
-    aad:
-      discoveryurl: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
-      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
-    selvbetjening:
-      discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
-      accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 ---
 ### H2 ###
 spring:
   config.activate.on-profile: test, local
   flyway.enabled: false
-  datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:h2:mem:default
-  spring.datasource.initialization-mode: always
+  datasource:
+    url: jdbc:h2:mem:default
+    datasource.type: com.zaxxer.hikari.HikariDataSource
   data.jpa.repositories.bootstrap-mode: default
   h2.console.enabled: true
   jpa.hibernate.ddl-auto: create-drop
-  jpa.database-platform: org.hibernate.dialect.H2Dialect
 
 ---
 ### POSTGRES ###
@@ -222,7 +236,6 @@ no.nav.security.jwt:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
       accepted_audience: aud-localhost
       cookie_name: localhost-idtoken
-
 
 ---
 spring:
