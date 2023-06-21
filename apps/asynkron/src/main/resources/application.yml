@@ -87,6 +87,7 @@ no.nav.security.jwt:
 spring:
   config.activate.on-profile: live
   cloud.gcp.sql.database-name: ${DB_DATABASE}
+  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
     username: ${POSTGRES_USER_NAME}
     password: ${POSTGRES_USER_PASSWORD}
