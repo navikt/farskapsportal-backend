@@ -100,7 +100,9 @@ spring:
       minimum-idle: 1
   jpa:
     hibernate.connection.provider_class: "org.hibernate.hikaricp.internal.HikariCPConnectionProvider"
-    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   devtools.add-properties: false
 ---
