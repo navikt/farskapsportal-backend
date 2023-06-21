@@ -92,7 +92,7 @@ spring:
     username: ${POSTGRES_USER_NAME}
     password: ${POSTGRES_USER_PASSWORD}
     type: com.zaxxer.hikari.HikariDataSource
-    #driver-class-name: org.postgresql.Driver
+    driver-class-name: org.postgresql.Driver
     hikari:
       idle-timeout: 10001
       max-lifetime: 30001
@@ -113,6 +113,7 @@ spring:
   cloud.gcp.sql.enabled: false
   flyway.enabled: false
   datasource:
+    driver-class-name: org.h2.Driver
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:h2:mem:default
   data.jpa.repositories.bootstrap-mode: default
