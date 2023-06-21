@@ -49,9 +49,7 @@ import org.springframework.web.client.RestTemplate;
 @ComponentScan("no.nav.farskapsportal.backend")
 @SpringBootTest(classes = FarskapsportalAsynkronApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class FarskapsportalAsynkronTestApplication {
-
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
-
   public static void main(String[] args) {
 
     String profile = args.length < 1 ? PROFILE_TEST : args[0];
