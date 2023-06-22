@@ -360,6 +360,13 @@
         </dependency>
 
         <dependency>
+            <groupId>no.nav.farskapsportal.backend.libs</groupId>
+            <artifactId>stubs</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>no.nav.bidrag</groupId>
             <artifactId>bidrag-commons-test</artifactId>
             <version>${bidrag-commons-test.version}</version>

@@ -154,7 +154,7 @@
       <version>${kafka-avro-serializer.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>io.swagger</groupId>
+          <groupId>io.swagger.core.v3</groupId>
           <artifactId>swagger-annotations</artifactId>
         </exclusion>
       </exclusions>
