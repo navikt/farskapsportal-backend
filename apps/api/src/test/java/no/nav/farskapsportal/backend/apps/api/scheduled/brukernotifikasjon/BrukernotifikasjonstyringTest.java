@@ -10,7 +10,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -47,33 +46,30 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DirtiesContext
 @EnableMockOAuth2Server
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = FarskapsportalApiApplicationLocal.class)
 @ActiveProfiles(PROFILE_TEST)
 public class BrukernotifikasjonstyringTest {
 
-  private static final String BRUKERNOTIFIKASJON_TOPIC_FERDIG = "min-side.aapen-brukernotifikasjon-done-v1";
+  private static final String BRUKERNOTIFIKASJON_TOPIC_FERDIG =
+      "min-side.aapen-brukernotifikasjon-done-v1";
   private static final String GRUPPERINGSID_FARSKAP = "farskap";
 
-  @Autowired
-  private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  @Autowired private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
 
-  @Autowired
-  private PersistenceService persistenceService;
+  @Autowired private PersistenceService persistenceService;
 
-  @Autowired
-  private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
+  @Autowired private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
-  @Autowired
-  private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
 
-  @Autowired
-  private OppgavebestillingDao oppgavebestillingDao;
+  @Autowired private OppgavebestillingDao oppgavebestillingDao;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  @MockBean
-  private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
+  @MockBean private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
 
   private Brukernotifikasjonstyring brukernotifikasjonstyring;
 
@@ -82,14 +78,16 @@ public class BrukernotifikasjonstyringTest {
   @BeforeEach
   void setup() {
 
-   closeable = MockitoAnnotations.openMocks(this); //without this you will get NPE
+    closeable = MockitoAnnotations.openMocks(this); // without this you will get NPE
 
-    // Bønnen er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
-    brukernotifikasjonstyring = Brukernotifikasjonstyring.builder()
-        .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
-        .farskapserklaeringDao(farskapserklaeringDao)
-        .persistenceService(persistenceService)
-        .build();
+    // Bønnen er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under
+    // test.
+    brukernotifikasjonstyring =
+        Brukernotifikasjonstyring.builder()
+            .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+            .farskapserklaeringDao(farskapserklaeringDao)
+            .persistenceService(persistenceService)
+            .build();
   }
 
   @AfterEach
@@ -104,27 +102,51 @@ public class BrukernotifikasjonstyringTest {
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var tidspunktFoerTestIEpochMillis = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(5).toInstant().toEpochMilli();
+    var tidspunktFoerTestIEpochMillis =
+        ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(5).toInstant().toEpochMilli();
 
-    var deaktivertFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnUtenFnr(5));
-    deaktivertFarskapserklaering.getDokument().getSigneringsinformasjonMor()
+    var deaktivertFarskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnUtenFnr(5));
+    deaktivertFarskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(
-            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 1));
-    deaktivertFarskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-    deaktivertFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now()
-            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
+            LocalDateTime.now()
+                .minusDays(
+                    farskapsportalAsynkronEgenskaper
+                            .getBrukernotifikasjon()
+                            .getOppgavestyringsforsinkelse()
+                        + 1));
+    deaktivertFarskapserklaering
+        .getDokument()
+        .setDokumentinnhold(
+            Dokumentinnhold.builder()
+                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+                .build());
+    deaktivertFarskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonMor()
+        .setSigneringstidspunkt(
+            LocalDateTime.now()
+                .minusDays(
+                    farskapsportalAsynkronEgenskaper
+                        .getFarskapsportalFellesEgenskaper()
+                        .getBrukernotifikasjon()
+                        .getLevetidOppgaveAntallDager()));
     deaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
-    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(deaktivertFarskapserklaering);
+    var farskapserklaering =
+        persistenceService.lagreNyFarskapserklaering(deaktivertFarskapserklaering);
 
-    oppgavebestillingDao.save(Oppgavebestilling.builder()
-        .eventId(UUID.randomUUID().toString())
-        .forelder(deaktivertFarskapserklaering.getFar())
-        .farskapserklaering(farskapserklaering)
-        .opprettet(LocalDateTime.now())
-        .build());
+    oppgavebestillingDao.save(
+        Oppgavebestilling.builder()
+            .eventId(UUID.randomUUID().toString())
+            .forelder(deaktivertFarskapserklaering.getFar())
+            .farskapserklaering(farskapserklaering)
+            .opprettet(LocalDateTime.now())
+            .build());
 
     var ferdignoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
     var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
@@ -134,20 +156,26 @@ public class BrukernotifikasjonstyringTest {
 
     // then
     verify(ferdigkoe, times(1))
-        .send(eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG), ferdignoekkelfanger.capture(), ferdigfanger.capture());
+        .send(
+            eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG),
+            ferdignoekkelfanger.capture(),
+            ferdigfanger.capture());
 
     var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
 
-    var oppdatertOppgavebestilling = oppgavebestillingDao.henteAktiveOppgaver(farskapserklaering.getId(),
-        farskapserklaering.getFar().getFoedselsnummer());
+    var oppdatertOppgavebestilling =
+        oppgavebestillingDao.henteAktiveOppgaver(
+            farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
 
     assertAll(
         () -> assertThat(ferdignokkel.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
-        () -> assertThat(ferdignokkel.getFodselsnummer()).isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
-        () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
-        () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue()
-    );
+        () ->
+            assertThat(ferdignokkel.getFodselsnummer())
+                .isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
+        () ->
+            assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
+        () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue());
   }
 
   @Test
@@ -157,29 +185,55 @@ public class BrukernotifikasjonstyringTest {
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var tidspunktFoerTestIEpochMillis = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(5).toInstant().toEpochMilli();
+    var tidspunktFoerTestIEpochMillis =
+        ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(5).toInstant().toEpochMilli();
 
-    var ferdigstiltFarskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnUtenFnr(5));
-    ferdigstiltFarskapserklaering.getDokument().getSigneringsinformasjonMor()
+    var ferdigstiltFarskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnUtenFnr(5));
+    ferdigstiltFarskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(
-            LocalDateTime.now().minusDays(farskapsportalAsynkronEgenskaper.getBrukernotifikasjon().getOppgavestyringsforsinkelse() + 15));
-    ferdigstiltFarskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
-    ferdigstiltFarskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now()
-            .minusDays(farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager()));
+            LocalDateTime.now()
+                .minusDays(
+                    farskapsportalAsynkronEgenskaper
+                            .getBrukernotifikasjon()
+                            .getOppgavestyringsforsinkelse()
+                        + 15));
+    ferdigstiltFarskapserklaering
+        .getDokument()
+        .setDokumentinnhold(
+            Dokumentinnhold.builder()
+                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+                .build());
+    ferdigstiltFarskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonMor()
+        .setSigneringstidspunkt(
+            LocalDateTime.now()
+                .minusDays(
+                    farskapsportalAsynkronEgenskaper
+                        .getFarskapsportalFellesEgenskaper()
+                        .getBrukernotifikasjon()
+                        .getLevetidOppgaveAntallDager()));
     ferdigstiltFarskapserklaering.setDeaktivert(null);
-    ferdigstiltFarskapserklaering.getDokument().getSigneringsinformasjonFar()
+    ferdigstiltFarskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(ferdigstiltFarskapserklaering);
+    var farskapserklaering =
+        persistenceService.lagreNyFarskapserklaering(ferdigstiltFarskapserklaering);
 
-    oppgavebestillingDao.save(Oppgavebestilling.builder()
-        .eventId(UUID.randomUUID().toString())
-        .forelder(ferdigstiltFarskapserklaering.getFar())
-        .farskapserklaering(farskapserklaering)
-        .opprettet(LocalDateTime.now())
-        .build());
+    oppgavebestillingDao.save(
+        Oppgavebestilling.builder()
+            .eventId(UUID.randomUUID().toString())
+            .forelder(ferdigstiltFarskapserklaering.getFar())
+            .farskapserklaering(farskapserklaering)
+            .opprettet(LocalDateTime.now())
+            .build());
 
     var ferdignoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
     var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
@@ -189,20 +243,26 @@ public class BrukernotifikasjonstyringTest {
 
     // then
     verify(ferdigkoe, times(1))
-        .send(eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG), ferdignoekkelfanger.capture(), ferdigfanger.capture());
+        .send(
+            eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG),
+            ferdignoekkelfanger.capture(),
+            ferdigfanger.capture());
 
     var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
 
-    var oppdatertOppgavebestilling = oppgavebestillingDao.henteAktiveOppgaver(farskapserklaering.getId(),
-        farskapserklaering.getFar().getFoedselsnummer());
+    var oppdatertOppgavebestilling =
+        oppgavebestillingDao.henteAktiveOppgaver(
+            farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
 
     assertAll(
         () -> assertThat(ferdignokkel.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
-        () -> assertThat(ferdignokkel.getFodselsnummer()).isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
-        () -> assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
-        () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue()
-    );
+        () ->
+            assertThat(ferdignokkel.getFodselsnummer())
+                .isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
+        () ->
+            assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
+        () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue());
   }
 
   @Test
@@ -212,42 +272,68 @@ public class BrukernotifikasjonstyringTest {
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnUtenFnr(5));
+    var farskapserklaeringSomVenterPaaFarsSignatur =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnUtenFnr(5));
     // Setter signeringstidspunkt til innenfor levetiden til oppgaven
-    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(
-        LocalDateTime.now().minusDays(
-            farskapsportalAsynkronEgenskaper.getFarskapsportalFellesEgenskaper().getBrukernotifikasjon().getLevetidOppgaveAntallDager() - 5));
+    farskapserklaeringSomVenterPaaFarsSignatur
+        .getDokument()
+        .getSigneringsinformasjonMor()
+        .setSigneringstidspunkt(
+            LocalDateTime.now()
+                .minusDays(
+                    farskapsportalAsynkronEgenskaper
+                            .getFarskapsportalFellesEgenskaper()
+                            .getBrukernotifikasjon()
+                            .getLevetidOppgaveAntallDager()
+                        - 5));
 
     // Skal ikke være mulig å signere fremover i tid. Er synlighet for oppgave hentet riktig inn?
-    assert (farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()
+    assert (farskapserklaeringSomVenterPaaFarsSignatur
+        .getDokument()
+        .getSigneringsinformasjonMor()
+        .getSigneringstidspunkt()
         .isBefore(LocalDateTime.now()));
 
-    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+    var farskapserklaering =
+        persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
-    var lagretOppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
-        .eventId(UUID.randomUUID().toString())
-        .forelder(farskapserklaeringSomVenterPaaFarsSignatur.getFar())
-        .farskapserklaering(farskapserklaering)
-        .opprettet(LocalDateTime.now())
-        .build());
+    var lagretOppgavebestilling =
+        oppgavebestillingDao.save(
+            Oppgavebestilling.builder()
+                .eventId(UUID.randomUUID().toString())
+                .forelder(farskapserklaeringSomVenterPaaFarsSignatur.getFar())
+                .farskapserklaering(farskapserklaering)
+                .opprettet(LocalDateTime.now())
+                .build());
 
     // when
     brukernotifikasjonstyring.rydddeISigneringsoppgaver();
 
     // then
-    var oppgavebestillingEtterSlettforsoek = oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
+    var oppgavebestillingEtterSlettforsoek =
+        oppgavebestillingDao.findById(lagretOppgavebestilling.getId());
 
     assertThat(oppgavebestillingEtterSlettforsoek.get().getFerdigstilt()).isNull();
   }
 
   public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
 
-    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
-        .build();
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }

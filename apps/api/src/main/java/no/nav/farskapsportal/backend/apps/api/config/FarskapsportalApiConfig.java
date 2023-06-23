@@ -195,7 +195,7 @@ public class FarskapsportalApiConfig {
   @Bean
   @Qualifier("skatt")
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
-  public KeyStoreConfig keyStoreConfig(
+  public KeyStoreConfig keyStoreConfigSkatt(
           @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
           @Value("${virksomhetssertifikat.hemmelighetnavn}")
           String virksomhetssertifikatHemmelighetNavn,

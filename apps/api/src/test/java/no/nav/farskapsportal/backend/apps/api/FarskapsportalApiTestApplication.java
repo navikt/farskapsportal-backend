@@ -11,7 +11,6 @@ import org.springframework.context.annotation.*;
 
 @Slf4j
 @EnableAutoConfiguration
-@EnableMockOAuth2Server
 @ComponentScan("no.nav.farskapsportal.backend")
 @SpringBootTest(
     classes = FarskapsportalApiApplication.class,
