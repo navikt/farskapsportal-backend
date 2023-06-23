@@ -18,8 +18,6 @@ env:
     value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
-  - name: DB_USER_ASYNKRON
-    value: asynkron_main
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-dev-169c:europe-north1:fp-main
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID

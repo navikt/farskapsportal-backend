@@ -285,14 +285,10 @@ public class FarskapsportalApiConfig {
 
     @Autowired
     public FlywayConfiguration(
-        @Qualifier("dataSource") DataSource dataSource,
-        @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron)
+        @Qualifier("dataSource") DataSource dataSource)
         throws InterruptedException {
       Thread.sleep(30000);
-      var placeholders = new HashMap<String, String>();
-      placeholders.put("user_asynkron", dbUserAsynkron);
-
-      Flyway.configure().dataSource(dataSource).placeholders(placeholders).load().migrate();
+      Flyway.configure().dataSource(dataSource).load().migrate();
     }
   }
 

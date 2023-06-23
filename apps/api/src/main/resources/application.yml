@@ -2,9 +2,6 @@ server.shutdown: graceful
 
 spring:
   devtools.add-properties: false
-  flyway:
-    placeholders:
-      user: ${DB_USER_ASYNKRON}
 
 springdoc:
   packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
@@ -83,7 +80,7 @@ no.nav.security.jwt:
   client:
     registration:
       pdl:
-        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://${PDL_SCOPE}/.default
         authentication:
@@ -91,7 +88,7 @@ no.nav.security.jwt:
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_post
       oppgave:
-        token-endpoint-url: ${no.nav.security.jwt.common.token-endpoint-url}
+        token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
         grant-type: client_credentials
         scope: api://${OPPGAVE_SCOPE}/.default
         authentication:
@@ -100,7 +97,7 @@ no.nav.security.jwt:
           client-auth-method: client_secret_basic
   issuer:
     aad:
-      discoveryurl: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
     selvbetjening:
       discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
@@ -167,8 +164,6 @@ spring:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-DB_USER_ASYNKRON: asynkron_feature
-
 ---
 ### MOCK AZURE ###
 spring:
@@ -214,6 +209,7 @@ DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER: 1
 AZURE_APP_TENANT_ID: aad
 AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
 SKATT_URL: http://localhost:8080
+AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
