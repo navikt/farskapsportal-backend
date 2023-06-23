@@ -132,7 +132,7 @@ spring:
 ---
 ### H2 ###
 spring:
-  config.activate.on-profile: test, local
+  config.activate.on-profile: test, local, skatt-ssl-test, scheduled-test
   flyway.enabled: false
   datasource:
     url: jdbc:h2:mem:default
@@ -172,7 +172,7 @@ DB_USER_ASYNKRON: asynkron_feature
 ---
 ### MOCK AZURE ###
 spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test, skatt-ssl-test, scheduled-test
 
 no.nav.security.jwt:
   expirythreshold: 1

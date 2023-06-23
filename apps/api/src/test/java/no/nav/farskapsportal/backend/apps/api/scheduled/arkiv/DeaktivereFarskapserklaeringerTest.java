@@ -26,6 +26,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,30 +40,20 @@ import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
-@DisplayName("DeaktivereFarskapserklaeringer")
 @DirtiesContext
+@EnableMockOAuth2Server
+@DisplayName("DeaktivereFarskapserklaeringer")
 @ActiveProfiles(PROFILE_TEST)
 @ExtendWith(OutputCaptureExtension.class)
 @SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class DeaktivereFarskapserklaeringerTest {
 
-  @Autowired
-  private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
-
-  @Autowired
-  private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-
-  @Autowired
-  private PersistenceService persistenceService;
-
-  @Autowired
-  private FarskapserklaeringDao farskapserklaeringDao;
-
-  @Autowired
-  private ForelderDao forelderDao;
-
-  @Autowired
-  private MeldingsloggDao meldingsloggDao;
+  private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
+  private @Autowired BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired ForelderDao forelderDao;
+  private @Autowired MeldingsloggDao meldingsloggDao;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;

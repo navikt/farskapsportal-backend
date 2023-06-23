@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -27,6 +26,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,26 +39,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
-@DisplayName("ArkivereFarskapserklaeringer")
 @DirtiesContext
+@EnableMockOAuth2Server
+@DisplayName("ArkivereFarskapserklaeringer")
 @ActiveProfiles(PROFILE_TEST)
-@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = FarskapsportalApiApplicationLocal.class,
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ArkivereFarskapserklaeringerTest {
 
-  @MockBean
-  private SkattConsumer skattConsumerMock;
-
-  @Autowired
-  private PersistenceService persistenceService;
-
-  @Autowired
-  private FarskapserklaeringDao farskapserklaeringDao;
-
-  @Autowired
-  private ForelderDao forelderDao;
-
-  @Autowired
-  private MeldingsloggDao meldingsloggDao;
+  private @MockBean SkattConsumer skattConsumerMock;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired ForelderDao forelderDao;
+  private @Autowired MeldingsloggDao meldingsloggDao;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
@@ -73,21 +67,40 @@ public class ArkivereFarskapserklaeringerTest {
     forelderDao.deleteAll();
     meldingsloggDao.deleteAll();
 
-    // Bønnen arkivereFarskapserklaeringer er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
-    arkivereFarskapserklaeringer = ArkivereFarskapserklaeringer.builder()
-        .skattConsumer(skattConsumerMock)
-        .persistenceService(persistenceService).build();
+    // Bønnen arkivereFarskapserklaeringer er kun tilgjengelig for live-profilen for å unngå
+    // skedulert trigging av metoden under test.
+    arkivereFarskapserklaeringer =
+        ArkivereFarskapserklaeringer.builder()
+            .skattConsumer(skattConsumerMock)
+            .persistenceService(persistenceService)
+            .build();
   }
 
   private Farskapserklaering henteFarskapserklaeringNyfoedtSignertAvMor(String persnrBarn) {
-    var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnMedFnr(LocalDate.now().minusWeeks(3), persnrBarn));
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnMedFnr(LocalDate.now().minusWeeks(3), persnrBarn));
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonMor()
+        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonFar()
+        .setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonFar()
+        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
     farskapserklaering.setFarBorSammenMedMor(true);
-    farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+    farskapserklaering
+        .getDokument()
+        .setDokumentinnhold(
+            Dokumentinnhold.builder()
+                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+                .build());
     farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
     return farskapserklaering;
   }
@@ -102,25 +115,38 @@ public class ArkivereFarskapserklaeringerTest {
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("98953");
 
-      farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaering
+          .getDokument()
+          .getSigneringsinformasjonFar()
+          .setSigneringstidspunkt(LocalDateTime.now());
 
-      var lagretSignertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      var lagretSignertFarskapserklaering =
+          persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
 
-      when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering)).thenReturn(LocalDateTime.now());
+      when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering))
+          .thenReturn(LocalDateTime.now());
 
       // when
       arkivereFarskapserklaeringer.vurdereArkivering();
 
       // then
-      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretSignertFarskapserklaering.getId());
+      var oppdatertFarskapserklaering =
+          farskapserklaeringDao.findById(lagretSignertFarskapserklaering.getId());
       var logginnslag = meldingsloggDao.findAll();
 
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
-          () -> assertThat(logginnslag.iterator().next().getMeldingsidSkatt()).isEqualTo(oppdatertFarskapserklaering.get().getMeldingsidSkatt()),
-          () -> assertThat(logginnslag.iterator().next().getTidspunktForOversendelse().isEqual(oppdatertFarskapserklaering.get().getSendtTilSkatt()))
-      );
+          () ->
+              assertThat(logginnslag.iterator().next().getMeldingsidSkatt())
+                  .isEqualTo(oppdatertFarskapserklaering.get().getMeldingsidSkatt()),
+          () ->
+              assertThat(
+                  logginnslag
+                      .iterator()
+                      .next()
+                      .getTidspunktForOversendelse()
+                      .isEqual(oppdatertFarskapserklaering.get().getSendtTilSkatt())));
     }
 
     @Test
@@ -129,31 +155,36 @@ public class ArkivereFarskapserklaeringerTest {
       // given
       Farskapserklaering farskapserklaering1 = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
 
-      var lagretSignertFarskapserklaering1 = persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
+      var lagretSignertFarskapserklaering1 =
+          persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
       assert (lagretSignertFarskapserklaering1.getSendtTilSkatt() == null);
 
-      when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering1)).thenReturn(LocalDateTime.now().minusMinutes(1));
+      when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering1))
+          .thenReturn(LocalDateTime.now().minusMinutes(1));
 
       Farskapserklaering farskapserklaering2 = henteFarskapserklaeringNyfoedtSignertAvMor("54321");
-      var lagretSignertFarskapserklaering2 = persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
+      var lagretSignertFarskapserklaering2 =
+          persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
       assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
 
-      when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering2)).thenReturn(LocalDateTime.now());
+      when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering2))
+          .thenReturn(LocalDateTime.now());
 
       // when
       arkivereFarskapserklaeringer.vurdereArkivering();
 
       // then
-      var oppdatertFarskapserklaering1 = farskapserklaeringDao.findById(lagretSignertFarskapserklaering1.getId());
+      var oppdatertFarskapserklaering1 =
+          farskapserklaeringDao.findById(lagretSignertFarskapserklaering1.getId());
 
-      var oppdatertFarskapserklaering2 = farskapserklaeringDao.findById(lagretSignertFarskapserklaering2.getId());
+      var oppdatertFarskapserklaering2 =
+          farskapserklaeringDao.findById(lagretSignertFarskapserklaering2.getId());
 
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering1).isPresent(),
           () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNotNull(),
           () -> assertThat(oppdatertFarskapserklaering2).isPresent(),
-          () -> assertThat(oppdatertFarskapserklaering2.get().getSendtTilSkatt()).isNotNull()
-      );
+          () -> assertThat(oppdatertFarskapserklaering2.get().getSendtTilSkatt()).isNotNull());
     }
 
     @Test
@@ -163,25 +194,38 @@ public class ArkivereFarskapserklaeringerTest {
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("43215");
       farskapserklaering.setMeldingsidSkatt(null);
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(null);
-      var lagretFarskapserklaeringIkkeSignertAvFar = persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      var lagretFarskapserklaeringIkkeSignertAvFar =
+          persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       assert (lagretFarskapserklaeringIkkeSignertAvFar.getMeldingsidSkatt() == null);
       assert (lagretFarskapserklaeringIkkeSignertAvFar.getSendtTilSkatt() == null);
-      assert (lagretFarskapserklaeringIkkeSignertAvFar.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() == null);
+      assert (lagretFarskapserklaeringIkkeSignertAvFar
+              .getDokument()
+              .getSigneringsinformasjonFar()
+              .getSigneringstidspunkt()
+          == null);
 
-      var farskapserklaeringSignertAvBeggeParter = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
-      farskapserklaeringSignertAvBeggeParter.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-      var lagretFarskapserklaeringSignertAvBeggeParter = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSignertAvBeggeParter);
+      var farskapserklaeringSignertAvBeggeParter =
+          henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+      farskapserklaeringSignertAvBeggeParter
+          .getDokument()
+          .getSigneringsinformasjonFar()
+          .setSigneringstidspunkt(LocalDateTime.now());
+      var lagretFarskapserklaeringSignertAvBeggeParter =
+          persistenceService.lagreNyFarskapserklaering(farskapserklaeringSignertAvBeggeParter);
       assert (lagretFarskapserklaeringSignertAvBeggeParter.getSendtTilSkatt() == null);
 
-      when(skattConsumerMock.registrereFarskap(lagretFarskapserklaeringSignertAvBeggeParter)).thenReturn(LocalDateTime.now());
+      when(skattConsumerMock.registrereFarskap(lagretFarskapserklaeringSignertAvBeggeParter))
+          .thenReturn(LocalDateTime.now());
 
       // when
       arkivereFarskapserklaeringer.vurdereArkivering();
 
       // then
-      var farskapserklaeringIkkeSendtTilSkatt = farskapserklaeringDao.findById(lagretFarskapserklaeringIkkeSignertAvFar.getId());
-      var farskapserklaeringSendtTilSkatt = farskapserklaeringDao.findById(lagretFarskapserklaeringSignertAvBeggeParter.getId());
+      var farskapserklaeringIkkeSendtTilSkatt =
+          farskapserklaeringDao.findById(lagretFarskapserklaeringIkkeSignertAvFar.getId());
+      var farskapserklaeringSendtTilSkatt =
+          farskapserklaeringDao.findById(lagretFarskapserklaeringSignertAvBeggeParter.getId());
       var logginnslag = meldingsloggDao.findAll();
 
       assertAll(
@@ -190,10 +234,12 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(farskapserklaeringIkkeSendtTilSkatt.get().getSendtTilSkatt()).isNull(),
           () -> assertThat(farskapserklaeringSendtTilSkatt).isPresent(),
           () -> assertThat(logginnslag.iterator()).hasNext(),
-          () -> assertThat(logginnslag.iterator().next().getTidspunktForOversendelse())
-              .isEqualTo(farskapserklaeringSendtTilSkatt.get().getSendtTilSkatt()),
-          () -> assertThat(logginnslag.iterator().next().getMeldingsidSkatt()).isEqualTo(farskapserklaeringSendtTilSkatt.get().getMeldingsidSkatt())
-      );
+          () ->
+              assertThat(logginnslag.iterator().next().getTidspunktForOversendelse())
+                  .isEqualTo(farskapserklaeringSendtTilSkatt.get().getSendtTilSkatt()),
+          () ->
+              assertThat(logginnslag.iterator().next().getMeldingsidSkatt())
+                  .isEqualTo(farskapserklaeringSendtTilSkatt.get().getMeldingsidSkatt()));
     }
 
     @Test
@@ -201,34 +247,47 @@ public class ArkivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaeringAlleredeOverfoert = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
-      farskapserklaeringAlleredeOverfoert.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
+      farskapserklaeringAlleredeOverfoert
+          .getDokument()
+          .getSigneringsinformasjonFar()
+          .setSigneringstidspunkt(LocalDateTime.now());
       farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(LocalDateTime.now());
 
-      var lagretFarskapserklaeringAlleredeOverfoert = persistenceService.lagreNyFarskapserklaering(farskapserklaeringAlleredeOverfoert);
+      var lagretFarskapserklaeringAlleredeOverfoert =
+          persistenceService.lagreNyFarskapserklaering(farskapserklaeringAlleredeOverfoert);
 
-      verify(skattConsumerMock, never()).registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);
+      verify(skattConsumerMock, never())
+          .registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);
 
       // when
       arkivereFarskapserklaeringer.vurdereArkivering();
 
       // then
-      var arkivertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaeringAlleredeOverfoert.getId());
+      var arkivertFarskapserklaering =
+          farskapserklaeringDao.findById(lagretFarskapserklaeringAlleredeOverfoert.getId());
 
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isNotNull(),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isNotNull()
-      );
+          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isNotNull());
     }
   }
 
   public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
 
-    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
-        .build();
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }

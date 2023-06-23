@@ -46,3 +46,26 @@ env:
     value: "false"
   - name: SKATT_URL
     value: https://folkeregisteret.api.skatteetaten.no
+# Fra gammel asynkron app
+  - name: ARKIVERINGSINTERVALL
+    value: 3600000
+  - name: ARKIVERINGSFORSINKELSE
+    value: 60000
+  - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
+    value: 30
+  - name: DEAKTIVERINGSRATE
+    value: "0 30 13 * * ?"
+  - name: OPPGAVEAPI_URL
+    value: https://oppgave.prod-fss-pub.nais.io
+  - name: OPPGAVE_SCOPE
+    value: prod-fss.oppgavehandtering.oppgave
+  - name: SKATT_URL
+    value: https://folkeregisteret.api.skatteetaten.no
+  - name: OPPGAVESTYRINGSINTERVALL
+    value: "0 0 7 * * ?"
+  - name: OPPGAVESTYRINGSFORSINKELSE
+    value: 1
+  - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
+    value: "0 0 14 ? * TUE"
+  - name: VURDERE_OPPGAVE_INTERVALL
+    value: "0 0 7 ? * 1-5"

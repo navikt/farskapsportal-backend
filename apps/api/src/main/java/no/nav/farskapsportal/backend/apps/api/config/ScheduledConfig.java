@@ -12,6 +12,7 @@ import no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon.Bruke
 import no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon.Varsel;
 import no.nav.farskapsportal.backend.apps.api.scheduled.esignering.OppdatereSigneringsstatus;
 import no.nav.farskapsportal.backend.apps.api.scheduled.oppgave.Oppgavestyring;
+import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -30,17 +31,18 @@ public class ScheduledConfig {
 
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
-  public ScheduledConfig(@Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper) {
+  public ScheduledConfig(
+      @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper) {
     this.farskapsportalAsynkronEgenskaper = farskapsportalAsynkronEgenskaper;
   }
 
   @Bean
   public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(
-      PersistenceService persistenceService,
-      SkattConsumer skattConsumer) {
+      PersistenceService persistenceService, SkattConsumer skattConsumer) {
 
     return ArkivereFarskapserklaeringer.builder()
-        .intervallMellomForsoek(farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
+        .intervallMellomForsoek(
+            farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
         .build();
@@ -53,15 +55,18 @@ public class ScheduledConfig {
     return DeaktivereFarskapserklaeringer.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
         .egenskaperArkiv(farskapsportalAsynkronEgenskaper.getArkiv())
-        .persistenceService(persistenceService).build();
+        .persistenceService(persistenceService)
+        .build();
   }
 
   @Bean
-  public OppdatereSigneringsstatus oppdatereSigneringsstatus(PersistenceService persistenceService) {
+  public OppdatereSigneringsstatus oppdatereSigneringsstatus(
+      PersistenceService persistenceService) {
 
     return OppdatereSigneringsstatus.builder()
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
-        .persistenceService(persistenceService).build();
+        .persistenceService(persistenceService)
+        .build();
   }
 
   @Bean
@@ -80,8 +85,7 @@ public class ScheduledConfig {
   @Bean
   public Varsel varsel(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
-      PersistenceService persistenceService
-  ) {
+      PersistenceService persistenceService) {
 
     return Varsel.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
@@ -93,12 +97,13 @@ public class ScheduledConfig {
   @Bean
   public Oppgavestyring oppgavestyring(
       FarskapserklaeringDao farskapserklaeringDao,
-      OppgaveApiConsumer oppgaveApiConsumer
-  ) {
+      OppgaveApiConsumer oppgaveApiConsumer,
+      PersonopplysningService personopplysningService) {
     return Oppgavestyring.builder()
         .egenskaperOppgavestyring(farskapsportalAsynkronEgenskaper.getOppgave())
         .farskapserklaeringDao(farskapserklaeringDao)
         .oppgaveApiConsumer(oppgaveApiConsumer)
+        .personopplysningService(personopplysningService)
         .build();
   }
 }

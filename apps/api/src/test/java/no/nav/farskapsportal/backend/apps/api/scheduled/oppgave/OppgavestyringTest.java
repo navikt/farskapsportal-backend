@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.Oppgave;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
@@ -30,6 +29,7 @@ import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,14 +42,18 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @DirtiesContext
+@EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)
-@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = FarskapsportalApiApplicationLocal.class,
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public class OppgavestyringTest {
 
   private static final String OPPGAVE_DATOFORMAT_I_BESKRIVELSE = "dd.MM.YYYY";
 
-  private static final String OPPGAVEBESKRIVELSE_GENERELL = "ELEKTRONISK ERKLÆRING -"
-      + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
+  private static final String OPPGAVEBESKRIVELSE_GENERELL =
+      "ELEKTRONISK ERKLÆRING -"
+          + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
 
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
@@ -62,10 +66,13 @@ public class OppgavestyringTest {
   void setup() {
     farskapserklaeringDao.deleteAll();
 
-    oppgavestyring = Oppgavestyring.builder()
-        .egenskaperOppgavestyring(egenskaperOppgave)
-        .oppgaveApiConsumer(oppgaveApiConsumer)
-        .farskapserklaeringDao(farskapserklaeringDao).build();
+    oppgavestyring =
+        Oppgavestyring.builder()
+            .egenskaperOppgavestyring(egenskaperOppgave)
+            .oppgaveApiConsumer(oppgaveApiConsumer)
+            .farskapserklaeringDao(farskapserklaeringDao)
+            .personopplysningService(personopplysningService)
+            .build();
   }
 
   @Test
@@ -76,20 +83,34 @@ public class OppgavestyringTest {
     var maksAntallErklaeringer = 2;
     var mor1sAktoerid = "40506070809010";
     var barn1 = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
-    var farskapserklaering1 = henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), barn1, LocalDateTime.now().minusDays(14));
+    var farskapserklaering1 =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            barn1,
+            LocalDateTime.now().minusDays(14));
 
-    var mor2Fnr = LocalDate.now().minusYears(23).format(DateTimeFormatter.ofPattern("ddMMyy")) + "60850";
+    var mor2Fnr =
+        LocalDate.now().minusYears(23).format(DateTimeFormatter.ofPattern("ddMMyy")) + "60850";
     var mor2sAktoerid = "99996070809015";
     var barn2 = henteBarnUtenFnr(-3);
-    var farskapserklaering2 = henteFarskapserklaering(
-        Forelder.builder().foedselsnummer(mor2Fnr).build(), henteForelder(Forelderrolle.FAR), barn2, LocalDateTime.now().minusDays(3));
+    var farskapserklaering2 =
+        henteFarskapserklaering(
+            Forelder.builder().foedselsnummer(mor2Fnr).build(),
+            henteForelder(Forelderrolle.FAR),
+            barn2,
+            LocalDateTime.now().minusDays(3));
 
-    var mor3Fnr = LocalDate.now().minusYears(45).format(DateTimeFormatter.ofPattern("ddMMyy")) + "73102";
+    var mor3Fnr =
+        LocalDate.now().minusYears(45).format(DateTimeFormatter.ofPattern("ddMMyy")) + "73102";
     var mor3sAktoerid = "6481544698715";
     var barn3 = henteBarnUtenFnr(-3);
-    var farskapserklaering3 = henteFarskapserklaering(
-        Forelder.builder().foedselsnummer(mor3Fnr).build(), henteForelder(Forelderrolle.FAR), barn3, LocalDateTime.now().minusDays(8));
+    var farskapserklaering3 =
+        henteFarskapserklaering(
+            Forelder.builder().foedselsnummer(mor3Fnr).build(),
+            henteForelder(Forelderrolle.FAR),
+            barn3,
+            LocalDateTime.now().minusDays(8));
 
     farskapserklaering1.setFarBorSammenMedMor(false);
     farskapserklaering2.setFarBorSammenMedMor(false);
@@ -108,23 +129,25 @@ public class OppgavestyringTest {
 
     when(egenskaperOppgave.getMaksAntallOppgaverPerDag()).thenReturn(maksAntallErklaeringer);
 
-    var idTilFarskapserklaeringerDetSkalOpprettesOppgaverFor  = farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(LocalDate.now().minusWeeks(2),  LocalDateTime.now().with(
-        LocalTime.MIDNIGHT));
+    var idTilFarskapserklaeringerDetSkalOpprettesOppgaverFor =
+        farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(
+            LocalDate.now().minusWeeks(2), LocalDateTime.now().with(LocalTime.MIDNIGHT));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
+    var oppgaveOpprettetForAntallFarskapserklaeringer =
+        oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
-    var idTilFarskapserklaeringerSomGjenstaar  = farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(LocalDate.now().minusWeeks(2),  LocalDateTime.now().with(
-        LocalTime.MIDNIGHT));
+    var idTilFarskapserklaeringerSomGjenstaar =
+        farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(
+            LocalDate.now().minusWeeks(2), LocalDateTime.now().with(LocalTime.MIDNIGHT));
 
     assertAll(
         () -> assertThat(idTilFarskapserklaeringerDetSkalOpprettesOppgaverFor.size()).isEqualTo(3),
-        () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(maksAntallErklaeringer),
-        () -> assertThat(idTilFarskapserklaeringerSomGjenstaar.size()).isEqualTo(1)
-    );
-
-
+        () ->
+            assertThat(oppgaveOpprettetForAntallFarskapserklaeringer)
+                .isEqualTo(maksAntallErklaeringer),
+        () -> assertThat(idTilFarskapserklaeringerSomGjenstaar.size()).isEqualTo(1));
   }
 
   @Test
@@ -134,8 +157,12 @@ public class OppgavestyringTest {
     // given
     var morsAktoerid = "40506070809010";
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
-    var farskapserklaering = henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), nyfoedtBarn, LocalDateTime.now().minusDays(1));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            nyfoedtBarn,
+            LocalDateTime.now().minusDays(1));
 
     farskapserklaering.setFarBorSammenMedMor(false);
 
@@ -148,10 +175,12 @@ public class OppgavestyringTest {
 
     // when
     when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
-    var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
+    var oppgaveOpprettetForAntallFarskapserklaeringer =
+        oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
-    var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+    var oppdatertFarskapserklaering =
+        farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
     var oppgaveforespoersel = oppgaveforespoerselfanger.getAllValues();
 
     var barn = farskapserklaering.getBarn();
@@ -163,19 +192,28 @@ public class OppgavestyringTest {
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(1),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBefore(LocalDateTime.now().plusMinutes(10)),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10)),
+        () ->
+            assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
+                .isBefore(LocalDateTime.now().plusMinutes(10)),
+        () ->
+            assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
+                .isAfter(LocalDateTime.now().minusMinutes(10)),
         () -> assertThat(oppgaveforespoersel.size()).isEqualTo(1),
-        () -> assertThat(oppgaveforespoersel.get(0).getBeskrivelse()).isEqualTo(String.format(OPPGAVEBESKRIVELSE_GENERELL,
-            "barn med fødselsnummer " + barn.getFoedselsnummer(), far.getFoedselsnummer(), mor.getFoedselsnummer())),
+        () ->
+            assertThat(oppgaveforespoersel.get(0).getBeskrivelse())
+                .isEqualTo(
+                    String.format(
+                        OPPGAVEBESKRIVELSE_GENERELL,
+                        "barn med fødselsnummer " + barn.getFoedselsnummer(),
+                        far.getFoedselsnummer(),
+                        mor.getFoedselsnummer())),
         () -> assertThat(oppgaveforespoersel.get(0).getAktoerId()).isEqualTo(morsAktoerid),
         () -> assertThat(oppgaveforespoersel.get(0).getOppgavetype()).isEqualTo("GEN"),
         () -> assertThat(oppgaveforespoersel.get(0).getBehandlingstype()).isEqualTo("ae0118"),
         () -> assertThat(oppgaveforespoersel.get(0).getTildeltEnhetsnr()).isEqualTo("4860"),
         () -> assertThat(oppgaveforespoersel.get(0).getOpprettetAvEnhetsnr()).isEqualTo("9999"),
         () -> assertThat(oppgaveforespoersel.get(0).getPrioritet()).isEqualTo("NORM"),
-        () -> assertThat(oppgaveforespoersel.get(0).getTema()).isEqualTo("BID")
-    );
+        () -> assertThat(oppgaveforespoersel.get(0).getTema()).isEqualTo("BID"));
   }
 
   @Test
@@ -185,8 +223,12 @@ public class OppgavestyringTest {
     // given
     var morsAktoerid = "40506070809010";
     var ufoedtBarn = henteBarnUtenFnr(-3);
-    var farskapserklaering = henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), ufoedtBarn, LocalDateTime.now().minusDays(1));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            ufoedtBarn,
+            LocalDateTime.now().minusDays(1));
 
     farskapserklaering.setFarBorSammenMedMor(false);
 
@@ -200,12 +242,14 @@ public class OppgavestyringTest {
 
     // when
     when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
-    var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
+    var oppgaveOpprettetForAntallFarskapserklaeringer =
+        oppgavestyring.vurdereOpprettelseAvOppgave();
 
     when(egenskaperOppgave.getMaksAntallOppgaverPerDag()).thenReturn(10);
 
     // then
-    var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+    var oppdatertFarskapserklaering =
+        farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
     var oppgaveforespoersel = oppgaveforespoerselfanger.getAllValues();
     var barn = farskapserklaering.getBarn();
@@ -217,31 +261,47 @@ public class OppgavestyringTest {
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(1),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBefore(LocalDateTime.now().plusMinutes(10)),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isAfter(LocalDateTime.now().minusMinutes(10)),
+        () ->
+            assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
+                .isBefore(LocalDateTime.now().plusMinutes(10)),
+        () ->
+            assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
+                .isAfter(LocalDateTime.now().minusMinutes(10)),
         () -> assertThat(oppgaveforespoersel.size()).isEqualTo(1),
-        () -> assertThat(oppgaveforespoersel.get(0).getBeskrivelse()).isEqualTo(String.format(OPPGAVEBESKRIVELSE_GENERELL,
-            "barn oppgitt med termin " + barn.getTermindato().format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT_I_BESKRIVELSE))
-            , far.getFoedselsnummer(), mor.getFoedselsnummer())),
+        () ->
+            assertThat(oppgaveforespoersel.get(0).getBeskrivelse())
+                .isEqualTo(
+                    String.format(
+                        OPPGAVEBESKRIVELSE_GENERELL,
+                        "barn oppgitt med termin "
+                            + barn.getTermindato()
+                                .format(
+                                    DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT_I_BESKRIVELSE)),
+                        far.getFoedselsnummer(),
+                        mor.getFoedselsnummer())),
         () -> assertThat(oppgaveforespoersel.get(0).getAktoerId()).isEqualTo(morsAktoerid),
         () -> assertThat(oppgaveforespoersel.get(0).getOppgavetype()).isEqualTo("GEN"),
         () -> assertThat(oppgaveforespoersel.get(0).getBehandlingstype()).isEqualTo("ae0118"),
         () -> assertThat(oppgaveforespoersel.get(0).getTildeltEnhetsnr()).isEqualTo("4860"),
         () -> assertThat(oppgaveforespoersel.get(0).getOpprettetAvEnhetsnr()).isEqualTo("9999"),
         () -> assertThat(oppgaveforespoersel.get(0).getPrioritet()).isEqualTo("NORM"),
-        () -> assertThat(oppgaveforespoersel.get(0).getTema()).isEqualTo("BID")
-    );
+        () -> assertThat(oppgaveforespoersel.get(0).getTema()).isEqualTo("BID"));
   }
 
   @Test
   @DisplayName("Skal ikke opprette - Barn med termindato mindre enn to uker tilbake i tid")
-  void skalIkkeOppretteOppgaveForFarskapserklaeringSomGjelderBarnMedTermindatoMindreEnnToUkerbakITid() {
+  void
+      skalIkkeOppretteOppgaveForFarskapserklaeringSomGjelderBarnMedTermindatoMindreEnnToUkerbakITid() {
 
     // given
     var morsAktoerid = "40506070809010";
     var ufoedtBarn = henteBarnUtenFnr(-1);
-    var farskapserklaering = henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), ufoedtBarn, LocalDateTime.now().minusDays(1));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            ufoedtBarn,
+            LocalDateTime.now().minusDays(1));
 
     farskapserklaering.setFarBorSammenMedMor(true);
 
@@ -250,17 +310,18 @@ public class OppgavestyringTest {
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
+    var oppgaveOpprettetForAntallFarskapserklaeringer =
+        oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
-    var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+    var oppdatertFarskapserklaering =
+        farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNull()
-    );
+        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNull());
   }
 
   @Test
@@ -270,8 +331,12 @@ public class OppgavestyringTest {
     // given
     var morsAktoerid = "40506070809010";
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
-    var farskapserklaering = henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), nyfoedtBarn, LocalDateTime.now().minusDays(1));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            nyfoedtBarn,
+            LocalDateTime.now().minusDays(1));
 
     farskapserklaering.setFarBorSammenMedMor(true);
 
@@ -280,17 +345,18 @@ public class OppgavestyringTest {
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
+    var oppgaveOpprettetForAntallFarskapserklaeringer =
+        oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
-    var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+    var oppdatertFarskapserklaering =
+        farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNull()
-    );
+        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNull());
   }
 
   @Test
@@ -300,8 +366,12 @@ public class OppgavestyringTest {
     // given
     var morsAktoerid = "40506070809010";
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
-    var farskapserklaering = henteFarskapserklaering(
-        henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), nyfoedtBarn, LocalDateTime.now().minusDays(1));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            nyfoedtBarn,
+            LocalDateTime.now().minusDays(1));
     var tidspunktOppgaveSendt = LocalDateTime.now().minusDays(2);
 
     farskapserklaering.setFarBorSammenMedMor(false);
@@ -312,35 +382,50 @@ public class OppgavestyringTest {
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer = oppgavestyring.vurdereOpprettelseAvOppgave();
+    var oppgaveOpprettetForAntallFarskapserklaeringer =
+        oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
-    var oppdatertFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+    var oppdatertFarskapserklaering =
+        farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNotNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
         () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
-        () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isBetween(tidspunktOppgaveSendt.minusSeconds(10),
-            tidspunktOppgaveSendt.plusSeconds(10))
-    );
+        () ->
+            assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
+                .isBetween(
+                    tidspunktOppgaveSendt.minusSeconds(10), tidspunktOppgaveSendt.plusSeconds(10)));
   }
 
-  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn, LocalDateTime signeringstidspunktFar) {
+  private Farskapserklaering henteFarskapserklaering(
+      Forelder mor, Forelder far, Barn barn, LocalDateTime signeringstidspunktFar) {
 
-    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl("8080", "redirect-mor"))
-                .signeringstidspunkt(signeringstidspunktFar.minusMinutes(10))
-                .xadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8)).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl("8080", "/redirect-far"))
-            .signeringstidspunkt(signeringstidspunktFar)
-            .xadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8)).build())
-        .dokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build())
-        .build();
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl("8080", "redirect-mor"))
+                    .signeringstidspunkt(signeringstidspunktFar.minusMinutes(10))
+                    .xadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8))
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl("8080", "/redirect-far"))
+                    .signeringstidspunkt(signeringstidspunktFar)
+                    .xadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8))
+                    .build())
+            .dokumentinnhold(
+                Dokumentinnhold.builder()
+                    .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+                    .build())
+            .build();
 
-    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering =
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
     farskapserklaering.setFarBorSammenMedMor(false);
     farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());

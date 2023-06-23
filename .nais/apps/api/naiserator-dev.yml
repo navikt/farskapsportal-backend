@@ -72,8 +72,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: asynkron
-        - application: asynkron-feature
         - application: farskapsportal-ui
         - application: farskapsportal-ui-feature
     outbound:
@@ -82,3 +80,4 @@ spec:
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
+        - host: oppgave.dev-fss-pub.nais.io
