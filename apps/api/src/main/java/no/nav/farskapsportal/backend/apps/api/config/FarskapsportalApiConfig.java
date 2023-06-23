@@ -1,9 +1,11 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 import static no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig.X_API_KEY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -11,6 +13,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +38,12 @@ import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.Mapper;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
+import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
+import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.apache.commons.lang3.Validate;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
@@ -185,9 +193,58 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
+  @Qualifier("skatt")
+  @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
+  public KeyStoreConfig keyStoreConfig(
+          @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
+          @Value("${virksomhetssertifikat.hemmelighetnavn}")
+          String virksomhetssertifikatHemmelighetNavn,
+          @Value("${virksomhetssertifikat.hemmelighetversjon}")
+          String virksomhetssertifikatHemmelighetVersjon,
+          @Value("${virksomhetssertifikat.passord.prosjektid}")
+          String virksomhetssertifikatPassordProsjektid,
+          @Value("${virksomhetssertifikat.passord.hemmelighetnavn}")
+          String virksomhetssertifikatPassordHemmelighetNavn,
+          @Value("${virksomhetssertifikat.passord.hemmelighetversjon}")
+          String virksomhetssertifikatPassordHemmelighetVersjon,
+          @Autowired(required = false) AccessSecretVersion accessSecretVersion)
+          throws IOException {
+
+    var sertifikatpassord =
+            accessSecretVersion
+                    .accessSecretVersion(
+                            virksomhetssertifikatPassordProsjektid,
+                            virksomhetssertifikatPassordHemmelighetNavn,
+                            virksomhetssertifikatPassordHemmelighetVersjon)
+                    .getData()
+                    .toStringUtf8();
+
+    var objectMapper = new ObjectMapper();
+    var farskapKeystoreCredentials =
+            objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
+
+    log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
+
+    var secretPayload =
+            accessSecretVersion.accessSecretVersion(
+                    virksomhetssertifikatProsjektid,
+                    virksomhetssertifikatHemmelighetNavn,
+                    virksomhetssertifikatHemmelighetVersjon);
+
+    log.info("lengde sertifikat: {}", secretPayload.getData().size());
+    var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
+
+    return KeyStoreConfig.fromJavaKeyStore(
+            inputStream,
+            farskapKeystoreCredentials.getAlias(),
+            farskapKeystoreCredentials.getPassword(),
+            farskapKeystoreCredentials.getPassword());
+  }
+
+  @Bean
   SkattConsumer skattConsumer(
           PoolingHttpClientConnectionManager httpClientConnectionManager,
-          @Value("url.skatt.base-url") String skattBaseUrl,
+          @Value("${SKATT_URL}") String skattBaseUrl,
           @Value("${url.skatt.registrering-av-farskap}") String endpoint,
           ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, skattBaseUrl + endpoint);

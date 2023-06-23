@@ -16,6 +16,7 @@ import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,7 +26,7 @@ public class HttpClientConfig {
 
   @Bean
   public PoolingHttpClientConnectionManager httpClientConnectionManager(
-      KeyStoreConfig keyStoreConfig) throws UnrecoverableKeyException, KeyManagementException {
+      @Qualifier("skatt") KeyStoreConfig keyStoreConfig) throws UnrecoverableKeyException, KeyManagementException {
     var sslContextBuilder = new SSLContextBuilder();
     try {
       sslContextBuilder

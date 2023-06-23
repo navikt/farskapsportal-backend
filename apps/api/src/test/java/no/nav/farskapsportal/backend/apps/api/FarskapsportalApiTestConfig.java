@@ -30,6 +30,8 @@ import org.springframework.core.io.ResourceLoader;
 public class FarskapsportalApiTestConfig {
 
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
+  private String keyStorePassword = "changeit";
+  private String keyStoreName = "esigneringkeystore.jceks";
 
   @Bean
   @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST})
@@ -45,19 +47,22 @@ public class FarskapsportalApiTestConfig {
 
   @Bean
   @Qualifier("skatt")
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST})
-  public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfigSkatt(@Autowired ResourceLoader resourceLoader) throws IOException {
-    try (InputStream inputStream = resourceLoader.getClassLoader().getResourceAsStream("esigneringkeystore.jceks")) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Fant ikke esigneringkeystore.jceks");
-      } else {
-        return no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig.fromJavaKeyStore(inputStream, "selfsigned", "changeit", "changeit");
-      }
-    }
+  @Profile({
+          PROFILE_TEST,
+          PROFILE_LOCAL,
+          PROFILE_LOCAL_POSTGRES,
+          PROFILE_REMOTE_POSTGRES,
+          PROFILE_SCHEDULED_TEST
+  })
+  public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfigSkatt(@Autowired ResourceLoader resourceLoader)
+          throws IOException {
+    return SkattStubSslConfiguration.createKeyStoreConfig(
+            resourceLoader, keyStorePassword, keyStoreName);
   }
 
   @Bean
   @Scope("prototype")
+  @Profile(PROFILE_SKATT_SSL_TEST)
   SkattConsumer skattConsumer(
           @Value("${url.skatt.base-url}") String baseUrl,
           @Value("${url.skatt.registrering-av-farskap}") String endpoint,
@@ -102,6 +107,7 @@ public class FarskapsportalApiTestConfig {
     }
 
     @Bean
+    @Qualifier("skatt")
     public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader)
             throws IOException {
       return SkattStubSslConfiguration.createKeyStoreConfig(

@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
+import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
@@ -22,6 +23,7 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
@@ -42,7 +44,7 @@ import org.springframework.test.context.ActiveProfiles;
 @EnableMockOAuth2Server
 @DisplayName("SkattConsumerSslTest")
 @ActiveProfiles(PROFILE_SKATT_SSL_TEST)
-@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = {FarskapsportalApiApplicationLocal.class, FarskapsportalApiConfig.class}, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerSslTest {
 
   private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;

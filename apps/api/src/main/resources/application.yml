@@ -213,12 +213,12 @@ DEAKTIVERINGSRATE: "1 * * * * ?"
 DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER: 1
 AZURE_APP_TENANT_ID: aad
 AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
+SKATT_URL: http://localhost:8080
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
   oppgave.base-url: ${WIREMOCK_URL}
-  skatt.base-url: http://localhost:8080
 
 farskapsportal-api.systembruker.passord: se-vault
 

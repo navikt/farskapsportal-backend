@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -31,6 +32,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -75,11 +77,12 @@ public class BrukernotifikasjonstyringTest {
 
   private Brukernotifikasjonstyring brukernotifikasjonstyring;
 
+  private AutoCloseable closeable;
 
   @BeforeEach
   void setup() {
 
-    MockitoAnnotations.openMocks(this); //without this you will get NPE
+   closeable = MockitoAnnotations.openMocks(this); //without this you will get NPE
 
     // Bønnen er kun tilgjengelig for live-profilen for å unngå skedulert trigging av metoden under test.
     brukernotifikasjonstyring = Brukernotifikasjonstyring.builder()
@@ -87,6 +90,11 @@ public class BrukernotifikasjonstyringTest {
         .farskapserklaeringDao(farskapserklaeringDao)
         .persistenceService(persistenceService)
         .build();
+  }
+
+  @AfterEach
+  void tearDown() throws Exception {
+    closeable.close();
   }
 
   @Test

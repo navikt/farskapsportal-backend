@@ -15,9 +15,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestApplication;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestConfig;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
@@ -30,7 +27,6 @@ import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
