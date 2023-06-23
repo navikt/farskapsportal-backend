@@ -27,6 +27,7 @@ import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("SkattConsumer")
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureWireMock(port = 0)
+@EnableMockOAuth2Server
 @DirtiesContext
 @ComponentScan("no.nav.farskapsportal.backend")
 @SpringBootTest(
