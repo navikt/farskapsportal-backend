@@ -1,7 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
-import static no.nav.farskapsportal.backend.apps.api.config.FarskapsportalAsynkronConfig.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_SCHEDULED_TEST;
 
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;

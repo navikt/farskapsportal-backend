@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
-import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalAsynkronConfig;
 import no.nav.farskapsportal.backend.apps.api.config.RestTemplateAsynkronConfig;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
@@ -27,7 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
 @SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {RestTemplateAsynkronConfig.class, FarskapsportalAsynkronConfig.class})
+@ContextConfiguration(classes = RestTemplateAsynkronConfig.class)
 public class OppgaveApiConsumerTest {
 
   @Autowired

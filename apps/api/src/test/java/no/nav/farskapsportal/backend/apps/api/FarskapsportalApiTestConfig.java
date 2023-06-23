@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.apps.api;
 
-import static no.nav.farskapsportal.backend.apps.api.config.FarskapsportalAsynkronConfig.PROFILE_SCHEDULED_TEST;
 import static no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattEndpoint.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;

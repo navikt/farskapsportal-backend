@@ -21,9 +21,13 @@ import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.tilgangskontroll.felles.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
+import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumerEndpoint;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumerEndpointName;
+import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
+import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattEndpoint;
 import no.nav.farskapsportal.backend.apps.api.model.Skriftspraak;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.Mapper;
@@ -34,6 +38,7 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.Bru
 import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.apache.commons.lang3.Validate;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.flywaydb.core.Flyway;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,6 +172,26 @@ public class FarskapsportalApiConfig {
         .personopplysningService(personopplysningService)
         .mapper(mapper)
         .build();
+  }
+
+  @Bean
+  public OppgaveApiConsumer oppgaveApiConsumer(
+          @Qualifier("oppgave") RestTemplate restTemplate,
+          @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
+          ConsumerEndpoint consumerEndpoint) {
+    consumerEndpoint.addEndpoint(
+            OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
+    return new OppgaveApiConsumer(restTemplate, consumerEndpoint);
+  }
+
+  @Bean
+  SkattConsumer skattConsumer(
+          PoolingHttpClientConnectionManager httpClientConnectionManager,
+          @Value("url.skatt.base-url") String skattBaseUrl,
+          @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+          ConsumerEndpoint consumerEndpoint) {
+    consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, skattBaseUrl + endpoint);
+    return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
   }
 
   @Bean

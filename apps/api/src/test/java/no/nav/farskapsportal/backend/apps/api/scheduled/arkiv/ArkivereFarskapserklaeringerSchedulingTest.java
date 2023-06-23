@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.arkiv;
 
-import static no.nav.farskapsportal.backend.apps.api.config.FarskapsportalAsynkronConfig.PROFILE_SCHEDULED_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_SCHEDULED_TEST;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
