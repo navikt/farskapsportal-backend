@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.Oppgave;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
@@ -27,6 +28,7 @@ public class Oppgavestyring {
   private static final String OPPGAVEBESKRIVELSE_GENERELL = "ELEKTRONISK ERKLÆRING -"
       + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
 
+  @SchedulerLock(name = "oppgave", lockAtLeastFor = "PT1", lockAtMostFor = "PT10M")
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse}")
   public int vurdereOpprettelseAvOppgave() {
 

@@ -51,6 +51,7 @@
         <spring-cloud-contract-wiremock.version>4.0.2</spring-cloud-contract-wiremock.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
+        <shedlock.version>5.5.0</shedlock.version>
     </properties>
 
     <dependencyManagement>
@@ -119,6 +120,11 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>${google.code.findbugs.jsr305.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate.validator</groupId>

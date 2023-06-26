@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -17,6 +18,7 @@ public class ArkivereFarskapserklaeringer {
   private SkattConsumer skattConsumer;
   private int intervallMellomForsoek;
 
+  @SchedulerLock(name = "arkivere", lockAtLeastFor = "PT5M", lockAtMostFor = "PT120M")
   @Scheduled(initialDelayString = "${farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse}", fixedDelayString = "${farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall}")
   public void vurdereArkivering() {
 

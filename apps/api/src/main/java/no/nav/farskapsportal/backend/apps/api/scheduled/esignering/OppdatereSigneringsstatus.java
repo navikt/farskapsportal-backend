@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.apps.api.scheduled.esignering;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -16,6 +17,7 @@ public class OppdatereSigneringsstatus {
   private FarskapsportalService farskapsportalService;
   private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
+  @SchedulerLock(name = "signeringsstatus", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
   @Scheduled(cron = "@hourly", zone = "Europe/Oslo")
   public void oppdatereSigneringsstatus() {
 

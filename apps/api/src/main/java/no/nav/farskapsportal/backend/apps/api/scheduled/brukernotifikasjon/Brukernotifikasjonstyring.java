@@ -2,6 +2,7 @@ package no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -16,6 +17,7 @@ public class Brukernotifikasjonstyring {
   private PersistenceService persistenceService;
   private FarskapserklaeringDao farskapserklaeringDao;
 
+  @SchedulerLock(name = "oppgavestyring", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall}")
   public void rydddeISigneringsoppgaver() {
     var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver();

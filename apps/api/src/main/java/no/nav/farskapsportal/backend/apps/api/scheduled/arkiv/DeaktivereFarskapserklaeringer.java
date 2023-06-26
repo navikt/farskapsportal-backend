@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.Arkiv;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
@@ -18,6 +19,7 @@ public class DeaktivereFarskapserklaeringer {
   private Arkiv egenskaperArkiv;
   private PersistenceService persistenceService;
 
+  @SchedulerLock(name = "deaktivere", lockAtLeastFor = "PT1M", lockAtMostFor = "PT14M")
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.arkiv.deaktiveringsrate}", zone = "Europe/Oslo")
   public void deaktivereFarskapserklaeringer() {
     deaktivereFarskapserklaeringerMedUtgaatteSigneringsoppdrag();
