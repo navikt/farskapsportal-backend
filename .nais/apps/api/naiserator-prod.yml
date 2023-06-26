@@ -55,7 +55,7 @@ spec:
         name: {{ gcp.sql-instances.name }}
         tier: {{ gcp.sql-instances.tier }}
         type: {{ gcp.sql-instances.type }}
-        databases:
+        databasƒes:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
   accessPolicy:
@@ -72,3 +72,4 @@ spec:
         - host: folkeregisteret.api.skatteetaten.no
         - host: secretmanager.googleapis.com
         - host: oppgave.prod-fss-pub.nais.io
+  webproxy: true
