@@ -5,6 +5,7 @@ gcp:
     name: farskapsportal-feature
     tier: db-custom-1-3840
     type: POSTGRES_12
+    cascading-delete: true
     databases:
       name: farskapsportaldb-feature
       env-var-prefix: DB
