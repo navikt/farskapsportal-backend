@@ -10,7 +10,7 @@ spec:
     application:
       allowAllUsers: true
       enabled: true
-  image:
+  image: {{ image }}
   kafka:
     pool: nav-dev
   liveness:
