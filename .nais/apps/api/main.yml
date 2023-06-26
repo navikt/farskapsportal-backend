@@ -1,5 +1,6 @@
 name: farskapsportal-api
 ingress: https://farskapsportal-api.intern.dev.nav.no
+replicas: 2
 gcp:
   sql-instances:
     name: fp-main
@@ -43,7 +44,7 @@ env:
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: SKATT_URL
-    value: https://folkeregisteret-api-ekstern.sits.no
+    value: https://folkeregisteret-api-ekstern.sits.noß
 # Fra gammel asynkron app
   - name: ARKIVERINGSINTERVALL
     value: 60000

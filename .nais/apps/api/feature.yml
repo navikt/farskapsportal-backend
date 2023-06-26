@@ -1,5 +1,6 @@
 name: farskapsportal-api-feature
 ingress: https://farskapsportal-api-feature.intern.dev.nav.no
+replicas: 1
 gcp:
   sql-instances:
     name: fp-feature
@@ -15,7 +16,7 @@ env:
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
   - name: POSTGRES_CONNECTION_NAME
-    value: farskapsportal-dev-169c:europe-north1:farskapsportal-feature
+    value: farskapsportal-dev-169c:europe-north1:fp-feature
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
