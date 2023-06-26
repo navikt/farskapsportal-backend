@@ -1,5 +1,6 @@
 name: farskapsportal-api
 ingress: https://farskapsportal-api.intern.dev.nav.no
+replicas: 2
 gcp:
   sql-instances:
     name: fp-main
@@ -18,8 +19,6 @@ env:
     value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
-  - name: DB_USER_ASYNKRON
-    value: asynkron_main
   - name: POSTGRES_CONNECTION_NAME
     value: farskapsportal-dev-169c:europe-north1:fp-main
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
@@ -45,6 +44,27 @@ env:
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: SKATT_URL
+    value: https://folkeregisteret-api-ekstern.sits.noß
+# Fra gammel asynkron app
+  - name: ARKIVERINGSINTERVALL
+    value: 60000
+  - name: ARKIVERINGSFORSINKELSE
+    value: 60000
+  - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
+    value: -150
+  - name: DEAKTIVERINGSRATE
+    value: "0 15 * * * ?"
+  - name: OPPGAVEAPI_URL
+    value: https://oppgave.dev-fss-pub.nais.io
+  - name: OPPGAVE_SCOPE
+    value: dev-fss.oppgavehandtering.oppgave
+  - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
-secret:
-  - name: farskapsportal-api-secret
+  - name: OPPGAVESTYRINGSINTERVALL
+    value: "0 0 7 * * ?"
+  - name: OPPGAVESTYRINGSFORSINKELSE
+    value: 1
+  - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
+    value: "0 0 11 ? * TUE"
+  - name: VURDERE_OPPGAVE_INTERVALL
+    value: "0 0 17 ? * 1-5"

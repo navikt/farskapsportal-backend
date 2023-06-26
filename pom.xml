@@ -36,7 +36,7 @@
         <jackson-core.version>2.12.7</jackson-core.version>
         <modelmapper.version>3.1.0</modelmapper.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
-        <google.guava.version>31.0.1-jre</google.guava.version>
+        <google.guava.version>32.0.1-jre</google.guava.version>
         <google.api.gax.version>2.29.0</google.api.gax.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <jetty-client.version>11.0.7</jetty-client.version>
@@ -51,6 +51,7 @@
         <spring-cloud-contract-wiremock.version>4.0.2</spring-cloud-contract-wiremock.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
+        <shedlock.version>5.5.0</shedlock.version>
     </properties>
 
     <dependencyManagement>
@@ -119,6 +120,11 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>${google.code.findbugs.jsr305.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate.validator</groupId>

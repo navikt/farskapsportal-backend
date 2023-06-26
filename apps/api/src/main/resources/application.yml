@@ -2,9 +2,6 @@ server.shutdown: graceful
 
 spring:
   devtools.add-properties: false
-  flyway:
-    placeholders:
-      user: ${DB_USER_ASYNKRON}
 
 springdoc:
   packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
@@ -22,18 +19,36 @@ virksomhetssertifikat:
     hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN}
     hemmelighetversjon: ${VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON}
 
-farskapsportal.egenskaper:
-  brukernotifikasjonerPaa: true
-  min-antall-uker-til-termindato: -3
-  maks-antall-uker-til-termindato: 21
-  nav-orgnummer: 889640782
-  kontroll-far-forsoek-fornyes-etter-antall-dager: 1
-  kontroll-far-maks-antall-forsoek: 3
-  esignering:
-    innhente-status-ved-polling: false
-    suksess-url: ${ESIGNERING_SUKSESS_URL}
-    avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
-    feilet-url: ${ESIGNERING_FEILET_URL}
+farskapsportal:
+  egenskaper:
+    brukernotifikasjonerPaa: true
+    min-antall-uker-til-termindato: -3
+    maks-antall-uker-til-termindato: 21
+    nav-orgnummer: 889640782
+    kontroll-far-forsoek-fornyes-etter-antall-dager: 1
+    kontroll-far-maks-antall-forsoek: 3
+    esignering:
+      innhente-status-ved-polling: false
+      suksess-url: ${ESIGNERING_SUKSESS_URL}
+      avbrutt-url: ${ESIGNERING_AVBRUTT_URL}
+      feilet-url: ${ESIGNERING_FEILET_URL}
+  asynkron.egenskaper:
+    oppdatere-signeringsstatus-min-antall-timer-etter-far-ble-sendt-til-signering: 1
+    brukernotifikasjon:
+      oppgavestyringsintervall: ${OPPGAVESTYRINGSINTERVALL}
+      oppgavestyringsforsinkelse: ${OPPGAVESTYRINGSFORSINKELSE}
+      varsle-om-uferdig-erklaering-cron: ${VARSLE_OM_UFERDIG_ERKLAERING_CRON}
+      varsle-om-manglendeSigneringEtterAntallDager: ${VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER}
+    arkiv:
+      arkiveringsintervall: ${ARKIVERINGSINTERVALL}
+      arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
+      deaktiveringsrate: ${DEAKTIVERINGSRATE}
+      levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
+      levetid-oversendte-farskapserklaeringer-i-dager: ${DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER}
+      levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
+    oppgave:
+      maks-antall-oppgaver-per-dag: 10
+      vurdere-opprettelse: ${VURDERE_OPPGAVE_INTERVALL}
 
 management:
   endpoints.web:
@@ -50,6 +65,12 @@ url:
   sts:
     base-url: ${APIGW_URL}
     security-token-service: "/security-token-service/rest/v1/sts/token"
+  oppgave:
+    base-url: ${OPPGAVEAPI_URL}
+    opprette: /api/v1/oppgaver
+  skatt:
+    base-url: ${SKATT_URL}
+    registrering-av-farskap: /folkeregisteret/mottak/api/registrering_av_farskap_v1.vedlegg
 
 farskapsportal-api:
   disable-esignering: false
@@ -59,16 +80,24 @@ no.nav.security.jwt:
   client:
     registration:
       pdl:
-        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://${PDL_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_post
+      oppgave:
+        token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+        grant-type: client_credentials
+        scope: api://${OPPGAVE_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
   issuer:
     aad:
-      discoveryurl: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
     selvbetjening:
       discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
@@ -95,21 +124,21 @@ spring:
     locations: classpath:/db/migration
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 ---
 ### H2 ###
 spring:
-  config.activate.on-profile: test, local
+  config.activate.on-profile: test, local, skatt-ssl-test, scheduled-test
   flyway.enabled: false
   datasource:
     url: jdbc:h2:mem:default
     datasource.type: com.zaxxer.hikari.HikariDataSource
   data.jpa.repositories.bootstrap-mode: default
   h2.console.enabled: true
-  jpa.hibernate.ddl-auto: create-drop
+  jpa:
+    hibernate.ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
 
 ---
 ### POSTGRES ###
@@ -133,14 +162,12 @@ spring:
     flyway.locations: classpath:/db/migration
   jpa:
     hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-
-DB_USER_ASYNKRON: asynkron_feature
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 ---
 ### MOCK AZURE ###
 spring:
-  config.activate.on-profile: test, local-postgres, remote-postgres, integration-test
+  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test, skatt-ssl-test, scheduled-test
 
 no.nav.security.jwt:
   expirythreshold: 1
@@ -153,7 +180,9 @@ no.nav.security.jwt:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
       accepted_audience: aud-localhost
       cookie_name: localhost-idtoken
-
+  client.registration:
+    oppgave:
+      token-endpoint-url: ${AZURE_BASE}
 
 ---
 spring:
@@ -175,10 +204,17 @@ NAV_TRUSTSTORE_PATH: certs/server-selfsigned.jks
 NAV_TRUSTSTORE_PASSWORD: qwer1234
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
+DEAKTIVERINGSRATE: "1 * * * * ?"
+DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER: 1
+AZURE_APP_TENANT_ID: aad
+AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
+SKATT_URL: http://localhost:8080
+AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
   sts.base-url: ${WIREMOCK_URL}
+  oppgave.base-url: ${WIREMOCK_URL}
 
 farskapsportal-api.systembruker.passord: se-vault
 
@@ -217,25 +253,29 @@ spring.kafka.consumer.auto-offset-reset: earliest
 
 ---
 
+spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
+---
+
 spring.config.activate.on-profile: local
+
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 600
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "0 0/30 * * * ?"
+farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
 
 # Lokal profil bruker selvstendige wiremocks
 wiremock.server:
   port: 0
   files: classpath:/__files
   stubs: classpath:/mappings
-
-no.nav.security.jwt:
-  expirythreshold: 1
-  issuer:
-    aad:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
-      accepted_audience: aud-localhost
-      cookie_name: localhost-idtoken
-    selvbetjening:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
-      accepted_audience: aud-localhost
-      cookie_name: localhost-idtoken
 
 ---
 spring:
