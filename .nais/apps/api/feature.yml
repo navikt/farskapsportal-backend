@@ -2,16 +2,11 @@ name: farskapsportal-api-feature
 ingress: https://farskapsportal-api-feature.intern.dev.nav.no
 gcp:
   sql-instances:
-    name: farskapsportal-feature
-    tier: db-custom-1-3840
-    type: POSTGRES_12
-    cascading-delete: true
+    name: fp-feature
+    type: POSTGRES_15
     databases:
-      name: farskapsportaldb-feature
+      name: fpdb-feature
       env-var-prefix: DB
-      users:
-        asynkron:
-          name: asynkron_feature
 env:
   - name: JAVA_TOOL_OPTIONS
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
