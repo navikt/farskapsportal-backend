@@ -127,6 +127,11 @@
                 <version>${shedlock.version}</version>
             </dependency>
             <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator-parent</artifactId>
                 <version>${hibernate-validator.version}</version>

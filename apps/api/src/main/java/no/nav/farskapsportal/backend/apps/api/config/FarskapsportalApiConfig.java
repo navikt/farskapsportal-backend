@@ -1,7 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
 import static no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig.X_API_KEY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -19,6 +18,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
@@ -60,6 +62,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -289,6 +292,18 @@ public class FarskapsportalApiConfig {
         throws InterruptedException {
       Thread.sleep(30000);
       Flyway.configure().dataSource(dataSource).load().migrate();
+    }
+  }
+
+  @Configuration
+  @Profile({PROFILE_LIVE, PROFILE_LOCAL_POSTGRES})
+  @EnableScheduling
+  @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
+  public class SchedulerConfiguration {
+
+    @Bean
+    public LockProvider lockProvider(DataSource dataSource) {
+      return new JdbcTemplateLockProvider(dataSource);
     }
   }
 
