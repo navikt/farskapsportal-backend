@@ -47,7 +47,7 @@ env:
     value: https://folkeregisteret-api-ekstern.sits.no
 # Fra gammel asynkron app
   - name: ARKIVERINGSINTERVALL
-    value: 60000
+    value: 1800000
   - name: ARKIVERINGSFORSINKELSE
     value: 60000
   - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
