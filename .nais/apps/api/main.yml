@@ -44,7 +44,7 @@ env:
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: SKATT_URL
-    value: https://folkeregisteret-api-ekstern.sits.noß
+    value: https://folkeregisteret-api-ekstern.sits.no
 # Fra gammel asynkron app
   - name: ARKIVERINGSINTERVALL
     value: 60000
@@ -68,3 +68,5 @@ env:
     value: "0 0 11 ? * TUE"
   - name: VURDERE_OPPGAVE_INTERVALL
     value: "0 0 17 ? * 1-5"
+secret:
+  - name: farskapsportal-api-secret
