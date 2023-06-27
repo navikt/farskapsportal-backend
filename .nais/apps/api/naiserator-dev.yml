@@ -28,7 +28,7 @@ spec:
     path: /internal/prometheus
   replicas:
     max: {{ replicas }}
-    min: 1
+    min: {{ replicas }}
   resources:
     limits:
       cpu: 1000m
