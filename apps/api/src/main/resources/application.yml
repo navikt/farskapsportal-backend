@@ -106,7 +106,7 @@ no.nav.security.jwt:
 ---
 spring:
   cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
-  config.activate.on-profile: live
+  config.activate.on-profile: live, integration-test
   cloud.gcp.sql.database-name: ${DB_DATABASE}
   cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
   datasource:
@@ -149,7 +149,7 @@ spring:
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, integration-test, remote-postgres
+  config.activate.on-profile: local-postgres, remote-postgres, remote-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -192,7 +192,7 @@ no.nav.security.jwt:
 
 ---
 spring:
-  config.activate.on-profile: test, local, local-postgres, integration-test, remote-postgres
+  config.activate.on-profile: test, local, local-postgres, remote-postgres
   main.allow-bean-definition-overriding: true
 
 INTEGRATION_TEST_CONTROLLER_PAA: true
@@ -336,6 +336,27 @@ wiremock.server:
   port: 0
   files: classpath:/__files
   stubs: classpath:/mappings
+
+---
+spring:
+  config.activate.on-profile: integration-test
+
+DB_DATABASE: fpdb-main
+POSTGRES_CONNECTION_NAME: farskapsportal-dev-169c:europe-north1:fp-main
+SKATT_URL: https://folkeregisteret-api-ekstern.sits.no
+WIREMOCK_URL: http://localhost
+
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 6000000
+farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 2000000
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"
+farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
+
+url:
+  pdl-api.base-url: ${WIREMOCK_URL}
+  sts.base-url: ${WIREMOCK_URL}
+  oppgave.base-url: ${WIREMOCK_URL}
 
 ---
 

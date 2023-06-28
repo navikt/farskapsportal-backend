@@ -12,10 +12,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockProvider;
@@ -187,11 +185,11 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public OppgaveApiConsumer oppgaveApiConsumer(
-          @Qualifier("oppgave") RestTemplate restTemplate,
-          @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
-          ConsumerEndpoint consumerEndpoint) {
+      @Qualifier("oppgave") RestTemplate restTemplate,
+      @Value("${url.oppgave.opprette}") String oppretteOppgaveEndpoint,
+      ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(
-            OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
+        OppgaveApiConsumerEndpoint.OPPRETTE_OPPGAVE_ENDPOINT_NAME, oppretteOppgaveEndpoint);
     return new OppgaveApiConsumer(restTemplate, consumerEndpoint);
   }
 
@@ -199,57 +197,57 @@ public class FarskapsportalApiConfig {
   @Qualifier("skatt")
   @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
   public KeyStoreConfig keyStoreConfigSkatt(
-          @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
-          @Value("${virksomhetssertifikat.hemmelighetnavn}")
+      @Value("${virksomhetssertifikat.prosjektid}") String virksomhetssertifikatProsjektid,
+      @Value("${virksomhetssertifikat.hemmelighetnavn}")
           String virksomhetssertifikatHemmelighetNavn,
-          @Value("${virksomhetssertifikat.hemmelighetversjon}")
+      @Value("${virksomhetssertifikat.hemmelighetversjon}")
           String virksomhetssertifikatHemmelighetVersjon,
-          @Value("${virksomhetssertifikat.passord.prosjektid}")
+      @Value("${virksomhetssertifikat.passord.prosjektid}")
           String virksomhetssertifikatPassordProsjektid,
-          @Value("${virksomhetssertifikat.passord.hemmelighetnavn}")
+      @Value("${virksomhetssertifikat.passord.hemmelighetnavn}")
           String virksomhetssertifikatPassordHemmelighetNavn,
-          @Value("${virksomhetssertifikat.passord.hemmelighetversjon}")
+      @Value("${virksomhetssertifikat.passord.hemmelighetversjon}")
           String virksomhetssertifikatPassordHemmelighetVersjon,
-          @Autowired(required = false) AccessSecretVersion accessSecretVersion)
-          throws IOException {
+      @Autowired(required = false) AccessSecretVersion accessSecretVersion)
+      throws IOException {
 
     var sertifikatpassord =
-            accessSecretVersion
-                    .accessSecretVersion(
-                            virksomhetssertifikatPassordProsjektid,
-                            virksomhetssertifikatPassordHemmelighetNavn,
-                            virksomhetssertifikatPassordHemmelighetVersjon)
-                    .getData()
-                    .toStringUtf8();
+        accessSecretVersion
+            .accessSecretVersion(
+                virksomhetssertifikatPassordProsjektid,
+                virksomhetssertifikatPassordHemmelighetNavn,
+                virksomhetssertifikatPassordHemmelighetVersjon)
+            .getData()
+            .toStringUtf8();
 
     var objectMapper = new ObjectMapper();
     var farskapKeystoreCredentials =
-            objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
+        objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
 
     log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
 
     var secretPayload =
-            accessSecretVersion.accessSecretVersion(
-                    virksomhetssertifikatProsjektid,
-                    virksomhetssertifikatHemmelighetNavn,
-                    virksomhetssertifikatHemmelighetVersjon);
+        accessSecretVersion.accessSecretVersion(
+            virksomhetssertifikatProsjektid,
+            virksomhetssertifikatHemmelighetNavn,
+            virksomhetssertifikatHemmelighetVersjon);
 
     log.info("lengde sertifikat: {}", secretPayload.getData().size());
     var inputStream = new ByteArrayInputStream(secretPayload.getData().toByteArray());
 
     return KeyStoreConfig.fromJavaKeyStore(
-            inputStream,
-            farskapKeystoreCredentials.getAlias(),
-            farskapKeystoreCredentials.getPassword(),
-            farskapKeystoreCredentials.getPassword());
+        inputStream,
+        farskapKeystoreCredentials.getAlias(),
+        farskapKeystoreCredentials.getPassword(),
+        farskapKeystoreCredentials.getPassword());
   }
 
   @Bean
   SkattConsumer skattConsumer(
-          PoolingHttpClientConnectionManager httpClientConnectionManager,
-          @Value("${SKATT_URL}") String skattBaseUrl,
-          @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-          ConsumerEndpoint consumerEndpoint) {
+      PoolingHttpClientConnectionManager httpClientConnectionManager,
+      @Value("${SKATT_URL}") String skattBaseUrl,
+      @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+      ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, skattBaseUrl + endpoint);
     return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
   }
@@ -277,9 +275,7 @@ public class FarskapsportalApiConfig {
 
   private String henteIdentFraToken() {
     var ident = SecurityUtils.hentePid(oidcTokenManager.hentToken());
-    return erNumerisk(ident)
-        ? ident
-        : SecurityUtils.henteSubject(oidcTokenManager.hentToken());
+    return erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentToken());
   }
 
   @Configuration
@@ -287,8 +283,7 @@ public class FarskapsportalApiConfig {
   public static class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(
-        @Qualifier("dataSource") DataSource dataSource)
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource)
         throws InterruptedException {
       Thread.sleep(30000);
       Flyway.configure().dataSource(dataSource).load().migrate();

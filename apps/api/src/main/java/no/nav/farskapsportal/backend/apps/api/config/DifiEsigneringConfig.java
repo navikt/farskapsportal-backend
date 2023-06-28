@@ -72,7 +72,7 @@ public class DifiEsigneringConfig {
     }
 
     @Bean
-    @Profile(PROFILE_LIVE)
+    @Profile({PROFILE_LIVE, PROFILE_INTEGRATION_TEST})
     public ClientConfiguration clientConfiguration(KeyStoreConfig keyStoreConfig) {
         var serviceEnvironment = miljoe.equals(NavClusterName.TEST.toString()) ? ServiceEnvironment.STAGING : ServiceEnvironment.PRODUCTION;
         log.info("Kobler opp mot Postens {}-milljø for esignering med service-uri {}.", miljoe.toLowerCase(Locale.ROOT), serviceEnvironment.signatureServiceRootUrl());

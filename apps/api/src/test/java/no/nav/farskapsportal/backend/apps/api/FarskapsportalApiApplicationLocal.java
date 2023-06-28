@@ -137,8 +137,7 @@ public class FarskapsportalApiApplicationLocal {
   @Profile({
     PROFILE_LOCAL,
     PROFILE_LOCAL_POSTGRES,
-    PROFILE_REMOTE_POSTGRES,
-    PROFILE_INTEGRATION_TEST
+    PROFILE_REMOTE_POSTGRES
   })
   @EnableMockOAuth2Server
   @AutoConfigureWireMock(port = 0)

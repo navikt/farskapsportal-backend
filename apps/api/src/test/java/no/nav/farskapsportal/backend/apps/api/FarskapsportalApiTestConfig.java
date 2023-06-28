@@ -2,12 +2,10 @@ package no.nav.farskapsportal.backend.apps.api;
 
 import static no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattEndpoint.MOTTA_FARSKAPSERKLAERING;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
@@ -77,7 +75,7 @@ public class FarskapsportalApiTestConfig {
 
   @Lazy
   @Configuration
-  @Profile({PROFILE_SKATT_SSL_TEST, PROFILE_INTEGRATION_TEST})
+  @Profile({PROFILE_SKATT_SSL_TEST})
   public static class SkattStubSslConfiguration {
 
     @Value("${server.port}")
@@ -122,19 +120,6 @@ public class FarskapsportalApiTestConfig {
     @Bean
     public TokenValidationContextHolder oidcRequestContextHolder() {
       return new SpringTokenValidationContextHolder();
-    }
-
-    @Bean
-    @Qualifier(PROFILE_INTEGRATION_TEST)
-    SkattConsumer skattConsumerIntegrationTest(
-            @Value("${url.skatt.base-url}") String baseUrl,
-            @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-            PoolingHttpClientConnectionManager httpClientConnectionManager) {
-      log.info("Oppretter SkattConsumer med url {}", baseUrl);
-      var consumerEndpoint = new ConsumerEndpoint();
-      consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
-
-      return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
     }
 
     @Bean
