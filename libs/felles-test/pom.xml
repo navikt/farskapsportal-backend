@@ -29,6 +29,10 @@
       <artifactId>wiremock-jre8-standalone</artifactId>
       <scope>compile</scope>
     </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-web</artifactId>
+      </dependency>
   </dependencies>
 
 </project>

@@ -49,9 +49,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("DifiESignaturConsumer")
+@DirtiesContext
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(PROFILE_TEST)
 @SpringBootTest(classes = {FarskapsportalApiTestConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

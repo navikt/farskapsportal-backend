@@ -27,8 +27,8 @@ spec:
     enabled: true
     path: /internal/prometheus
   replicas:
-    max: 1
-    min: 1
+    max: {{ replicas }}
+    min: {{ replicas }}
   resources:
     limits:
       cpu: 1000m
@@ -67,18 +67,19 @@ spec:
         databases:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
-            users:
-              - name: {{ gcp.sql-instances.databases.users.asynkron.name }}
   accessPolicy:
     inbound:
       rules:
-        - application: asynkron
-        - application: asynkron-feature
         - application: farskapsportal-ui
         - application: farskapsportal-ui-feature
+        - application: statuspoll
+          namespace: navdig
+          cluster: dev-gcp
     outbound:
       external:
         - host: api-gw-q1.oera.no
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
+        - host: oppgave.dev-fss-pub.nais.io
+  webproxy: true
