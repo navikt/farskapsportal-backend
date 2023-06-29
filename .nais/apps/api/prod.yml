@@ -67,3 +67,5 @@ env:
     value: "0 0 14 ? * TUE"
   - name: VURDERE_OPPGAVE_INTERVALL
     value: "0 0 7 ? * 1-5"
+secret:
+  - name: farskapsportal-api-secret
