@@ -12,6 +12,7 @@ import no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon.Bruke
 import no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon.Varsel;
 import no.nav.farskapsportal.backend.apps.api.scheduled.esignering.OppdatereSigneringsstatus;
 import no.nav.farskapsportal.backend.apps.api.scheduled.oppgave.Oppgavestyring;
+import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -61,10 +62,11 @@ public class ScheduledConfig {
 
   @Bean
   public OppdatereSigneringsstatus oppdatereSigneringsstatus(
-      PersistenceService persistenceService) {
+      FarskapsportalService farskapsportalService, PersistenceService persistenceService) {
 
     return OppdatereSigneringsstatus.builder()
         .farskapsportalAsynkronEgenskaper(farskapsportalAsynkronEgenskaper)
+        .farskapsportalService(farskapsportalService)
         .persistenceService(persistenceService)
         .build();
   }
