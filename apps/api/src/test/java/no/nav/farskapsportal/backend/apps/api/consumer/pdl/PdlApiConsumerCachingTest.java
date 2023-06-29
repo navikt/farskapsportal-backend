@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,15 +29,16 @@ import org.springframework.test.util.AopTestUtils;
 @ExtendWith(SpringExtension.class)
 public class PdlApiConsumerCachingTest {
 
-  private final static String FNR_OPPGITT_FAR = "01018512345";
-  private final static NavnDto REGISTRERT_NAVN_FAR = NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
-  private final static String FNR_OPPGITT_MOR = "01018512245";
-  private final static NavnDto REGISTRERT_NAVN_MOR = NavnDto.builder().fornavn("Kari").etternavn("Nordmann").build();
+  private static final String FNR_OPPGITT_FAR = "01018512345";
+  private static final NavnDto REGISTRERT_NAVN_FAR =
+      NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
+  private static final String FNR_OPPGITT_MOR = "01018512245";
+  private static final NavnDto REGISTRERT_NAVN_MOR =
+      NavnDto.builder().fornavn("Kari").etternavn("Nordmann").build();
 
   private PdlApiConsumer mock;
 
-  @Autowired
-  private PdlApiConsumer pdlApiConsumer;
+  @Autowired private PdlApiConsumer pdlApiConsumer;
 
   @BeforeEach
   void setUp() {
@@ -46,8 +46,7 @@ public class PdlApiConsumerCachingTest {
 
     reset(mock);
 
-    when(mock.hentNavnTilPerson(eq(FNR_OPPGITT_FAR)))
-        .thenReturn(REGISTRERT_NAVN_FAR);
+    when(mock.hentNavnTilPerson(eq(FNR_OPPGITT_FAR))).thenReturn(REGISTRERT_NAVN_FAR);
 
     when(mock.hentNavnTilPerson(eq(FNR_OPPGITT_MOR)))
         .thenReturn(REGISTRERT_NAVN_MOR)
@@ -56,21 +55,32 @@ public class PdlApiConsumerCachingTest {
 
   @Test
   void foersteKallHenterDataFraPdl_PaafoelgendeKallHenterFraCache() {
-    assertEquals(REGISTRERT_NAVN_FAR.getFornavn(), pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_FAR).getFornavn());
+    assertEquals(
+        REGISTRERT_NAVN_FAR.getFornavn(),
+        pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_FAR).getFornavn());
     verify(mock).hentNavnTilPerson(FNR_OPPGITT_FAR);
 
-    assertEquals(REGISTRERT_NAVN_FAR.getFornavn(), pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_FAR).getFornavn());
-    assertEquals(REGISTRERT_NAVN_FAR.getFornavn(), pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_FAR).getFornavn());
+    assertEquals(
+        REGISTRERT_NAVN_FAR.getFornavn(),
+        pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_FAR).getFornavn());
+    assertEquals(
+        REGISTRERT_NAVN_FAR.getFornavn(),
+        pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_FAR).getFornavn());
     verifyNoMoreInteractions(mock);
 
-    assertEquals(REGISTRERT_NAVN_MOR.getFornavn(), pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_MOR).getFornavn());
+    assertEquals(
+        REGISTRERT_NAVN_MOR.getFornavn(),
+        pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_MOR).getFornavn());
     verify(mock).hentNavnTilPerson(FNR_OPPGITT_MOR);
 
-    assertEquals(REGISTRERT_NAVN_MOR.getFornavn(), pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_MOR).getFornavn());
-    assertEquals(REGISTRERT_NAVN_MOR.getFornavn(), pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_MOR).getFornavn());
+    assertEquals(
+        REGISTRERT_NAVN_MOR.getFornavn(),
+        pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_MOR).getFornavn());
+    assertEquals(
+        REGISTRERT_NAVN_MOR.getFornavn(),
+        pdlApiConsumer.hentNavnTilPerson(FNR_OPPGITT_MOR).getFornavn());
     verifyNoMoreInteractions(mock);
   }
-
 
   @EnableCaching
   @Configuration

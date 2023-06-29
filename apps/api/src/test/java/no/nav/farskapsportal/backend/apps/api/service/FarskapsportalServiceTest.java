@@ -45,6 +45,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
+import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestConfig;
 import no.nav.farskapsportal.backend.apps.api.model.KontrollerePersonopplysningerRequest;
 import no.nav.farskapsportal.backend.apps.api.model.OppdatereFarskapserklaeringRequest;
 import no.nav.farskapsportal.backend.apps.api.model.OppretteFarskapserklaeringRequest;
@@ -95,7 +96,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("FarskapserklaeringService")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalApiApplicationLocal.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {FarskapsportalApiApplicationLocal.class, FarskapsportalApiTestConfig.class})
 @AutoConfigureWireMock(port = 0)
 @EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)

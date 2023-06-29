@@ -1,12 +1,13 @@
 package no.nav.farskapsportal.backend.libs.dto.skatt.api;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.datatype.XMLGregorianCalendar;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Dato {
 
-  @XmlValue
-  private XMLGregorianCalendar date;
+    @XmlValue
+    private XMLGregorianCalendar date;
 
 }

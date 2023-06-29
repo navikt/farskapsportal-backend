@@ -39,15 +39,6 @@ public class RestTemplateTestConfig {
     return httpHeaderTestRestTemplate;
   }
 
-  @Bean("asynkron")
-  HttpHeaderTestRestTemplate httpHeaderTestRestTemplateAsynkron() {
-    TestRestTemplate testRestTemplate = new TestRestTemplate(new RestTemplateBuilder());
-    HttpHeaderTestRestTemplate httpHeaderTestRestTemplate = new HttpHeaderTestRestTemplate(testRestTemplate);
-    httpHeaderTestRestTemplate.add(HttpHeaders.AUTHORIZATION, () -> generateTestToken(Farskapsportalapp.ASYNKRON));
-
-    return httpHeaderTestRestTemplate;
-  }
-
   public enum Farskapsportalapp {
     API, ASYNKRON
   }

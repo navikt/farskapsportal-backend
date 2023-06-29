@@ -6,9 +6,6 @@ on:
       - 'apps/api/**'
       - '.nais/apps/api/**'
       - '**/api-ci.yml'
-      - 'apps/asynkron/**'
-      - '.nais/apps/asynkron/**'
-      - '**/asynkron-ci.yml'
 
 jobs:
   tag:
