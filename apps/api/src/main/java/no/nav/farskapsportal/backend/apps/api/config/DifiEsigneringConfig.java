@@ -108,7 +108,11 @@ public class DifiEsigneringConfig {
               t.responseArrivalTimeout(ofMillis(15000));
               t.connectionRequestTimeout(ofMillis(15000));
             })
-        .timeoutsForDocumentDownloads(t -> t.responseArrivalTimeout(ofMillis(15000)))
+        .timeoutsForDocumentDownloads(
+            t -> {
+              t.responseArrivalTimeout(ofMillis(15000));
+              t.connectionRequestTimeout(ofMillis(15000));
+            })
         .serviceEnvironment(serviceEnvironment)
         .defaultSender(new Sender(farskapsportalApiEgenskaper.getNavOrgnummer()))
         .build();
