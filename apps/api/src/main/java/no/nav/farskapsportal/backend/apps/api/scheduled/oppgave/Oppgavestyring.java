@@ -28,7 +28,7 @@ public class Oppgavestyring {
   private static final String OPPGAVEBESKRIVELSE_GENERELL = "ELEKTRONISK ERKLÆRING -"
       + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
 
-  @SchedulerLock(name = "oppgave", lockAtLeastFor = "PT1", lockAtMostFor = "PT10M")
+  @SchedulerLock(name = "oppgave", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse}")
   public void vurdereOpprettelseAvOppgave() {
 
