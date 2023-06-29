@@ -104,6 +104,7 @@ public class DifiEsigneringConfig {
         serviceEnvironment.signatureServiceRootUrl());
     return ClientConfiguration.builder(keyStoreConfig)
         .timeouts(t -> t.responseArrivalTimeout(ofMillis(15000)))
+        .timeouts(t -> t.connectionRequestTimeout(ofMillis(15000)))
         .timeoutsForDocumentDownloads(t -> t.responseArrivalTimeout(ofMillis(15000)))
         .serviceEnvironment(serviceEnvironment)
         .defaultSender(new Sender(farskapsportalApiEgenskaper.getNavOrgnummer()))
