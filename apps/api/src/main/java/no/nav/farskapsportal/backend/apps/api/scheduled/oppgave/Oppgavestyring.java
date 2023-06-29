@@ -30,7 +30,7 @@ public class Oppgavestyring {
 
   @SchedulerLock(name = "oppgave", lockAtLeastFor = "PT1", lockAtMostFor = "PT10M")
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse}")
-  public int vurdereOpprettelseAvOppgave() {
+  public void vurdereOpprettelseAvOppgave() {
 
     log.info("Vurderer opprettelse av oppgave for foreldre som ikke bor sammen ved fødsel.");
     var grenseverdiTermindato = LocalDate.now().minusWeeks(2);
@@ -63,8 +63,6 @@ public class Oppgavestyring {
 
     log.info("Det ble opprettet oppgave for {} av {} identifiserte farskapserklæringer", teller,
         farskapseerklaeringerDetSkalOpprettesOppgaverFor.size());
-
-    return teller;
   }
 
   private long oppretteOppgave(int farskapserklaeringsId) {

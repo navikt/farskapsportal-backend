@@ -7,7 +7,8 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -134,8 +135,7 @@ public class OppgavestyringTest {
             LocalDate.now().minusWeeks(2), LocalDateTime.now().with(LocalTime.MIDNIGHT));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer =
-        oppgavestyring.vurdereOpprettelseAvOppgave();
+    oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var idTilFarskapserklaeringerSomGjenstaar =
@@ -144,9 +144,7 @@ public class OppgavestyringTest {
 
     assertAll(
         () -> assertThat(idTilFarskapserklaeringerDetSkalOpprettesOppgaverFor.size()).isEqualTo(3),
-        () ->
-            assertThat(oppgaveOpprettetForAntallFarskapserklaeringer)
-                .isEqualTo(maksAntallErklaeringer),
+        () -> verify(oppgaveApiConsumer, times(2)).oppretteOppgave(any()),
         () -> assertThat(idTilFarskapserklaeringerSomGjenstaar.size()).isEqualTo(1));
   }
 
@@ -172,11 +170,10 @@ public class OppgavestyringTest {
 
     var oppgaveforespoerselfanger = ArgumentCaptor.forClass(Oppgaveforespoersel.class);
     when(egenskaperOppgave.getMaksAntallOppgaverPerDag()).thenReturn(10);
+    when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
 
     // when
-    when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
-    var oppgaveOpprettetForAntallFarskapserklaeringer =
-        oppgavestyring.vurdereOpprettelseAvOppgave();
+    oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var oppdatertFarskapserklaering =
@@ -190,7 +187,7 @@ public class OppgavestyringTest {
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
-        () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(1),
+        () -> verify(oppgaveApiConsumer, times(1)).oppretteOppgave(any()),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
         () ->
             assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
@@ -239,11 +236,10 @@ public class OppgavestyringTest {
     var oppgaveforespoerselfanger = ArgumentCaptor.forClass(Oppgaveforespoersel.class);
 
     when(egenskaperOppgave.getMaksAntallOppgaverPerDag()).thenReturn(10);
+    when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
 
     // when
-    when(oppgaveApiConsumer.oppretteOppgave(oppgaveforespoerselfanger.capture())).thenReturn(1234l);
-    var oppgaveOpprettetForAntallFarskapserklaeringer =
-        oppgavestyring.vurdereOpprettelseAvOppgave();
+    oppgavestyring.vurdereOpprettelseAvOppgave();
 
     when(egenskaperOppgave.getMaksAntallOppgaverPerDag()).thenReturn(10);
 
@@ -259,7 +255,7 @@ public class OppgavestyringTest {
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
-        () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(1),
+        () -> verify(oppgaveApiConsumer, times(1)).oppretteOppgave(any()),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
         () ->
             assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
@@ -310,8 +306,7 @@ public class OppgavestyringTest {
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer =
-        oppgavestyring.vurdereOpprettelseAvOppgave();
+    oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var oppdatertFarskapserklaering =
@@ -320,7 +315,7 @@ public class OppgavestyringTest {
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
-        () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
+        () -> verify(oppgaveApiConsumer, times(0)).oppretteOppgave(any()),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNull());
   }
 
@@ -345,8 +340,7 @@ public class OppgavestyringTest {
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer =
-        oppgavestyring.vurdereOpprettelseAvOppgave();
+    oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var oppdatertFarskapserklaering =
@@ -355,7 +349,7 @@ public class OppgavestyringTest {
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
-        () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
+        () -> verify(oppgaveApiConsumer, times(0)).oppretteOppgave(any()),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNull());
   }
 
@@ -382,8 +376,7 @@ public class OppgavestyringTest {
         .thenReturn(Optional.of(morsAktoerid));
 
     // when
-    var oppgaveOpprettetForAntallFarskapserklaeringer =
-        oppgavestyring.vurdereOpprettelseAvOppgave();
+    oppgavestyring.vurdereOpprettelseAvOppgave();
 
     // then
     var oppdatertFarskapserklaering =
@@ -392,7 +385,7 @@ public class OppgavestyringTest {
     assertAll(
         () -> assertThat(lagretFarskapserklaering.getOppgaveSendt()).isNotNull(),
         () -> assertThat(oppdatertFarskapserklaering.isPresent()).isTrue(),
-        () -> assertThat(oppgaveOpprettetForAntallFarskapserklaeringer).isEqualTo(0),
+        () -> verify(oppgaveApiConsumer, times(0)).oppretteOppgave(any()),
         () -> assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt()).isNotNull(),
         () ->
             assertThat(oppdatertFarskapserklaering.get().getOppgaveSendt())
