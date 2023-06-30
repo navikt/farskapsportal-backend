@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @Slf4j
 @Validated
 @RestController
@@ -162,7 +164,7 @@ public class FarskapsportalController {
               description = "statusQueryToken som mottatt fra e-signeringsløsningen i redirect-url",
               required = true)
           @RequestParam(name = "status_query_token")
-          String statusQueryToken) {
+          String statusQueryToken) throws IOException {
     var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     var signertDokument =
         farskapsportalService.oppdatereStatusSigneringsjobb(

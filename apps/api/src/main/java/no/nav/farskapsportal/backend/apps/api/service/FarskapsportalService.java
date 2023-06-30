@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.apps.api.service;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -232,7 +233,7 @@ public class FarskapsportalService {
    * @return kopi av signert dokument
    */
   @Transactional(noRollbackFor = EsigneringStatusFeiletException.class)
-  public FarskapserklaeringDto oppdatereStatusSigneringsjobb(String fnrPaaloggetPerson, int idFarskapserklaering, String statusQueryToken) {
+  public FarskapserklaeringDto oppdatereStatusSigneringsjobb(String fnrPaaloggetPerson, int idFarskapserklaering, String statusQueryToken) throws IOException {
 
     log.info("Oppdaterer status på signeringsoppdrag for pålogget person");
 
@@ -250,7 +251,7 @@ public class FarskapsportalService {
   }
 
   @Transactional(noRollbackFor = EsigneringStatusFeiletException.class)
-  public void synkronisereSigneringsstatusFar(int idFarskapserklaering) {
+  public void synkronisereSigneringsstatusFar(int idFarskapserklaering) throws IOException {
     log.info("Oppdaterer status på fars signeringsjobb i farskapserklaering med id {}", idFarskapserklaering);
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
 
@@ -266,7 +267,7 @@ public class FarskapsportalService {
     }
   }
 
-  private FarskapserklaeringDto oppdatereStatusSigneringsjobb(int idFarskapserklaering, String statusQueryToken, String fnrPaaloggetPerson) {
+  private FarskapserklaeringDto oppdatereStatusSigneringsjobb(int idFarskapserklaering, String statusQueryToken, String fnrPaaloggetPerson) throws IOException {
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
 
     if (farskapserklaering == null) {
@@ -345,12 +346,12 @@ public class FarskapsportalService {
   }
 
   private void oppdatereSigneringsinfoForPaaloggetPerson(String fnrPaaloggetPerson, DokumentStatusDto dokumentStatusDto,
-      Farskapserklaering aktuellFarskapserklaering) {
+      Farskapserklaering aktuellFarskapserklaering) throws IOException {
     oppdatereSigneringsinfo(Optional.of(fnrPaaloggetPerson), dokumentStatusDto, aktuellFarskapserklaering);
   }
 
   private Farskapserklaering oppdatereSigneringsinfo(Optional<String> fnrPaaloggetPerson, DokumentStatusDto dokumentStatusDto,
-      Farskapserklaering aktuellFarskapserklaering) {
+      Farskapserklaering aktuellFarskapserklaering) throws IOException {
 
     // Oppdatere foreldrenes signeringsinfo
     for (SignaturDto signatur : dokumentStatusDto.getSignaturer()) {
@@ -375,7 +376,7 @@ public class FarskapsportalService {
 
   @Nullable
   private Farskapserklaering oppdatereSigneringsinfoForFar(DokumentStatusDto dokumentStatusDto, Farskapserklaering aktuellFarskapserklaering,
-      SignaturDto signatur) {
+      SignaturDto signatur) throws IOException {
 
     haandetereStatusFeilet(dokumentStatusDto, aktuellFarskapserklaering, Rolle.FAR);
 
@@ -414,7 +415,7 @@ public class FarskapsportalService {
 
   @Nullable
   private Farskapserklaering oppdatereSigneringsinfoForMor(DokumentStatusDto dokumentStatusDto, Farskapserklaering aktuellFarskapserklaering,
-      SignaturDto signatur) {
+      SignaturDto signatur) throws IOException {
 
     haandetereStatusFeilet(dokumentStatusDto, aktuellFarskapserklaering, Rolle.MOR);
 

@@ -17,6 +17,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -1994,7 +1995,7 @@ public class FarskapsportalControllerTest {
 
     @Test
     @DisplayName("Skal oppdatere status på signeringsjobb etter mors redirect")
-    void skalOppdatereStatusPaaSigneringsjobbEtterMorsRedirect() {
+    void skalOppdatereStatusPaaSigneringsjobbEtterMorsRedirect() throws IOException {
 
       // given
       var farskapserklaeringUtenSignaturer =
@@ -2218,7 +2219,7 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    void skalLagreOppdatertPadesUrlVedOppdateringAvStatus() {
+    void skalLagreOppdatertPadesUrlVedOppdateringAvStatus() throws IOException {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -2635,7 +2636,7 @@ public class FarskapsportalControllerTest {
 
     @Test
     void
-        skalReturnereHttpStatusInternalServerErrorDersomXadeslenkeManglerEtterSigneringMedSuksess() {
+        skalReturnereHttpStatusInternalServerErrorDersomXadeslenkeManglerEtterSigneringMedSuksess() throws IOException {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();

@@ -149,7 +149,7 @@ spring:
 ---
 ### POSTGRES ###
 spring:
-  config.activate.on-profile: local-postgres, remote-postgres, remote-postgres
+  config.activate.on-profile: local-postgres
   # Oppsett for flyway med hikari og postgres
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -309,11 +309,14 @@ wiremock.server:
 ---
 spring:
   config.activate.on-profile: remote-postgres
+  flyway:
+    enabled: false
+    locations: classpath:/db/migration
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://localhost:5432/farskapsportaldb-feature
+    url: jdbc:postgresql://localhost:5433/fpdb-prod
     password: ${REMOTE_POSTGRES_PWD}
-    databaseName: farskapsportaldb-feature
+    databaseName: fpdb-prod
 
 ---
 # Integrasjonstesting mot Posten

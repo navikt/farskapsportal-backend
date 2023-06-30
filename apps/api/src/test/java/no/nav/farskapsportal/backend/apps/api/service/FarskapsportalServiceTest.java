@@ -33,6 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -1167,7 +1168,7 @@ public class FarskapsportalServiceTest {
   class OppdatereStatusSigneringsjobb {
 
     @Test
-    void skalOppdatereSigneringsinformasjonForMorEtterRedirectDersomStatusQueryTokenErGyldig() {
+    void skalOppdatereSigneringsinformasjonForMorEtterRedirectDersomStatusQueryTokenErGyldig() throws IOException {
 
       // given
       oppgavebestillingDao.deleteAll();
@@ -1229,7 +1230,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalOppdatereSigneringsinformasjonForFarEtterRedirectDersomStatusQueryTokenErGyldig() {
+    void skalOppdatereSigneringsinformasjonForFarEtterRedirectDersomStatusQueryTokenErGyldig() throws IOException {
 
       // given
       farskapserklaeringDao.deleteAll();
@@ -1292,7 +1293,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalOppdatereSigneringsjobbDersomMorHarAktivOgDeaktivertFarskapserklaering() {
+    void skalOppdatereSigneringsjobbDersomMorHarAktivOgDeaktivertFarskapserklaering() throws IOException {
 
       // given
       farskapserklaeringDao.deleteAll();
@@ -1359,7 +1360,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalSletteSigneringsoppgaveNaarFarSignerer() {
+    void skalSletteSigneringsoppgaveNaarFarSignerer() throws IOException {
 
       // given
       farskapserklaeringDao.deleteAll();
@@ -1428,7 +1429,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalSletteSigneringsoppgaveDersomFarAvbryterSignering() {
+    void skalSletteSigneringsoppgaveDersomFarAvbryterSignering() throws IOException {
 
       // given
       oppgavebestillingDao.deleteAll();
@@ -1496,7 +1497,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalIkkeBestilleFerdigstillingAvOppgaveDersomFarIkkeHarAktiveOppgaver() {
+    void skalIkkeBestilleFerdigstillingAvOppgaveDersomFarIkkeHarAktiveOppgaver() throws IOException {
 
       // given
       oppgavebestillingDao.deleteAll();
@@ -1565,7 +1566,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalLagreStatusQueryTokenDersomStatusOppdateres() {
+    void skalLagreStatusQueryTokenDersomStatusOppdateres() throws IOException {
 
       // given
       farskapserklaeringDao.deleteAll();
@@ -1761,7 +1762,7 @@ public class FarskapsportalServiceTest {
   class SynkronisereSigneringsstatusFar {
 
     @Test
-    void skalSynkronisereStatusPaaSigneringsjobbDersomFarskapserklaeringFinnes() {
+    void skalSynkronisereStatusPaaSigneringsjobbDersomFarskapserklaeringFinnes() throws IOException {
 
       // given
       farskapserklaeringDao.deleteAll();
@@ -1825,7 +1826,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalKasteRessursIkkeFunnetExceptionDersomFarskapserklaeringIkkeFinnes() {
+    void skalKasteRessursIkkeFunnetExceptionDersomFarskapserklaeringIkkeFinnes() throws IOException {
 
       // given
       farskapserklaeringDao.deleteAll();

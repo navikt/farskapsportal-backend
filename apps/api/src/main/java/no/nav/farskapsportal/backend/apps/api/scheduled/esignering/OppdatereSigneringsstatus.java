@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.esignering;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class OppdatereSigneringsstatus {
 
   @SchedulerLock(name = "signeringsstatus", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
   @Scheduled(cron = "@hourly", zone = "Europe/Oslo")
-  public void oppdatereSigneringsstatus() {
+  public void oppdatereSigneringsstatus() throws IOException {
 
     var farSendtTilSigneringFoer = LocalDateTime.now()
         .minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering());

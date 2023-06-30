@@ -5,7 +5,6 @@ import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -118,16 +117,11 @@ public class FarskapsportalApiApplicationLocal {
 
     @Autowired
     public FlywayConfiguration(
-        @Qualifier("dataSource") DataSource dataSource,
-        @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron) {
-
-      var placeholders = new HashMap<String, String>();
-      placeholders.put("user_asynkron", dbUserAsynkron);
+        @Qualifier("dataSource") DataSource dataSource){
 
       Flyway.configure()
           .baselineOnMigrate(true)
           .dataSource(dataSource)
-          .placeholders(placeholders)
           .load()
           .migrate();
     }
