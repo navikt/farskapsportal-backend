@@ -111,7 +111,7 @@ public class DifiEsigneringConfig {
         .timeoutsForDocumentDownloads(
             t -> {
               t.responseArrivalTimeout(ofMillis(15000));
-              t.connectionRequestTimeout(ofMillis(60000));
+              t.connectionRequestTimeout(ofMillis(120000));
             })
         .serviceEnvironment(serviceEnvironment)
         .defaultSender(new Sender(farskapsportalApiEgenskaper.getNavOrgnummer()))
