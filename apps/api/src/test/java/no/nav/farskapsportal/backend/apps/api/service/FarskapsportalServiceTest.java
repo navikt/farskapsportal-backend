@@ -4009,6 +4009,9 @@ public class FarskapsportalServiceTest {
                   .build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+
       // when
       var dokumentinnhold =
           farskapsportalService.henteDokumentinnhold(
@@ -4111,6 +4114,8 @@ public class FarskapsportalServiceTest {
                           .getBytes(StandardCharsets.UTF_8))
                   .build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 
       // when
       var dokumentinnhold =
@@ -4144,6 +4149,7 @@ public class FarskapsportalServiceTest {
 
     var dokument =
         Dokument.builder()
+            .padesUrl("https://pades.url")
             .navn("farskapserklaering.pdf")
             .signeringsinformasjonMor(
                 Signeringsinformasjon.builder()

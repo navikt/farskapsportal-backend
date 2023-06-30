@@ -3018,6 +3018,8 @@ public class FarskapsportalControllerTest {
                   .build());
       farskapserklaeringDao.save(farskapserklaering);
 
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
@@ -3091,6 +3093,7 @@ public class FarskapsportalControllerTest {
     var dokument =
         Dokument.builder()
             .navn("farskapserklaering.pdf")
+            .padesUrl("https://pades.url")
             .signeringsinformasjonMor(
                 Signeringsinformasjon.builder()
                     .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))

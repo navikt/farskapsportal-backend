@@ -394,11 +394,32 @@ public class FarskapsportalService {
     validereAtPersonErForelderIFarskapserklaering(fnrForelder, farskapserklaering);
 
     if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
+      oppdaterePades(farskapserklaering);
       return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
     } else if (morHarSignert(farskapserklaering)) {
+      oppdaterePades(farskapserklaering);
       return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
     } else {
       throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
+    }
+  }
+
+  private void oppdaterePades(Farskapserklaering farskapserklaering) {
+
+    // Ikke oppdatere dersom farskapserklæringen er sendt til Skatt
+    if (farskapserklaering.getSendtTilSkatt() != null) {
+      return;
+    }
+
+    try {
+      var pades =
+          difiESignaturConsumer.henteSignertDokument(
+              new URI(farskapserklaering.getDokument().getPadesUrl()));
+      farskapserklaering.getDokument().getDokumentinnhold().setInnhold(pades);
+    } catch (URISyntaxException e) {
+      log.error(
+          "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
+          farskapserklaering.getId());
     }
   }
 
