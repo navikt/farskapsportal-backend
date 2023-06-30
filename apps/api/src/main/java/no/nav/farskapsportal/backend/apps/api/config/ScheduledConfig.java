@@ -4,6 +4,7 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_SCHEDULED_TEST;
 
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
+import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.scheduled.arkiv.ArkivereFarskapserklaeringer;
@@ -39,11 +40,14 @@ public class ScheduledConfig {
 
   @Bean
   public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(
-      PersistenceService persistenceService, SkattConsumer skattConsumer) {
+      DifiESignaturConsumer difiEsignerinConsumer,
+      PersistenceService persistenceService,
+      SkattConsumer skattConsumer) {
 
     return ArkivereFarskapserklaeringer.builder()
         .intervallMellomForsoek(
             farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
+        .difiESignaturConsumer(difiEsignerinConsumer)
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
         .build();

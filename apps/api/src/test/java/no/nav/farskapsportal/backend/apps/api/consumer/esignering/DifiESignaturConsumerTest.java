@@ -240,7 +240,7 @@ public class DifiESignaturConsumerTest {
   class HenteXadesXml {
 
     @Test
-    void skalHenteXadesXml() throws IOException {
+    void skalHenteXadesXml() {
 
       // given
       difiESignaturStub.runGetXades(XADES);

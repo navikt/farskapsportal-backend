@@ -17,7 +17,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -1995,7 +1994,7 @@ public class FarskapsportalControllerTest {
 
     @Test
     @DisplayName("Skal oppdatere status på signeringsjobb etter mors redirect")
-    void skalOppdatereStatusPaaSigneringsjobbEtterMorsRedirect() throws IOException {
+    void skalOppdatereStatusPaaSigneringsjobbEtterMorsRedirect() {
 
       // given
       var farskapserklaeringUtenSignaturer =
@@ -2203,10 +2202,6 @@ public class FarskapsportalControllerTest {
           () -> AssertionsForClassTypes.assertThat(oppdatertFarskapserklaering).isPresent(),
           () ->
               AssertionsForClassTypes.assertThat(
-                      oppdatertFarskapserklaering.get().getMeldingsidSkatt())
-                  .isNotNull(),
-          () ->
-              AssertionsForClassTypes.assertThat(
                       oppdatertFarskapserklaering
                           .get()
                           .getDokument()
@@ -2219,7 +2214,7 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    void skalLagreOppdatertPadesUrlVedOppdateringAvStatus() throws IOException {
+    void skalLagreOppdatertPadesUrlVedOppdateringAvStatus() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -2328,7 +2323,6 @@ public class FarskapsportalControllerTest {
 
       assertAll(
           () -> assertTrue(respons.getStatusCode().is2xxSuccessful()),
-          () -> assertThat(respons.getBody().getMeldingsidSkatt()).isNotNull(),
           () -> assertThat(respons.getBody().getSendtTilSkatt()).isNull(),
           () -> AssertionsForClassTypes.assertThat(oppdatertFarskapserklaering).isPresent(),
           () ->
@@ -2636,7 +2630,7 @@ public class FarskapsportalControllerTest {
 
     @Test
     void
-        skalReturnereHttpStatusInternalServerErrorDersomXadeslenkeManglerEtterSigneringMedSuksess() throws IOException {
+        skalReturnereHttpStatusInternalServerErrorDersomXadeslenkeManglerEtterSigneringMedSuksess() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();

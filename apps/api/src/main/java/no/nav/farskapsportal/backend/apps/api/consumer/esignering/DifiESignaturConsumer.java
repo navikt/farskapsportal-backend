@@ -192,23 +192,19 @@ public class DifiESignaturConsumer {
         .build();
   }
 
-  public byte[] henteSignertDokument(URI padesUrl) throws IOException {
-    try {
-      return client.getPAdES(PAdESReference.of(padesUrl)).readAllBytes();
+  public byte[] henteSignertDokument(URI padesUrl) {
+    try (final var c = client.getPAdES(PAdESReference.of(padesUrl))){
+      return c.readAllBytes();
     } catch (IOException e) {
       throw new InternFeilException(Feilkode.PADESURL_FEILFORMATERT);
-    } finally {
-      client.getPAdES(PAdESReference.of(padesUrl)).close();
     }
   }
 
-  public byte[] henteXadesXml(URI xadesUrl) throws IOException {
-    try {
-      return client.getXAdES(XAdESReference.of(xadesUrl)).readAllBytes();
+  public byte[] henteXadesXml(URI xadesUrl) {
+    try (final var c = client.getXAdES(XAdESReference.of(xadesUrl))){
+      return c.readAllBytes();
     } catch (IOException e) {
       throw new InternFeilException(Feilkode.XADESURL_FEILFORMATERT);
-    } finally{
-      client.getXAdES(XAdESReference.of(xadesUrl)).close();
     }
   }
 

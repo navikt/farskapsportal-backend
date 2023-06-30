@@ -5,26 +5,30 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
+import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
+import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
+import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
-import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
-import no.nav.farskapsportal.backend.libs.felles.persistence.dao.MeldingsloggDao;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.*;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +53,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class ArkivereFarskapserklaeringerTest {
 
   private @MockBean SkattConsumer skattConsumerMock;
+  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired ForelderDao forelderDao;
@@ -72,6 +77,7 @@ public class ArkivereFarskapserklaeringerTest {
     arkivereFarskapserklaeringer =
         ArkivereFarskapserklaeringer.builder()
             .skattConsumer(skattConsumerMock)
+            .difiESignaturConsumer(difiESignaturConsumer)
             .persistenceService(persistenceService)
             .build();
   }
@@ -84,23 +90,9 @@ public class ArkivereFarskapserklaeringerTest {
             henteBarnMedFnr(LocalDate.now().minusWeeks(3), persnrBarn));
     farskapserklaering
         .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
     farskapserklaering.setFarBorSammenMedMor(true);
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
     farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
     return farskapserklaering;
   }
@@ -114,6 +106,10 @@ public class ArkivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("98953");
+      var farskapserklaeringDokumentinnhold =
+          "Jeg erklærer herved farskap til dette barnet.".getBytes(StandardCharsets.UTF_8);
+      var xadesXml =
+          "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
       farskapserklaering
           .getDokument()
@@ -126,6 +122,11 @@ public class ArkivereFarskapserklaeringerTest {
 
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering))
           .thenReturn(LocalDateTime.now());
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(farskapserklaering));
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
 
       // when
       arkivereFarskapserklaeringer.vurdereArkivering();
@@ -149,11 +150,29 @@ public class ArkivereFarskapserklaeringerTest {
                       .isEqual(oppdatertFarskapserklaering.get().getSendtTilSkatt())));
     }
 
+    private DokumentStatusDto getStatusDto(Farskapserklaering farskapserklaering) {
+      return DokumentStatusDto.builder()
+          .signaturer(
+              listOf(
+                  SignaturDto.builder()
+                      .signatureier(farskapserklaering.getMor().getFoedselsnummer())
+                      .build(),
+                  SignaturDto.builder()
+                      .signatureier(farskapserklaering.getFar().getFoedselsnummer())
+                      .build()))
+          .build();
+    }
+
     @Test
-    void skalSetteTidspunktForOverfoeringVedOverfoeringTilSkatt() {
+    void skalSetteTidspunktForOverfoeringVedOverfoeringTilSkatt() throws URISyntaxException {
 
       // given
       Farskapserklaering farskapserklaering1 = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+      var farskapserklaeringDokumentinnhold =
+          "Jeg erklærer herved sannsynligvis farskap til dette barnet"
+              .getBytes(StandardCharsets.UTF_8);
+      var xadesXml =
+          "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
       var lagretSignertFarskapserklaering1 =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering1);
@@ -161,12 +180,21 @@ public class ArkivereFarskapserklaeringerTest {
 
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering1))
           .thenReturn(LocalDateTime.now().minusMinutes(1));
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(lagretSignertFarskapserklaering1));
 
       Farskapserklaering farskapserklaering2 = henteFarskapserklaeringNyfoedtSignertAvMor("54321");
+      farskapserklaering2.getDokument().setPadesUrl("http://url2");
       var lagretSignertFarskapserklaering2 =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
       assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
-
+      when(difiESignaturConsumer.henteSignertDokument(new URI(farskapserklaering1.getDokument().getPadesUrl())))
+              .thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteSignertDokument(new URI(farskapserklaering2.getDokument().getPadesUrl())))
+          .thenReturn((farskapserklaeringDokumentinnhold.toString() + "2").getBytes());
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(lagretSignertFarskapserklaering2));
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering2))
           .thenReturn(LocalDateTime.now());
 
@@ -192,6 +220,10 @@ public class ArkivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("43215");
+      var farskapserklaeringDokumentinnhold =
+          "Jeg erklærer herved farskap til ett par barn".getBytes(StandardCharsets.UTF_8);
+      var xadesXml =
+          "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
       farskapserklaering.setMeldingsidSkatt(null);
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(null);
       var lagretFarskapserklaeringIkkeSignertAvFar =
@@ -215,6 +247,11 @@ public class ArkivereFarskapserklaeringerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSignertAvBeggeParter);
       assert (lagretFarskapserklaeringSignertAvBeggeParter.getSendtTilSkatt() == null);
 
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(lagretFarskapserklaeringSignertAvBeggeParter));
       when(skattConsumerMock.registrereFarskap(lagretFarskapserklaeringSignertAvBeggeParter))
           .thenReturn(LocalDateTime.now());
 
@@ -287,6 +324,8 @@ public class ArkivereFarskapserklaeringerTest {
                 Signeringsinformasjon.builder()
                     .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
                     .build())
+            .statusUrl("http://posten.status.no/")
+            .padesUrl("http://url1")
             .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
