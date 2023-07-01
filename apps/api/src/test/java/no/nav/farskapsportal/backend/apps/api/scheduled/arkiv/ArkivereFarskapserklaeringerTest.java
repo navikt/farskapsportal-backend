@@ -8,9 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,12 +20,9 @@ import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturC
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
+import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.*;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -92,6 +87,7 @@ public class ArkivereFarskapserklaeringerTest {
         .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("dette er en erklæring".getBytes()).build());
     farskapserklaering.setFarBorSammenMedMor(true);
     farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
     return farskapserklaering;
@@ -213,6 +209,43 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNotNull(),
           () -> assertThat(oppdatertFarskapserklaering2).isPresent(),
           () -> assertThat(oppdatertFarskapserklaering2.get().getSendtTilSkatt()).isNotNull());
+    }
+
+    @Test
+    void skalLagreMeldingsidSkattSelvOmOverfoeringFeiler() throws URISyntaxException {
+
+      // given
+      Farskapserklaering farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+      farskapserklaering.setMeldingsidSkatt(null);
+      var farskapserklaeringDokumentinnhold =
+              "Jeg erklærer herved sannsynligvis farskap til dette barnet"
+                      .getBytes(StandardCharsets.UTF_8);
+      var xadesXml =
+              "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+
+      var lagretSignertFarskapserklaering =
+              persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+      assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
+
+      doThrow(SkattConsumerException.class).when(skattConsumerMock).registrereFarskap(lagretSignertFarskapserklaering);
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+              .thenReturn(getStatusDto(lagretSignertFarskapserklaering));
+
+      when(difiESignaturConsumer.henteSignertDokument(new URI(farskapserklaering.getDokument().getPadesUrl())))
+              .thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+
+      // when
+      arkivereFarskapserklaeringer.vurdereArkivering();
+
+      // then
+      var oppdatertFarskapserklaering1 =
+              farskapserklaeringDao.findById(lagretSignertFarskapserklaering.getId());
+
+      assertAll(
+              () -> assertThat(oppdatertFarskapserklaering1).isPresent(),
+              () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNull(),
+              () -> assertThat(oppdatertFarskapserklaering1.get().getMeldingsidSkatt()).isNotNull());
     }
 
     @Test

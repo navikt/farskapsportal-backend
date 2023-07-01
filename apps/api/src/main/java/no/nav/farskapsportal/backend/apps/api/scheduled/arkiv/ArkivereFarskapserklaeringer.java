@@ -3,14 +3,11 @@ package no.nav.farskapsportal.backend.apps.api.scheduled.arkiv;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 import static no.nav.farskapsportal.backend.libs.felles.util.Utils.getMeldingsidSkatt;
 
-import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.CRC32;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -25,9 +22,10 @@ import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
 
-@Builder
 @Slf4j
+@Builder
 public class ArkivereFarskapserklaeringer {
 
   private final DifiESignaturConsumer difiESignaturConsumer;
@@ -35,6 +33,7 @@ public class ArkivereFarskapserklaeringer {
   private SkattConsumer skattConsumer;
   private int intervallMellomForsoek;
 
+  @Transactional
   @SchedulerLock(name = "arkivere", lockAtLeastFor = "PT5M", lockAtMostFor = "PT120M")
   @Scheduled(
       initialDelayString = "${farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse}",
@@ -66,20 +65,32 @@ public class ArkivereFarskapserklaeringer {
       var farskapserklaering =
           persistenceService.henteFarskapserklaeringForId(farskapserklaeringsid);
 
-      if (farskapserklaering.getMeldingsidSkatt() == null) {
-        farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering));
-      }
-
       var status =
           difiESignaturConsumer.henteStatus(
               farskapserklaering.getDokument().getStatusQueryToken(),
               farskapserklaering.getDokument().getJobbref(),
               tilUri(farskapserklaering.getDokument().getStatusUrl()));
+      var lagretPades = farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
+      var xadesMor = farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml();
+      var xadesFar = farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml();
 
-      var pades = difiESignaturConsumer.henteSignertDokument(status.getPadeslenke());
-      farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold(pades).build());
+      if (lagretPades == null || xadesMor == null || xadesFar == null) {
+        log.info(
+            "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
+            farskapserklaering.getId());
+        var pades = difiESignaturConsumer.henteSignertDokument(status.getPadeslenke());
+        if (pades != null) {
+          farskapserklaering
+              .getDokument()
+              .setDokumentinnhold(Dokumentinnhold.builder().innhold(pades).build());
+        }
+        henteOgLagreXadesXml(farskapserklaering, status.getSignaturer());
+      }
 
-      henteOgLagreXadesXml(farskapserklaering, status.getSignaturer());
+      if (farskapserklaering.getMeldingsidSkatt() == null) {
+        farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering));
+        persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+      }
 
       try {
         var tidspunktForOverfoering = skattConsumer.registrereFarskap(farskapserklaering);
@@ -108,11 +119,11 @@ public class ArkivereFarskapserklaeringer {
       Farskapserklaering farskapserklaering, List<SignaturDto> signaturer) {
     for (SignaturDto signatur : signaturer) {
       var xades = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
-      if (signatur.getSignatureier().equals(farskapserklaering.getMor().getFoedselsnummer())) {
+      if (signatur.getSignatureier().equals(farskapserklaering.getMor().getFoedselsnummer())
+          && xades != null) {
         farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xades);
-      } else if (signatur
-          .getSignatureier()
-          .equals(farskapserklaering.getFar().getFoedselsnummer())) {
+      } else if (signatur.getSignatureier().equals(farskapserklaering.getFar().getFoedselsnummer())
+          && xades != null) {
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(xades);
       } else {
         log.error(
