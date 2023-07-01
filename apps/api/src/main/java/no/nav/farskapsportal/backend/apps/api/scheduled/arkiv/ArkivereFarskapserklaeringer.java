@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.arkiv;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+import static no.nav.farskapsportal.backend.libs.felles.util.Utils.getMeldingsidSkatt;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
@@ -64,6 +65,11 @@ public class ArkivereFarskapserklaeringer {
           farskapserklaeringsid);
       var farskapserklaering =
           persistenceService.henteFarskapserklaeringForId(farskapserklaeringsid);
+
+      if (farskapserklaering.getMeldingsidSkatt() == null) {
+        farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering));
+      }
+
       var status =
           difiESignaturConsumer.henteStatus(
               farskapserklaering.getDokument().getStatusQueryToken(),

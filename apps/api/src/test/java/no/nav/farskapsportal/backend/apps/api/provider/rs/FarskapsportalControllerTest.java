@@ -2357,6 +2357,7 @@ public class FarskapsportalControllerTest {
           .getDokument()
           .getSigneringsinformasjonMor()
           .setSigneringstidspunkt(null);
+      bestillingAvNyFarskapserklaering.getDokument().setPadesUrl(null);
       var nyopprettetFarskapserklaering =
           farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
       nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
@@ -2457,6 +2458,7 @@ public class FarskapsportalControllerTest {
               henteForelder(Forelderrolle.MOR),
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
+      bestillingAvNyFarskapserklaering.getDokument().setPadesUrl(null);
       var farskapserklaeringSignertAvMor =
           farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
       farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
@@ -2557,6 +2559,7 @@ public class FarskapsportalControllerTest {
               henteForelder(Forelderrolle.MOR),
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
+      bestillingAvNyFarskapserklaering.getDokument().setPadesUrl(null);
       var farskapserklaeringSignertAvMor =
           farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
       farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));

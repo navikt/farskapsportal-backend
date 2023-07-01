@@ -214,10 +214,6 @@ public class FarskapsportalService {
                 .mor(mapper.toEntity(forelderDtoMor))
                 .far(mapper.toEntity(forelderDtoFar))
                 .dokument(dokument)
-                .meldingsidSkatt(
-                    getUnikId(
-                        dokument.getDokumentinnhold().getInnhold(),
-                        dokument.getSigneringsinformasjonMor().getSendtTilSignering()))
                 .build());
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
@@ -985,18 +981,6 @@ public class FarskapsportalService {
   private boolean personErMorIFarskapserklaering(
       String foedselsnummer, Farskapserklaering farskapserklaering) {
     return foedselsnummer.equals(farskapserklaering.getMor().getFoedselsnummer());
-  }
-
-  private static String getUnikId(byte[] dokument, LocalDateTime tidspunktForSignering) {
-    var crc32 = new CRC32();
-    var outputstream = new ByteArrayOutputStream();
-    outputstream.writeBytes(dokument);
-    crc32.update(outputstream.toByteArray());
-
-    var zonedDateTime = tidspunktForSignering.atZone(ZoneId.systemDefault());
-    var epoch = tidspunktForSignering.toEpochSecond(zonedDateTime.getOffset());
-
-    return String.valueOf(crc32.getValue()) + epoch;
   }
 
   private URI velgeRiktigUndertegnerUrl(

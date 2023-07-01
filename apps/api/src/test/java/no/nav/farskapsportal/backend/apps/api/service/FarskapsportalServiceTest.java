@@ -912,9 +912,6 @@ public class FarskapsportalServiceTest {
                           .getSendtTilSignering())
                   .isNotNull(),
           () ->
-              assertThat(opprettetFarskapserklaering.stream().findAny().get().getMeldingsidSkatt())
-                  .isNotNull(),
-          () ->
               assertThat(
                       opprettetFarskapserklaering.stream()
                           .findAny()
