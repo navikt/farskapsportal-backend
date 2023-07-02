@@ -115,8 +115,8 @@ public class SkattConsumer {
             if (HttpStatus.ACCEPTED.value() != response.getCode()) {
               log.error(
                   "Mottok Http-kode {}, ved overføring av farskapserklæring med meldingsid {} til Skatt",
-                  farskapserklaering.getMeldingsidSkatt(),
-                  response.getCode());
+                  response.getCode(),
+                  farskapserklaering.getMeldingsidSkatt());
               throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
             }
             return null;
