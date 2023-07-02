@@ -46,6 +46,7 @@ import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersi
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.apache.commons.lang3.Validate;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.flywaydb.core.Flyway;
 import org.modelmapper.ModelMapper;
@@ -244,12 +245,12 @@ public class FarskapsportalApiConfig {
 
   @Bean
   SkattConsumer skattConsumer(
-      PoolingHttpClientConnectionManager httpClientConnectionManager,
+      CloseableHttpClient httpClient,
       @Value("${SKATT_URL}") String skattBaseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, skattBaseUrl + endpoint);
-    return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
+    return new SkattConsumer(httpClient, consumerEndpoint);
   }
 
   @Bean

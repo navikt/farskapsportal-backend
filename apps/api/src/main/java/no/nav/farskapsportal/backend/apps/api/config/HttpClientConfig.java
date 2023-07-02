@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.TlsConfig;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
@@ -25,8 +26,8 @@ import org.springframework.context.annotation.Configuration;
 public class HttpClientConfig {
 
   @Bean
-  public PoolingHttpClientConnectionManager httpClientConnectionManager(
-      @Qualifier("skatt") KeyStoreConfig keyStoreConfig) throws UnrecoverableKeyException, KeyManagementException {
+  public CloseableHttpClient httpClient(@Qualifier("skatt") KeyStoreConfig keyStoreConfig)
+      throws UnrecoverableKeyException, KeyManagementException {
     var sslContextBuilder = new SSLContextBuilder();
     try {
       sslContextBuilder
@@ -45,21 +46,22 @@ public class HttpClientConfig {
       log.error("Pooling Connection Manager-initialisering feilet pga " + e.getMessage(), e);
     }
 
-    return PoolingHttpClientConnectionManagerBuilder.create()
-        .setSSLSocketFactory(sslsf)
-        .setDefaultConnectionConfig(
-            ConnectionConfig.custom()
-                .setConnectTimeout(Timeout.ofSeconds(30))
-                .setConnectTimeout(Timeout.ofSeconds(30))
-                .setTimeToLive(TimeValue.ofHours(1))
-                .build())
-        .setDefaultTlsConfig(
-            TlsConfig.custom()
-                .setHandshakeTimeout(Timeout.ofSeconds(30))
-                .setSupportedProtocols(TLS.V_1_3)
-                .build())
-        .setMaxConnTotal(100)
-        .setMaxConnPerRoute(10)
-        .build();
+    var cm =
+        PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(sslsf)
+            .setDefaultConnectionConfig(
+                ConnectionConfig.custom()
+                    .setConnectTimeout(Timeout.ofSeconds(30))
+                    .setConnectTimeout(Timeout.ofSeconds(30))
+                    .setTimeToLive(TimeValue.ofHours(1))
+                    .build())
+            .setDefaultTlsConfig(
+                TlsConfig.custom()
+                    .setHandshakeTimeout(Timeout.ofSeconds(30))
+                    .setSupportedProtocols(TLS.V_1_3)
+                    .build())
+            .build();
+
+    return HttpClients.custom().setConnectionManager(cm).evictExpiredConnections().build();
   }
 }

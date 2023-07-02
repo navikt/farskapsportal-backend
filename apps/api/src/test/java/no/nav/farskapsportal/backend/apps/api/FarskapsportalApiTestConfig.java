@@ -12,6 +12,8 @@ import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,9 +70,9 @@ public class FarskapsportalApiTestConfig {
 
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
 
-    var httpClientConnectionManager = PoolingHttpClientConnectionManagerBuilder.create().build();
+    var httpClient = HttpClients.custom().evictExpiredConnections().build();
 
-    return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
+    return new SkattConsumer(httpClient, consumerEndpoint);
   }
 
   @Lazy
@@ -126,12 +128,12 @@ public class FarskapsportalApiTestConfig {
     @Qualifier("sikret")
     SkattConsumer skattConsumerSikret(
             @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-            PoolingHttpClientConnectionManager httpClientConnectionManagerSslTest) {
+            CloseableHttpClient httpClient) {
 
       var baseUrl = "https://localhost:" + localServerPort;
       var consumerEndpoint = new ConsumerEndpoint();
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
-      return new SkattConsumer(httpClientConnectionManagerSslTest, consumerEndpoint);
+      return new SkattConsumer(httpClient, consumerEndpoint);
     }
 
     @Bean
@@ -143,9 +145,8 @@ public class FarskapsportalApiTestConfig {
       var baseUrl = "http://localhost:" + localServerPort;
 
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
-      var httpClientConnectionManager = PoolingHttpClientConnectionManagerBuilder.create().build();
-      return new SkattConsumer(httpClientConnectionManager, consumerEndpoint);
+      var httpClient = HttpClients.custom().evictExpiredConnections().build();
+      return new SkattConsumer(httpClient, consumerEndpoint);
     }
   }
-
 }

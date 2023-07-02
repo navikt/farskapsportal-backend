@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.apps.api.consumer.skatt;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,27 +39,25 @@ import org.apache.hc.client5.http.entity.mime.ByteArrayBody;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.http.ContentType;
 import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.web.client.RestClientException;
 
 @Slf4j
 @AllArgsConstructor
 public class SkattConsumer {
 
   private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
-  private final PoolingHttpClientConnectionManager httpClientConnectionManager;
+  private final CloseableHttpClient httpClient;
   private final ConsumerEndpoint consumerEndpoint;
 
-  @Retryable(
-      value = RestClientException.class,
-      maxAttempts = 10,
-      backoff = @Backoff(delay = 1000000))
+  @Retryable(value = IOException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
   public LocalDateTime registrereFarskap(Farskapserklaering farskapserklaering) {
+
+    log.info(
+        "Registrerer farskap for erklæring med meldingsid {}",
+        farskapserklaering.getMeldingsidSkatt());
 
     var meldingOmRegistreringAvFarskap = tilMeldingOmRegistreringAvFarskap(farskapserklaering);
     var xml = tilStreng(meldingOmRegistreringAvFarskap);
@@ -75,8 +74,7 @@ public class SkattConsumer {
       throw new SkattConsumerException((Feilkode.XADES_FAR_UTEN_INNHOLD));
     }
 
-    try (CloseableHttpClient httpclient =
-        HttpClients.custom().setConnectionManager(httpClientConnectionManager).build()) {
+    try {
 
       final var post =
           new HttpPost(consumerEndpoint.retrieveEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING));
@@ -111,11 +109,14 @@ public class SkattConsumer {
 
       post.setEntity(reqEntity);
 
-      httpclient.execute(
+      httpClient.execute(
           post,
           response -> {
             if (HttpStatus.ACCEPTED.value() != response.getCode()) {
-              log.error("Mottok Http-kode {}, ved overføring til Skatt", response.getCode());
+              log.error(
+                  "Mottok Http-kode {}, ved overføring av farskapserklæring med meldingsid {} til Skatt",
+                  farskapserklaering.getMeldingsidSkatt(),
+                  response.getCode());
               throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
             }
             return null;
