@@ -32,6 +32,7 @@ public class ArkivereFarskapserklaeringer {
   private PersistenceService persistenceService;
   private SkattConsumer skattConsumer;
   private int intervallMellomForsoek;
+  private int maksAntallFeilPaaRad;
 
   @Transactional
   @SchedulerLock(name = "arkivere", lockAtLeastFor = "PT5M", lockAtMostFor = "PT120M")
@@ -54,6 +55,7 @@ public class ArkivereFarskapserklaeringer {
 
   private void overfoereTilSkatt(Set<Integer> farskapserklaeringsider) {
     var fpTekst = farskapserklaeringsider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
+    var antallFeilPaaRad = 0;
     log.info(
         "Fant {} {} som er klar for overføring til skatt.",
         farskapserklaeringsider.size(),
@@ -89,7 +91,11 @@ public class ArkivereFarskapserklaeringer {
 
       if (farskapserklaering.getMeldingsidSkatt() == null) {
         farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering));
-        persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+        try {
+          persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
 
       try {
@@ -98,6 +104,8 @@ public class ArkivereFarskapserklaeringer {
         persistenceService.oppdatereFarskapserklaering(farskapserklaering);
         persistenceService.oppdatereMeldingslogg(
             farskapserklaering.getSendtTilSkatt(), farskapserklaering.getMeldingsidSkatt());
+        antallFeilPaaRad = 0;
+
         log.debug("Meldingslogg oppdatert");
 
       } catch (SkattConsumerException sce) {
@@ -107,7 +115,10 @@ public class ArkivereFarskapserklaeringer {
             farskapserklaering.getMeldingsidSkatt(),
             tidspunktNesteForsoek,
             sce);
-        throw sce;
+        antallFeilPaaRad++;
+        if (maksAntallFeilPaaRad <= antallFeilPaaRad) {
+          throw sce;
+        }
       }
     }
     if (farskapserklaeringsider.size() > 0) {
@@ -130,7 +141,8 @@ public class ArkivereFarskapserklaeringer {
             "Personer i signeringsoppdrag stemmer ikke med foreldrene i farskapserklæring med id {}",
             farskapserklaering.getId());
         SIKKER_LOGG.error(
-            "Personer i signeringsoppdrag ({} og {}), er forskjellig fra foreldrene i farskapserklæring med id {}",
+            "Person i signeringsoppdrag (personident: {}), er forskjellig fra foreldrene i farskapserklæring med id {}",
+            signatur.getSignatureier(),
             farskapserklaering.getId());
         throw new InternFeilException(Feilkode.FARSKAPSERKLAERING_HAR_INKONSISTENTE_DATA);
       }

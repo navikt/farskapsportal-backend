@@ -46,6 +46,7 @@ farskapsportal:
       levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
       levetid-oversendte-farskapserklaeringer-i-dager: ${DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER}
       levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
+      maks-antall-feil-paa-rad: 3
     oppgave:
       maks-antall-oppgaver-per-dag: 10
       vurdere-opprettelse: ${VURDERE_OPPGAVE_INTERVALL}

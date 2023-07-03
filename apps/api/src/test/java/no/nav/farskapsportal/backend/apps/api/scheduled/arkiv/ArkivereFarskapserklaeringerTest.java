@@ -1,9 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.arkiv;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnMedFnr;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -16,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
+import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentStatusDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
@@ -53,6 +52,7 @@ public class ArkivereFarskapserklaeringerTest {
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired ForelderDao forelderDao;
   private @Autowired MeldingsloggDao meldingsloggDao;
+  private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
@@ -73,6 +73,8 @@ public class ArkivereFarskapserklaeringerTest {
         ArkivereFarskapserklaeringer.builder()
             .skattConsumer(skattConsumerMock)
             .difiESignaturConsumer(difiESignaturConsumer)
+            .maksAntallFeilPaaRad(
+                farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad())
             .persistenceService(persistenceService)
             .build();
   }
@@ -87,7 +89,10 @@ public class ArkivereFarskapserklaeringerTest {
         .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().setDokumentinnhold(Dokumentinnhold.builder().innhold("dette er en erklæring".getBytes()).build());
+    farskapserklaering
+        .getDokument()
+        .setDokumentinnhold(
+            Dokumentinnhold.builder().innhold("dette er en erklæring".getBytes()).build());
     farskapserklaering.setFarBorSammenMedMor(true);
     farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
     return farskapserklaering;
@@ -184,9 +189,11 @@ public class ArkivereFarskapserklaeringerTest {
       var lagretSignertFarskapserklaering2 =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
       assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
-      when(difiESignaturConsumer.henteSignertDokument(new URI(farskapserklaering1.getDokument().getPadesUrl())))
-              .thenReturn(farskapserklaeringDokumentinnhold);
-      when(difiESignaturConsumer.henteSignertDokument(new URI(farskapserklaering2.getDokument().getPadesUrl())))
+      when(difiESignaturConsumer.henteSignertDokument(
+              new URI(farskapserklaering1.getDokument().getPadesUrl())))
+          .thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteSignertDokument(
+              new URI(farskapserklaering2.getDokument().getPadesUrl())))
           .thenReturn((farskapserklaeringDokumentinnhold.toString() + "2").getBytes());
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
           .thenReturn(getStatusDto(lagretSignertFarskapserklaering2));
@@ -218,21 +225,24 @@ public class ArkivereFarskapserklaeringerTest {
       Farskapserklaering farskapserklaering = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
       farskapserklaering.setMeldingsidSkatt(null);
       var farskapserklaeringDokumentinnhold =
-              "Jeg erklærer herved sannsynligvis farskap til dette barnet"
-                      .getBytes(StandardCharsets.UTF_8);
+          "Jeg erklærer herved sannsynligvis farskap til dette barnet"
+              .getBytes(StandardCharsets.UTF_8);
       var xadesXml =
-              "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+          "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
       var lagretSignertFarskapserklaering =
-              persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+          persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
 
-      doThrow(SkattConsumerException.class).when(skattConsumerMock).registrereFarskap(lagretSignertFarskapserklaering);
+      doThrow(SkattConsumerException.class)
+          .when(skattConsumerMock)
+          .registrereFarskap(lagretSignertFarskapserklaering);
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
-              .thenReturn(getStatusDto(lagretSignertFarskapserklaering));
+          .thenReturn(getStatusDto(lagretSignertFarskapserklaering));
 
-      when(difiESignaturConsumer.henteSignertDokument(new URI(farskapserklaering.getDokument().getPadesUrl())))
-              .thenReturn(farskapserklaeringDokumentinnhold);
+      when(difiESignaturConsumer.henteSignertDokument(
+              new URI(farskapserklaering.getDokument().getPadesUrl())))
+          .thenReturn(farskapserklaeringDokumentinnhold);
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
 
       // when
@@ -240,12 +250,49 @@ public class ArkivereFarskapserklaeringerTest {
 
       // then
       var oppdatertFarskapserklaering1 =
-              farskapserklaeringDao.findById(lagretSignertFarskapserklaering.getId());
+          farskapserklaeringDao.findById(lagretSignertFarskapserklaering.getId());
 
       assertAll(
-              () -> assertThat(oppdatertFarskapserklaering1).isPresent(),
-              () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNull(),
-              () -> assertThat(oppdatertFarskapserklaering1.get().getMeldingsidSkatt()).isNotNull());
+          () -> assertThat(oppdatertFarskapserklaering1).isPresent(),
+          () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNull(),
+          () -> assertThat(oppdatertFarskapserklaering1.get().getMeldingsidSkatt()).isNotNull());
+    }
+
+    @Test
+    void skalIkkeFeileMerEnnMaksAntallTillatteGangerPaaRad() throws URISyntaxException {
+
+      // given
+      var maksAntallFeilPaaRad =
+          farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad();
+      for (int i = 0; i < maksAntallFeilPaaRad + 1; i++) {
+        Farskapserklaering farskapserklaering =
+            henteFarskapserklaeringNyfoedtSignertAvMor("1234" + Integer.toString(i));
+        farskapserklaering.setMeldingsidSkatt(null);
+        farskapserklaering.getDokument().setStatusQueryToken(Integer.toString(i));
+        farskapserklaering.setBarn(henteBarnMedFnr(LocalDate.now().minusDays(i)));
+        var lagretSignertFarskapserklaering =
+            persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+        assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
+        when(difiESignaturConsumer.henteStatus(
+                farskapserklaering.getDokument().getStatusQueryToken(),
+                farskapserklaering.getDokument().getJobbref(),
+                tilUri(farskapserklaering.getDokument().getStatusUrl())))
+            .thenReturn(getStatusDto(farskapserklaering));
+      }
+
+      var xadesXml =
+          "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
+
+      doThrow(SkattConsumerException.class).when(skattConsumerMock).registrereFarskap(any());
+      when(difiESignaturConsumer.henteSignertDokument(new URI("http://url1")))
+          .thenReturn("en erklæring".getBytes());
+      when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
+
+      // when
+      arkivereFarskapserklaeringer.vurdereArkivering();
+
+      // then
+      verify(skattConsumerMock, times(maksAntallFeilPaaRad)).registrereFarskap(any());
     }
 
     @Test

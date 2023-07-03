@@ -47,6 +47,7 @@ public class ScheduledConfig {
     return ArkivereFarskapserklaeringer.builder()
         .intervallMellomForsoek(
             farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
+        .maksAntallFeilPaaRad(farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad())
         .difiESignaturConsumer(difiEsignerinConsumer)
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)

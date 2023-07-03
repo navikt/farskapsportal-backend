@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class Arkiv {
   private int arkiveringsintervall;
+  private int maksAntallFeilPaaRad;
   private String arkiveringsforsinkelse;
   private String deaktiveringsrate;
   private int levetidIkkeFerdigstilteSigneringsoppdragIDager;

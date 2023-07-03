@@ -31,9 +31,10 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
   Set<Farskapserklaering> henteBarnsErklaeringer(String fnrBarn);
 
   @Query("select fe.id from Farskapserklaering fe "
-      + "where fe.deaktivert is null "
-      + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is not null "
-      + "and fe.sendtTilSkatt is null")
+          + "where fe.deaktivert is null "
+          + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt is not null "
+          + "and fe.sendtTilSkatt is null "
+          + " order by fe.dokument.signeringsinformasjonFar.signeringstidspunkt desc")
   Set<Integer> henteFarskapserklaeringerErKlareForOverfoeringTilSkatt();
 
   @Query("select fe.id from Farskapserklaering fe "

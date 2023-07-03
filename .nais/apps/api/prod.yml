@@ -46,7 +46,7 @@ env:
     value: https://folkeregisteret.api.skatteetaten.no
 # Fra gammel asynkron app
   - name: ARKIVERINGSINTERVALL
-    value: 3600000
+    value: 900000
   - name: ARKIVERINGSFORSINKELSE
     value: 60000
   - name: DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER
