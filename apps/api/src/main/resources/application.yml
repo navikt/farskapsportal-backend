@@ -123,6 +123,7 @@ spring:
   flyway:
     enabled: false
     locations: classpath:/db/migration
+    baseline-on-migrate: true
   jpa:
     hibernate:
       connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
