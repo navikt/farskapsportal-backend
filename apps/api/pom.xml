@@ -25,7 +25,7 @@
         <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
         <google.api.gax.version>2.5.0</google.api.gax.version>
         <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
-        <jsoup.version>1.15.3</jsoup.version>
+        <jsoup.version>1.16.1</jsoup.version>
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0-RC8</signature-api-client-java.version>
         <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
