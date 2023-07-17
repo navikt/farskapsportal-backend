@@ -17,7 +17,7 @@ env:
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
   - name: POSTGRES_CONNECTION_NAME
-    value: farskapsportal-dev-169c:europe-north1:fp-feature-15
+    value: farskapsportal-dev-169c:europe-north1:fp-feature
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
