@@ -287,7 +287,7 @@ public class FarskapsportalApiConfig {
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource)
         throws InterruptedException {
       Thread.sleep(30000);
-      Flyway.configure().dataSource(dataSource).load().migrate();
+      Flyway.configure().dataSource(dataSource).baselineOnMigrate(true).load().migrate();
     }
   }
 
