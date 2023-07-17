@@ -123,6 +123,8 @@ spring:
   flyway:
     enabled: false
     locations: classpath:/db/migration
+    placeholders:
+      user: ${DB_USER_ASYNKRON}
   jpa:
     hibernate:
       connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider

@@ -14,6 +14,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockProvider;
@@ -284,10 +285,13 @@ public class FarskapsportalApiConfig {
   public static class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource)
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron)
         throws InterruptedException {
       Thread.sleep(30000);
-      Flyway.configure().dataSource(dataSource).load().migrate();
+      var placeholders = new HashMap<String, String>();
+      placeholders.put("user_asynkron", dbUserAsynkron);
+
+      Flyway.configure().dataSource(dataSource).placeholders(placeholders).load().migrate();
     }
   }
 
