@@ -123,10 +123,12 @@ spring:
   flyway:
     enabled: false
     locations: classpath:/db/migration
+    placeholders:
+      user: ${DB_USER_ASYNKRON}
   jpa:
     hibernate:
       connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-      ddl-auto: update
+      ddl-auto: none
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
@@ -319,9 +321,9 @@ spring:
     locations: classpath:/db/migration
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://localhost:5433/fpdb-prod
+    url: jdbc:postgresql://localhost:5433/fpdb-feature
     password: ${REMOTE_POSTGRES_PWD}
-    databaseName: fpdb-prod
+    databaseName: fpdb-feature
 
 ---
 # Integrasjonstesting mot Posten
