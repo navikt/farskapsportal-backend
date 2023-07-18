@@ -18,7 +18,7 @@ spec:
       description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
       action: "`kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for logger"
     - alert: Høy feilrate i logger
-      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+",log_level=~"Error"}[30s])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+"}[30s]))) > 1
+      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+",log_level=~"Warning"}[30s])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+"}[30s]))) > 1
       for: 30s
       severity: warning
       sla: respond within 1h, during office hours
