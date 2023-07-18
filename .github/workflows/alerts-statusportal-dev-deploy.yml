@@ -1,14 +1,15 @@
-name: Deploy api-alerts to dev-gcp
+name: Deploy statusportal alerts to dev-gcp
 on:
   push:
     branches:
       - '**'
       - '!release'
     paths:
-      - '.nais/alert/alerts-dev.yml'
+      - '.nais/alert/alerts-statusportal-dev.yml'
+      - '**/alerts-statusportal-dev-deploy.yml'
 jobs:
   apply-alerts:
-    name: Apply alerts to cluster
+    name: Apply statusportal alerts to cluster
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,4 +19,4 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .nais/alert/alerts-dev.yml
+          RESOURCE: .nais/alert/alerts-statusportal-dev.yml

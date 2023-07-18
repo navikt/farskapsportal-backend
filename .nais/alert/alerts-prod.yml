@@ -1,5 +1,5 @@
-apiVersion: "nais.io/v1"
-kind: "Alert"
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
 metadata:
   name: api
   namespace: farskapsportal
