@@ -7,7 +7,7 @@ metadata:
     team: farskapsportal
 spec:
   groups:
-    - name: status-alerts
+    - name: farskapsportal-varsler
       rules:
         alerts:
           - alert: Applikasjon nede
@@ -104,3 +104,30 @@ spec:
     groupWait: 5s
     receiver: farskapsportal-template-receiver
     repeatInterval: 2m
+
+---
+
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: farskapsportal
+  namespace: farskapsportal
+  labels:
+    alertmanagerConfig: farskapsportal-status-webhook
+    team: farskapsportal
+spec:
+  receivers:
+    - name: status_proxy
+      webhookConfigs:
+        - url: 'https://promstatusproxy.intern.nav.no/alert'
+  route:
+    groupBy:
+      - alertname
+    matchers:
+      - name: "sp_test_alert"
+        matchType: "="
+        value: "sp-test-alert"
+    groupInterval: 10s
+    groupWait: 5s
+    receiver: status_proxy
+    repeatInterval: 1s
