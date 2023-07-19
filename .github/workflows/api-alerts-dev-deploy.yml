@@ -6,6 +6,7 @@ on:
       - '!release'
     paths:
       - '.nais/alert/alerts-dev.yml'
+      - '.nais/alert/statusportal-webhook-dev.yml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
@@ -13,9 +14,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: deploy to dev
+      - name: deploy alerts to dev
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/alert/alerts-dev.yml
+      - name: deploy statusportal-webhook to dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/alert/statusportal-webhook-dev.yml
