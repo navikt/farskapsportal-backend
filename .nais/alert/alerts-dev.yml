@@ -58,20 +58,3 @@ spec:
             alert_type: custom
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
             nav_status: issue # Feilstatus down|issue
-
-        - alert: farskapsportal test alert will always trigger
-          expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} < 99
-          for: 1s
-          annotations:
-            consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
-            action: "no need to do _anything_"
-            documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
-            summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
-            sla: "no need to respond"
-          labels:
-            namespace: farskapsportal
-            severity: "info"
-            sp_test_alert: sp-test-alert
-            alert_type: custom
-            nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
-            nav_status: issue # Feilstatus down|issue
