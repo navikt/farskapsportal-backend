@@ -6,9 +6,6 @@ metadata:
   labels:
     team: farskapsportal
 spec:
-  receivers:
-    slack:
-      channel: '#farskapsportal-varsel-dev'
   groups:
     - name: status-alerts
       rules:
@@ -40,8 +37,7 @@ spec:
             alert_type: custom
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
             nav_status: issue # Feilstatus down|issue
-            summary: |- 
-              Kritisk feil - må undersøkes nærmere
+            summary: "Kritisk feil - må undersøkes nærmere"
           labels:
             namespace: farskapsportal
             severity: critical
