@@ -1,13 +1,13 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: farskapsportal-api
+  name: farskapsportal
   namespace: farskapsportal
   labels:
     team: farskapsportal
 spec:
   groups:
-    - name: status-alerts
+    - name: farskapsportal-varsel
       rules:
         - alert: Applikasjon nede
           description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
@@ -33,7 +33,7 @@ spec:
           for: 2m
           annotations:
             consequence: "App {{ $labels.log_app }} har høy feilrate i logger"
-            action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%22{{ $labels.log_app }}%22%20and%20level:(Error)%20and%20cluster:%22dev-gcp%22'),sort:!()) "
+            action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'namespace:%20farskapsportal%20and%20level:(Error)%20and%20cluster:%22dev-gcp%22'),sort:!()) "
             summary: "Kritisk feil - må undersøkes nærmere"
           labels:
             namespace: farskapsportal
@@ -52,7 +52,7 @@ spec:
           annotations:
             consequence: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
             summary: |-
-              Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP (5xx responser) feilresponser: https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%20%22controller%22%20AND%20response_code%20%3E%3D%20500%20AND%20x_ingress_namespace:%20%22farskapsportal%22%20AND%20NOT%20%22actuator%22%20AND%20envclass:%20%22q%22'),sort:!(!('@timestamp',desc))) <-
+              Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP (5xx responser) feilresponser: https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%20%22controller%22%20and%20response_code%20%3E%3D%20500%20and%20x_ingress_namespace:%20%22farskapsportal%22%20and%20not%20%22actuator%22%20and%20envclass:%20%22q%22'),sort:!(!('@timestamp',desc))) <-
           labels:
             namespace: farskapsportal
             severity: critical
