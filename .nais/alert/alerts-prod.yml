@@ -24,7 +24,7 @@ spec:
               sp_test_alert: sp-test-alert
               farskapsportal_template_type: farskapsportal-template
               alert_type: custom
-              nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+              nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
               nav_status: down # Feilstatus down|issue
 
           - alert: Høy feilrate i logger
@@ -40,7 +40,7 @@ spec:
               sp_test_alert: sp-test-alert
               farskapsportal_template_type: farskapsportal-template
               alert_type: custom
-              nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+              nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
               nav_status: issue # Feilstatus down|issue
 
           - alert: Høy andel HTTP serverfeil (5xx responser)
@@ -58,7 +58,7 @@ spec:
               sp_test_alert: sp-test-alert
               farskapsportal_template_type: farskapsportal-templates
               alert_type: custom
-              nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+              nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
               nav_status: issue # Feilstatus down|issue
 
 ---
