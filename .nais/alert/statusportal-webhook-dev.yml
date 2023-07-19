@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:
-  name: farskapsportal-prometheus
+  name: farskapsportal
   namespace: farskapsportal
   labels:
     alertmanagerConfig: farskapsportal-testing-status-webhook
