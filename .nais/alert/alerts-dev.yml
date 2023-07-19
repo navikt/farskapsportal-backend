@@ -70,8 +70,8 @@ spec:
             sla: "no need to respond"
           labels:
             namespace: farskapsportal
-            severity: critical
+            severity: "info"
             sp_test_alert: sp-test-alert
             alert_type: custom
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
-            nav_status: issue # Feilstatus down|issue
+            nav_status: down # Feilstatus down|issue
