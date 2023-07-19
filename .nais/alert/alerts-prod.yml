@@ -9,7 +9,7 @@ spec:
   receivers:
     slack:
       channel: '#farskapsportal-varsel-prod'
-  gropus:
+  groups:
     - name: status-alerts
       rules:
         alerts:

@@ -9,7 +9,7 @@ spec:
   receivers:
     slack:
       channel: '#farskapsportal-varsel-dev'
-  gropus:
+  groups:
     - name: status-alerts
       rules:
         - alert: Applikasjon nede
