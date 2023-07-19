@@ -60,8 +60,8 @@ spec:
             nav_status: issue # Feilstatus down|issue
 
         - alert: 'farskapsportal test alert will always trigger'
-          expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} < 99
-          for: 1m
+          expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} > 99
+          for: 1s
           annotations:
             consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
             action: "no need to do _anything_"
@@ -74,4 +74,4 @@ spec:
             sp_test_alert: sp-test-alert
             alert_type: custom
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
-            nav_status: down # Feilstatus down|issue
+            nav_status: issue # Feilstatus down|issue
