@@ -59,7 +59,7 @@ spec:
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
             nav_status: issue # Feilstatus down|issue
 
-        - alert: 'farskapsportal test alert will always trigger'
+        - alert: farskapsportal test alert will always trigger
           expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} < 99
           for: 1s
           annotations:
