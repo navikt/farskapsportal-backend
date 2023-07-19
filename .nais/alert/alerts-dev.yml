@@ -11,23 +11,66 @@ spec:
       channel: '#farskapsportal-varsel-dev'
   alerts:
     - alert: Applikasjon nede
-      expr: kube_deployment_status_replicas_available{deployment=~"farskapsportal.+"} == 0
-      for: 30s
-      severity: warning
-      sla: respond within 1h, during office hours
       description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
-      action: "`kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for logger"
+      expr: kube_deployment_status_replicas_available{deployment=~"farskapsportal.+"} == 0
+      for: 2m
+      annotations:
+        consequence: Applikasjon er nede
+        action: "`Kjør kubectl get pod -n {{ $labels.namespace }}  | grep {{ $labels.deployment }}` for å se podder som er nede"
+        sp_test_alert: sp-test-alert
+        alert_type: custom
+        nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+        nav_status: down # Feilstatus down|issue
+        summary: |-
+          App {{ $labels.deployment }} er nede i prod
+      labels:
+        namespace: farskapsportal
+        severity: critical
+
     - alert: Høy feilrate i logger
-      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+",log_level=~"Warning"}[30s])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app=~"farskapsportal.+"}[30s]))) > 1
-      for: 30s
-      severity: warning
-      sla: respond within 1h, during office hours
       description: "App {{ $labels.log_app }} har høy feilrate i logger"
-      action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil. Link https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%22{{ $labels.log_app }}%22%20and%20level:(Error)%20and%20cluster:%22dev-gcp%22'),sort:!()) "
+      expr: (100 * sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal", level="Warning"}[3h])) / sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal"}[3h]))) > 3
+      for: 2m
+      annotations:
+        consequence: "App {{ $labels.log_app }} har høy feilrate i logger"
+        action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%22{{ $labels.log_app }}%22%20and%20level:(Error)%20and%20cluster:%22dev-gcp%22'),sort:!()) "
+        sp_test_alert: sp-test-alert
+        alert_type: custom
+        nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+        nav_status: issue # Feilstatus down|issue
+        summary: |- Kritisk feil - må undersøkes nærmere
+      labels:
+        namespace: farskapsportal
+        severity: critical
+
     - alert: Høy andel HTTP serverfeil (5xx responser)
-      severity: warning
-      expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^5\\d\\d", backend=~"farskapsportal.+"}[30s])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"farskapsportal.+"}[30s])))) > 1
-      for: 30s
-      sla: respond within 1h, during office hours
+      expr: (100 * (sum by (service) (rate(nginx_ingress_controller_requests{status=~"^5\\d\\d", namespace="farskapsportal"}[3m])) / sum by (service) (rate(nginx_ingress_controller_requests{status=~"^5\\d\\d", namespace="farskapsportal"}[3m])))) > 3
       description: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
-      action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser "
+      action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
+      for: 4m
+      annotations:
+        consequence: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
+        sp_test_alert: sp-test-alert
+        alert_type: custom
+        nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+        nav_status: issue # Feilstatus down|issue
+        summary: |-
+          Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP (5xx responser) feilresponser: https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%20%22controller%22%20and%20response_code%20%3E%3D%20500%20and%20x_ingress_namespace:%20%22bidrag%22%20and%20not%20%22actuator%22%20and%20envclass:%20%22p%22'),sort:!(!('@timestamp',desc))) <-
+      labels:
+        namespace: farskapsportal
+        severity: critical
+#    - alert: 'farskapsportal test alert will always trigger'
+#      expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} > 99
+#      for: 1m
+#      annotations:
+#        consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
+#        action: "no need to do _anything_"
+#        documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
+#        summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
+#        sla: "no need to respond"
+#      labels:
+#        severity: "info"
+#        sp_test_alert: sp-test-alert
+#        alert_type: custom
+#        nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+#        nav_status: issue # Feilstatus down|issue
