@@ -60,7 +60,7 @@ spec:
             nav_status: issue # Feilstatus down|issue
 
         - alert: 'farskapsportal test alert will always trigger'
-          expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} > 99
+          expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} < 99
           for: 1m
           annotations:
             consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
