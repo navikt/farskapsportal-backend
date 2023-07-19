@@ -1,0 +1,133 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: farskapsportal-api
+  namespace: farskapsportal
+  labels:
+    team: farskapsportal
+spec:
+  groups:
+    - name: farskapsportal-varsler
+      rules:
+        alerts:
+          - alert: Applikasjon nede
+            expr: kube_deployment_status_replicas_available{deployment=~"farskapsportal.+"} == 0
+            for: 2m
+            annotations:
+              consequence: Applikasjon er nede
+              action: "`Kjør kubectl get pod -n {{ $labels.namespace }}  | grep {{ $labels.deployment }}` for å se podder som er nede"
+              summary: |-
+                App {{ $labels.deployment }} er nede i prod
+            labels:
+              namespace: farskapsportal
+              severity: critical
+              sp_test_alert: sp-test-alert
+              farskapsportal_template_type: farskapsportal-template
+              alert_type: custom
+              nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
+              nav_status: down # Feilstatus down|issue
+
+          - alert: Høy feilrate i logger
+            expr: (100 * sum by (app, namespace) (rate(log_messages_error{app=~"farskapsportal.+",level=~"Error"}[5m])) / sum by (app, namespace) (rate(log_messages_total{app=~"farskapsportal.+"}[5m]))) > 3
+            for: 2m
+            annotations:
+              consequence: "App {{ $labels.log_app }} har høy feilrate i logger"
+              action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'namespace:%20farskapsportal%20and%20level:(Error)%20and%20cluster:%22prod-gcp%22'),sort:!()) "
+              summary: "Kritisk feil - må undersøkes nærmere"
+            labels:
+              namespace: farskapsportal
+              severity: critical
+              sp_test_alert: sp-test-alert
+              farskapsportal_template_type: farskapsportal-template
+              alert_type: custom
+              nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
+              nav_status: issue # Feilstatus down|issue
+
+          - alert: Høy andel HTTP serverfeil (5xx responser)
+            expr: (100 * (sum by (service) (rate(nginx_ingress_controller_requests{status=~"^5\\d\\d", namespace="farskapsportal"}[3m])) / sum by (service) (rate(nginx_ingress_controller_requests{status=~"^5\\d\\d", namespace="farskapsportal"}[3m])))) > 3
+            description: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
+            action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
+            for: 4m
+            annotations:
+              consequence: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
+              summary: |-
+                Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP (5xx responser) feilresponser: https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%20%22controller%22%20and%20response_code%20%3E%3D%20500%20and%20x_ingress_namespace:%20%22farskapsportal%22%20and%20not%20%22actuator%22%20and%20envclass:%20%22p%22'),sort:!(!('@timestamp',desc))) <-
+            labels:
+              namespace: farskapsportal
+              severity: critical
+              sp_test_alert: sp-test-alert
+              farskapsportal_template_type: farskapsportal-templates
+              alert_type: custom
+              nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
+              nav_status: issue # Feilstatus down|issue
+
+---
+
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: farskapsportal-template-slack
+  namespace: farskapsportal
+  labels:
+    alertmanagerConfig: farskapsportal-template-slack
+spec:
+  receivers:
+    - name: farskapsportal-template-receiver
+      slackConfigs:
+        - apiURL:
+            key: apiUrl
+            name: slack-webhook
+          channel: '#farskapsportal-varsel-prod'
+          iconEmoji: ':alert:'
+          username: 'Varsel prod-gcp'
+          sendResolved: true
+          title: |-
+            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+          text: >-
+            {{ range .Alerts }}
+            {{ if or .Annotations.summary .Annotations.message }}
+            {{ or .Annotations.summary .Annotations.message }}
+            {{ println " " }}
+            {{- end }}
+            {{- if .Annotations.action }}
+            • *action*: {{ .Annotations.action }} {{ println " " }}
+            {{- end }}
+            {{ end }}
+  route:
+    groupBy:
+      - alertname
+    matchers:
+      - name: "farskapsportal_template_type"
+        matchType: "="
+        value: "farskapsportal-template"
+    groupInterval: 10s
+    groupWait: 5s
+    receiver: farskapsportal-template-receiver
+    repeatInterval: 2m
+
+---
+
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: farskapsportal
+  namespace: farskapsportal
+  labels:
+    alertmanagerConfig: farskapsportal-status-webhook
+    team: farskapsportal
+spec:
+  receivers:
+    - name: status_proxy
+      webhookConfigs:
+        - url: 'https://promstatusproxy.intern.nav.no/alert'
+  route:
+    groupBy:
+      - alertname
+    matchers:
+      - name: "sp_test_alert"
+        matchType: "="
+        value: "sp-test-alert"
+    groupInterval: 10s
+    groupWait: 5s
+    receiver: status_proxy
+    repeatInterval: 1s

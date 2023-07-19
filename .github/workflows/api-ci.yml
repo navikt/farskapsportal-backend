@@ -8,7 +8,7 @@ on:
       - 'pom.xml'
       - 'apps/api/**'
       - 'libs/**'
-      - '.nais/apps/api/**'
+      - '.nais/app/**'
       - '**/api-ci.yml'
 
 env:
@@ -72,13 +72,13 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/.nais/apps/api/naiserator-dev.yml
-          VARS: deploy/.nais/apps/api/main.yml
+          RESOURCE: deploy/.nais/app/naiserator-dev.yml
+          VARS: deploy/.nais/app/main.yml
       - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/.nais/apps/api/naiserator-dev.yml
-          VARS: deploy/.nais/apps/api/feature.yml
+          RESOURCE: deploy/.nais/app/naiserator-dev.yml
+          VARS: deploy/.nais/app/feature.yml

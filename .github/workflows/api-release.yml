@@ -7,7 +7,7 @@ on:
       - 'pom.xml'
       - 'apps/api/**'
       - 'libs/**'
-      - '.nais/apps/api/**'
+      - '.nais/app/**'
       - '**/api-ci.yml'
 
 env:
@@ -68,6 +68,6 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: deploy/.nais/apps/api/naiserator-prod.yml
-          VARS: deploy/.nais/apps/api/prod.yml
+          RESOURCE: deploy/.nais/app/naiserator-prod.yml
+          VARS: deploy/.nais/app/prod.yml
 
