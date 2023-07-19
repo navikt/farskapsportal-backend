@@ -22,6 +22,7 @@ spec:
             namespace: farskapsportal
             severity: critical
             sp_test_alert: sp-test-alert
+            farskapsportal_template_type: farskapsportal-template
             alert_type: custom
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
             nav_status: down # Feilstatus down|issue
@@ -38,6 +39,7 @@ spec:
             namespace: farskapsportal
             severity: critical
             sp_test_alert: sp-test-alert
+            farskapsportal_template_type: farskapsportal-template
             alert_type: custom
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
             nav_status: issue # Feilstatus down|issue
@@ -55,6 +57,51 @@ spec:
             namespace: farskapsportal
             severity: critical
             sp_test_alert: sp-test-alert
+            farskapsportal_template_type: farskapsportal-template
             alert_type: custom
             nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
             nav_status: issue # Feilstatus down|issue
+
+---
+
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: farskapsportal-template-slack
+  namespace: farskapsportal
+  labels:
+    alertmanagerConfig: farskapsportal-template-slack
+spec:
+  receivers:
+    - name: farskapsportal-template-receiver
+      slackConfigs:
+        - apiURL:
+            key: apiUrl
+            name: slack-webhook
+          channel: '#farskapsportal-varsel-dev'
+          iconEmoji: ':alert:'
+          username: 'Varsel dev-gcp'
+          sendResolved: true
+          title: |-
+            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+          text: >-
+            {{ range .Alerts }}
+            {{ if or .Annotations.summary .Annotations.message }}
+            {{ or .Annotations.summary .Annotations.message }}
+            {{ println " " }}
+            {{- end }}
+            {{- if .Annotations.action }}
+            • *action*: {{ .Annotations.action }} {{ println " " }}
+            {{- end }}
+            {{ end }}
+  route:
+    groupBy:
+      - alertname
+    matchers:
+      - name: "farskapsportal_template_type"
+        matchType: "="
+        value: "farskapsportal-template"
+    groupInterval: 10s
+    groupWait: 5s
+    receiver: farskapsportal-template-receiver
+    repeatInterval: 2m
