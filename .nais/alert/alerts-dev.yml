@@ -29,7 +29,7 @@ spec:
 
     - alert: Høy feilrate i logger
       description: "App {{ $labels.log_app }} har høy feilrate i logger"
-      expr: (100 * sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal", level="Warning"}[3h])) / sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal"}[3h]))) > 3
+      expr: (100 * sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal", level="Error"}[5m])) / sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal"}[5m]))) > 3
       for: 2m
       annotations:
         consequence: "App {{ $labels.log_app }} har høy feilrate i logger"
@@ -60,18 +60,18 @@ spec:
       labels:
         namespace: farskapsportal
         severity: critical
-#    - alert: 'farskapsportal test alert will always trigger'
-#      expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} > 99
-#      for: 1m
-#      annotations:
-#        consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
-#        action: "no need to do _anything_"
-#        documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
-#        summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
-#        sla: "no need to respond"
-#      labels:
-#        severity: "info"
-#        sp_test_alert: sp-test-alert
-#        alert_type: custom
-#        nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
-#        nav_status: issue # Feilstatus down|issue
+    - alert: 'farskapsportal test alert will always trigger'
+      expr: container_memory_working_set_bytes{namespace="farskapsportal", container="farskapsportal-api"} > 99
+      for: 1m
+      annotations:
+        consequence: "_*{{ $labels.container }}*_ has a working set of {{ $value }} bytes, there is no consequence"
+        action: "no need to do _anything_"
+        documentation: "https://prometheus.io/docs/prometheus/latest/querying/basics/"
+        summary: "Container _*{{ $labels.container }}*_ has a working set of {{ $value }} bytes."
+        sla: "no need to respond"
+      labels:
+        severity: "info"
+        sp_test_alert: sp-test-alert
+        alert_type: custom
+        nav_service_id: fe0901d1-a6d9-47e5-a716-93c5616ecf45 #Service id fra statusplatformen
+        nav_status: issue # Feilstatus down|issue
