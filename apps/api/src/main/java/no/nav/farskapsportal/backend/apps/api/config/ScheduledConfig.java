@@ -9,6 +9,7 @@ import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsume
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.scheduled.arkiv.ArkivereFarskapserklaeringer;
 import no.nav.farskapsportal.backend.apps.api.scheduled.arkiv.DeaktivereFarskapserklaeringer;
+import no.nav.farskapsportal.backend.apps.api.scheduled.arkiv.Ryddejobb;
 import no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon.Brukernotifikasjonstyring;
 import no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon.Varsel;
 import no.nav.farskapsportal.backend.apps.api.scheduled.esignering.OppdatereSigneringsstatus;
@@ -74,6 +75,11 @@ public class ScheduledConfig {
         .farskapsportalService(farskapsportalService)
         .persistenceService(persistenceService)
         .build();
+  }
+
+  @Bean
+  public Ryddejobb ryddejobb(PersistenceService persistenceService) {
+    return Ryddejobb.builder().persistenceService(persistenceService).build();
   }
 
   @Bean

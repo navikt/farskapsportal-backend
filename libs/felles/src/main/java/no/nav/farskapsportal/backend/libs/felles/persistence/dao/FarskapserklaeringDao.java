@@ -77,4 +77,12 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
           + "and fe.dokument.signeringsinformasjonFar.signeringstidspunkt < :grensetidspunktSignering")
   Set<Integer> henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(LocalDate grenseTermindato, LocalDateTime grensetidspunktSignering);
 
+  @Query("select fe.id from Farskapserklaering fe "
+          + "where fe.sendtTilSkatt is not null "
+          + "and fe.sendtTilSkatt < :sendtTilSkattFoer "
+          + "and fe.deaktivert is not null "
+          + "and fe.deaktivert < :deaktivertFoer "
+          + "order by fe.dokument.signeringsinformasjonFar.signeringstidspunkt asc")
+  Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(LocalDateTime sendtTilSkattFoer, LocalDateTime deaktivertFoer);
+
 }

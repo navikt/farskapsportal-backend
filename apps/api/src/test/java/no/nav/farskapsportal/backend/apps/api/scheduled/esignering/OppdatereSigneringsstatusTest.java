@@ -7,7 +7,6 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lag
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
@@ -70,7 +69,7 @@ public class OppdatereSigneringsstatusTest {
 
   @Test
   void
-      skalBestilleStatusoppdateringForAktivFarskapserklaeringSomManglerFarsSignaturMenHarBorSammenInfo() throws IOException {
+      skalBestilleStatusoppdateringForAktivFarskapserklaeringSomManglerFarsSignaturMenHarBorSammenInfo() {
 
     // given
     farskapserklaeringDao.deleteAll();
@@ -132,7 +131,7 @@ public class OppdatereSigneringsstatusTest {
 
   @Test
   void
-      skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringDersomFarsForsoekIkkeErGammeltNok() throws IOException {
+      skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringDersomFarsForsoekIkkeErGammeltNok() {
 
     // given
     farskapserklaeringDao.deleteAll();
@@ -195,7 +194,7 @@ public class OppdatereSigneringsstatusTest {
 
   @Test
   void
-      skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringDersomDetIkkeHarGaattNokTidEtterFarBleSendtTilSignerering() throws IOException {
+      skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringDersomDetIkkeHarGaattNokTidEtterFarBleSendtTilSignerering() {
 
     // given
     farskapserklaeringDao.deleteAll();
@@ -253,7 +252,7 @@ public class OppdatereSigneringsstatusTest {
 
   @Test
   void
-      skalIkkeBestilleStatusoppdateringForDeaktivertFarskapserklaeringSomManglerFarsSignaturMenHarBorSammenInfo() throws IOException {
+      skalIkkeBestilleStatusoppdateringForDeaktivertFarskapserklaeringSomManglerFarsSignaturMenHarBorSammenInfo() {
 
     // given
     farskapserklaeringDao.deleteAll();
@@ -307,7 +306,7 @@ public class OppdatereSigneringsstatusTest {
 
   @Test
   void
-      skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringSomManglerFarsSignaturOgBorSammenInfo() throws IOException {
+      skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringSomManglerFarsSignaturOgBorSammenInfo() {
 
     // given
     farskapserklaeringDao.deleteAll();
@@ -360,7 +359,7 @@ public class OppdatereSigneringsstatusTest {
   }
 
   @Test
-  void skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringSomErSignertAvFar() throws IOException {
+  void skalIkkeBestilleStatusoppdateringForAktivFarskapserklaeringSomErSignertAvFar() {
 
     // given
     farskapserklaeringDao.deleteAll();

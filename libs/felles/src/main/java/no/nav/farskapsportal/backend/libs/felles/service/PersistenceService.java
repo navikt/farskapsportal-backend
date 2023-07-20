@@ -234,6 +234,10 @@ public class PersistenceService {
     return farskapserklaeringDao.henteIdTilFarskapserklaeringerSomManglerMorsSignatur(morSendtTilSigneringFoer);
   }
 
+  public Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(LocalDateTime sendtTilSkattFoer, LocalDateTime deaktivertFoer) {
+    return farskapserklaeringDao.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(sendtTilSkattFoer, deaktivertFoer);
+  }
+
   @Transactional
   public void setteOppgaveTilFerdigstilt(String eventId) {
     var aktiveOppgaver = oppgavebestillingDao.henteOppgavebestilling(eventId);
