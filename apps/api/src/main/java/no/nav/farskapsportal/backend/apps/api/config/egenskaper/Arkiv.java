@@ -10,6 +10,7 @@ public class Arkiv {
   private int maksAntallFeilPaaRad;
   private String arkiveringsforsinkelse;
   private String deaktiveringsrate;
+  private String dokumentslettingsrate = "0 30 2 * * ?";
   private int levetidIkkeFerdigstilteSigneringsoppdragIDager;
   private int levetidOversendteFarskapserklaeringerIDager;
   private int levetidErklaeringerIkkeSignertAvMorIDager;

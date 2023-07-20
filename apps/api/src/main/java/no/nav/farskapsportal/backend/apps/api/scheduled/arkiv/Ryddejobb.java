@@ -16,7 +16,7 @@ public class Ryddejobb {
   private PersistenceService persistenceService;
 
   @SchedulerLock(name = "slette-dokumenter", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
-  @Scheduled(cron = "@daily", zone = "Europe/Oslo")
+  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentslettingsrate}", zone = "Europe/Oslo")
   public void sletteGamleDokumenter() {
     var dokumentArkivertFoer =
         LocalDateTime.now().minusMonths(arkiv.getLevetidDokumenterIMaaneder());

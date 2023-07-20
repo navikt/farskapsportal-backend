@@ -55,6 +55,8 @@ env:
     value: 30
   - name: DEAKTIVERINGSRATE
     value: "0 30 13 * * ?"
+  - name: DOKUMENTSLETTINGSRATE
+    value: "0 30 2 * * ?"
   - name: OPPGAVEAPI_URL
     value: https://oppgave.prod-fss-pub.nais.io
   - name: OPPGAVE_SCOPE
