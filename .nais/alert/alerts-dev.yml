@@ -29,7 +29,7 @@ spec:
 
         - alert: Høy feilrate i logger
           description: "App {{ $labels.log_app }} har høy feilrate i logger"
-          expr: (100 * sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal", level="Error"}[5m])) / sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal"}[5m]))) > 3
+          expr: (100 * sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal", level="Error"}[5m])) / sum by (app, namespace) (rate(log_messages_total{namespace="farskapsportal"}[5m]))) > 3
           for: 2m
           annotations:
             consequence: "App {{ $labels.log_app }} har høy feilrate i logger"
