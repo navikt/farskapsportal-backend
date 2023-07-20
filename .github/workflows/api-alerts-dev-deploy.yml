@@ -6,6 +6,7 @@ on:
       - '!release'
     paths:
       - '.nais/alert/alerts-dev.yml'
+      - '**/api-alerts-dev-deploy.yml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
