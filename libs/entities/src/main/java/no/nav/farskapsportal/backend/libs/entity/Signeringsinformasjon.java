@@ -38,8 +38,6 @@ public class Signeringsinformasjon {
 
   private String undertegnerUrl;
 
-  private String xadesUrl;
-
   @Column(length = 100000000)
   private byte[] xadesXml;
 }
