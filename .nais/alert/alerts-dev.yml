@@ -17,7 +17,7 @@ spec:
             consequence: Applikasjon er nede
             action: "`Kjør kubectl get pod -n {{ $labels.namespace }}  | grep {{ $labels.deployment }}` for å se podder som er nede"
             summary: |-
-              App {{ $labels.deployment }} er nede i prod
+              App {{ $labels.deployment }} er nede i dev
           labels:
             namespace: farskapsportal
             severity: critical
