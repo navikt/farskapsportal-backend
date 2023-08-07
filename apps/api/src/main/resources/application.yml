@@ -43,6 +43,7 @@ farskapsportal:
       arkiveringsintervall: ${ARKIVERINGSINTERVALL}
       arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
       deaktiveringsrate: ${DEAKTIVERINGSRATE}
+      dokumentslettingsrate: ${DOKUMENTSLETTINGSRATE}
       levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
       levetid-oversendte-farskapserklaeringer-i-dager: ${DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER}
       levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
@@ -269,6 +270,7 @@ spring.kafka.consumer.auto-offset-reset: earliest
 spring.config.activate.on-profile: test, scheduled-test, skatt-ssl-test
 farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 600
 farskapsportal.asynkron.egenskaper.arkiv.arkiveringsforsinkelse: 200
+farskapsportal.asynkron.egenskaper.arkiv.dokumentslettingsrate:  "* * 1 * * ?"
 farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsforsinkelse: 1
 farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall: "* * 1 * * ?"
 farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron: "* * 1 * * ?"

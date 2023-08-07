@@ -54,33 +54,30 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PersistenceServiceTest")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FarskapsportalFellesTestConfig.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
 @AutoConfigureWireMock(port = 0)
 public class PersistenceServiceTest {
 
   private static final Forelder MOR = TestUtils.henteForelder(Forelderrolle.MOR);
   private static final Forelder FAR = TestUtils.henteForelder(Forelderrolle.FAR);
-  private static final NavnDto NAVN_FAR = NavnDto.builder().fornavn("Fetter").etternavn("Anton").build();
+  private static final NavnDto NAVN_FAR =
+      NavnDto.builder().fornavn("Fetter").etternavn("Anton").build();
   private static final Barn UFOEDT_BARN = TestUtils.henteBarnUtenFnr(17);
   private static final Barn NYFOEDT_BARN = TestUtils.henteBarnMedFnr(LocalDate.now().minusWeeks(2));
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
-  @Autowired
-  private PersistenceService persistenceService;
-  @Autowired
-  private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired
-  private ForelderDao forelderDao;
-  @Autowired
-  private DokumentDao dokumentDao;
-  @Autowired
-  private StatusKontrollereFarDao statusKontrollereFarDao;
-  @Autowired
-  private ModelMapper modelMapper;
-  @Autowired
-  private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+
+  @Autowired private PersistenceService persistenceService;
+  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired private ForelderDao forelderDao;
+  @Autowired private DokumentDao dokumentDao;
+  @Autowired private StatusKontrollereFarDao statusKontrollereFarDao;
+  @Autowired private ModelMapper modelMapper;
+  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Nested
   @DisplayName("Lagre")
@@ -95,7 +92,6 @@ public class PersistenceServiceTest {
       UFOEDT_BARN.setId(0);
     }
 
-
     @Test
     @DisplayName("Lagre dokument")
     void lagreDokument() {
@@ -104,9 +100,14 @@ public class PersistenceServiceTest {
       var redirectUrlMor = "https://esignering.no/redirect-mor";
       var redirectUrlFar = "https://esignering.no/redirect-far";
 
-      var dokument = Dokument.builder().navn("farskapserklaring.pdf")
-          .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-          .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).build();
+      var dokument =
+          Dokument.builder()
+              .navn("farskapserklaring.pdf")
+              .signeringsinformasjonMor(
+                  Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+              .signeringsinformasjonFar(
+                  Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+              .build();
 
       // when
       var lagretDokument = dokumentDao.save(dokument);
@@ -129,12 +130,18 @@ public class PersistenceServiceTest {
       forelderDao.deleteAll();
 
       // when
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
+      var lagretFarskapserklaering =
+          persistenceService.lagreNyFarskapserklaering(
+              henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
 
-      var hentetFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
+      var hentetFarskapserklaering =
+          farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
 
       // then
-      Assertions.assertEquals(lagretFarskapserklaering, hentetFarskapserklaering, "Farskapserklæringen som ble lagret er lik den som ble hentet");
+      Assertions.assertEquals(
+          lagretFarskapserklaering,
+          hentetFarskapserklaering,
+          "Farskapserklæringen som ble lagret er lik den som ble hentet");
 
       // rydde test data
       farskapserklaeringDao.delete(lagretFarskapserklaering);
@@ -147,25 +154,31 @@ public class PersistenceServiceTest {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
 
-      var deaktivertFarskapserklaeringMedSammeMorFarOgBarn = henteFarskapserklaering(MOR, FAR, NYFOEDT_BARN);
-      var lagretDeaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(
-          deaktivertFarskapserklaeringMedSammeMorFarOgBarn);
+      var deaktivertFarskapserklaeringMedSammeMorFarOgBarn =
+          henteFarskapserklaering(MOR, FAR, NYFOEDT_BARN);
+      var lagretDeaktivertFarskapserklaering =
+          persistenceService.lagreNyFarskapserklaering(
+              deaktivertFarskapserklaeringMedSammeMorFarOgBarn);
       lagretDeaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(lagretDeaktivertFarskapserklaering);
 
       var duplikatAktivFarskapserklaering = henteFarskapserklaering(MOR, FAR, NYFOEDT_BARN);
 
       // when
-      var lagretFarskapserklaering = persistenceService.lagreNyFarskapserklaering(duplikatAktivFarskapserklaering);
+      var lagretFarskapserklaering =
+          persistenceService.lagreNyFarskapserklaering(duplikatAktivFarskapserklaering);
 
-      var hentetFarskapserklaering = farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
+      var hentetFarskapserklaering =
+          farskapserklaeringDao.findById(lagretFarskapserklaering.getId()).get();
 
       // then
-      Assertions.assertEquals(lagretFarskapserklaering, hentetFarskapserklaering, "Farskapserklæringen som ble lagret er lik den som ble hentet");
+      Assertions.assertEquals(
+          lagretFarskapserklaering,
+          hentetFarskapserklaering,
+          "Farskapserklæringen som ble lagret er lik den som ble hentet");
 
       // rydde test data
       farskapserklaeringDao.delete(lagretFarskapserklaering);
-
     }
 
     @Test
@@ -179,11 +192,17 @@ public class PersistenceServiceTest {
 
       // given
       farskapserklaeringDao.save(
-          henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR), TestUtils.henteForelder(Forelderrolle.FAR),
+          henteFarskapserklaering(
+              TestUtils.henteForelder(Forelderrolle.MOR),
+              TestUtils.henteForelder(Forelderrolle.FAR),
               TestUtils.henteBarnUtenFnr(17)));
 
       // when, then
-      assertThrows(ValideringException.class, () -> persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN)));
+      assertThrows(
+          ValideringException.class,
+          () ->
+              persistenceService.lagreNyFarskapserklaering(
+                  henteFarskapserklaering(MOR, FAR, UFOEDT_BARN)));
     }
 
     @Test
@@ -198,20 +217,29 @@ public class PersistenceServiceTest {
       var antallDagerTilNullsettingAvForsoek = 1;
 
       // when
-      var lagretStatusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-          "Ronald McDonald", antallDagerTilNullsettingAvForsoek,
-          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+      var lagretStatusKontrollereFar =
+          persistenceService.oppdatereStatusKontrollereFar(
+              MOR.getFoedselsnummer(),
+              NAVN_FAR.sammensattNavn(),
+              "Ronald McDonald",
+              antallDagerTilNullsettingAvForsoek,
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
-      var hentetStatusKontrollereFar = statusKontrollereFarDao.findById(lagretStatusKontrollereFar.getId());
+      var hentetStatusKontrollereFar =
+          statusKontrollereFarDao.findById(lagretStatusKontrollereFar.getId());
 
       // then
       assertAll(
-          () -> assertThat(lagretStatusKontrollereFar.getAntallFeiledeForsoek())
-              .isEqualTo(hentetStatusKontrollereFar.get().getAntallFeiledeForsoek()),
-          () -> assertThat(lagretStatusKontrollereFar.getTidspunktForNullstilling())
-              .isEqualToIgnoringSeconds(hentetStatusKontrollereFar.get().getTidspunktForNullstilling()),
-          () -> assertThat(lagretStatusKontrollereFar.getMor().getFoedselsnummer())
-              .isEqualTo(hentetStatusKontrollereFar.get().getMor().getFoedselsnummer()));
+          () ->
+              assertThat(lagretStatusKontrollereFar.getAntallFeiledeForsoek())
+                  .isEqualTo(hentetStatusKontrollereFar.get().getAntallFeiledeForsoek()),
+          () ->
+              assertThat(lagretStatusKontrollereFar.getTidspunktForNullstilling())
+                  .isEqualToIgnoringSeconds(
+                      hentetStatusKontrollereFar.get().getTidspunktForNullstilling()),
+          () ->
+              assertThat(lagretStatusKontrollereFar.getMor().getFoedselsnummer())
+                  .isEqualTo(hentetStatusKontrollereFar.get().getMor().getFoedselsnummer()));
     }
   }
 
@@ -220,14 +248,19 @@ public class PersistenceServiceTest {
   @TestInstance(Lifecycle.PER_CLASS)
   class Hente {
 
-    private Farskapserklaering lagreFarskapserklaering() {
+    @BeforeEach
+    void ryddeTestdata() {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
+    }
 
-      var farskapserklaering = henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR),
-          TestUtils.henteForelder(Forelderrolle.FAR),
-          TestUtils.henteBarnUtenFnr(17));
+    private Farskapserklaering lagreFarskapserklaering() {
+      var farskapserklaering =
+          henteFarskapserklaering(
+              TestUtils.henteForelder(Forelderrolle.MOR),
+              TestUtils.henteForelder(Forelderrolle.FAR),
+              TestUtils.henteBarnUtenFnr(17));
       return farskapserklaeringDao.save(farskapserklaering);
     }
 
@@ -235,10 +268,16 @@ public class PersistenceServiceTest {
       return lagreFarskapserklaeringSignertAvMor(LocalDateTime.now().minusMinutes(15));
     }
 
-    private Farskapserklaering lagreFarskapserklaeringSignertAvMor(LocalDateTime signeringstidspunkt) {
+    private Farskapserklaering lagreFarskapserklaeringSignertAvMor(
+        LocalDateTime signeringstidspunkt) {
       var farskapserklaeringSignertAvMor = lagreFarskapserklaering();
-      farskapserklaeringSignertAvMor.getDokument().setPadesUrl("https://esignering.posten.no/" + MOR.getFoedselsnummer() + "/pades");
-      farskapserklaeringSignertAvMor.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(signeringstidspunkt);
+      farskapserklaeringSignertAvMor
+          .getDokument()
+          .setPadesUrl("https://esignering.posten.no/" + MOR.getFoedselsnummer() + "/pades");
+      farskapserklaeringSignertAvMor
+          .getDokument()
+          .getSigneringsinformasjonMor()
+          .setSigneringstidspunkt(signeringstidspunkt);
       return farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
     }
 
@@ -250,19 +289,26 @@ public class PersistenceServiceTest {
       lagreFarskapserklaeringSignertAvMor();
 
       // when
-      var hentedeFarskapserklaeringer = persistenceService.henteFarsErklaeringer(FAR.getFoedselsnummer());
+      var hentedeFarskapserklaeringer =
+          persistenceService.henteFarsErklaeringer(FAR.getFoedselsnummer());
 
       // then
-      var hentetFarskapserklaering = hentedeFarskapserklaeringer.stream().filter(f -> FAR.getFoedselsnummer().equals(f.getFar().getFoedselsnummer()))
-          .findFirst().get();
+      var hentetFarskapserklaering =
+          hentedeFarskapserklaeringer.stream()
+              .filter(f -> FAR.getFoedselsnummer().equals(f.getFar().getFoedselsnummer()))
+              .findFirst()
+              .get();
 
       assertAll(
-          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getFar().getFoedselsnummer(),
-              hentetFarskapserklaering.getFar().getFoedselsnummer()),
-          () -> assertEquals(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getBarn().getTermindato(),
-              hentetFarskapserklaering.getBarn().getTermindato()),
-          () -> assertThat(hentetFarskapserklaering.getDeaktivert()).isNull()
-      );
+          () ->
+              assertEquals(
+                  henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getFar().getFoedselsnummer(),
+                  hentetFarskapserklaering.getFar().getFoedselsnummer()),
+          () ->
+              assertEquals(
+                  henteFarskapserklaering(MOR, FAR, UFOEDT_BARN).getBarn().getTermindato(),
+                  hentetFarskapserklaering.getBarn().getTermindato()),
+          () -> assertThat(hentetFarskapserklaering.getDeaktivert()).isNull());
     }
 
     @Test
@@ -276,7 +322,8 @@ public class PersistenceServiceTest {
       var hentetMor = persistenceService.henteForelder(lagretFarskapserklaering.getMor().getId());
 
       // then
-      assertEquals(lagretFarskapserklaering.getMor().getFoedselsnummer(), hentetMor.getFoedselsnummer());
+      assertEquals(
+          lagretFarskapserklaering.getMor().getFoedselsnummer(), hentetMor.getFoedselsnummer());
     }
 
     @Test
@@ -290,7 +337,8 @@ public class PersistenceServiceTest {
       var hentetFar = persistenceService.henteForelder(lagretFarskapserklaering.getFar().getId());
 
       // then
-      assertEquals(lagretFarskapserklaering.getFar().getFoedselsnummer(), hentetFar.getFoedselsnummer());
+      assertEquals(
+          lagretFarskapserklaering.getFar().getFoedselsnummer(), hentetFar.getFoedselsnummer());
     }
 
     @Test
@@ -299,22 +347,31 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullsettingAvForsoek = 1;
-      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
-      persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(), NAVN_FAR.sammensattNavn(),
+      var foerTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
+      persistenceService.oppdatereStatusKontrollereFar(
+          MOR.getFoedselsnummer(),
+          NAVN_FAR.sammensattNavn(),
+          NAVN_FAR.sammensattNavn(),
           antallDagerTilNullsettingAvForsoek,
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // when
-      var hentetStatusLagreKontrollereFar = persistenceService.henteStatusKontrollereFar(MOR.getFoedselsnummer());
+      var hentetStatusLagreKontrollereFar =
+          persistenceService.henteStatusKontrollereFar(MOR.getFoedselsnummer());
 
       // then
-      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
+      var etterTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
 
       assertAll(
           () -> assertThat(hentetStatusLagreKontrollereFar).isPresent(),
-          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
-          () -> assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling)
-      );
+          () ->
+              assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling())
+                  .isBefore(etterTidspunktForNullstilling),
+          () ->
+              assertThat(hentetStatusLagreKontrollereFar.get().getTidspunktForNullstilling())
+                  .isAfter(foerTidspunktForNullstilling));
     }
 
     @Test
@@ -325,62 +382,165 @@ public class PersistenceServiceTest {
       assertNotNull(lagretFarskapserklaering);
 
       // when
-      var farskapserklaering = persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
+      var farskapserklaering =
+          persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId());
 
       // then
       assertAll(
-          () -> assertThat(lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl())
-              .isEqualTo(farskapserklaering.getDokument().getSigneringsinformasjonFar().getUndertegnerUrl()),
-          () -> assertThat(lagretFarskapserklaering.getDeaktivert()).isNull()
-      );
+          () ->
+              assertThat(
+                      lagretFarskapserklaering
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getUndertegnerUrl())
+                  .isEqualTo(
+                      farskapserklaering
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getUndertegnerUrl()),
+          () -> assertThat(lagretFarskapserklaering.getDeaktivert()).isNull());
     }
 
     @Test
     void skalHenteAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag() {
 
       // given
-      var lagretFarskapserklaering = lagreFarskapserklaeringSignertAvMor(
-          ZonedDateTime.now().minusDays(41)
-              .with(ChronoField.HOUR_OF_DAY, 0).toLocalDateTime());
+      var lagretFarskapserklaering =
+          lagreFarskapserklaeringSignertAvMor(
+              ZonedDateTime.now().minusDays(41).with(ChronoField.HOUR_OF_DAY, 0).toLocalDateTime());
       assertNotNull(lagretFarskapserklaering);
 
       // when
-      var idTilFarskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
-          LocalDateTime.now().minusDays(40));
+      var idTilFarskapserklaeringer =
+          persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
+              LocalDateTime.now().minusDays(40));
 
       // then
       assertAll(
           () -> assertThat(idTilFarskapserklaeringer.size()).isEqualTo(1),
-          () -> assertThat(idTilFarskapserklaeringer.stream().findFirst().get()).isEqualTo(lagretFarskapserklaering.getId())
-      );
+          () ->
+              assertThat(idTilFarskapserklaeringer.stream().findFirst().get())
+                  .isEqualTo(lagretFarskapserklaering.getId()));
     }
 
     @Test
     void skalIkkeHenteAktiveFarskapserklaeringerUtenUtgaatteSigneringsoppdrag() {
 
       // given
-      var lagretFarskapserklaering = lagreFarskapserklaeringSignertAvMor(
-          LocalDate.now().minusDays(2).atStartOfDay());
+      var lagretFarskapserklaering =
+          lagreFarskapserklaeringSignertAvMor(LocalDate.now().minusDays(2).atStartOfDay());
       assertNotNull(lagretFarskapserklaering);
 
       // when
-      var farskapserklaeringer = persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
-          LocalDateTime.now().minusDays(40));
+      var farskapserklaeringer =
+          persistenceService.henteIdTilAktiveFarskapserklaeringerMedUtgaatteSigneringsoppdrag(
+              LocalDateTime.now().minusDays(40));
 
       // then
       assertThat(farskapserklaeringer.size()).isEqualTo(0);
     }
 
     @Test
-    @DisplayName("Skal kaste RessursIkkeFunnetException ved henting av undertegnerUrl dersom farskapserklaering ikke finnes")
-    void skalKasteRessursIkkeFunnetExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
+    @DisplayName(
+        "Skal kaste RessursIkkeFunnetException ved henting av undertegnerUrl dersom farskapserklaering ikke finnes")
+    void
+        skalKasteRessursIkkeFunnetExceptionVedHentingAvUndertegnerurlDersomFarskapserklaeringIkkeFinnes() {
 
       // given
       var lagretFarskapserklaering = lagreFarskapserklaering();
       assertNotNull(lagretFarskapserklaering);
 
       // when, then
-      assertThrows(RessursIkkeFunnetException.class, () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId() + 1));
+      assertThrows(
+          RessursIkkeFunnetException.class,
+          () ->
+              persistenceService.henteFarskapserklaeringForId(
+                  lagretFarskapserklaering.getId() + 1));
+    }
+
+    @Test
+    void
+        skalHenteFarskapserklaeringerForDokumentslettingDersomDeaktiveringOgSendtTilSkatttidspunktErFoerGrenseverdi() {
+
+      // given
+      var farskapserklaering =
+          henteFarskapserklaering(
+              TestUtils.henteForelder(Forelderrolle.MOR),
+              TestUtils.henteForelder(Forelderrolle.FAR),
+              TestUtils.henteBarnUtenFnr(-17));
+
+      var grensetidspunkt = LocalDateTime.now().minusMonths(12);
+
+      farskapserklaering.setDeaktivert(grensetidspunkt.minusHours(1));
+      farskapserklaering.setSendtTilSkatt(grensetidspunkt.minusHours(1));
+
+      var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaering);
+
+      // when
+      var idTilFarskapserklaeringer =
+          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+              grensetidspunkt, grensetidspunkt);
+
+      // then
+      assertAll(
+          () -> assertThat(idTilFarskapserklaeringer.size()).isEqualTo(1),
+          () ->
+              assertThat(idTilFarskapserklaeringer.stream().findFirst().get())
+                  .isEqualTo(lagretFarskapserklaering.getId()));
+    }
+
+    @Test
+    void
+        skalIkkeHenteFarskapserklaeringerForDokumentslettingDersomDeaktiveringOgSendtTilSkatttidspunktErEtterGrenseverdi() {
+
+      // given
+      var farskapserklaering =
+          henteFarskapserklaering(
+              TestUtils.henteForelder(Forelderrolle.MOR),
+              TestUtils.henteForelder(Forelderrolle.FAR),
+              TestUtils.henteBarnUtenFnr(-17));
+
+      var grensetidspunkt = LocalDateTime.now().minusMonths(12);
+
+      farskapserklaering.setDeaktivert(grensetidspunkt.plusHours(1));
+      farskapserklaering.setSendtTilSkatt(grensetidspunkt.plusHours(1));
+
+      farskapserklaeringDao.save(farskapserklaering);
+
+      // when
+      var idTilFarskapserklaeringer =
+          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+              grensetidspunkt, grensetidspunkt);
+
+      // then
+      assertAll(() -> assertThat(idTilFarskapserklaeringer.size()).isEqualTo(0));
+    }
+
+    @Test
+    void
+        skalIkkeHenteFarskapserklaeringerForDokumentslettingDersomDeaktiveringOgSendtTilSkatttidspunktMangler() {
+
+      // given
+      var farskapserklaering =
+          henteFarskapserklaering(
+              TestUtils.henteForelder(Forelderrolle.MOR),
+              TestUtils.henteForelder(Forelderrolle.FAR),
+              TestUtils.henteBarnUtenFnr(-17));
+
+      var grensetidspunkt = LocalDateTime.now().minusMonths(12);
+
+      farskapserklaering.setDeaktivert(null);
+      farskapserklaering.setSendtTilSkatt(null);
+
+      farskapserklaeringDao.save(farskapserklaering);
+
+      // when
+      var idTilFarskapserklaeringer =
+          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+              grensetidspunkt, grensetidspunkt);
+
+      // then
+      assertAll(() -> assertThat(idTilFarskapserklaeringer.size()).isEqualTo(0));
     }
   }
 
@@ -393,7 +553,9 @@ public class PersistenceServiceTest {
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
       return farskapserklaeringDao.save(
-          henteFarskapserklaering(TestUtils.henteForelder(Forelderrolle.MOR), TestUtils.henteForelder(Forelderrolle.FAR),
+          henteFarskapserklaering(
+              TestUtils.henteForelder(Forelderrolle.MOR),
+              TestUtils.henteForelder(Forelderrolle.FAR),
               TestUtils.henteBarnUtenFnr(17)));
     }
 
@@ -404,14 +566,18 @@ public class PersistenceServiceTest {
       var lagretFarskapserklaering = lagreFarskapserklaering();
 
       // when
-      var erklaeringBleDeaktivert = persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId());
+      var erklaeringBleDeaktivert =
+          persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId());
 
       // then
       assertAll(
           () -> assertThat(erklaeringBleDeaktivert).isTrue(),
-          () -> assertThrows(RessursIkkeFunnetException.class,
-              () -> persistenceService.henteFarskapserklaeringForId(lagretFarskapserklaering.getId()))
-      );
+          () ->
+              assertThrows(
+                  RessursIkkeFunnetException.class,
+                  () ->
+                      persistenceService.henteFarskapserklaeringForId(
+                          lagretFarskapserklaering.getId())));
     }
 
     @Test
@@ -421,11 +587,16 @@ public class PersistenceServiceTest {
       var lagretFarskapserklaering = lagreFarskapserklaering();
 
       // when
-      var illegalStateException = assertThrows(IllegalStateException.class,
-          () -> persistenceService.deaktivereFarskapserklaering(lagretFarskapserklaering.getId() + 1));
+      var illegalStateException =
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  persistenceService.deaktivereFarskapserklaering(
+                      lagretFarskapserklaering.getId() + 1));
 
       // then
-      AssertionsForClassTypes.assertThat(illegalStateException.getMessage()).isEqualTo("Farskapserklæring ikke funnet");
+      AssertionsForClassTypes.assertThat(illegalStateException.getMessage())
+          .isEqualTo("Farskapserklæring ikke funnet");
     }
   }
 
@@ -445,44 +616,67 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var tidspunktForNullstillingFoerLogging = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var tidspunktForNullstillingFoerLogging =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling);
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-          "Ronald McDonald", antallDagerTilNullstilling,
-          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+      var statusKontrollereFar =
+          persistenceService.oppdatereStatusKontrollereFar(
+              MOR.getFoedselsnummer(),
+              NAVN_FAR.sammensattNavn(),
+              "Ronald McDonald",
+              antallDagerTilNullstilling,
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
-      var tidspunktForNullstillingEtterLogging = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var tidspunktForNullstillingEtterLogging =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling);
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(tidspunktForNullstillingFoerLogging),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(tidspunktForNullstillingEtterLogging),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isAfter(tidspunktForNullstillingFoerLogging),
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isBefore(tidspunktForNullstillingEtterLogging),
+          () ->
+              assertThat(statusKontrollereFar.getMor().getFoedselsnummer())
+                  .isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
-    void skalLeggeInnMorSomForelderDersomHunIkkeEksistererIDatabasenVedOpprettelseAvNyttInnslagIStatusKontrollereFar() {
+    void
+        skalLeggeInnMorSomForelderDersomHunIkkeEksistererIDatabasenVedOpprettelseAvNyttInnslagIStatusKontrollereFar() {
 
       // given
       var antallDagerTilNullstilling = 1;
       var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-          "Ronald McDonald", antallDagerTilNullstilling,
-          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+      var statusKontrollereFar =
+          persistenceService.oppdatereStatusKontrollereFar(
+              MOR.getFoedselsnummer(),
+              NAVN_FAR.sammensattNavn(),
+              "Ronald McDonald",
+              antallDagerTilNullstilling,
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isAfter(foerTidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isBefore(etterTidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getMor().getFoedselsnummer())
+                  .isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
@@ -494,18 +688,28 @@ public class PersistenceServiceTest {
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-          "Ronald McDonald", antallDagerTilNullstilling,
-          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+      var statusKontrollereFar =
+          persistenceService.oppdatereStatusKontrollereFar(
+              MOR.getFoedselsnummer(),
+              NAVN_FAR.sammensattNavn(),
+              "Ronald McDonald",
+              antallDagerTilNullstilling,
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isAfter(foerTidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isBefore(etterTidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getMor().getFoedselsnummer())
+                  .isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
@@ -518,29 +722,45 @@ public class PersistenceServiceTest {
 
       // when
       for (int i = 1; i <= farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek(); i++) {
-        var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-            "Ronald McDonald", antallDagerTilNullstilling,
-            farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+        var statusKontrollereFar =
+            persistenceService.oppdatereStatusKontrollereFar(
+                MOR.getFoedselsnummer(),
+                NAVN_FAR.sammensattNavn(),
+                "Ronald McDonald",
+                antallDagerTilNullstilling,
+                farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
         int finalI = i;
         assertAll(
             () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(finalI),
-            () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer())
-        );
+            () ->
+                assertThat(statusKontrollereFar.getMor().getFoedselsnummer())
+                    .isEqualTo(MOR.getFoedselsnummer()));
       }
 
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-          "Ronald McDonald", antallDagerTilNullstilling,
-          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+      var statusKontrollereFar =
+          persistenceService.oppdatereStatusKontrollereFar(
+              MOR.getFoedselsnummer(),
+              NAVN_FAR.sammensattNavn(),
+              "Ronald McDonald",
+              antallDagerTilNullstilling,
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
 
       assertAll(
-          () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(
-              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek()),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(foerTidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+          () ->
+              assertThat(statusKontrollereFar.getAntallFeiledeForsoek())
+                  .isEqualTo(farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek()),
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isAfter(foerTidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isBefore(etterTidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getMor().getFoedselsnummer())
+                  .isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
@@ -549,21 +769,33 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 1;
       var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      var eksisterendeStatusKontrollereFar = lagreStatusKontrollereFarMedMor(farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek() - 1,
-          tidspunktForNullstilling);
+      var eksisterendeStatusKontrollereFar =
+          lagreStatusKontrollereFarMedMor(
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek() - 1,
+              tidspunktForNullstilling);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-          "Ronald McDonald", antallDagerTilNullstilling,
-          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+      var statusKontrollereFar =
+          persistenceService.oppdatereStatusKontrollereFar(
+              MOR.getFoedselsnummer(),
+              NAVN_FAR.sammensattNavn(),
+              "Ronald McDonald",
+              antallDagerTilNullstilling,
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
 
       assertAll(
-          () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(eksisterendeStatusKontrollereFar.getAntallFeiledeForsoek() + 1),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(etterTidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+          () ->
+              assertThat(statusKontrollereFar.getAntallFeiledeForsoek())
+                  .isEqualTo(eksisterendeStatusKontrollereFar.getAntallFeiledeForsoek() + 1),
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isBefore(etterTidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getMor().getFoedselsnummer())
+                  .isEqualTo(MOR.getFoedselsnummer()));
     }
 
     @Test
@@ -572,26 +804,43 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 0;
       var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
-      lagreStatusKontrollereFarMedMor(farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek() - 1, tidspunktForNullstilling);
+      lagreStatusKontrollereFarMedMor(
+          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek() - 1,
+          tidspunktForNullstilling);
 
       // when
-      var statusKontrollereFar = persistenceService.oppdatereStatusKontrollereFar(MOR.getFoedselsnummer(), NAVN_FAR.sammensattNavn(),
-          "Ronald McDonald", antallDagerTilNullstilling,
-          farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
+      var statusKontrollereFar =
+          persistenceService.oppdatereStatusKontrollereFar(
+              MOR.getFoedselsnummer(),
+              NAVN_FAR.sammensattNavn(),
+              "Ronald McDonald",
+              antallDagerTilNullstilling,
+              farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
       var tidspunktEtterLogging = LocalDateTime.now();
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isAfter(tidspunktForNullstilling),
-          () -> assertThat(statusKontrollereFar.getTidspunktForNullstilling()).isBefore(tidspunktEtterLogging),
-          () -> assertThat(statusKontrollereFar.getMor().getFoedselsnummer()).isEqualTo(MOR.getFoedselsnummer()));
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isAfter(tidspunktForNullstilling),
+          () ->
+              assertThat(statusKontrollereFar.getTidspunktForNullstilling())
+                  .isBefore(tidspunktEtterLogging),
+          () ->
+              assertThat(statusKontrollereFar.getMor().getFoedselsnummer())
+                  .isEqualTo(MOR.getFoedselsnummer()));
     }
 
-    private StatusKontrollereFar lagreStatusKontrollereFarMedMor(int antallFeil, LocalDateTime tidspunktForNullstilling) {
-      return statusKontrollereFarDao.save(StatusKontrollereFar.builder().mor(henteForelder(Forelderrolle.MOR)).antallFeiledeForsoek(antallFeil)
-          .tidspunktForNullstilling(tidspunktForNullstilling).build());
+    private StatusKontrollereFar lagreStatusKontrollereFarMedMor(
+        int antallFeil, LocalDateTime tidspunktForNullstilling) {
+      return statusKontrollereFarDao.save(
+          StatusKontrollereFar.builder()
+              .mor(henteForelder(Forelderrolle.MOR))
+              .antallFeiledeForsoek(antallFeil)
+              .tidspunktForNullstilling(tidspunktForNullstilling)
+              .build());
     }
   }
 
@@ -606,15 +855,21 @@ public class PersistenceServiceTest {
     }
 
     @Test
-    void skalKasteValideringExceptionDersomMorHarEksisterendeFarskapserklaeringOgOppretterNyMedTermindato() {
+    void
+        skalKasteValideringExceptionDersomMorHarEksisterendeFarskapserklaeringOgOppretterNyMedTermindato() {
 
       // given
       persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
 
       // when, then
-      var valideringException = assertThrows(ValideringException.class,
-          () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(),
-              modelMapper.map(UFOEDT_BARN, BarnDto.class)));
+      var valideringException =
+          assertThrows(
+              ValideringException.class,
+              () ->
+                  persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(
+                      MOR.getFoedselsnummer(),
+                      FAR.getFoedselsnummer(),
+                      modelMapper.map(UFOEDT_BARN, BarnDto.class)));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.ERKLAERING_EKSISTERER_MOR);
@@ -624,20 +879,40 @@ public class PersistenceServiceTest {
     void skalKasteValideringExceptionDersomNyfoedtBarnInngaarIEksisterendeFarskapserklaering() {
 
       // given
-      var fnrMorUtenEksisterendeFarskapserklaering = LocalDate.now().minusYears(29).format(DateTimeFormatter.ofPattern("ddMMyy")) + "12245";
+      var fnrMorUtenEksisterendeFarskapserklaering =
+          LocalDate.now().minusYears(29).format(DateTimeFormatter.ofPattern("ddMMyy")) + "12245";
 
-      var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-          .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).build())
-          .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
-          .build();
+      var dokument =
+          Dokument.builder()
+              .navn("farskapserklaering.pdf")
+              .signeringsinformasjonMor(
+                  Signeringsinformasjon.builder()
+                      .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                      .build())
+              .signeringsinformasjonFar(
+                  Signeringsinformasjon.builder()
+                      .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                      .build())
+              .build();
 
-      var farskapserklaering = Farskapserklaering.builder().barn(NYFOEDT_BARN).mor(MOR).far(FAR).dokument(dokument).build();
+      var farskapserklaering =
+          Farskapserklaering.builder()
+              .barn(NYFOEDT_BARN)
+              .mor(MOR)
+              .far(FAR)
+              .dokument(dokument)
+              .build();
       persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
       // when
-      var valideringException = assertThrows(ValideringException.class, () -> persistenceService
-          .ingenKonfliktMedEksisterendeFarskapserklaeringer(fnrMorUtenEksisterendeFarskapserklaering, FAR.getFoedselsnummer(),
-              modelMapper.map(NYFOEDT_BARN, BarnDto.class)));
+      var valideringException =
+          assertThrows(
+              ValideringException.class,
+              () ->
+                  persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(
+                      fnrMorUtenEksisterendeFarskapserklaering,
+                      FAR.getFoedselsnummer(),
+                      modelMapper.map(NYFOEDT_BARN, BarnDto.class)));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.ERKLAERING_EKSISTERER_BARN);
@@ -648,8 +923,11 @@ public class PersistenceServiceTest {
 
       // given, when, then
       assertDoesNotThrow(
-          () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(),
-              modelMapper.map(UFOEDT_BARN, BarnDto.class)));
+          () ->
+              persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(
+                  MOR.getFoedselsnummer(),
+                  FAR.getFoedselsnummer(),
+                  modelMapper.map(UFOEDT_BARN, BarnDto.class)));
     }
 
     @Test
@@ -657,29 +935,47 @@ public class PersistenceServiceTest {
 
       // given
       UFOEDT_BARN.setId(0);
-      var deaktivertFarskapserklaering = persistenceService.lagreNyFarskapserklaering(henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
+      var deaktivertFarskapserklaering =
+          persistenceService.lagreNyFarskapserklaering(
+              henteFarskapserklaering(MOR, FAR, UFOEDT_BARN));
       deaktivertFarskapserklaering.setDeaktivert(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(deaktivertFarskapserklaering);
 
       // when, then
-      var ressursIkkeFunnetException = assertThrows(RessursIkkeFunnetException.class,
-          () -> persistenceService.henteFarskapserklaeringForId(deaktivertFarskapserklaering.getId()));
+      var ressursIkkeFunnetException =
+          assertThrows(
+              RessursIkkeFunnetException.class,
+              () ->
+                  persistenceService.henteFarskapserklaeringForId(
+                      deaktivertFarskapserklaering.getId()));
 
-      AssertionsForClassTypes.assertThat(ressursIkkeFunnetException.getFeilkode()).isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+      AssertionsForClassTypes.assertThat(ressursIkkeFunnetException.getFeilkode())
+          .isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
 
       assertDoesNotThrow(
-          () -> persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(MOR.getFoedselsnummer(), FAR.getFoedselsnummer(),
-              modelMapper.map(UFOEDT_BARN, BarnDto.class)));
+          () ->
+              persistenceService.ingenKonfliktMedEksisterendeFarskapserklaeringer(
+                  MOR.getFoedselsnummer(),
+                  FAR.getFoedselsnummer(),
+                  modelMapper.map(UFOEDT_BARN, BarnDto.class)));
     }
   }
 
   private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
 
-    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
-        .build();
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }

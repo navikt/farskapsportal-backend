@@ -20,7 +20,7 @@ public class OppdatereSigneringsstatus {
 
   @SchedulerLock(name = "signeringsstatus", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
   @Scheduled(cron = "@hourly", zone = "Europe/Oslo")
-  public void oppdatereSigneringsstatus() throws IOException {
+  public void oppdatereSigneringsstatus() {
 
     var farSendtTilSigneringFoer = LocalDateTime.now()
         .minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering());
