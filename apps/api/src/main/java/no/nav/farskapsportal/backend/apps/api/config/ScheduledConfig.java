@@ -78,8 +78,13 @@ public class ScheduledConfig {
   }
 
   @Bean
-  public Ryddejobb ryddejobb(PersistenceService persistenceService) {
-    return Ryddejobb.builder().persistenceService(persistenceService).build();
+  public Ryddejobb ryddejobb(
+      FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper,
+      PersistenceService persistenceService) {
+    return Ryddejobb.builder()
+        .arkiv(farskapsportalAsynkronEgenskaper.getArkiv())
+        .persistenceService(persistenceService)
+        .build();
   }
 
   @Bean
