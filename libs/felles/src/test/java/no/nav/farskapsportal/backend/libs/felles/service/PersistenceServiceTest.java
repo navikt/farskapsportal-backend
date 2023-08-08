@@ -17,12 +17,7 @@ import java.time.temporal.ChronoField;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
@@ -473,6 +468,10 @@ public class PersistenceServiceTest {
 
       farskapserklaering.setDeaktivert(grensetidspunkt.minusHours(1));
       farskapserklaering.setSendtTilSkatt(grensetidspunkt.minusHours(1));
+      farskapserklaering
+          .getDokument()
+          .setDokumentinnhold(
+              Dokumentinnhold.builder().innhold("En farskapserklæring".getBytes()).build());
 
       var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaering);
 
@@ -552,11 +551,16 @@ public class PersistenceServiceTest {
       statusKontrollereFarDao.deleteAll();
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
-      return farskapserklaeringDao.save(
+      var farskapserklaering =
           henteFarskapserklaering(
               TestUtils.henteForelder(Forelderrolle.MOR),
               TestUtils.henteForelder(Forelderrolle.FAR),
-              TestUtils.henteBarnUtenFnr(17)));
+              TestUtils.henteBarnUtenFnr(17));
+      farskapserklaering
+          .getDokument()
+          .setDokumentinnhold(
+              Dokumentinnhold.builder().innhold("En farskapserklæring".getBytes()).build());
+      return farskapserklaeringDao.save(farskapserklaering);
     }
 
     @Test
@@ -597,6 +601,36 @@ public class PersistenceServiceTest {
       // then
       AssertionsForClassTypes.assertThat(illegalStateException.getMessage())
           .isEqualTo("Farskapserklæring ikke funnet");
+    }
+
+    @Test
+    void skalOppdatereTidspunktForDokumentsletting() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
+      lagretFarskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+      lagretFarskapserklaering.setDeaktivert(LocalDateTime.now());
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      // when
+      persistenceService.sletteDokumentinnhold(lagretFarskapserklaering.getId());
+
+      // then
+      var farskapserklaeringMedSlettedeDokumenter =
+          farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () ->
+              assertThat(farskapserklaeringMedSlettedeDokumenter.get().getDokumenterSlettet())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      farskapserklaeringMedSlettedeDokumenter
+                          .get()
+                          .getDokument()
+                          .getDokumentinnhold()
+                          .getInnhold())
+                  .isNull());
     }
   }
 

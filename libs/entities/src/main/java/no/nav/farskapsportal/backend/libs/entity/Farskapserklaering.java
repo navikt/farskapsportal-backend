@@ -53,6 +53,8 @@ public class Farskapserklaering implements Serializable {
 
   private LocalDateTime deaktivert;
 
+  private LocalDateTime dokumenterSlettet;
+
   @Override
   public int hashCode() {
     final int prime = 31;
