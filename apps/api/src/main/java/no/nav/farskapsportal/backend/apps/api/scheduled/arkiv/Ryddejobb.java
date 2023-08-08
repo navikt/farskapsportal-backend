@@ -28,8 +28,8 @@ public class Ryddejobb {
             .toArray();
 
     log.info(
-        "Antall farskapserklæringer med dokumenter som er klar til sletting: {}",
-        idTilGamleFarskapserklaeringer.length);
+        "Antall farskapserklæringer med dokumenter som er klar til sletting: {} (arkivert og deaktivert før {})",
+        idTilGamleFarskapserklaeringer.length, dokumentArkivertFoer);
     if (idTilGamleFarskapserklaeringer.length
         > arkiv.getMaksAntallDokumenterSomSlettesPerKjoering()) {
       log.info(
