@@ -10,6 +10,8 @@ spec:
     application:
       allowAllUsers: true
       enabled: true
+  tokenx:
+    enabled: true
   image: {{ image }}
   kafka:
     pool: nav-dev
@@ -53,7 +55,6 @@ spec:
   {{#each secret}}
     - secret: {{this.name}}
   {{/each}}
-    - configmap: loginservice-idporten
   gcp:
     permissions:
       - resource:

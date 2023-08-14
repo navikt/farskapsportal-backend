@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping("/api/v1/farskapsportal")
-@ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER_SELVBETJENING)
+@ProtectedWithClaims(issuer = FarskapsportalApiApplication.ISSUER_TOKENX)
 public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
