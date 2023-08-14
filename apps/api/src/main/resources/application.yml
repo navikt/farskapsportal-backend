@@ -190,7 +190,7 @@ no.nav.security.jwt:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
       accepted_audience: aud-localhost
       cookie_name: localhost-idtoken
-    selvbetjening:
+    tokenx:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
       accepted_audience: aud-localhost
       cookie_name: localhost-idtoken
@@ -224,6 +224,9 @@ AZURE_APP_TENANT_ID: aad
 AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
 SKATT_URL: http://localhost:8080
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
+TOKEN_X_WELL_KNOWN_URL:  http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+TOKEN_X_CLIENT_ID: tokenx
+
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
