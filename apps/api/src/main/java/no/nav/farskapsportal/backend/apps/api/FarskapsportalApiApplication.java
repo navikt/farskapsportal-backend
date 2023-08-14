@@ -2,10 +2,8 @@ package no.nav.farskapsportal.backend.apps.api;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,7 +18,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
 public class FarskapsportalApiApplication {
 
-  public static final String ISSUER_SELVBETJENING = "selvbetjening";
+  public static final String ISSUER_TOKENX = "tokenx";
   public static final String ISSUER_AZURE_AD = "aad";
 
   public static void main(String[] args) {

@@ -10,6 +10,8 @@ spec:
     application:
       allowAllUsers: true
       enabled: true
+  tokenx:
+    enabled: true
   image: {{ image }}
   kafka:
     pool: nav-prod
@@ -48,7 +50,6 @@ spec:
   {{/each}}
   envFrom:
     - secret: farskapsportal-api-secret
-    - configmap: loginservice-idporten
   gcp:
     sqlInstances:
       - diskSize: {{ gcp.sql-instances.diskSize }}
