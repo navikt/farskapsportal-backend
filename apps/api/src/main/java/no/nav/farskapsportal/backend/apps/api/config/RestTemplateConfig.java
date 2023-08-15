@@ -2,10 +2,13 @@ package no.nav.farskapsportal.backend.apps.api.config;
 
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.commons.security.service.SecurityTokenService;
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.security.token.support.client.core.ClientProperties;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -13,14 +16,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
 @ComponentScan("no.nav.farskapsportal")
-public class RestTemplateAsynkronConfig {
-
+public class RestTemplateConfig {
+  private static final String BEHANDLINGSNUMMER = "Behandlingsnummer";
+  private static final String BEHANDLINGSNUMMER_FARSKAP = "B145";
+  private static final String TEMA_FAR = "FAR";
+  private static final String TEMA = "Tema";
+  private static final String CLIENT_FARSKAPSPORTAL_API = "farskapsportal-api";
+  private static final String CLIENT_PDL_API = "pdl-api";
+  private static final String CLIENT_OPPGAVE_API = "oppgave-api";
   public static final String X_CORRELATION_ID_HEADER_NAME = "X-Correlation-ID";
 
   @Bean
@@ -35,9 +46,9 @@ public class RestTemplateAsynkronConfig {
 
     ClientProperties clientProperties =
         Optional.ofNullable(
-                clientConfigurationProperties.getRegistration().get("farskapsportal-api"))
+                clientConfigurationProperties.getRegistration().get(CLIENT_FARSKAPSPORTAL_API))
             .orElseThrow(
-                () -> new RuntimeException("fant ikke oauth2-klientkonfig for farskapsportalApi"));
+                () -> new RuntimeException("fant ikke oauth2-klientkonfig for " + CLIENT_FARSKAPSPORTAL_API));
 
     restTemplate
         .getInterceptors()
@@ -56,8 +67,8 @@ public class RestTemplateAsynkronConfig {
       OAuth2AccessTokenService oAuth2AccessTokenService) {
 
     ClientProperties clientProperties =
-        Optional.ofNullable(clientConfigurationProperties.getRegistration().get("oppgave"))
-            .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for oppgave"));
+        Optional.ofNullable(clientConfigurationProperties.getRegistration().get(CLIENT_OPPGAVE_API))
+            .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for " + CLIENT_OPPGAVE_API));
 
     var restTemplate = new RestTemplate();
     restTemplate
@@ -69,6 +80,25 @@ public class RestTemplateAsynkronConfig {
 
     return restTemplate;
   }
+
+  @Bean("pdl-api")
+  @Scope("prototype")
+  public HttpHeaderRestTemplate pdlApiRestTemplate(
+          ClientConfigurationProperties clientConfigurationProperties,
+          OAuth2AccessTokenService oAuth2AccessTokenService,
+          @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.CONTENT_TYPE, () -> MediaType.APPLICATION_JSON_VALUE);
+    httpHeaderRestTemplate.addHeaderGenerator(BEHANDLINGSNUMMER, () -> BEHANDLINGSNUMMER_FARSKAP);
+    httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
+
+    ClientProperties clientProperties =
+            Optional.ofNullable(clientConfigurationProperties.getRegistration().get(CLIENT_PDL_API))
+                    .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for " +  CLIENT_PDL_API));
+
+    httpHeaderRestTemplate.getInterceptors().add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
+    return httpHeaderRestTemplate;
+  }
+
 
   private ClientHttpRequestInterceptor accessTokenInterceptor(
       ClientProperties clientProperties, OAuth2AccessTokenService oAuth2AccessTokenService) {

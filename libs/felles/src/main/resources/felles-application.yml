@@ -1,8 +1,3 @@
-url:
-  sts:
-    base-url: ${APIGW_URL}
-    security-token-service: "/security-token-service/rest/v1/sts/token"
-
 farskapsportal.felles.egenskaper:
   appnavn: ${APPNAVN}
   systembruker-brukernavn: srvfarskapsportal
@@ -27,9 +22,6 @@ spring:
 
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
-url:
-  sts.base-url: ${WIREMOCK_URL}
-
 ### misc
 BRUKERNOTIFIKASJON_PAA: true
 FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no"
@@ -40,7 +32,6 @@ KAFKA_SCHEMA_REGISTRY_PASSWORD: secret
 KAFKA_KEYSTORE_PATH: /var/test
 NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
-APIKEY_STS_FP: keyForZoneCrossing
 
 ### kafka
 KAFKA_BROKERS: 127.0.0.1:9092

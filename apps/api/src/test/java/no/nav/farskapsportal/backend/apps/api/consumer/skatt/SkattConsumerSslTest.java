@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
@@ -23,8 +22,6 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
-import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -51,7 +48,6 @@ public class SkattConsumerSslTest {
   private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
   private @MockBean no.digipost.signature.client.ClientConfiguration clientConfiguration;
   private @MockBean no.digipost.signature.client.direct.DirectClient directClient;
-  private @MockBean SecurityTokenServiceConsumer securityTokenServiceConsumer;
   private @MockBean PdlApiConsumer pdlApiConsumer;
   private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
 

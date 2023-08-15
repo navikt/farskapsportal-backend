@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.farskapsportal.backend.apps.api.config.RestTemplateAsynkronConfig;
+import no.nav.farskapsportal.backend.apps.api.config.RestTemplateConfig;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.OppretteOppgaveRespons;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
@@ -51,7 +51,7 @@ public class OppgaveApiConsumer {
     HttpHeaders headers = new HttpHeaders();
 
     var correlationId = UUID.randomUUID().toString();
-    headers.add(RestTemplateAsynkronConfig.X_CORRELATION_ID_HEADER_NAME, correlationId);
+    headers.add(RestTemplateConfig.X_CORRELATION_ID_HEADER_NAME, correlationId);
 
     log.info("Legger inn X-Correlation-ID header {}", correlationId);
 

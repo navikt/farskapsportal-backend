@@ -9,12 +9,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
+import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonDoedsfall;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFoedsel;
@@ -39,8 +42,10 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.VergemaalEllerFremtidsfullmakt
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.StsStub;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,15 +53,20 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 @EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)
+@DirtiesContext
 @DisplayName("PdlApiConsumer")
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(classes = {FarskapsportalApiApplicationLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes = {FarskapsportalApiConfig.class, RestTemplateFellesConfig.class})
 public class PdlApiConsumerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
@@ -68,10 +78,17 @@ public class PdlApiConsumerTest {
   private PdlApiStub pdlApiStub;
 
   @Autowired
-  private StsStub stsStub;
-
-  @Autowired
   private CacheManager cacheManager;
+
+  @MockBean
+  private OAuth2AccessTokenService oAuth2AccessTokenService;
+
+  @MockBean
+  private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+
+  private void mockAccessToken() {
+    when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+  }
 
   @Nested
   @DisplayName("Hente kjønn")
@@ -87,8 +104,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "03827297045";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-
+      mockAccessToken();
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
       kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
 
@@ -108,8 +124,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "111222240280";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
-
+      mockAccessToken();
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
       kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
 
@@ -129,8 +144,8 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "111222240280";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
+      mockAccessToken();
 
       // when, then
       assertThrows(RessursIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor));
@@ -142,7 +157,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "111222240280";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       pdlApiStub.runPdlApiHentPersonValideringsfeil();
 
       // when, then
@@ -155,7 +170,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "111222240280";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
 
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
       kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
@@ -182,7 +197,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "111222240289";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
       // when, then
@@ -205,9 +220,9 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrOppgittFar = "01018512345";
-      stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
       var registrertNavn = NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
+      mockAccessToken();
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -225,9 +240,9 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrOppgittFar = "01018512345";
-      stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
       var registrertNavn = NavnDto.builder().mellomnavn("Parafin").etternavn("Olsen").build();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
+      mockAccessToken();
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when, then
@@ -240,8 +255,8 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrOppgittFar = "01018512345";
-      stsStub.runSecurityTokenServiceStub("eyQ25gkasgag");
       var registrertNavn = NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").build();
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -263,10 +278,10 @@ public class PdlApiConsumerTest {
     void skalHenteFolkeregisteridentifikatorForMor() {
 
       // given
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonFolkeregisteridentifikator(
           FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(MOR.getFoedselsnummer()).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
               .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build()));
+      mockAccessToken();
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -296,7 +311,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "030493240280";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonFoedsel(morsFoedselsdato, false));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -313,7 +328,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "030493240280";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonFoedsel(morsFoedselsdato, "Tana", false));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -340,7 +355,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrMor = "13108411110";
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonForelderBarnRelasjon(null, "1234"));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -358,10 +373,10 @@ public class PdlApiConsumerTest {
       // given
       var fnrFar = "13108411111";
       var fnrBarn = "01112009091";
+      mockAccessToken();
       var forelderBarnRelasjonDto = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrBarn)
           .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN)
           .minRolleForPerson(ForelderBarnRelasjonRolle.FAR).build();
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonForelderBarnRelasjon(forelderBarnRelasjonDto, "1234"));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -393,8 +408,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrFar = "13108411111";
-
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.UGIFT));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -411,8 +425,7 @@ public class PdlApiConsumerTest {
 
       // given
       var fnr = "1310841511";
-
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -428,8 +441,7 @@ public class PdlApiConsumerTest {
     void skalHenteSivilstandUoppgittDersomSivilstandIkkeErRegistrert() {
       // given
       var fnr = "13108411311";
-
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -454,7 +466,7 @@ public class PdlApiConsumerTest {
     void skalHenteBostedsadresseForMorBosattINorge() {
 
       // given
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonBostedsadresse(BostedsadresseDto.builder()
           .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("5").husbokstav("B").postnummer("0202").build()).build()));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
@@ -484,7 +496,7 @@ public class PdlApiConsumerTest {
     void skalHenteInformasjonOmDoedsfallForLevendePerson() {
 
       // given
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(null).build()));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -500,8 +512,8 @@ public class PdlApiConsumerTest {
     void skalHenteInformasjonOmDoedsfallForDoedPerson() {
 
       // given
+      mockAccessToken();
       var doedsdato = LocalDate.now().minusWeeks(5);
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(doedsdato).build()));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -531,10 +543,10 @@ public class PdlApiConsumerTest {
     void skalHenteVergeEllerFremtidsfullmaktForEksisterendePerson() {
 
       // given
+      mockAccessToken();
       var vergemaalEllerFremtidsfullmaktDto = VergemaalEllerFremtidsfullmaktDto.builder().type("voksen").embete("Fylkesmannen i Innlandet")
           .vergeEllerFullmektig(
               VergeEllerFullmektigDto.builder().omfang("personligeOgOekonomiskeInteresser").build()).build();
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonVergeEllerFremtidsfullmakt(vergemaalEllerFremtidsfullmaktDto));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
@@ -555,7 +567,7 @@ public class PdlApiConsumerTest {
     void skalReturnereTomVergeEllerFremtidsfullmaktForPersonUtenVerge() {
 
       // given
-      stsStub.runSecurityTokenServiceStub("eyQgastewq521ga");
+      mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonVergeEllerFremtidsfullmakt(null));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 

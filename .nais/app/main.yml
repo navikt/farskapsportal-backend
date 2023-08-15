@@ -15,8 +15,6 @@ gcp:
 env:
   - name: JAVA_TOOL_OPTIONS
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-  - name: APIGW_URL
-    value: https://api-gw-q1.oera.no
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
   - name: DB_USER_ASYNKRON
@@ -45,6 +43,10 @@ env:
     value: https://farskapsportal.ekstern.dev.nav.no
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
+  - name: PDL_SCOPE
+    value: dev-fss:pdl:pdl-pip-api
+  - name: PDL_URL
+    value: https://pdl-api.dev-fss-pub.nais.io/graphql
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
 # Fra gammel asynkron app

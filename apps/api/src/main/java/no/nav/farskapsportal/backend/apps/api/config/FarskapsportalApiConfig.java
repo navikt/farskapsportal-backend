@@ -1,8 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
-import static no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig.X_API_KEY;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -21,7 +19,9 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
+import no.nav.bidrag.commons.security.service.SecurityTokenService;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.tilgangskontroll.felles.SecurityUtils;
@@ -42,13 +42,10 @@ import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Farskapsporta
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
-import org.apache.commons.lang3.Validate;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.flywaydb.core.Flyway;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,12 +59,15 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Slf4j
 @Configuration
+@EnableSecurityConfiguration
 @io.swagger.v3.oas.annotations.security.SecurityScheme(
     bearerFormat = "JWT",
     name = "bearer-key",
@@ -78,14 +78,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
     security = @SecurityRequirement(name = "bearer-key"))
 @ComponentScan("no.nav.farskapsportal.backend")
 public class FarskapsportalApiConfig {
-
-  private static final String NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
-  private static final String BEHANDLINGSNUMMER = "Behandlingsnummer";
-  private static final String BEHANDLINGSNUMMER_FARSKAP = "B145";
-  private static final String TEMA_FAR = "FAR";
-  private static final String TEMA = "Tema";
-
-  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Autowired private OidcTokenManager oidcTokenManager;
 
@@ -116,40 +108,6 @@ public class FarskapsportalApiConfig {
         .restTemplate(restTemplate)
         .consumerEndpoint(consumerEndpoint)
         .build();
-  }
-
-  @Bean("pdl-api")
-  @Scope("prototype")
-  public HttpHeaderRestTemplate pdlApiRestTemplate(
-      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-      @Value("${APIKEY_PDLAPI_FP}") String xApiKeyPdlApi,
-      @Autowired SecurityTokenServiceConsumer securityTokenServiceConsumer) {
-
-    httpHeaderRestTemplate.addHeaderGenerator(
-        AUTHORIZATION,
-        () ->
-            "Bearer "
-                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
-                    farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
-                    farskapsportalFellesEgenskaper.getSystembrukerPassord()));
-
-    httpHeaderRestTemplate.addHeaderGenerator(
-        NAV_CONSUMER_TOKEN,
-        () ->
-            "Bearer "
-                + securityTokenServiceConsumer.hentIdTokenForServicebruker(
-                    farskapsportalFellesEgenskaper.getSystembrukerBrukernavn(),
-                    farskapsportalFellesEgenskaper.getSystembrukerPassord()));
-
-    httpHeaderRestTemplate.addHeaderGenerator(BEHANDLINGSNUMMER, () -> BEHANDLINGSNUMMER_FARSKAP);
-    httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
-
-    log.info("Setter {} for pdl-api", X_API_KEY);
-    Validate.isTrue(xApiKeyPdlApi != null);
-    Validate.isTrue(!xApiKeyPdlApi.isBlank());
-
-    httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeyPdlApi);
-    return httpHeaderRestTemplate;
   }
 
   @Bean

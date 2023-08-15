@@ -81,7 +81,6 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.ForelderDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
-import no.nav.farskapsportal.backend.libs.felles.test.stub.consumer.sts.StsStub;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.token.support.client.core.ClientProperties;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
@@ -151,8 +150,7 @@ public class FarskapsportalControllerTest {
   @Autowired
   @Qualifier("api")
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
-
-  @Autowired private StsStub stsStub;
+  
   @Autowired private PdlApiStub pdlApiStub;
   @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
   @MockBean private PdfGeneratorConsumer pdfGeneratorConsumer;
@@ -291,7 +289,6 @@ public class FarskapsportalControllerTest {
 
   private void brukeStandardMocksUtenPdlApi(String fnrPaaloggetBruker) {
 
-    stsStub.runSecurityTokenServiceStub("jalla");
     loggePaaPerson(fnrPaaloggetBruker);
 
     when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any()))
@@ -350,7 +347,7 @@ public class FarskapsportalControllerTest {
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
-      stsStub.runSecurityTokenServiceStub("jalla");
+
       var morsRelasjonTilBarn =
           ForelderBarnRelasjonDto.builder()
               .minRolleForPerson(ForelderBarnRelasjonRolle.MOR)
@@ -452,9 +449,7 @@ public class FarskapsportalControllerTest {
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
-
-      stsStub.runSecurityTokenServiceStub("jalla");
-
+      
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -568,7 +563,7 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -673,7 +668,7 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.MANN);
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -761,7 +756,7 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.MANN);
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -811,7 +806,7 @@ public class FarskapsportalControllerTest {
       loggePaaPerson(fnrMor);
 
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       var spedbarnetsRelasjonTilMor =
           ForelderBarnRelasjonDto.builder()
@@ -857,7 +852,7 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -1001,7 +996,7 @@ public class FarskapsportalControllerTest {
       kjoennshistorikk.put(LocalDateTime.now().minusYears(9), KjoennType.KVINNE);
       kjoennshistorikk.put(LocalDateTime.now().minusYears(2), KjoennType.MANN);
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -1106,7 +1101,7 @@ public class FarskapsportalControllerTest {
               .foedselsnummer(fnrFar)
               .navn(fornavnFar + " " + etternavnFar)
               .build();
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
@@ -1182,7 +1177,7 @@ public class FarskapsportalControllerTest {
               .fornavn(fornavnFar)
               .etternavn(etternavnFar)
               .build();
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
@@ -1253,7 +1248,7 @@ public class FarskapsportalControllerTest {
       var oppgittNavn = NAVN_FAR;
       loggePaaPerson(MOR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -1314,7 +1309,7 @@ public class FarskapsportalControllerTest {
       // given
       loggePaaPerson(MOR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -1374,7 +1369,7 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(MOR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
@@ -1476,7 +1471,7 @@ public class FarskapsportalControllerTest {
               generereTesttoken(MOR.getFoedselsnummer()), 1000, 1000, null);
       when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
@@ -2024,7 +2019,7 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(MOR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
 
@@ -2137,7 +2132,7 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(FAR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
 
@@ -2260,7 +2255,7 @@ public class FarskapsportalControllerTest {
       doNothing()
           .when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(MOR, FAR);
-      stsStub.runSecurityTokenServiceStub("jalla");
+
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
 
@@ -2375,7 +2370,7 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(MOR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -2476,7 +2471,7 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(FAR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -2577,7 +2572,7 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(FAR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -2676,7 +2671,7 @@ public class FarskapsportalControllerTest {
       doNothing()
           .when(brukernotifikasjonConsumer)
           .informereForeldreOmTilgjengeligFarskapserklaering(MOR, FAR);
-      stsStub.runSecurityTokenServiceStub("jalla");
+
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
 
@@ -2858,7 +2853,7 @@ public class FarskapsportalControllerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       loggePaaPerson(FAR.getFoedselsnummer());
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -2913,7 +2908,7 @@ public class FarskapsportalControllerTest {
       var lagretFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
 
-      stsStub.runSecurityTokenServiceStub("jalla");
+
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
