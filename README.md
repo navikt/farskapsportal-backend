@@ -28,17 +28,6 @@ også grenesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæri
 !NB: Ved k8 delete app må appens Google service account legges til som Secret Manager Accessor for GCP-hemmeligheter (gjelder f.eks tilgang til 
 virksomhetssertifikat og passord, samt Postgres-bruker (e.g. kjør >kubectl -n farskapsportal delete secret google-sql-farskapsportal-api-feature ))
 
-Hemmeligheter lagres som kubernetes secrets i GCP namespace farskapsportal. Følgende er i bruk:
-
-##### Secret name: farskapsportal-api-secret
-
-- SRVFARSKAPSPORTAL_PWD: Passord til farskapsportalssystembruker. Denne brukes ved henting av token STS. Originalen ligger i Vault, dev-sti:  
-  https://vault.adeo.no/ui/vault/secrets/serviceuser/show/dev/srvfarskapsportal
-
-##### Secret name farskapsportal-api-aud
-
-- AUD_FP: Angir gyldig publikum for farskapsportal-apis OIDC-token.
-
 ### testing av endepunkter
 
 Endepunktene er dokumentert med Swagger, og kan testes lokalt og på GCP dev:
