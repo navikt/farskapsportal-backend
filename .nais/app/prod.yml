@@ -43,7 +43,7 @@ env:
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "false"
   - name: PDL_SCOPE
-    value: prod-fss.pdl.pdl-pip-api
+    value: prod-fss.pdl.pdl-api
   - name: PDL_URL
     value: https://pdl-api.prod-fss-pub.nais.io/graphql
   - name: SKATT_URL
