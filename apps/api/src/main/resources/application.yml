@@ -62,11 +62,8 @@ url:
   farskapsportal:
     url: ${FARSKAPSPORTAL_URL}
   pdl-api:
-    base-url: ${APIGW_URL}
-    graphql: "/pdl-api/graphql"
-  sts:
-    base-url: ${APIGW_URL}
-    security-token-service: "/security-token-service/rest/v1/sts/token"
+    base-url: ${PDL_URL}
+    graphql: /graphql
   oppgave:
     base-url: ${OPPGAVEAPI_URL}
     opprette: /api/v1/oppgaver
@@ -81,7 +78,7 @@ no.nav.security.jwt:
   expirythreshold: 1
   client:
     registration:
-      pdl:
+      pdl-api:
         token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://${PDL_SCOPE}/.default
@@ -89,7 +86,7 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_post
-      oppgave:
+      oppgave-api:
         token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
         grant-type: client_credentials
         scope: api://${OPPGAVE_SCOPE}/.default
@@ -194,9 +191,6 @@ no.nav.security.jwt:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
       accepted_audience: aud-localhost
       cookie_name: localhost-idtoken
-  client.registration:
-    oppgave:
-      token-endpoint-url: ${AZURE_BASE}
 
 ---
 spring:
@@ -206,8 +200,6 @@ spring:
 INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
-APIKEY_PDLAPI_FP: keyForZoneCrossing
-APIKEY_STS_FP: keyForZoneCrossing
 FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/
 ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
@@ -220,8 +212,6 @@ NAIS_CLUSTER_NAME: dev
 SRVFARSKAPSPORTAL_PWD: top_hemmelig
 DEAKTIVERINGSRATE: "1 * * * * ?"
 DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER: 1
-AZURE_APP_TENANT_ID: aad
-AZURE_BASE: http://localhost:${mock-oauth2-server.port}/${AZURE_APP_TENANT_ID}
 SKATT_URL: http://localhost:8080
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
 TOKEN_X_WELL_KNOWN_URL:  http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
@@ -230,7 +220,6 @@ TOKEN_X_CLIENT_ID: tokenx
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
-  sts.base-url: ${WIREMOCK_URL}
   oppgave.base-url: ${WIREMOCK_URL}
 
 farskapsportal-api.systembruker.passord: se-vault
@@ -300,8 +289,6 @@ spring:
   config.activate.on-profile: local-postgres, remote-postgres
 
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
-APIKEY_PDLAPI_FP: keyForZoneCrossing
-APIKEY_STS_FP: keyForZoneCrossing
 KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY: http://localhost:8080
 BRUKERNOTIFIKASJON_PAA: false
@@ -309,7 +296,6 @@ NAIS_CLUSTER_NAME: dev-gcp
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
-  sts.base-url: ${WIREMOCK_URL}
 
 farskapsportal-api:
   systembruker.passord: se-vault
@@ -370,7 +356,6 @@ farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse: "* * 1 * * ?"
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
-  sts.base-url: ${WIREMOCK_URL}
   oppgave.base-url: ${WIREMOCK_URL}
 
 ---

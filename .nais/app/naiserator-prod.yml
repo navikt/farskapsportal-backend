@@ -48,8 +48,6 @@ spec:
     - name: {{this.name}}
       value: "{{this.value}}"
   {{/each}}
-  envFrom:
-    - secret: farskapsportal-api-secret
   gcp:
     sqlInstances:
       - diskSize: {{ gcp.sql-instances.diskSize }}

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -21,15 +20,6 @@ public class RestTemplateFellesConfig {
   public HttpHeaderRestTemplate restTemplate() {
     HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
     httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
-    return httpHeaderRestTemplate;
-  }
-
-  @Bean("sts")
-  @Scope("prototype")
-  public HttpHeaderRestTemplate stsRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate,
-      @Value("${APIKEY_STS_FP}") String xApiKeySts) {
-    log.info("Setter {} for STS", X_API_KEY);
-    httpHeaderRestTemplate.addHeaderGenerator(X_API_KEY, () -> xApiKeySts);
     return httpHeaderRestTemplate;
   }
 }

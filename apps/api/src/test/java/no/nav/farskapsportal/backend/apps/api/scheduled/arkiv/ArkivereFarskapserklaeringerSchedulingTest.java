@@ -9,7 +9,6 @@ import no.nav.farskapsportal.backend.apps.api.config.ScheduledConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.sts.SecurityTokenServiceConsumer;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -37,7 +36,6 @@ public class ArkivereFarskapserklaeringerSchedulingTest {
   private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
   private @MockBean no.digipost.signature.client.ClientConfiguration clientConfiguration;
   private @MockBean no.digipost.signature.client.direct.DirectClient directClient;
-  private @MockBean SecurityTokenServiceConsumer securityTokenServiceConsumer;
   private @MockBean PdlApiConsumer pdlApiConsumer;
   private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
   private @MockBean @Qualifier("oppgave") RestTemplate oppgaveRestTemplate;
