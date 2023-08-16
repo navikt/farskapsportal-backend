@@ -44,7 +44,7 @@ env:
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: "true"
   - name: PDL_SCOPE
-    value: dev-fss:pdl:pdl-pip-api
+    value: dev-fss.pdl.pdl-pip-api
   - name: PDL_URL
     value: https://pdl-api.dev-fss-pub.nais.io/graphql
   - name: SKATT_URL
