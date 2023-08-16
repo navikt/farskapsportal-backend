@@ -46,7 +46,7 @@ env:
   - name: PDL_SCOPE
     value: dev-fss.pdl.pdl-api
   - name: PDL_URL
-    value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    value: https://pdl-api.dev-fss-pub.nais.io
   - name: SKATT_URL
     value: https://folkeregisteret-api-ekstern.sits.no
 # Fra gammel asynkron app

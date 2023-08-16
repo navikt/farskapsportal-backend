@@ -63,7 +63,7 @@ url:
     url: ${FARSKAPSPORTAL_URL}
   pdl-api:
     base-url: ${PDL_URL}
-    graphql: "/pdl-api/graphql"
+    graphql: /graphql
   oppgave:
     base-url: ${OPPGAVEAPI_URL}
     opprette: /api/v1/oppgaver
