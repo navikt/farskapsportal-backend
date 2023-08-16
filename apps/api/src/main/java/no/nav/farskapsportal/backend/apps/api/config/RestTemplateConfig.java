@@ -34,6 +34,8 @@ public class RestTemplateConfig {
   private static final String CLIENT_OPPGAVE_API = "oppgave-api";
   public static final String X_CORRELATION_ID_HEADER_NAME = "X-Correlation-ID";
 
+  private @Autowired SecurityTokenService securityTokenService;
+
   @Bean
   @Scope("prototype")
   @Qualifier("farskapsportal-api")
@@ -83,19 +85,12 @@ public class RestTemplateConfig {
 
   @Bean("pdl-api")
   @Scope("prototype")
-  public HttpHeaderRestTemplate pdlApiRestTemplate(
-          ClientConfigurationProperties clientConfigurationProperties,
-          OAuth2AccessTokenService oAuth2AccessTokenService,
-          @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+  public HttpHeaderRestTemplate pdlApiRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
     httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.CONTENT_TYPE, () -> MediaType.APPLICATION_JSON_VALUE);
     httpHeaderRestTemplate.addHeaderGenerator(BEHANDLINGSNUMMER, () -> BEHANDLINGSNUMMER_FARSKAP);
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 
-    ClientProperties clientProperties =
-            Optional.ofNullable(clientConfigurationProperties.getRegistration().get(CLIENT_PDL_API))
-                    .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for " +  CLIENT_PDL_API));
-
-    httpHeaderRestTemplate.getInterceptors().add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
+    httpHeaderRestTemplate.getInterceptors().add(securityTokenService.clientCredentialsTokenInterceptor(CLIENT_PDL_API));
     return httpHeaderRestTemplate;
   }
 
