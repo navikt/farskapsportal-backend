@@ -2,18 +2,15 @@ package no.nav.farskapsportal.backend.apps.api.service;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
-import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.zip.CRC32;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
@@ -90,19 +87,8 @@ public class FarskapsportalService {
     if (Forelderrolle.MOR.equals(brukersForelderrolle)
         || Forelderrolle.MOR_ELLER_FAR.equals(brukersForelderrolle)) {
 
-      validereMor(fnrPaaloggetBruker);
-
+      nyligFoedteBarnSomManglerFar = validereMor(fnrPaaloggetBruker);
       kanOppretteFarskapserklaering = true;
-
-      // har mor noen nyfødte barn uten registrert far?
-      nyligFoedteBarnSomManglerFar =
-          personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrPaaloggetBruker);
-
-      if (nyligFoedteBarnSomManglerFar.size() > 1) {
-        log.info(
-            "Mor har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
-            nyligFoedteBarnSomManglerFar.size());
-      }
 
       var morsAktiveErklaeringer =
           persistenceService.henteMorsEksisterendeErklaeringer(fnrPaaloggetBruker);
@@ -241,7 +227,7 @@ public class FarskapsportalService {
     }
   }
 
-  public void validereMor(String fnrMor) {
+  public Set<String> validereMor(String fnrMor) {
 
     // Mor kan ikke være død
     validereAtForelderIkkeErDoed(fnrMor);
@@ -252,11 +238,30 @@ public class FarskapsportalService {
     // Mor kan ikke være registrert med dnummer
     validereAtPersonHarAktivtFoedselsnummer(fnrMor, Rolle.MOR);
 
-    // Bare mor kan oppretteFarskapserklæring
-    riktigRolleForOpprettingAvErklaering(fnrMor);
-
     // Mor må ha norsk bostedsadresse
     validereMorErBosattINorge(fnrMor);
+
+    // Mors ektefelle registreres automatisk som far etter norsk lov dersom mor er gift - gifte mødre får derfor ikke opprette farskapserklæring
+    validereSivilstand(fnrMor);
+
+    // har mor noen nyfødte barn uten registrert far?
+    Set<String> nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
+
+    // Sjekke at mor tilfredsstiller rollekrav for mor med mindre hun har nyfødt barn uten registrert far
+    if (nyligFoedteBarnSomManglerFar.size() < 1) {
+      log.info("Mor er ikke registrert med nyfødte barn uten far");
+      SIKKER_LOGG.info("Mor ({}) er ikke registrert med nyfødte barn uten far", fnrMor);
+      riktigRolleForOpprettingAvErklaering(fnrMor);
+    } else if (nyligFoedteBarnSomManglerFar.size() > 1) {
+      log.info(
+              "Mor har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
+              nyligFoedteBarnSomManglerFar.size());
+      SIKKER_LOGG.info(
+              "Mor ({}) har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
+              fnrMor, nyligFoedteBarnSomManglerFar.size());
+
+    }
+    return nyligFoedteBarnSomManglerFar;
   }
 
   /**
@@ -634,8 +639,7 @@ public class FarskapsportalService {
 
   private void riktigRolleForOpprettingAvErklaering(String fnrPaaloggetPerson) {
     log.info("Sjekker om person kan opprette farskapserklaering..");
-
-    validereSivilstand(fnrPaaloggetPerson);
+    SIKKER_LOGG.info("Sjekker om person ({}) kan opprette farskapserklaering..", fnrPaaloggetPerson);
 
     var forelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
     var paaloggetPersonKanOpptreSomMor =
