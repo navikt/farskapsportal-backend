@@ -3,16 +3,22 @@ ingress: https://farskapsportal-api.intern.nav.no
 gcp:
   secretmanager.host: secretmanager.googleapis.com
   sql-instances:
-    diskSize: 505
-    name: fp-prod
-    tier: db-custom-1-3840
-    type: POSTGRES_12
-    databases:
-      name: fpdb-prod
-      env-var-prefix: DB
-      users:
-        asynkron:
-          name: asynkron_prod
+    - name: fp-prod
+      tier: db-custom-1-3840
+      type: POSTGRES_12
+      diskSize: 505
+      databases:
+        name: fpdb-prod
+        env-var-prefix: DB
+        users:
+          asynkron:
+            name: asynkron_prod
+    - name: fp-prod-15
+      tier: db-custom-1-3840
+      type: POSTGRES_15
+      databases:
+        name: fpdb-prod
+        env-var-prefix: DB_15
 env:
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"

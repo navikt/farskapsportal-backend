@@ -3,15 +3,21 @@ ingress: https://farskapsportal-api.intern.dev.nav.no
 replicas: 2
 gcp:
   sql-instances:
-    name: fp-main
-    tier: db-custom-1-3840
-    type: POSTGRES_12
-    databases:
-      name: fpdb-main
-      env-var-prefix: DB
-      users:
-        asynkron:
-          name: asynkron_main
+    - name: fp-main
+      tier: db-custom-1-3840
+      type: POSTGRES_12
+      databases:
+        name: fpdb-main
+        env-var-prefix: DB
+        users:
+          asynkron:
+            name: asynkron_main
+    - name: fp-main-15
+      type: POSTGRES_15
+      tier: db-f1-micro
+      databases:
+        name: fpdb-feature-15
+        env-var-prefix: DB_15
 env:
   - name: JAVA_TOOL_OPTIONS
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005

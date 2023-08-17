@@ -50,13 +50,18 @@ spec:
   {{/each}}
   gcp:
     sqlInstances:
-      - diskSize: {{ gcp.sql-instances.diskSize }}
-        name: {{ gcp.sql-instances.name }}
-        tier: {{ gcp.sql-instances.tier }}
-        type: {{ gcp.sql-instances.type }}
-        databasƒes:
-          - name: {{ gcp.sql-instances.databases.name }}
-            envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
+      - name: {{ gcp.sql-instances[0].name }}
+        tier: {{ gcp.sql-instances[0].tier }}
+        type: {{ gcp.sql-instances[0].type }}
+        databases:
+          - name: {{ gcp.sql-instances[0].databases.name }}
+            envVarPrefix: {{ gcp.sql-instances[0].databases.env-var-prefix }}
+      - name: {{ gcp.sql-instances[1].name }}
+        tier: {{ gcp.sql-instances[1].tier }}
+        type: {{ gcp.sql-instances[1].type }}
+        databases:
+          - name: {{ gcp.sql-instances[1].databases.name }}
+            envVarPrefix: {{ gcp.sql-instances[1].databases.env-var-prefix }}
   accessPolicy:
     inbound:
       rules:
@@ -66,7 +71,6 @@ spec:
           cluster: prod-gcp
     outbound:
       external:
-        - host: api-gw.oera.no
         - host: api.signering.posten.no
         - host: folkeregisteret.api.skatteetaten.no
         - host: secretmanager.googleapis.com
