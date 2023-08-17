@@ -3,18 +3,18 @@ ingress: https://farskapsportal-api-feature.intern.dev.nav.no
 replicas: 1
 gcp:
   sql-instances:
-    - name: fp-feature
+    - type: POSTGRES_15
+      name: fp-feature
       tier: db-f1-micro
-      type: POSTGRES_15
       databases:
         name: fpdb-feature
         env-var-prefix: DB
         users:
           asynkron:
             name: asynkron_feature
-    - name: fp-feature-15
+    - type: POSTGRES_15
+      name: fp-feature-15
       tier: db-f1-micro
-      type: POSTGRES_15
       databases:
         name: fpdb-feature-15
         env-var-prefix: DB_15
