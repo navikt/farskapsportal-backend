@@ -62,8 +62,10 @@ spec:
         tier: {{ gcp.sql-instances.tier }}
         type: {{ gcp.sql-instances.type }}
         databases:
-          - name: {{ gcp.sql-instances.databases.name }}
-            envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
+          - name: {{ gcp.sql-instances.databases[0].name }}
+            envVarPrefix: {{ gcp.sql-instances.databases[0].env-var-prefix }}
+          - name: {{ gcp.sql-instances.databases[1].name }}
+            envVarPrefix: {{ gcp.sql-instances.databases[1].env-var-prefix }}
   accessPolicy:
     inbound:
       rules:
