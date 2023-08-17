@@ -16,8 +16,8 @@ gcp:
       tier: db-f1-micro
       type: POSTGRES_15
       databases:
-        name: fpdb-feature
-        env-var-prefix: DB
+        name: fpdb-feature-15
+        env-var-prefix: DB_15
 env:
   - name: JAVA_TOOL_OPTIONS
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
