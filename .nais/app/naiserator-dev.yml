@@ -58,18 +58,18 @@ spec:
           kind: Project
         role: roles/cloudsql.client
     sqlInstances:
-      - name: {{ gcp.sql-instances[0].name }}
-        tier: {{ gcp.sql-instances[0].tier }}
-        type: {{ gcp.sql-instances[0].type }}
+      - name: fp-feature
+        tier: db-f1-micro
+        type: POSTGRES_15
         databases:
-          - name: {{ gcp.sql-instances[0].databases.name }}
-            envVarPrefix: {{ gcp.sql-instances[0].databases.env-var-prefix }}
-      - name: {{ gcp.sql-instances[1].name }}
-        tier: {{ gcp.sql-instances[1].tier }}
-        type: {{ gcp.sql-instances[1].type }}
+          - name: fpdb-feature
+            envVarPrefix: DB
+      - name: fp-feature-15
+        tier: db-f1-micro
+        type: POSTGRES_15
         databases:
-          - name: {{ gcp.sql-instances[1].databases.name }}
-            envVarPrefix: {{ gcp.sql-instances[1].databases.env-var-prefix }}
+          - name: fpdb-feature-15
+            envVarPrefix: DB_15
 
   accessPolicy:
     inbound:
