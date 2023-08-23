@@ -20,10 +20,10 @@ public class Utils {
         });
   }
 
-  public static String getMeldingsidSkatt(Farskapserklaering farskapserklaering) {
+  public static String getMeldingsidSkatt(Farskapserklaering farskapserklaering, byte[] pades) {
     var crc32 = new CRC32();
     var outputstream = new ByteArrayOutputStream();
-    outputstream.writeBytes(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+    outputstream.writeBytes(pades);
     crc32.update(outputstream.toByteArray());
 
     var signeringstidspunktMor =

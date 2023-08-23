@@ -1,11 +1,11 @@
 package no.nav.farskapsportal.backend.libs.entity;
 
-import java.io.Serializable;
-import java.time.LocalDate;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,8 +65,8 @@ public class Barn implements Serializable {
   public String toString() {
     if (termindato != null) {
       return "Barn knyttet til termindato: " + termindato.toString();
-    } else  if (foedselsnummer != null){
-      return "Barn med fødselsnummer som starter med: " + foedselsnummer.substring(0,6);
+    } else if (foedselsnummer != null) {
+      return "Barn med fødselsnummer som starter med: " + foedselsnummer.substring(0, 6);
     }
     return "Objektet mangler data";
   }

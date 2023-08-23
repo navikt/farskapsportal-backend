@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import java.io.IOException;
 import java.util.UUID;
 import no.digipost.signature.client.direct.DirectClient;
-import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
@@ -30,28 +29,28 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = FarskapsportalApiTestConfig.class)
 public class DifiESignaturConsumerIntegrationTest {
 
-  private static final ForelderDto MOR = ForelderDto.builder()
-      .foedselsnummer("11029000478")
-      .navn(NavnDto.builder().fornavn("Rakrygget").etternavn("Veggpryd").build()).build();
+  private static final ForelderDto MOR =
+      ForelderDto.builder()
+          .foedselsnummer("11029000478")
+          .navn(NavnDto.builder().fornavn("Rakrygget").etternavn("Veggpryd").build())
+          .build();
 
-  private static final ForelderDto FAR = ForelderDto.builder()
-      .foedselsnummer("11029400522")
-      .navn(NavnDto.builder().fornavn("Treig").etternavn("Tranflaske").build()).build();
+  private static final ForelderDto FAR =
+      ForelderDto.builder()
+          .foedselsnummer("11029400522")
+          .navn(NavnDto.builder().fornavn("Treig").etternavn("Tranflaske").build())
+          .build();
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  @Autowired
-  DirectClient directClientMock;
+  @Autowired DirectClient directClientMock;
 
-  @Autowired
-  FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
+  @Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
 
-  @Autowired
-  private DifiESignaturConsumer difiESignaturConsumer;
+  @Autowired private DifiESignaturConsumer difiESignaturConsumer;
 
-  @Autowired
-  private DifiESignaturStub difiESignaturStub;
+  @Autowired private DifiESignaturStub difiESignaturStub;
 
   @Nested
   @DisplayName("Teste henteDokumentstatusEtterRedirect")
@@ -63,19 +62,32 @@ public class DifiESignaturConsumerIntegrationTest {
 
       // given
       // Hente fra GCP-instans
-      var statusUrl = "https://api.difitest.signering.posten.no/api/889640782/direct/signature-jobs/59540/status";
+      var statusUrl =
+          "https://api.difitest.signering.posten.no/api/889640782/direct/signature-jobs/59540/status";
       var statusQueryToken = "9RAYkOFvDkP6fMFUKwmRGgxQuHIDRMXcK1t58HDRTns";
 
       // when
-      var dokumentStatusDto = difiESignaturConsumer.henteStatus(statusQueryToken, UUID.randomUUID().toString(), tilUri(statusUrl));
+      var dokumentStatusDto =
+          difiESignaturConsumer.henteStatus(
+              statusQueryToken, UUID.randomUUID().toString(), tilUri(statusUrl));
 
       // then
       assertAll(
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().size()).isEqualTo(2),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().get(0).getSignatureier()).isEqualTo(MOR.getFoedselsnummer()),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().get(0).getXadeslenke()).isNotNull(),
-          () -> AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().get(1).getSignatureier()).isEqualTo(FAR.getFoedselsnummer())
-      );
+          () ->
+              AssertionsForClassTypes.assertThat(dokumentStatusDto.getSignaturer().size())
+                  .isEqualTo(2),
+          () ->
+              AssertionsForClassTypes.assertThat(
+                      dokumentStatusDto.getSignaturer().get(0).getSignatureier())
+                  .isEqualTo(MOR.getFoedselsnummer()),
+          () ->
+              AssertionsForClassTypes.assertThat(
+                      dokumentStatusDto.getSignaturer().get(0).getXadeslenke())
+                  .isNotNull(),
+          () ->
+              AssertionsForClassTypes.assertThat(
+                      dokumentStatusDto.getSignaturer().get(1).getSignatureier())
+                  .isEqualTo(FAR.getFoedselsnummer()));
     }
   }
 
@@ -88,12 +100,14 @@ public class DifiESignaturConsumerIntegrationTest {
 
       // given
       ClassLoader classLoader = getClass().getClassLoader();
-      var inputStream = classLoader.getResourceAsStream("src/test/resources/__files/farskapserklaering.pdf");
+      var inputStream =
+          classLoader.getResourceAsStream("src/test/resources/__files/farskapserklaering.pdf");
       var originaltInnhold = inputStream.readAllBytes();
       difiESignaturStub.runGetSignedDocument(PADES);
 
       // when
-      var dokumentinnhold = difiESignaturConsumer.henteSignertDokument(lageUri(wiremockPort, PADES));
+      var dokumentinnhold =
+          difiESignaturConsumer.henteSignertDokument(lageUri(wiremockPort, PADES));
 
       // then
       assertArrayEquals(originaltInnhold, dokumentinnhold);

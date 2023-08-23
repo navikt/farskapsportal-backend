@@ -20,5 +20,4 @@ public class NavnDto implements PdlDto {
   private PersonnavnDto originaltNavn;
   private FolkeregistermetadataDto folkeregistermetadata;
   private MetadataDto metadata;
-
 }

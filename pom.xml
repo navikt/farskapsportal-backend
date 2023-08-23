@@ -38,6 +38,7 @@
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.guava.version>32.0.1-jre</google.guava.version>
         <google.api.gax.version>2.29.0</google.api.gax.version>
+        <google-cloud-storage.version>2.26.0</google-cloud-storage.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <jetty-client.version>11.0.7</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
@@ -115,6 +116,11 @@
                 <groupId>com.google.oauth-client</groupId>
                 <artifactId>google-oauth-client</artifactId>
                 <version>${google-oauth-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-storage</artifactId>
+                <version>${google-cloud-storage.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -248,6 +254,17 @@
                             </rules>
                             <fail>true</fail>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify.fmt</groupId>
+                <artifactId>fmt-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

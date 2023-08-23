@@ -28,4 +28,3 @@ public class EsigneringStatusFeiletException extends EsigneringConsumerException
     return this.farskapserklaering;
   }
 }
-

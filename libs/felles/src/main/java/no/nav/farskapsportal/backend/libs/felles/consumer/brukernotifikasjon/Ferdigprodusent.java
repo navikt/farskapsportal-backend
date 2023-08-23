@@ -26,12 +26,17 @@ public class Ferdigprodusent {
 
   public void ferdigstilleFarsSigneringsoppgave(Forelder far, NokkelInput nokkel) {
 
-    var oppgaveSomSkalFerdigstilles = oppgavebestillingDao.henteOppgavebestilling(nokkel.getEventId());
+    var oppgaveSomSkalFerdigstilles =
+        oppgavebestillingDao.henteOppgavebestilling(nokkel.getEventId());
 
-    if (oppgaveSomSkalFerdigstilles.isPresent() && oppgaveSomSkalFerdigstilles.get().getFerdigstilt() == null) {
+    if (oppgaveSomSkalFerdigstilles.isPresent()
+        && oppgaveSomSkalFerdigstilles.get().getFerdigstilt() == null) {
       var melding = oppretteDone();
       try {
-        kafkaTemplate.send(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicFerdig(), nokkel, melding);
+        kafkaTemplate.send(
+            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicFerdig(),
+            nokkel,
+            melding);
       } catch (Exception e) {
         throw new InternFeilException(Feilkode.BRUKERNOTIFIKASJON_OPPRETTE_OPPGAVE, e);
       }
@@ -39,8 +44,10 @@ public class Ferdigprodusent {
       log.info("Ferdigmelding ble sendt for oppgave med eventId {}.");
       persistenceService.setteOppgaveTilFerdigstilt(nokkel.getEventId());
     } else {
-      log.warn("Fant ingen aktiv oppgavebestilling for eventId {} (gjelder far med id: {}). Bestiller derfor ikke ferdigstilling.",
-          nokkel.getEventId(), far.getId());
+      log.warn(
+          "Fant ingen aktiv oppgavebestilling for eventId {} (gjelder far med id: {}). Bestiller derfor ikke ferdigstilling.",
+          nokkel.getEventId(),
+          far.getId());
     }
   }
 

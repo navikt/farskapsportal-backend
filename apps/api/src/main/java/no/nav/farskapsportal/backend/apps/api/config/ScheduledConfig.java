@@ -17,6 +17,7 @@ import no.nav.farskapsportal.backend.apps.api.scheduled.oppgave.Oppgavestyring;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +42,13 @@ public class ScheduledConfig {
 
   @Bean
   public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(
+      BucketConsumer bucketConsumer,
       DifiESignaturConsumer difiEsignerinConsumer,
       PersistenceService persistenceService,
       SkattConsumer skattConsumer) {
 
     return ArkivereFarskapserklaeringer.builder()
+        .bucketConsumer(bucketConsumer)
         .intervallMellomForsoek(
             farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
         .maksAntallFeilPaaRad(farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad())

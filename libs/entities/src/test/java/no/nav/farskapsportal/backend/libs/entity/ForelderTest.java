@@ -18,14 +18,9 @@ public class ForelderTest {
   void toObjekterMedSammeFoedselsnummerSkalGiSammeHashkode() {
 
     // given
-    var etForeldreobjekt =
-        Forelder.builder()
-            .foedselsnummer("01019232145")
-            .build();
+    var etForeldreobjekt = Forelder.builder().foedselsnummer("01019232145").build();
     var etAnnetForeldreobjektForSammePerson =
-        Forelder.builder()
-            .foedselsnummer(etForeldreobjekt.getFoedselsnummer())
-            .build();
+        Forelder.builder().foedselsnummer(etForeldreobjekt.getFoedselsnummer()).build();
 
     // when, then
     assertEquals(etForeldreobjekt.hashCode(), etAnnetForeldreobjektForSammePerson.hashCode());
@@ -36,15 +31,10 @@ public class ForelderTest {
   void toObjekterMedUlikeFoedselsnummreSkalGiUlikeHashkoder() {
 
     // given
-    var etForeldreobjekt =
-        Forelder.builder()
-            .foedselsnummer("01019232145")
-            .build();
+    var etForeldreobjekt = Forelder.builder().foedselsnummer("01019232145").build();
 
     var etAnnetForeldreobjektForEnAnnenPerson =
-        Forelder.builder()
-            .foedselsnummer("01018945612")
-            .build();
+        Forelder.builder().foedselsnummer("01018945612").build();
 
     // when, then
     assertNotEquals(etForeldreobjekt.hashCode(), etAnnetForeldreobjektForEnAnnenPerson.hashCode());
@@ -54,15 +44,9 @@ public class ForelderTest {
   @DisplayName("To foreldreobjekter beskriver ikke samme person dersom de har ulike fødselsnummer")
   void toForeldreErUlikeDersomDeHarForskjelligeFoedselsnumre() {
 
-    var enForelder =
-        Forelder.builder()
-            .foedselsnummer("01015787654")
-            .build();
+    var enForelder = Forelder.builder().foedselsnummer("01015787654").build();
 
-    var enAnnenForelder =
-        Forelder.builder()
-            .foedselsnummer("02025812345")
-            .build();
+    var enAnnenForelder = Forelder.builder().foedselsnummer("02025812345").build();
 
     // when, then
     assertNotEquals(
@@ -76,15 +60,9 @@ public class ForelderTest {
   void toForeldreErLikeDersomDeHarSammeFoedselsnummer() {
 
     // given
-    var enForelder =
-        Forelder.builder()
-            .foedselsnummer("01015787654")
-            .build();
+    var enForelder = Forelder.builder().foedselsnummer("01015787654").build();
 
-    var enAnnenForelder =
-        Forelder.builder()
-            .foedselsnummer(enForelder.getFoedselsnummer())
-            .build();
+    var enAnnenForelder = Forelder.builder().foedselsnummer(enForelder.getFoedselsnummer()).build();
 
     // when, then
     assertEquals(

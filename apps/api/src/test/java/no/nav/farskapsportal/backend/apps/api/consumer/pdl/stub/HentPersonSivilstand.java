@@ -23,11 +23,14 @@ public class HentPersonSivilstand implements HentPersonSubResponse {
       var startingElements = String.join("\n", " \"sivilstand\": [");
       var closingElements = String.join("\n", "]");
 
-      return startingElements + hentSivilstandElement(sivilstandtype, LocalDateTime.now(), "123") + closingElements;
+      return startingElements
+          + hentSivilstandElement(sivilstandtype, LocalDateTime.now(), "123")
+          + closingElements;
     }
   }
 
-  private String hentSivilstandElement(Sivilstandtype sivilstandtype, LocalDateTime tidspunktOpprettet, String opplysningsId) {
+  private String hentSivilstandElement(
+      Sivilstandtype sivilstandtype, LocalDateTime tidspunktOpprettet, String opplysningsId) {
     var sivilstandElement = new StringBuilder();
 
     sivilstandElement.append(String.join("\n", " {", " \"type\": \"" + sivilstandtype + "\","));
@@ -35,7 +38,8 @@ public class HentPersonSivilstand implements HentPersonSubResponse {
       sivilstandElement.append(PdlApiStub.hentFolkerigstermetadataElement(tidspunktOpprettet));
       sivilstandElement.append(",");
     }
-    sivilstandElement.append(PdlApiStub.hentMetadataElement(opplysningsId, false, tidspunktOpprettet));
+    sivilstandElement.append(
+        PdlApiStub.hentMetadataElement(opplysningsId, false, tidspunktOpprettet));
     sivilstandElement.append(String.join("\n", " }"));
 
     return sivilstandElement.toString();

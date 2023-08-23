@@ -34,6 +34,7 @@
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-core.version>4.0.3</jaxb-core.version>
         <jakarta.xml.bind-api.version>4.0.0</jakarta.xml.bind-api.version>
+        <fmt-maven-plugin.version>2.20</fmt-maven-plugin.version>
 
         <!-- test -->
         <bidrag-commons-test.version>1.20230511093912_dc35d81</bidrag-commons-test.version>
@@ -62,6 +63,15 @@
     </repositories>
     <build>
         <finalName>app</finalName>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.spotify.fmt</groupId>
+                    <artifactId>fmt-maven-plugin</artifactId>
+                    <version>${fmt-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

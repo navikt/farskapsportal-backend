@@ -2,6 +2,7 @@ package no.nav.farskapsportal.backend.apps.api.service;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
+import com.google.cloud.storage.BlobId;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -32,12 +33,9 @@ import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.Rolle;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -67,6 +65,7 @@ public class FarskapsportalService {
   private final PersistenceService persistenceService;
   private final PersonopplysningService personopplysningService;
   private final BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private final BucketConsumer bucketConsumer;
   private final Mapper mapper;
 
   public BrukerinformasjonResponse henteBrukerinformasjon(String fnrPaaloggetBruker) {
@@ -180,14 +179,9 @@ public class FarskapsportalService {
     var forelderDtoMor = oppretteForelderDto(fnrMor);
     var forelderDtoFar = oppretteForelderDto(request.getOpplysningerOmFar().getFoedselsnummer());
 
-    var innhold =
-        pdfGeneratorConsumer.genererePdf(
-            barnDto, forelderDtoMor, forelderDtoFar, request.getSkriftspraak());
-
     var dokument =
         Dokument.builder()
             .navn("Farskapserklaering.pdf")
-            .dokumentinnhold(Dokumentinnhold.builder().innhold(innhold).build())
             .signeringsinformasjonMor(
                 Signeringsinformasjon.builder().sendtTilSignering(LocalDateTime.now()).build())
             .build();
@@ -201,6 +195,21 @@ public class FarskapsportalService {
                 .far(mapper.toEntity(forelderDtoFar))
                 .dokument(dokument)
                 .build());
+
+    var innhold =
+        pdfGeneratorConsumer.genererePdf(
+            barnDto, forelderDtoMor, forelderDtoFar, request.getSkriftspraak());
+
+    var blobId =
+        bucketConsumer.saveContentToBucket(
+            BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), innhold);
+    var gcpBlobId =
+        GcpBlobId.builder()
+            .bucket(blobId.getBucket())
+            .generation(blobId.getGeneration())
+            .name(blobId.getName())
+            .build();
+    farskapserklaering.getDokument().setPadesBlobId(gcpBlobId);
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
     difiESignaturConsumer.oppretteSigneringsjobb(
@@ -241,25 +250,28 @@ public class FarskapsportalService {
     // Mor må ha norsk bostedsadresse
     validereMorErBosattINorge(fnrMor);
 
-    // Mors ektefelle registreres automatisk som far etter norsk lov dersom mor er gift - gifte mødre får derfor ikke opprette farskapserklæring
+    // Mors ektefelle registreres automatisk som far etter norsk lov dersom mor er gift - gifte
+    // mødre får derfor ikke opprette farskapserklæring
     validereSivilstand(fnrMor);
 
     // har mor noen nyfødte barn uten registrert far?
-    Set<String> nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
+    Set<String> nyligFoedteBarnSomManglerFar =
+        personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
 
-    // Sjekke at mor tilfredsstiller rollekrav for mor med mindre hun har nyfødt barn uten registrert far
+    // Sjekke at mor tilfredsstiller rollekrav for mor med mindre hun har nyfødt barn uten
+    // registrert far
     if (nyligFoedteBarnSomManglerFar.size() < 1) {
       log.info("Mor er ikke registrert med nyfødte barn uten far");
       SIKKER_LOGG.info("Mor ({}) er ikke registrert med nyfødte barn uten far", fnrMor);
       riktigRolleForOpprettingAvErklaering(fnrMor);
     } else if (nyligFoedteBarnSomManglerFar.size() > 1) {
       log.info(
-              "Mor har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
-              nyligFoedteBarnSomManglerFar.size());
+          "Mor har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
+          nyligFoedteBarnSomManglerFar.size());
       SIKKER_LOGG.info(
-              "Mor ({}) har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
-              fnrMor, nyligFoedteBarnSomManglerFar.size());
-
+          "Mor ({}) har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
+          fnrMor,
+          nyligFoedteBarnSomManglerFar.size());
     }
     return nyligFoedteBarnSomManglerFar;
   }
@@ -396,10 +408,14 @@ public class FarskapsportalService {
 
     if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
       oppdaterePades(farskapserklaering);
-      return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
+      var gcpBlobId = farskapserklaering.getDokument().getPadesBlobId();
+      return bucketConsumer.getContentFromBucket(
+          BlobId.of(gcpBlobId.getBucket(), gcpBlobId.getName()));
     } else if (morHarSignert(farskapserklaering)) {
       oppdaterePades(farskapserklaering);
-      return farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
+      var gcpBlobId = farskapserklaering.getDokument().getPadesBlobId();
+      return bucketConsumer.getContentFromBucket(
+          BlobId.of(gcpBlobId.getBucket(), gcpBlobId.getName()));
     } else {
       throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
     }
@@ -416,7 +432,24 @@ public class FarskapsportalService {
       var pades =
           difiESignaturConsumer.henteSignertDokument(
               new URI(farskapserklaering.getDokument().getPadesUrl()));
-      farskapserklaering.getDokument().getDokumentinnhold().setInnhold(pades);
+
+      var blobId =
+          bucketConsumer.saveContentToBucket(
+              BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
+      farskapserklaering
+          .getDokument()
+          .setPadesBlobId(
+              GcpBlobId.builder()
+                  .bucket(blobId.getBucket())
+                  .name(blobId.getName())
+                  .generation(blobId.getGeneration())
+                  .build());
+
+      // TODO: 22.08.2023: Fjerne bruk av dokumentinnhold når migrering til GCP Buckets er fullført
+      if (farskapserklaering.getDokument().getDokumentinnhold() != null) {
+        farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
+      }
+
     } catch (URISyntaxException e) {
       log.error(
           "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
@@ -534,6 +567,8 @@ public class FarskapsportalService {
         brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(
             aktuellFarskapserklaering.getMor(), aktuellFarskapserklaering.getFar());
       }
+
+      return aktuellFarskapserklaering;
     }
     return null;
   }
@@ -575,6 +610,7 @@ public class FarskapsportalService {
         brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(
             aktuellFarskapserklaering.getId(), aktuellFarskapserklaering.getFar());
       }
+      return aktuellFarskapserklaering;
     }
     return null;
   }
@@ -639,7 +675,8 @@ public class FarskapsportalService {
 
   private void riktigRolleForOpprettingAvErklaering(String fnrPaaloggetPerson) {
     log.info("Sjekker om person kan opprette farskapserklaering..");
-    SIKKER_LOGG.info("Sjekker om person ({}) kan opprette farskapserklaering..", fnrPaaloggetPerson);
+    SIKKER_LOGG.info(
+        "Sjekker om person ({}) kan opprette farskapserklaering..", fnrPaaloggetPerson);
 
     var forelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
     var paaloggetPersonKanOpptreSomMor =

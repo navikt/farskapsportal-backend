@@ -1,8 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.skatt;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
@@ -11,9 +9,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
-import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -32,17 +27,15 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 
-
 /**
  * Integrasjonstest mot Skatt.
  *
- * Bruker GCP-ressurser.
+ * <p>Bruker GCP-ressurser.
  *
- * Krever autentisering mot GCP med kontoinfo:
- * >gcloud auth login --update-adc
+ * <p>Krever autentisering mot GCP med kontoinfo: >gcloud auth login --update-adc
  *
- * Krever at DB_USERNAME og DB_PASSWORD er satt som miljøvariabler (Intellij run config for SkattConsumerIntegrationTest).
- * 
+ * <p>Krever at DB_USERNAME og DB_PASSWORD er satt som miljøvariabler (Intellij run config for
+ * SkattConsumerIntegrationTest).
  */
 @Slf4j
 @DisplayName("SkattConsumer")
@@ -60,9 +53,7 @@ public class SkattConsumerIntegrationTest {
   private @Autowired SkattConsumer skattConsumer;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
 
-  /**
-   * Tester sending av en farskapserklæring til Skatt
-   */
+  /** Tester sending av en farskapserklæring til Skatt */
   @Test
   void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
 

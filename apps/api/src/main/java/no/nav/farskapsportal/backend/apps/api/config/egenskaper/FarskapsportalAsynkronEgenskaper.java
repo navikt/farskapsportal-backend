@@ -18,8 +18,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "classpath:application.yml", factory = YamlPropertySourceFactory.class)
 public class FarskapsportalAsynkronEgenskaper {
 
-  @Autowired
-  private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   private int oppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering;
 

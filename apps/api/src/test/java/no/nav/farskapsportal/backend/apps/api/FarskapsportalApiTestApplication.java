@@ -3,7 +3,6 @@ package no.nav.farskapsportal.backend.apps.api;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;

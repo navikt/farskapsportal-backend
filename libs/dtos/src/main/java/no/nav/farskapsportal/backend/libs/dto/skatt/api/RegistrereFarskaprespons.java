@@ -15,7 +15,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RegistrereFarskaprespons {
 
-  @XmlElement
-  private Tekst idFarskapserklaeringSkatt;
-
+  @XmlElement private Tekst idFarskapserklaeringSkatt;
 }

@@ -11,14 +11,15 @@ import org.springframework.context.annotation.PropertySource;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "farskapsportal.felles.egenskaper")
-@PropertySource(value = "classpath:felles-application.yml", factory = YamlPropertySourceFactory.class)
+@PropertySource(
+    value = "classpath:felles-application.yml",
+    factory = YamlPropertySourceFactory.class)
 public class FarskapsportalFellesEgenskaper {
 
   private String appnavn;
-  private String systembrukerBrukernavn;
-  private String systembrukerPassord;
   private int maksAntallMaanederEtterFoedsel;
   private int kontrollFarMaksAntallForsoek;
   private String url;
   private Brukernotifikasjon brukernotifikasjon;
+  private Bucket bucket;
 }

@@ -49,14 +49,32 @@ spec:
       value: "{{this.value}}"
   {{/each}}
   gcp:
+    buckets:
+      - name: {{ BUCKET_NAME_PADES }}
+        retentionPeriodDays: 365
+        lifecycleCondition:
+          age: 365
+          createdBefore: 2022-01-01
+          numNewerVersions: 1
+          withState: ANY
+      - name: {{ BUCKET_NAME_XADES }}
+        retentionPeriodDays: 365
+        lifecycleCondition:
+          age: 365
+          createdBefore: 2022-01-01
+          numNewerVersions: 1
+          withState: ANY
     sqlInstances:
       - diskSize: {{ gcp.sql-instances.diskSize }}
         name: {{ gcp.sql-instances.name }}
         tier: {{ gcp.sql-instances.tier }}
         type: {{ gcp.sql-instances.type }}
-        databasƒes:
+        databases:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
+        flags:
+          - name: autovacuum
+            value: "on"
   accessPolicy:
     inbound:
       rules:

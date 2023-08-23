@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.esignering;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +21,21 @@ public class OppdatereSigneringsstatus {
   @Scheduled(cron = "@hourly", zone = "Europe/Oslo")
   public void oppdatereSigneringsstatus() {
 
-    var farSendtTilSigneringFoer = LocalDateTime.now()
-        .minusHours(farskapsportalAsynkronEgenskaper.getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering());
-    var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(farSendtTilSigneringFoer);
+    var farSendtTilSigneringFoer =
+        LocalDateTime.now()
+            .minusHours(
+                farskapsportalAsynkronEgenskaper
+                    .getOppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering());
+    var ider =
+        persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(
+            farSendtTilSigneringFoer);
 
     var farskapserklaeringTekst = ider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
 
-    log.info("Fant id til {} {} som signeringsstatus skal synkroniseres for.", ider.size(), farskapserklaeringTekst);
+    log.info(
+        "Fant id til {} {} som signeringsstatus skal synkroniseres for.",
+        ider.size(),
+        farskapserklaeringTekst);
 
     for (int id : ider) {
       farskapsportalService.synkronisereSigneringsstatusFar(id);

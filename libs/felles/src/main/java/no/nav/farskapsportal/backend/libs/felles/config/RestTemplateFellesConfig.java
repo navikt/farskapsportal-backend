@@ -19,7 +19,9 @@ public class RestTemplateFellesConfig {
   @Scope("prototype")
   public HttpHeaderRestTemplate restTemplate() {
     HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
-    httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
+    httpHeaderRestTemplate.addHeaderGenerator(
+        CorrelationIdFilter.CORRELATION_ID_HEADER,
+        CorrelationIdFilter::fetchCorrelationIdForThread);
     return httpHeaderRestTemplate;
   }
 }

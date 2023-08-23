@@ -57,6 +57,26 @@ jobs:
           docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 
+
+  style:
+    name: 📝 Sjekk kodestil
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Reset working directory
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+
+      - name: GIT checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Valider Java-formatering
+        run: |
+          mvn fmt:check
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev

@@ -42,7 +42,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
-  @Autowired private FarskapsportalApiConfig.OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor;
+
+  @Autowired
+  private FarskapsportalApiConfig.OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor;
 
   @GetMapping(value = "/brukerinformasjon")
   @Operation(
@@ -149,8 +151,6 @@ public class FarskapsportalController {
         @ApiResponse(responseCode = "500", description = "Serverfeil"),
         @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
       })
-  // TOOD: Parameter id_farskapserklaering skal være påkrevd etter overgang til ny modell for å
-  // hente status på signeringsoppdrag (25.12.2021)
   public ResponseEntity<FarskapserklaeringDto> oppdatereStatusEtterRedirect(
       @Parameter(
               name = "id_farskapserklaering",

@@ -1,13 +1,12 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.pdf;
 
 import com.openhtmltopdf.extend.FSStream;
-import org.springframework.core.io.ClassPathResource;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import org.springframework.core.io.ClassPathResource;
 
 public class ClassPathStream implements FSStream {
 

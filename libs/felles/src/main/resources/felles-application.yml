@@ -1,7 +1,5 @@
 farskapsportal.felles.egenskaper:
   appnavn: ${APPNAVN}
-  systembruker-brukernavn: srvfarskapsportal
-  systembruker-passord: ${SRVFARSKAPSPORTAL_PWD}
   maks-antall-maaneder-etter-foedsel: 6
   kontroll-far-maks-antall-forsoek: 3
   url: ${FARSKAPSPORTAL_URL}
@@ -15,6 +13,10 @@ farskapsportal.felles.egenskaper:
     levetid-oppgave-antall-dager: 40
     sikkerhetsnivaa-beskjed: 3
     sikkerhetsnivaa-oppgave: 3
+  bucket:
+    pades-name: ${BUCKET_NAME_PADES}
+    xades-name: ${BUCKET_NAME_XADES}
+
 
 ---
 spring:
@@ -24,6 +26,8 @@ WIREMOCK_URL: http://localhost:${wiremock.server.port}
 
 ### misc
 BRUKERNOTIFIKASJON_PAA: true
+BUCKET_NAME_PADES: pades
+BUCKET_NAME_XADES: xades
 FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no"
 KAFKA_TRUSTSTORE_PATH: classpath:cert/server-selfsigned.jks
 KAFKA_CREDSTORE_PASSWORD: qwer1234
@@ -31,7 +35,6 @@ KAFKA_SCHEMA_REGISTRY_USER: user
 KAFKA_SCHEMA_REGISTRY_PASSWORD: secret
 KAFKA_KEYSTORE_PATH: /var/test
 NAIS_CLUSTER_NAME: dev
-SRVFARSKAPSPORTAL_PWD: top_hemmelig
 
 ### kafka
 KAFKA_BROKERS: 127.0.0.1:9092

@@ -12,11 +12,17 @@ gcp:
       users:
         asynkron:
           name: asynkron_feature
+  buckets:
+
 env:
   - name: JAVA_TOOL_OPTIONS
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
+  - name: BUCKET_NAME_PADES
+    value: farskapsportal-feature-pades
+  - name: BUCKET_NAME_XADES
+    value: farskapsportal-feature-xades
   - name: DB_USER_ASYNKRON
     value: asynkron_feature
   - name: POSTGRES_CONNECTION_NAME

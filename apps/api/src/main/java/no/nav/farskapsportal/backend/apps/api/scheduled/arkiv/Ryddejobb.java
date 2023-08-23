@@ -16,7 +16,9 @@ public class Ryddejobb {
   private PersistenceService persistenceService;
 
   @SchedulerLock(name = "slette-dokumenter", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentslettingsrate}", zone = "Europe/Oslo")
+  @Scheduled(
+      cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentslettingsrate}",
+      zone = "Europe/Oslo")
   public void sletteGamleDokumenter() {
     var dokumentArkivertFoer =
         LocalDateTime.now().minusMonths(arkiv.getLevetidDokumenterIMaaneder());
@@ -29,7 +31,8 @@ public class Ryddejobb {
 
     log.info(
         "Antall farskapserklæringer med dokumenter som er klar til sletting: {} (arkivert og deaktivert før {})",
-        idTilGamleFarskapserklaeringer.length, dokumentArkivertFoer);
+        idTilGamleFarskapserklaeringer.length,
+        dokumentArkivertFoer);
     if (idTilGamleFarskapserklaeringer.length
         > arkiv.getMaksAntallDokumenterSomSlettesPerKjoering()) {
       log.info(
@@ -37,7 +40,10 @@ public class Ryddejobb {
           arkiv.getMaksAntallDokumenterSomSlettesPerKjoering());
     }
 
-    var antallDokumenterForKjoering = idTilGamleFarskapserklaeringer.length > arkiv.getMaksAntallDokumenterSomSlettesPerKjoering() ? arkiv.getMaksAntallDokumenterSomSlettesPerKjoering() : idTilGamleFarskapserklaeringer.length;
+    var antallDokumenterForKjoering =
+        idTilGamleFarskapserklaeringer.length > arkiv.getMaksAntallDokumenterSomSlettesPerKjoering()
+            ? arkiv.getMaksAntallDokumenterSomSlettesPerKjoering()
+            : idTilGamleFarskapserklaeringer.length;
 
     for (int i = 0; i < antallDokumenterForKjoering; i++) {
       persistenceService.sletteDokumentinnhold((Integer) idTilGamleFarskapserklaeringer[i]);

@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Tekst {
 
-  @XmlValue
-  private String tekst;
-
+  @XmlValue private String tekst;
 }

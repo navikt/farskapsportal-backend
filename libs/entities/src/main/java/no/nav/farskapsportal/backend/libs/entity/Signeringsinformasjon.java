@@ -1,11 +1,7 @@
 package no.nav.farskapsportal.backend.libs.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,4 +36,7 @@ public class Signeringsinformasjon {
 
   @Column(length = 100000000)
   private byte[] xadesXml;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  private GcpBlobId xadesBlobId;
 }

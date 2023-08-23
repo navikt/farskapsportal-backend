@@ -1,11 +1,11 @@
 package no.nav.farskapsportal.backend.libs.entity;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +31,5 @@ public class Meldingslogg implements Serializable {
 
   private LocalDateTime tidspunktForOversendelse;
 
-  @NaturalId
-  private String meldingsidSkatt;
-
+  @NaturalId private String meldingsidSkatt;
 }

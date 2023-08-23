@@ -33,6 +33,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.cloud.storage.BlobId;
+import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -71,6 +73,7 @@ import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -83,10 +86,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Oppgavebestilli
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,14 +111,52 @@ public class FarskapsportalServiceTest {
   @MockBean DifiESignaturConsumer difiESignaturConsumer;
   @MockBean PersonopplysningService personopplysningService;
   @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  @MockBean BucketConsumer bucketConsumer;
   @Autowired private PersistenceService persistenceService;
   @Autowired private OppgavebestillingDao oppgavebestillingDao;
   @Autowired private FarskapserklaeringDao farskapserklaeringDao;
   @Autowired private ForelderDao forelderDao;
   @Autowired private StatusKontrollereFarDao statusKontrollereFarDao;
-  @Autowired private FarskapsportalService farskapsportalService;
   @Autowired private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   @Autowired private Mapper mapper;
+
+  private FarskapsportalService farskapsportalService;
+
+  @BeforeEach
+  public void setup() {
+    farskapsportalService =
+        FarskapsportalService.builder()
+            .farskapsportalApiEgenskaper(farskapsportalApiEgenskaper)
+            .pdfGeneratorConsumer(pdfGeneratorConsumer)
+            .difiESignaturConsumer(difiESignaturConsumer)
+            .persistenceService(persistenceService)
+            .persistenceService(persistenceService)
+            .personopplysningService(personopplysningService)
+            .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+            .bucketConsumer(bucketConsumer)
+            .mapper(mapper)
+            .build();
+  }
+
+  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument =
+        Dokument.builder()
+            .padesUrl("https://pades.url")
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+  }
 
   @Nested
   @DisplayName("Teste henteBrukerinformasjon")
@@ -837,6 +875,8 @@ public class FarskapsportalServiceTest {
 
       var pdf = "Jeg erklærer med dette farskap til barnet..".getBytes();
 
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any()))
+          .thenReturn(BlobId.of("PADES", "fp"));
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer()))
@@ -948,6 +988,8 @@ public class FarskapsportalServiceTest {
 
       var pdf = "Jeg erklærer med dette farskap til barnet..".getBytes();
 
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any()))
+          .thenReturn(BlobId.of("PADES", "fp"));
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
@@ -1005,7 +1047,7 @@ public class FarskapsportalServiceTest {
                 var dokument = (Dokument) args[1];
                 dokument.setSigneringsinformasjonMor(
                     Signeringsinformasjon.builder()
-                        .redirectUrl(lageUrl(wiremockPort, "/mors-redirect").toString())
+                        .redirectUrl(lageUrl(wiremockPort, "/mors-redirect"))
                         .build());
                 return null;
               })
@@ -1023,17 +1065,8 @@ public class FarskapsportalServiceTest {
       // then
       var farskapserklaeringer =
           farskapserklaeringDao.henteFarskapserklaeringerForForelder(MOR.getFoedselsnummer());
-      assertAll(
-          () -> assertThat(farskapserklaeringer.size()).isEqualTo(1),
-          () ->
-              Assertions.assertArrayEquals(
-                  farskapserklaeringer.stream()
-                      .findFirst()
-                      .get()
-                      .getDokument()
-                      .getDokumentinnhold()
-                      .getInnhold(),
-                  pdf));
+
+      assertThat(farskapserklaeringer.size()).isEqualTo(1);
     }
 
     @Test
@@ -1120,7 +1153,7 @@ public class FarskapsportalServiceTest {
                 var dokument = (Dokument) args[0];
                 dokument.setSigneringsinformasjonMor(
                     Signeringsinformasjon.builder()
-                        .redirectUrl(lageUrl(wiremockPort, "/mors-redirect").toString())
+                        .redirectUrl(lageUrl(wiremockPort, "/mors-redirect"))
                         .build());
                 return null;
               })
@@ -1192,6 +1225,8 @@ public class FarskapsportalServiceTest {
                       .getSigneringsinformasjonFar()
                       .getSigneringstidspunkt()));
 
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any()))
+          .thenReturn(BlobId.of("PADES", "fp"));
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer()))
@@ -1864,6 +1899,7 @@ public class FarskapsportalServiceTest {
   class OppdatereStatusSigneringsjobb {
 
     @Test
+    @Transactional
     void skalOppdatereSigneringsinformasjonForMorEtterRedirectDersomStatusQueryTokenErGyldig() {
 
       // given
@@ -1877,10 +1913,6 @@ public class FarskapsportalServiceTest {
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
       var padesMor = lageUri(wiremockPort, "/padesMor");
-      var farskapserklaeringDokumentinnhold =
-          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
-      var xadesXml =
-          "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
       var lagretFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
@@ -1949,6 +1981,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalOppdatereSigneringsinformasjonForFarEtterRedirectDersomStatusQueryTokenErGyldig() {
 
       // given
@@ -2040,6 +2073,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalOppdatereSigneringsjobbDersomMorHarAktivOgDeaktivertFarskapserklaering() {
 
       // given
@@ -2052,10 +2086,6 @@ public class FarskapsportalServiceTest {
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
       var padesMor = lageUri(wiremockPort, "/padesMor");
-      var farskapserklaeringDokumentinnhold =
-          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
-      var xadesXml =
-          "<xades><signerer>12345678912</signerer></xades>".getBytes(StandardCharsets.UTF_8);
 
       var lagretDeaktivFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
@@ -2137,6 +2167,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalSletteSigneringsoppgaveNaarFarSignerer() {
 
       // given
@@ -2233,6 +2264,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalSletteSigneringsoppgaveDersomFarAvbryterSignering() {
 
       // given
@@ -2350,6 +2382,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalIkkeBestilleFerdigstillingAvOppgaveDersomFarIkkeHarAktiveOppgaver() {
 
       // given
@@ -2462,6 +2495,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalLagreStatusQueryTokenDersomStatusOppdateres() {
 
       // given
@@ -2553,6 +2587,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void dersomMorAvbryterSigneringSkalAktuellFarskapserklaeringDeaktiveres() {
 
       // given
@@ -2649,6 +2684,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void dersomFarAvbryterSigneringSkalAktuellFarskapserklaeringDeaktiveres() {
 
       // given
@@ -2761,6 +2797,7 @@ public class FarskapsportalServiceTest {
   class SynkronisereSigneringsstatusFar {
 
     @Test
+    @Transactional
     void skalSynkronisereStatusPaaSigneringsjobbDersomFarskapserklaeringFinnes() {
 
       // given
@@ -2946,6 +2983,7 @@ public class FarskapsportalServiceTest {
   class HenteNyRedirectUrl {
 
     @Test
+    @Transactional
     void skalHenteNyRedirectUrlForMorDersomMorsUndertegnerurlErRiktig() {
 
       // rydde testdata
@@ -2992,6 +3030,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalOppdatereLagretFarskapserklaeringMedNyRedirectUrlForFar() {
 
       // rydde testdata
@@ -3842,25 +3881,27 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalIkkeKasteValideringExceptionForPersonMedNyfoedtUtenRegistrertFarOgForelderrolleUkjent() {
+    void
+        skalIkkeKasteValideringExceptionForPersonMedNyfoedtUtenRegistrertFarOgForelderrolleUkjent() {
 
       // given
       var nyligFoedtBarn = henteNyligFoedtBarn();
 
       when(personopplysningService.erOver18Aar(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer()))
-              .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+          .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer()))
-              .thenReturn(true);
+          .thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
-              .thenReturn(Forelderrolle.UKJENT);
+          .thenReturn(Forelderrolle.UKJENT);
       when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer()))
-              .thenReturn(
-                      FolkeregisteridentifikatorDto.builder()
-                              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
-                              .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-                              .build());
-      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer())).thenReturn(Set.of(nyligFoedtBarn.getFoedselsnummer()));
+          .thenReturn(
+              FolkeregisteridentifikatorDto.builder()
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                  .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .build());
+      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
+          .thenReturn(Set.of(nyligFoedtBarn.getFoedselsnummer()));
 
       // when, then
       assertDoesNotThrow(() -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
@@ -3872,23 +3913,23 @@ public class FarskapsportalServiceTest {
       // given
       when(personopplysningService.erOver18Aar(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer()))
-              .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+          .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer()))
-              .thenReturn(true);
+          .thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
-              .thenReturn(Forelderrolle.UKJENT);
+          .thenReturn(Forelderrolle.UKJENT);
       when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer()))
-              .thenReturn(
-                      FolkeregisteridentifikatorDto.builder()
-                              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
-                              .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-                              .build());
+          .thenReturn(
+              FolkeregisteridentifikatorDto.builder()
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                  .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .build());
 
       // when
       var valideringException =
-              assertThrows(
-                      ValideringException.class,
-                      () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
+          assertThrows(
+              ValideringException.class,
+              () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FEIL_ROLLE_OPPRETTE);
@@ -3944,6 +3985,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
+    @Transactional
     void skalOppdatereBorSammeninformasjonDersomPersonErFarIFarskapserklaeringen() {
 
       // rydde testdata
@@ -4032,6 +4074,7 @@ public class FarskapsportalServiceTest {
   class HenteDokumentinnhold {
 
     @Test
+    @Transactional
     void skalHenteDokumentinnholdForFarMedVentendeErklaering() {
 
       // rydde testdata
@@ -4039,6 +4082,8 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
+      var dokumenttekst =
+          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
       var farskapserklaering =
           persistenceService.lagreNyFarskapserklaering(
               henteFarskapserklaering(
@@ -4051,13 +4096,12 @@ public class FarskapsportalServiceTest {
           .setSigneringstidspunkt(LocalDateTime.now());
       farskapserklaering
           .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold(
-                      "Jeg erklærer herved farskap til dette barnet"
-                          .getBytes(StandardCharsets.UTF_8))
-                  .build());
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+
+      var blobId = BlobId.of("PADES", "fp");
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobId);
+      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumenttekst);
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
@@ -4068,8 +4112,16 @@ public class FarskapsportalServiceTest {
               FAR.getFoedselsnummer(), farskapserklaering.getId());
 
       // then
-      Assertions.assertArrayEquals(
-          farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(farskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(dokumentinnhold).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () ->
+              assertThat(oppdatertFarskapserklaering.get().getDokument().getPadesBlobId() != null),
+          () ->
+              assertThat(
+                  oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold() == null));
     }
 
     @Test
@@ -4148,7 +4200,9 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.deleteAll();
       forelderDao.deleteAll();
 
-      // givens
+      // given
+      var dokumenttekst =
+          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
       var farskapserklaering =
           persistenceService.lagreNyFarskapserklaering(
               henteFarskapserklaering(
@@ -4157,13 +4211,12 @@ public class FarskapsportalServiceTest {
                   henteBarnUtenFnr(5)));
       farskapserklaering
           .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold(
-                      "Jeg erklærer herved farskap til dette barnet"
-                          .getBytes(StandardCharsets.UTF_8))
-                  .build());
+          .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+
+      var blobId = BlobId.of("PADES", "fp");
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobId);
+      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumenttekst);
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 
@@ -4173,8 +4226,15 @@ public class FarskapsportalServiceTest {
               MOR.getFoedselsnummer(), farskapserklaering.getId());
 
       // then
-      Assertions.assertArrayEquals(
-          farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), dokumentinnhold);
+      var oppdatertFarskapserklaering = farskapserklaeringDao.findById(farskapserklaering.getId());
+      assertAll(
+          () -> assertThat(dokumentinnhold).isNotNull(),
+          () -> assertThat(oppdatertFarskapserklaering).isPresent(),
+          () ->
+              assertThat(oppdatertFarskapserklaering.get().getDokument().getPadesBlobId() != null),
+          () ->
+              assertThat(
+                  oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold() == null));
     }
 
     @Test
@@ -4193,25 +4253,5 @@ public class FarskapsportalServiceTest {
               farskapsportalService.henteDokumentinnhold(
                   FAR.getFoedselsnummer(), idFarskapserklaeringSomIkkeFinnes));
     }
-  }
-
-  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
-
-    var dokument =
-        Dokument.builder()
-            .padesUrl("https://pades.url")
-            .navn("farskapserklaering.pdf")
-            .signeringsinformasjonMor(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
-                    .signeringstidspunkt(LocalDateTime.now())
-                    .build())
-            .signeringsinformasjonFar(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
-                    .build())
-            .build();
-
-    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 }

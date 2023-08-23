@@ -17,6 +17,10 @@ env:
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
+  - name: BUCKET_NAME_PADES
+    value: farskapsportal-pades
+  - name: BUCKET_NAME_XADES
+    value: farskapsportal-xades
   - name: DB_USER_ASYNKRON
     value: asynkron_main
   - name: POSTGRES_CONNECTION_NAME

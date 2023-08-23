@@ -1,7 +1,5 @@
 package no.nav.farskapsportal.backend.libs.entity;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,7 +59,11 @@ public class Farskapserklaering implements Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (barn == null ? 0 : barn.hashCode()) + (mor == null ? 0 : mor.hashCode()) + (far == null ? 0 : far.hashCode());
+    result =
+        prime * result
+            + (barn == null ? 0 : barn.hashCode())
+            + (mor == null ? 0 : mor.hashCode())
+            + (far == null ? 0 : far.hashCode());
 
     return result;
   }
@@ -86,7 +90,8 @@ public class Farskapserklaering implements Serializable {
 
     if (deaktivert == null ^ other.deaktivert == null) {
       return false;
-    } else if ((deaktivert != null && other.deaktivert != null) && (!deaktivert.equals(other.deaktivert))) {
+    } else if ((deaktivert != null && other.deaktivert != null)
+        && (!deaktivert.equals(other.deaktivert))) {
       return false;
     }
 
@@ -95,6 +100,11 @@ public class Farskapserklaering implements Serializable {
 
   @Override
   public String toString() {
-    return "Farskapserklaering gjelder " + barn.toString() + " med foreldrene: \n -Mor: " + mor.toString() + "\n -Far: " + far.toString();
+    return "Farskapserklaering gjelder "
+        + barn.toString()
+        + " med foreldrene: \n -Mor: "
+        + mor.toString()
+        + "\n -Far: "
+        + far.toString();
   }
 }

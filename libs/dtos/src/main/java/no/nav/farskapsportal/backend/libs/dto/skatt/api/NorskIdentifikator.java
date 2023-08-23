@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NorskIdentifikator {
 
-  @XmlElement
-  private Foedselsnummer person;
-
+  @XmlElement private Foedselsnummer person;
 }

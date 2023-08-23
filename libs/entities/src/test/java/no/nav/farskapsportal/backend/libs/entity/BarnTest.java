@@ -15,13 +15,18 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 public class BarnTest {
 
-  public enum Kilde {PDL, FREG}
+  public enum Kilde {
+    PDL,
+    FREG
+  }
 
   @Test
   @DisplayName("Barnets termindato skal være representert i streng-versjonen av en barn-instans")
   void barnetsTermindatoSkalVaereRepresentertIStrengversjonenAvEnBarninstans() {
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    assertEquals(String.format("Barn knyttet til termindato: %s", barn.getTermindato().toString()), barn.toString());
+    assertEquals(
+        String.format("Barn knyttet til termindato: %s", barn.getTermindato().toString()),
+        barn.toString());
   }
 
   @Test
@@ -29,14 +34,13 @@ public class BarnTest {
   void skalViseSeksFoersteSifferAvFoedseslnummerVedStrengrepresentasjon() {
     var foedselsdato = LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("ddMMyy"));
     var barn = Barn.builder().foedselsnummer(foedselsdato + "12345").build();
-    assertThat(barn.toString()).isEqualTo("Barn med fødselsnummer som starter med: " + foedselsdato);
+    assertThat(barn.toString())
+        .isEqualTo("Barn med fødselsnummer som starter med: " + foedselsdato);
   }
 
   @Test
   void test() {
 
     assertThat(Kilde.PDL.toString()).isEqualTo("PDL");
-
   }
-
 }

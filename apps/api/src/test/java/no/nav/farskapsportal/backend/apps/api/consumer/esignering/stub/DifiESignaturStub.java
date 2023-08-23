@@ -17,13 +17,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class DifiESignaturStub {
 
-  public final static String PATH_SIGNER_URL_MOR = "/api/12345678910/direct/signature-jobs/1/signers/1";
-  public final static String PATH_SIGNER_URL_FAR = "/api/11111122222/direct/signature-jobs/1/signers/1";
+  public static final String PATH_SIGNER_URL_MOR =
+      "/api/12345678910/direct/signature-jobs/1/signers/1";
+  public static final String PATH_SIGNER_URL_FAR =
+      "/api/11111122222/direct/signature-jobs/1/signers/1";
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  public void runOppretteSigneringsjobbStub(String statusUrl, String redirectUrlMor, String redirectUrlFar) {
+  public void runOppretteSigneringsjobbStub(
+      String statusUrl, String redirectUrlMor, String redirectUrlFar) {
 
     var baseWireMockUrl = "http://localhost:" + wiremockPort;
 
@@ -33,9 +36,13 @@ public class DifiESignaturStub {
                 aResponse()
                     .withHeader("Content-Type", MediaType.APPLICATION_XML_VALUE)
                     .withStatus(200)
-                    .withBody(mockDirectSignatureJobResponse(statusUrl, baseWireMockUrl + PATH_SIGNER_URL_MOR, baseWireMockUrl + PATH_SIGNER_URL_FAR,
-                        redirectUrlMor, redirectUrlFar)))
-    );
+                    .withBody(
+                        mockDirectSignatureJobResponse(
+                            statusUrl,
+                            baseWireMockUrl + PATH_SIGNER_URL_MOR,
+                            baseWireMockUrl + PATH_SIGNER_URL_FAR,
+                            redirectUrlMor,
+                            redirectUrlFar))));
   }
 
   public void runGetStatus(String statusUrl, String padesUrl, String idSigner1, String idSigner2) {
@@ -53,13 +60,28 @@ public class DifiESignaturStub {
                             "   <signature-job-id>1</signature-job-id>",
                             "   <signature-job-status>COMPLETED_SUCCESSFULLY</signature-job-status>",
                             "   <status-url>" + statusUrl + "</status-url>",
-                            "   <status signer=\"" + idSigner1 + "\" since=\"" + Instant.now().minusSeconds(10) + "\">SIGNED</status>",
-                            "   <status signer=\"" + idSigner2 + "\" since=\"" + Instant.now().minusSeconds(10) + "\">SIGNED</status>",
-                            "   <confirmation-url>https://api.signering.posten.no/api/" + idSigner1
+                            "   <status signer=\""
+                                + idSigner1
+                                + "\" since=\""
+                                + Instant.now().minusSeconds(10)
+                                + "\">SIGNED</status>",
+                            "   <status signer=\""
+                                + idSigner2
+                                + "\" since=\""
+                                + Instant.now().minusSeconds(10)
+                                + "\">SIGNED</status>",
+                            "   <confirmation-url>https://api.signering.posten.no/api/"
+                                + idSigner1
                                 + "/direct/signature-jobs/1/complete</confirmation-url>",
-                            "   <xades-url signer=\"" + idSigner1 + "\">https://api.signering.posten.no/api/" + idSigner1
+                            "   <xades-url signer=\""
+                                + idSigner1
+                                + "\">https://api.signering.posten.no/api/"
+                                + idSigner1
                                 + "/direct/signature-jobs/1/xades/1</xades-url>",
-                            "   <xades-url signer=\"" + idSigner2 + "\">https://api.signering.posten.no/api/" + idSigner2
+                            "   <xades-url signer=\""
+                                + idSigner2
+                                + "\">https://api.signering.posten.no/api/"
+                                + idSigner2
                                 + "/direct/signature-jobs/1/xades/1</xades-url>",
                             "   <pades-url>" + padesUrl + "</pades-url>",
                             " </direct-signature-job-status-response>"))));
@@ -72,8 +94,7 @@ public class DifiESignaturStub {
                 aResponse()
                     .withHeader("Content-Type", MediaType.APPLICATION_XML_VALUE)
                     .withStatus(200)
-                    .withBody(mockDirectSignerResponse(fnr, signerUrl, redirectUrl)))
-    );
+                    .withBody(mockDirectSignerResponse(fnr, signerUrl, redirectUrl))));
   }
 
   public void runGetSignedDocument(String padesPath) {
@@ -94,10 +115,13 @@ public class DifiESignaturStub {
                     .withHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
                     .withStatus(200)
                     .withBody("Jeg har signert".getBytes(StandardCharsets.UTF_8))));
-
   }
 
-  private String mockDirectSignatureJobResponse(String statusUrl, String signerUrlMor, String signerUrlFar, String redirectUrlMor,
+  private String mockDirectSignatureJobResponse(
+      String statusUrl,
+      String signerUrlMor,
+      String signerUrlFar,
+      String redirectUrlMor,
       String redirectUrlFar) {
     return String.join(
         "\n",
@@ -121,10 +145,11 @@ public class DifiESignaturStub {
     return String.join(
         "\n",
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
-        "<direct-signer-response xmlns=\"http://signering.posten.no/schema/v1\" href=\"" + signerUrl + "\">",
+        "<direct-signer-response xmlns=\"http://signering.posten.no/schema/v1\" href=\""
+            + signerUrl
+            + "\">",
         "    <personal-identification-number>" + fnr + "</personal-identification-number>",
         "    <redirect-url>" + redirectUrl + "</redirect-url>",
-        "</direct-signer-response>"
-    );
+        "</direct-signer-response>");
   }
 }

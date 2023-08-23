@@ -29,5 +29,4 @@ public class ForelderDto {
 
   @Parameter(description = "Forelderens navn")
   private @NonNull NavnDto navn;
-
 }

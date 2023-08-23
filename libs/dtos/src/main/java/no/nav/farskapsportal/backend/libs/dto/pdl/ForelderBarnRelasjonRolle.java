@@ -17,6 +17,5 @@ public enum ForelderBarnRelasjonRolle {
     SKILT,
     SEPARERT,
     GJENLEVENDE_PARTNER
-
   }
 }

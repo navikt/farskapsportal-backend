@@ -21,9 +21,7 @@ import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
-import no.nav.bidrag.commons.security.service.SecurityTokenService;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.tilgangskontroll.felles.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
@@ -42,6 +40,7 @@ import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Farskapsporta
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -55,8 +54,6 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.*;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -121,6 +118,7 @@ public class FarskapsportalApiConfig {
   @Bean
   public FarskapsportalService farskapsportalService(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
+      BucketConsumer bucketConsumer,
       FarskapsportalApiEgenskaper farskapsportalApiEgenskaper,
       DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer,
@@ -130,6 +128,7 @@ public class FarskapsportalApiConfig {
 
     return FarskapsportalService.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .bucketConsumer(bucketConsumer)
         .farskapsportalApiEgenskaper(farskapsportalApiEgenskaper)
         .difiESignaturConsumer(difiESignaturConsumer)
         .pdfGeneratorConsumer(pdfGeneratorConsumer)
@@ -239,7 +238,9 @@ public class FarskapsportalApiConfig {
   public static class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource, @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron)
+    public FlywayConfiguration(
+        @Qualifier("dataSource") DataSource dataSource,
+        @Value("${spring.flyway.placeholders.user}") String dbUserAsynkron)
         throws InterruptedException {
       Thread.sleep(30000);
       var placeholders = new HashMap<String, String>();

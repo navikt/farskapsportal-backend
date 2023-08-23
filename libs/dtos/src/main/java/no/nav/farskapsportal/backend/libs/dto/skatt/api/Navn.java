@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Navn {
 
-  @XmlElement
-  private Tekst navn;
-
+  @XmlElement private Tekst navn;
 }

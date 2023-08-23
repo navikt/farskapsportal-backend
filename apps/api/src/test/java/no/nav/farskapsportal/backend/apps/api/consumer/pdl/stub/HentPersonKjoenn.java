@@ -18,10 +18,11 @@ public class HentPersonKjoenn implements HentPersonSubResponse {
   public HentPersonKjoenn(LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk) {
     this.responsMedHistorikk = buildResponseKjoenn(kjoennshistorikk, true);
     this.responsUtenHistorikk = buildResponseKjoenn(kjoennshistorikk, false);
-    var t= false;
+    var t = false;
   }
 
-  private String buildResponseKjoenn(LinkedHashMap<LocalDateTime, KjoennType> input, boolean medHistorikk) {
+  private String buildResponseKjoenn(
+      LinkedHashMap<LocalDateTime, KjoennType> input, boolean medHistorikk) {
     if (input == null || input.isEmpty()) {
       return String.join("\n", " \"kjoenn\": [", "]");
     } else {
@@ -37,12 +38,14 @@ public class HentPersonKjoenn implements HentPersonSubResponse {
         var historisk = input.size() > 1 && (count == 0 || count < input.size() - 2);
         if (!medHistorikk) {
           if (!historisk) {
-            kjoennshistorikk.append(hentKjoennElement(kjoenn.getValue(), kjoenn.getKey(), "123", false));
+            kjoennshistorikk.append(
+                hentKjoennElement(kjoenn.getValue(), kjoenn.getKey(), "123", false));
             kjoennshistorikk.append(closingElements);
             return kjoennshistorikk.toString();
           }
         } else {
-          kjoennshistorikk.append(hentKjoennElement(kjoenn.getValue(), kjoenn.getKey(), "123", historisk));
+          kjoennshistorikk.append(
+              hentKjoennElement(kjoenn.getValue(), kjoenn.getKey(), "123", historisk));
           if (input.size() > 1 && (count == 0 || count > input.size() - 1)) {
             kjoennshistorikk.append(",");
           }

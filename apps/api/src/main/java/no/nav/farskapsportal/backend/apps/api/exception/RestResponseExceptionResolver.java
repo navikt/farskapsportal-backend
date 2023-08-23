@@ -4,9 +4,9 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiErrorException;
 import no.nav.farskapsportal.backend.apps.api.model.FarskapserklaeringFeilResponse;
 import no.nav.farskapsportal.backend.libs.dto.StatusKontrollereFarDto;
-import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiErrorException;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;
@@ -43,33 +43,45 @@ public class RestResponseExceptionResolver {
   protected ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    var feilmelding = e.getMessage() == null || e.getMessage().isBlank() ? "Restkall feilet!" : e.getMessage();
+    var feilmelding =
+        e.getMessage() == null || e.getMessage().isBlank() ? "Restkall feilet!" : e.getMessage();
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseEntity<>(feilmelding, headers, HttpStatus.BAD_REQUEST));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(new ResponseEntity<>(feilmelding, headers, HttpStatus.BAD_REQUEST));
   }
 
   @ResponseBody
   @ExceptionHandler(ValideringException.class)
   protected ResponseEntity<?> handleValideringException(ValideringException e) {
     log.warn("Validering av brukerinput feilet med kode: {}", e.getFeilkode());
-    return generereFeilrespons("Validering av innleste verdier feilet!", e.getFeilkode(), Optional.empty(), HttpStatus.BAD_REQUEST);
+    return generereFeilrespons(
+        "Validering av innleste verdier feilet!",
+        e.getFeilkode(),
+        Optional.empty(),
+        HttpStatus.BAD_REQUEST);
   }
 
   @ResponseBody
   @ExceptionHandler(FeilNavnOppgittException.class)
   protected ResponseEntity<?> handleFeilNavnOppgittException(FeilNavnOppgittException e) {
-    return generereFeilrespons("Oppgitt navn på far stemmer ikke med registrert navn i Folkeregisteret", e.getFeilkode(),
-        e.getStatusKontrollereFarDto(), HttpStatus.BAD_REQUEST);
+    return generereFeilrespons(
+        "Oppgitt navn på far stemmer ikke med registrert navn i Folkeregisteret",
+        e.getFeilkode(),
+        e.getStatusKontrollereFarDto(),
+        HttpStatus.BAD_REQUEST);
   }
 
   @ResponseBody
   @ExceptionHandler(PersonIkkeFunnetException.class)
   protected ResponseEntity<?> handleFeilNavnOppgittException(PersonIkkeFunnetException e) {
-    return generereFeilrespons("Ingen treff på oppgitt far i Folkeregisteret", e.getFeilkode(),
-        e.getStatusKontrollereFarDto(), HttpStatus.NOT_FOUND);
+    return generereFeilrespons(
+        "Ingen treff på oppgitt far i Folkeregisteret",
+        e.getFeilkode(),
+        e.getStatusKontrollereFarDto(),
+        HttpStatus.NOT_FOUND);
   }
 
   @ResponseBody
@@ -92,10 +104,11 @@ public class RestResponseExceptionResolver {
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, "En intern feil har oppstått!");
-    
+
     var httpStatus = feilkodeTilHttpStatus(e.getFeilkode());
 
-    return ResponseEntity.status(httpStatus).body(new ResponseEntity<>(e.getMessage(), headers, httpStatus));
+    return ResponseEntity.status(httpStatus)
+        .body(new ResponseEntity<>(e.getMessage(), headers, httpStatus));
   }
 
   @ResponseBody
@@ -105,7 +118,8 @@ public class RestResponseExceptionResolver {
 
     var feilmelding = "Feil oppstod i kommunikasjon med PDL!";
 
-    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
+    return generereFeilrespons(
+        feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ResponseBody
@@ -115,7 +129,8 @@ public class RestResponseExceptionResolver {
 
     var feilmelding = "Feil i datagrunnlag";
 
-    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
+    return generereFeilrespons(
+        feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ResponseBody
@@ -124,17 +139,23 @@ public class RestResponseExceptionResolver {
 
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
-    return generereFeilrespons("Oppgitt ressurs ble ikke funnet!", e.getFeilkode(), Optional.empty(), HttpStatus.NOT_FOUND);
+    return generereFeilrespons(
+        "Oppgitt ressurs ble ikke funnet!",
+        e.getFeilkode(),
+        Optional.empty(),
+        HttpStatus.NOT_FOUND);
   }
 
   @ResponseBody
   @ExceptionHandler({OppretteSigneringsjobbException.class})
-  protected ResponseEntity<?> handleOppretteSigneringsjobbException(OppretteSigneringsjobbException e) {
+  protected ResponseEntity<?> handleOppretteSigneringsjobbException(
+      OppretteSigneringsjobbException e) {
     exceptionLogger.logException(e, "RestResponseExceptionResolver");
 
     var feilmelding = "Opprettelse av esigneringsjobb hos Posten feilet!";
 
-    return generereFeilrespons(feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
+    return generereFeilrespons(
+        feilmelding, e.getFeilkode(), Optional.empty(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   private HttpStatus feilkodeTilHttpStatus(Feilkode feilkode) {
@@ -149,18 +170,29 @@ public class RestResponseExceptionResolver {
     }
   }
 
-  private ResponseEntity<FarskapserklaeringFeilResponse> generereFeilrespons(String feilmelding, Feilkode feilkode,
-      Optional<StatusKontrollereFarDto> statusKontrollereFarDto, HttpStatus httpStatus) {
+  private ResponseEntity<FarskapserklaeringFeilResponse> generereFeilrespons(
+      String feilmelding,
+      Feilkode feilkode,
+      Optional<StatusKontrollereFarDto> statusKontrollereFarDto,
+      HttpStatus httpStatus) {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.WARNING, feilmelding);
 
     var respons =
-        statusKontrollereFarDto.isEmpty() ? FarskapserklaeringFeilResponse.builder().feilkode(feilkode).feilkodebeskrivelse(feilkode.getBeskrivelse())
-            .build() : FarskapserklaeringFeilResponse.builder().feilkode(feilkode)
-            .antallResterendeForsoek(Optional.of(statusKontrollereFarDto.get().getAntallResterendeForsoek()))
-            .tidspunktForNullstillingAvForsoek(statusKontrollereFarDto.get().getTidspunktForNullstilling())
-            .feilkodebeskrivelse(feilkode.getBeskrivelse()).build();
+        statusKontrollereFarDto.isEmpty()
+            ? FarskapserklaeringFeilResponse.builder()
+                .feilkode(feilkode)
+                .feilkodebeskrivelse(feilkode.getBeskrivelse())
+                .build()
+            : FarskapserklaeringFeilResponse.builder()
+                .feilkode(feilkode)
+                .antallResterendeForsoek(
+                    Optional.of(statusKontrollereFarDto.get().getAntallResterendeForsoek()))
+                .tidspunktForNullstillingAvForsoek(
+                    statusKontrollereFarDto.get().getTidspunktForNullstilling())
+                .feilkodebeskrivelse(feilkode.getBeskrivelse())
+                .build();
 
-      return new ResponseEntity<>(respons, headers, httpStatus);
+    return new ResponseEntity<>(respons, headers, httpStatus);
   }
 }

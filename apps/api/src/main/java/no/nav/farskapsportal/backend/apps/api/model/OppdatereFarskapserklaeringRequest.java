@@ -11,13 +11,10 @@ import lombok.Value;
 @Builder
 public class OppdatereFarskapserklaeringRequest {
 
-
   @Parameter(description = "ID til farskapserklæring som skal oppdateres", example = "1000000")
   int idFarskapserklaering;
-
 
   @NotNull
   @Parameter(description = "Angir om far bor sammen med mor", example = "true")
   Boolean farBorSammenMedMor;
-
 }

@@ -17,6 +17,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import com.google.cloud.storage.BlobId;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -74,6 +75,7 @@ import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -141,6 +143,7 @@ public class FarskapsportalControllerTest {
   private static final BostedsadresseDto BOSTEDSADRESSE = getBostedsadresse(true);
   private static final String REDIRECT_URL =
       "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
+  @Autowired protected MockOAuth2Server mockOAuth2Server;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
@@ -150,12 +153,13 @@ public class FarskapsportalControllerTest {
   @Autowired
   @Qualifier("api")
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
-  
+
   @Autowired private PdlApiStub pdlApiStub;
   @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
   @MockBean private PdfGeneratorConsumer pdfGeneratorConsumer;
   @MockBean private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   @MockBean private DifiESignaturConsumer difiESignaturConsumer;
+  @MockBean private BucketConsumer bucketConsumer;
   @Autowired private PersistenceService persistenceService;
   @Autowired private OppgavebestillingDao oppgavebestillingDao;
   @Autowired private FarskapserklaeringDao farskapserklaeringDao;
@@ -164,7 +168,6 @@ public class FarskapsportalControllerTest {
   @Autowired private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   @Autowired private Mapper mapper;
   @Autowired private CacheManager cacheManager;
-  @Autowired protected MockOAuth2Server mockOAuth2Server;
 
   static <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
 
@@ -304,6 +307,41 @@ public class FarskapsportalControllerTest {
     farskapserklaeringDao.deleteAll();
     statusKontrollereFarDao.deleteAll();
     forelderDao.deleteAll();
+  }
+
+  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .padesUrl("https://pades.url")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+  }
+
+  private String generereTesttoken(String personident) {
+    var claims = new HashMap<String, Object>();
+    claims.put("idp", personident);
+    var token = mockOAuth2Server.issueToken("selvbetjening", personident, "aud-localhost", claims);
+    return "Bearer " + token.serialize();
+  }
+
+  private void loggePaaPerson(String personident) {
+    httpHeaderTestRestTemplateApi.add(
+        HttpHeaders.AUTHORIZATION, () -> generereTesttoken(personident));
+
+    var a = new OAuth2AccessTokenResponse(generereTesttoken(personident), 1000, 1000, null);
+    when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
   }
 
   private static class CustomHeader {
@@ -449,7 +487,7 @@ public class FarskapsportalControllerTest {
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
-      
+
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -563,8 +601,6 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -668,8 +704,6 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.MANN);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -756,8 +790,6 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.MANN);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -807,7 +839,6 @@ public class FarskapsportalControllerTest {
 
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
 
-
       var spedbarnetsRelasjonTilMor =
           ForelderBarnRelasjonDto.builder()
               .relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR)
@@ -851,8 +882,6 @@ public class FarskapsportalControllerTest {
       // given
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
-
-
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -996,8 +1025,6 @@ public class FarskapsportalControllerTest {
       kjoennshistorikk.put(LocalDateTime.now().minusYears(9), KjoennType.KVINNE);
       kjoennshistorikk.put(LocalDateTime.now().minusYears(2), KjoennType.MANN);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -1102,7 +1129,6 @@ public class FarskapsportalControllerTest {
               .navn(fornavnFar + " " + etternavnFar)
               .build();
 
-
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
@@ -1178,7 +1204,6 @@ public class FarskapsportalControllerTest {
               .etternavn(etternavnFar)
               .build();
 
-
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
@@ -1248,8 +1273,6 @@ public class FarskapsportalControllerTest {
       var oppgittNavn = NAVN_FAR;
       loggePaaPerson(MOR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
@@ -1309,8 +1332,6 @@ public class FarskapsportalControllerTest {
       // given
       loggePaaPerson(MOR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
@@ -1368,8 +1389,6 @@ public class FarskapsportalControllerTest {
       var fnrFar = "01058011444";
 
       loggePaaPerson(MOR.getFoedselsnummer());
-
-
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
@@ -1470,8 +1489,6 @@ public class FarskapsportalControllerTest {
           new OAuth2AccessTokenResponse(
               generereTesttoken(MOR.getFoedselsnummer()), 1000, 1000, null);
       when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
-
-
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
@@ -1598,6 +1615,8 @@ public class FarskapsportalControllerTest {
       // given
       brukeStandardMocks(MOR.getFoedselsnummer());
 
+      var dokumentinnhold =
+          "Jeg erklærer med dette farskap til barnet..".getBytes(StandardCharsets.UTF_8);
       // legger på redirecturl til dokument i void-metode
       doAnswer(
               invocation -> {
@@ -1609,6 +1628,16 @@ public class FarskapsportalControllerTest {
               })
           .when(difiESignaturConsumer)
           .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+
+      var blobId =
+          BlobId.of(
+              farskapsportalApiEgenskaper
+                  .getFarskapsportalFellesEgenskaper()
+                  .getBucket()
+                  .getPadesName(),
+              "fp-1");
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
 
       // when
       var respons =
@@ -1882,6 +1911,8 @@ public class FarskapsportalControllerTest {
       // given
       brukeStandardMocksUtenPdlApi(MOR.getFoedselsnummer());
 
+      var dokumentinnhold =
+          "Jeg erklærer med dette farskap til barnet..".getBytes(StandardCharsets.UTF_8);
       var sivilstandMor = Sivilstandtype.UGIFT;
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -1939,6 +1970,16 @@ public class FarskapsportalControllerTest {
               })
           .when(difiESignaturConsumer)
           .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+
+      var blobId =
+          BlobId.of(
+              farskapsportalApiEgenskaper
+                  .getFarskapsportalFellesEgenskaper()
+                  .getBucket()
+                  .getPadesName(),
+              "fp-1");
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumentinnhold);
 
       // when
       var respons =
@@ -2018,7 +2059,6 @@ public class FarskapsportalControllerTest {
       var statuslenke = lagretFarskapserklaering.getDokument().getStatusUrl();
 
       loggePaaPerson(MOR.getFoedselsnummer());
-
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
@@ -2131,7 +2171,6 @@ public class FarskapsportalControllerTest {
       var statuslenke = farskapserklaeringSignertAvMor.getDokument().getStatusUrl();
 
       loggePaaPerson(FAR.getFoedselsnummer());
-
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
@@ -2370,8 +2409,6 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(MOR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkMor),
@@ -2471,8 +2508,6 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(FAR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
@@ -2571,8 +2606,6 @@ public class FarskapsportalControllerTest {
           getKjoennshistorikk(KjoennType.MANN);
 
       loggePaaPerson(FAR.getFoedselsnummer());
-
-
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -2853,8 +2886,6 @@ public class FarskapsportalControllerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       loggePaaPerson(FAR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
@@ -2907,8 +2938,6 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-
-
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -3000,23 +3029,28 @@ public class FarskapsportalControllerTest {
 
       // given
       loggePaaPerson(FAR.getFoedselsnummer());
+      var dokumentinnhold =
+          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
 
       var farskapserklaering =
           henteFarskapserklaering(
               henteForelder(Forelderrolle.MOR),
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold(
-                      "Jeg erklærer herved farskap til dette barnet"
-                          .getBytes(StandardCharsets.UTF_8))
-                  .build());
       farskapserklaeringDao.save(farskapserklaering);
 
-      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+      var blobId =
+          BlobId.of(
+              farskapsportalApiEgenskaper
+                  .getFarskapsportalFellesEgenskaper()
+                  .getBucket()
+                  .getPadesName(),
+              "fp-1");
+      when(bucketConsumer.saveContentToBucket(
+              BucketConsumer.ContentType.PADES, blobId.getName(), dokumentinnhold))
+          .thenReturn(blobId);
+      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
 
       // when
       var respons =
@@ -3027,8 +3061,7 @@ public class FarskapsportalControllerTest {
               byte[].class);
 
       // then
-      assertArrayEquals(
-          farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), respons.getBody());
+      assertArrayEquals(dokumentinnhold, respons.getBody());
     }
 
     @Test
@@ -3084,40 +3117,5 @@ public class FarskapsportalControllerTest {
               assertThat(respons.getBody().getFeilkode())
                   .isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING));
     }
-  }
-
-  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
-
-    var dokument =
-        Dokument.builder()
-            .navn("farskapserklaering.pdf")
-            .padesUrl("https://pades.url")
-            .signeringsinformasjonMor(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
-                    .signeringstidspunkt(LocalDateTime.now())
-                    .build())
-            .signeringsinformasjonFar(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
-                    .build())
-            .build();
-
-    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
-  }
-
-  private String generereTesttoken(String personident) {
-    var claims = new HashMap<String, Object>();
-    claims.put("idp", personident);
-    var token = mockOAuth2Server.issueToken("selvbetjening", personident, "aud-localhost", claims);
-    return "Bearer " + token.serialize();
-  }
-
-  private void loggePaaPerson(String personident) {
-    httpHeaderTestRestTemplateApi.add(
-        HttpHeaders.AUTHORIZATION, () -> generereTesttoken(personident));
-
-    var a = new OAuth2AccessTokenResponse(generereTesttoken(personident), 1000, 1000, null);
-    when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
   }
 }

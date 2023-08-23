@@ -52,6 +52,21 @@ spec:
       value: "{{this.value}}"
   {{/each}}
   gcp:
+    buckets:
+      - name: {{ BUCKET_NAME_PADES }}
+        retentionPeriodDays: 365
+        lifecycleCondition:
+          age: 365
+          createdBefore: 2022-01-01
+          numNewerVersions: 1
+          withState: ANY
+      - name: {{ BUCKET_NAME_XADES }}
+        retentionPeriodDays: 365
+        lifecycleCondition:
+          age: 365
+          createdBefore: 2022-01-01
+          numNewerVersions: 1
+          withState: ANY
     permissions:
       - resource:
           apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
@@ -64,6 +79,9 @@ spec:
         databases:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
+        flags:
+          - name: autovacuum
+            value: "on"
   accessPolicy:
     inbound:
       rules:

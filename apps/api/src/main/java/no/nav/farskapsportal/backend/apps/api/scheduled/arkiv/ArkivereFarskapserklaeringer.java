@@ -17,6 +17,8 @@ import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.GcpBlobId;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
@@ -28,9 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Builder
 public class ArkivereFarskapserklaeringer {
 
+  private final BucketConsumer bucketConsumer;
   private final DifiESignaturConsumer difiESignaturConsumer;
-  private PersistenceService persistenceService;
-  private SkattConsumer skattConsumer;
+  private final PersistenceService persistenceService;
+  private final SkattConsumer skattConsumer;
   private int intervallMellomForsoek;
   private int maksAntallFeilPaaRad;
 
@@ -72,30 +75,47 @@ public class ArkivereFarskapserklaeringer {
               farskapserklaering.getDokument().getStatusQueryToken(),
               farskapserklaering.getDokument().getJobbref(),
               tilUri(farskapserklaering.getDokument().getStatusUrl()));
-      var lagretPades = farskapserklaering.getDokument().getDokumentinnhold().getInnhold();
-      var xadesMor = farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml();
-      var xadesFar = farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml();
 
-      if (lagretPades == null || xadesMor == null || xadesFar == null) {
+      var gcpBlobIdPades = farskapserklaering.getDokument().getPadesBlobId();
+      var gcpBlobIdXadesMor =
+          farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesBlobId();
+      var gcpBlobIdXadesFar =
+          farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesBlobId();
+
+      if (gcpBlobIdPades == null || gcpBlobIdXadesMor == null || gcpBlobIdXadesFar == null) {
         log.info(
             "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
             farskapserklaering.getId());
         var pades = difiESignaturConsumer.henteSignertDokument(status.getPadeslenke());
         if (pades != null) {
+          var blobId =
+              bucketConsumer.saveContentToBucket(
+                  BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
           farskapserklaering
               .getDokument()
-              .setDokumentinnhold(Dokumentinnhold.builder().innhold(pades).build());
-        }
-        henteOgLagreXadesXml(farskapserklaering, status.getSignaturer());
-      }
+              .setPadesBlobId(
+                  GcpBlobId.builder()
+                      .bucket(blobId.getBucket())
+                      .generation(blobId.getGeneration())
+                      .name(blobId.getName())
+                      .build());
 
-      if (farskapserklaering.getMeldingsidSkatt() == null) {
-        farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering));
-        try {
-          persistenceService.oppdatereFarskapserklaering(farskapserklaering);
-        } catch (Exception e) {
-          e.printStackTrace();
+          // TODO: Fjerne når bucket-migrering er fullført
+          farskapserklaering
+              .getDokument()
+              .setDokumentinnhold(Dokumentinnhold.builder().innhold(null).build());
+
+          if (farskapserklaering.getMeldingsidSkatt() == null) {
+            farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering, pades));
+            try {
+              persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
         }
+
+        henteOgLagreXadesXml(farskapserklaering, status.getSignaturer());
       }
 
       try {
@@ -132,10 +152,40 @@ public class ArkivereFarskapserklaeringer {
       var xades = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
       if (signatur.getSignatureier().equals(farskapserklaering.getMor().getFoedselsnummer())
           && xades != null) {
-        farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(xades);
+        var blobId =
+            bucketConsumer.saveContentToBucket(
+                BucketConsumer.ContentType.XADES, "xades-mor-" + farskapserklaering.getId(), xades);
+        farskapserklaering
+            .getDokument()
+            .getSigneringsinformasjonMor()
+            .setXadesBlobId(
+                GcpBlobId.builder()
+                    .bucket(blobId.getBucket())
+                    .generation(blobId.getGeneration())
+                    .name(blobId.getName())
+                    .build());
+
+        // TODO: Fjerne når bucket-migrering er fullført
+        farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
+
       } else if (signatur.getSignatureier().equals(farskapserklaering.getFar().getFoedselsnummer())
           && xades != null) {
-        farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(xades);
+        var blobId =
+            bucketConsumer.saveContentToBucket(
+                BucketConsumer.ContentType.XADES, "xades-far-" + farskapserklaering.getId(), xades);
+        farskapserklaering
+            .getDokument()
+            .getSigneringsinformasjonFar()
+            .setXadesBlobId(
+                GcpBlobId.builder()
+                    .bucket(blobId.getBucket())
+                    .generation(blobId.getGeneration())
+                    .name(blobId.getName())
+                    .build());
+
+        // TODO: Fjerne når bucket-migrering er fullført
+        farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
+
       } else {
         log.error(
             "Personer i signeringsoppdrag stemmer ikke med foreldrene i farskapserklæring med id {}",

@@ -16,6 +16,10 @@ gcp:
 env:
   - name: BRUKERNOTIFIKASJON_PAA
     value: "true"
+  - name: BUCKET_NAME_PADES
+    value: farskapsportal-pades
+  - name: BUCKET_NAME_XADES
+    value: farskapsportal-xades
   - name: DB_USER_ASYNKRON
     value: asynkron_prod
   - name: POSTGRES_CONNECTION_NAME
