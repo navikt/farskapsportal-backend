@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Scope;
 @Qualifier("felles")
 public class RestTemplateFellesConfig {
 
-  public static final String X_API_KEY = "x-nav-apiKey";
-
   @Bean("base")
   @Scope("prototype")
   public HttpHeaderRestTemplate restTemplate() {

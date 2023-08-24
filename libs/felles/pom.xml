@@ -17,7 +17,6 @@
     <javassist.version>3.28.0-GA</javassist.version>
     <kafka-avro-serializer.version>7.4.0</kafka-avro-serializer.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
-    <google.spring-cloud-gcp.version>4.5.0</google.spring-cloud-gcp.version>
   </properties>
 
   <dependencyManagement>
@@ -108,8 +107,19 @@
     </dependency>
 
     <dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-storage</artifactId>
+      <version>v1-rev20230710-2.0.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-storage</artifactId>
     </dependency>
 
     <dependency>
