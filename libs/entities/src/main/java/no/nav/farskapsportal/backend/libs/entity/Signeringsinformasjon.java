@@ -37,6 +37,7 @@ public class Signeringsinformasjon {
   @Column(length = 100000000)
   private byte[] xadesXml;
 
+  @Column(name = "blob_id_xades")
   @OneToOne(cascade = CascadeType.ALL)
   private BlobIdGcp blobIdXades;
 }
