@@ -14,8 +14,8 @@ farskapsportal.felles.egenskaper:
     sikkerhetsnivaa-beskjed: 3
     sikkerhetsnivaa-oppgave: 3
   bucket:
-    pades-name: ${BUCKET_NAME_PADES}
-    xades-name: ${BUCKET_NAME_XADES}
+    pades-name: ${APPNAVN}-pades
+    xades-name: ${APPNAVN}-xades
 
 
 ---

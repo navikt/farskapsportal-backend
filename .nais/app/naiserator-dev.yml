@@ -53,14 +53,14 @@ spec:
   {{/each}}
   gcp:
     buckets:
-      - name: {{ BUCKET_NAME_PADES }}
+      - name: {{ name }}-pades
         retentionPeriodDays: 365
         lifecycleCondition:
           age: 365
           createdBefore: 2022-01-01
           numNewerVersions: 1
           withState: ANY
-      - name: {{ BUCKET_NAME_XADES }}
+      - name: {{ name }}-xades
         retentionPeriodDays: 365
         lifecycleCondition:
           age: 365
