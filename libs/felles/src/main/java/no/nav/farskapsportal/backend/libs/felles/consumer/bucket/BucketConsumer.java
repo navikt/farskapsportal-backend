@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.bucket;
 
 import com.google.cloud.storage.*;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.BucketConsumerException;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@NoArgsConstructor
 public class BucketConsumer {
 
   private @Autowired FarskapsportalFellesEgenskaper fellesEgenskaper;
