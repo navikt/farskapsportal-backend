@@ -76,11 +76,11 @@ public class ArkivereFarskapserklaeringer {
               farskapserklaering.getDokument().getJobbref(),
               tilUri(farskapserklaering.getDokument().getStatusUrl()));
 
-      var blobIdPades = farskapserklaering.getDokument().getBlobIdPades();
+      var blobIdPades = farskapserklaering.getDokument().getBlobIdGcp();
       var blobIdXadesMor =
-          farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdXades();
+          farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
       var blobIdXadesFar =
-          farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdXades();
+          farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
 
       if (blobIdPades == null || blobIdXadesMor == null || blobIdXadesFar == null) {
         log.info(
@@ -93,7 +93,7 @@ public class ArkivereFarskapserklaeringer {
                   BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
           farskapserklaering
               .getDokument()
-              .setBlobIdPades(
+              .setBlobIdGcp(
                   BlobIdGcp.builder()
                       .bucket(blobId.getBucket())
                       .generation(blobId.getGeneration())
@@ -158,7 +158,7 @@ public class ArkivereFarskapserklaeringer {
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonMor()
-            .setBlobIdXades(
+            .setBlobIdGcp(
                 BlobIdGcp.builder()
                     .bucket(blobId.getBucket())
                     .generation(blobId.getGeneration())
@@ -176,7 +176,7 @@ public class ArkivereFarskapserklaeringer {
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonFar()
-            .setBlobIdXades(
+            .setBlobIdGcp(
                 BlobIdGcp.builder()
                     .bucket(blobId.getBucket())
                     .generation(blobId.getGeneration())

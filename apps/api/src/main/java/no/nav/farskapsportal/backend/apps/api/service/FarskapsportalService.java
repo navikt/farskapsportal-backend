@@ -209,7 +209,7 @@ public class FarskapsportalService {
             .generation(blobId.getGeneration())
             .name(blobId.getName())
             .build();
-    farskapserklaering.getDokument().setBlobIdPades(blobIdGcp);
+    farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
     difiESignaturConsumer.oppretteSigneringsjobb(
@@ -408,12 +408,12 @@ public class FarskapsportalService {
 
     if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
       oppdaterePades(farskapserklaering);
-      var blobIdGcp = farskapserklaering.getDokument().getBlobIdPades();
+      var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       return bucketConsumer.getContentFromBucket(
           BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
     } else if (morHarSignert(farskapserklaering)) {
       oppdaterePades(farskapserklaering);
-      var blobIdGcp = farskapserklaering.getDokument().getBlobIdPades();
+      var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       return bucketConsumer.getContentFromBucket(
           BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
     } else {
@@ -438,7 +438,7 @@ public class FarskapsportalService {
               BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
       farskapserklaering
           .getDokument()
-          .setBlobIdPades(
+          .setBlobIdGcp(
               BlobIdGcp.builder()
                   .bucket(blobId.getBucket())
                   .name(blobId.getName())

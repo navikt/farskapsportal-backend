@@ -180,7 +180,7 @@ public class ArkivereFarskapserklaeringerTest {
                       .getTidspunktForOversendelse()
                       .isEqual(oppdatertFarskapserklaering.get().getSendtTilSkatt())),
           () ->
-              assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdPades())
+              assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp())
                   .isNotNull(),
           () ->
               assertThat(
@@ -188,7 +188,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .get()
                           .getDokument()
                           .getSigneringsinformasjonFar()
-                          .getBlobIdXades())
+                          .getBlobIdGcp())
                   .isNotNull(),
           () ->
               assertThat(
@@ -196,7 +196,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .get()
                           .getDokument()
                           .getSigneringsinformasjonMor()
-                          .getBlobIdXades())
+                          .getBlobIdGcp())
                   .isNotNull(),
           // TODO: Fjerne når bucket-migrering er fullført
           () ->
@@ -302,7 +302,7 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(oppdatertFarskapserklaering2).isPresent(),
           () -> assertThat(oppdatertFarskapserklaering2.get().getSendtTilSkatt()).isNotNull(),
           () ->
-              assertThat(oppdatertFarskapserklaering1.get().getDokument().getBlobIdPades())
+              assertThat(oppdatertFarskapserklaering1.get().getDokument().getBlobIdGcp())
                   .isNotNull(),
           () ->
               assertThat(
@@ -310,7 +310,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .get()
                           .getDokument()
                           .getSigneringsinformasjonFar()
-                          .getBlobIdXades())
+                          .getBlobIdGcp())
                   .isNotNull(),
           () ->
               assertThat(
@@ -318,7 +318,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .get()
                           .getDokument()
                           .getSigneringsinformasjonMor()
-                          .getBlobIdXades())
+                          .getBlobIdGcp())
                   .isNotNull(),
           // TODO: Fjerne når bucket-migrering er fullført
           () ->
@@ -398,7 +398,7 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNull(),
           () -> assertThat(oppdatertFarskapserklaering1.get().getMeldingsidSkatt()).isNotNull(),
           () ->
-              assertThat(oppdatertFarskapserklaering1.get().getDokument().getBlobIdPades())
+              assertThat(oppdatertFarskapserklaering1.get().getDokument().getBlobIdGcp())
                   .isNotNull(),
           () ->
               assertThat(
@@ -406,7 +406,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .get()
                           .getDokument()
                           .getSigneringsinformasjonFar()
-                          .getBlobIdXades())
+                          .getBlobIdGcp())
                   .isNotNull(),
           () ->
               assertThat(
@@ -414,7 +414,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .get()
                           .getDokument()
                           .getSigneringsinformasjonMor()
-                          .getBlobIdXades())
+                          .getBlobIdGcp())
                   .isNotNull(),
           // TODO: Fjerne når bucket-migrering er fullført
           () ->

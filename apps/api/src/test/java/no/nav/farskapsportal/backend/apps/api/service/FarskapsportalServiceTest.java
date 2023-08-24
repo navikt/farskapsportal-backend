@@ -4118,7 +4118,7 @@ public class FarskapsportalServiceTest {
           () -> assertThat(dokumentinnhold).isNotNull(),
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () ->
-              assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdPades() != null),
+              assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp() != null),
           () ->
               assertThat(
                   oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold() == null));
@@ -4231,7 +4231,7 @@ public class FarskapsportalServiceTest {
           () -> assertThat(dokumentinnhold).isNotNull(),
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () ->
-              assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdPades() != null),
+              assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp() != null),
           () ->
               assertThat(
                   oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold() == null));
