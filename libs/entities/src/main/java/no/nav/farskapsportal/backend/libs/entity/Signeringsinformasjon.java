@@ -38,5 +38,5 @@ public class Signeringsinformasjon {
   private byte[] xadesXml;
 
   @OneToOne(cascade = CascadeType.ALL)
-  private GcpBlobId xadesBlobId;
+  private BlobIdGcp blobIdXades;
 }

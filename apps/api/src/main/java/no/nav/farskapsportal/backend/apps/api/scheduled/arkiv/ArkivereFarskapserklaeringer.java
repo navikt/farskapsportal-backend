@@ -17,7 +17,7 @@ import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.GcpBlobId;
+import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
@@ -76,13 +76,13 @@ public class ArkivereFarskapserklaeringer {
               farskapserklaering.getDokument().getJobbref(),
               tilUri(farskapserklaering.getDokument().getStatusUrl()));
 
-      var gcpBlobIdPades = farskapserklaering.getDokument().getPadesBlobId();
-      var gcpBlobIdXadesMor =
-          farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesBlobId();
-      var gcpBlobIdXadesFar =
-          farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesBlobId();
+      var blobIdPades = farskapserklaering.getDokument().getBlobIdPades();
+      var blobIdXadesMor =
+          farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdXades();
+      var blobIdXadesFar =
+          farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdXades();
 
-      if (gcpBlobIdPades == null || gcpBlobIdXadesMor == null || gcpBlobIdXadesFar == null) {
+      if (blobIdPades == null || blobIdXadesMor == null || blobIdXadesFar == null) {
         log.info(
             "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
             farskapserklaering.getId());
@@ -93,8 +93,8 @@ public class ArkivereFarskapserklaeringer {
                   BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
           farskapserklaering
               .getDokument()
-              .setPadesBlobId(
-                  GcpBlobId.builder()
+              .setBlobIdPades(
+                  BlobIdGcp.builder()
                       .bucket(blobId.getBucket())
                       .generation(blobId.getGeneration())
                       .name(blobId.getName())
@@ -158,8 +158,8 @@ public class ArkivereFarskapserklaeringer {
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonMor()
-            .setXadesBlobId(
-                GcpBlobId.builder()
+            .setBlobIdXades(
+                BlobIdGcp.builder()
                     .bucket(blobId.getBucket())
                     .generation(blobId.getGeneration())
                     .name(blobId.getName())
@@ -176,8 +176,8 @@ public class ArkivereFarskapserklaeringer {
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonFar()
-            .setXadesBlobId(
-                GcpBlobId.builder()
+            .setBlobIdXades(
+                BlobIdGcp.builder()
                     .bucket(blobId.getBucket())
                     .generation(blobId.getGeneration())
                     .name(blobId.getName())

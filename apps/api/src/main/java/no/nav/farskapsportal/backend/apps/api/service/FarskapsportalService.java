@@ -203,13 +203,13 @@ public class FarskapsportalService {
     var blobId =
         bucketConsumer.saveContentToBucket(
             BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), innhold);
-    var gcpBlobId =
-        GcpBlobId.builder()
+    var blobIdGcp =
+        BlobIdGcp.builder()
             .bucket(blobId.getBucket())
             .generation(blobId.getGeneration())
             .name(blobId.getName())
             .build();
-    farskapserklaering.getDokument().setPadesBlobId(gcpBlobId);
+    farskapserklaering.getDokument().setBlobIdPades(blobIdGcp);
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
     difiESignaturConsumer.oppretteSigneringsjobb(
@@ -408,14 +408,14 @@ public class FarskapsportalService {
 
     if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
       oppdaterePades(farskapserklaering);
-      var gcpBlobId = farskapserklaering.getDokument().getPadesBlobId();
+      var blobIdGcp = farskapserklaering.getDokument().getBlobIdPades();
       return bucketConsumer.getContentFromBucket(
-          BlobId.of(gcpBlobId.getBucket(), gcpBlobId.getName()));
+          BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
     } else if (morHarSignert(farskapserklaering)) {
       oppdaterePades(farskapserklaering);
-      var gcpBlobId = farskapserklaering.getDokument().getPadesBlobId();
+      var blobIdGcp = farskapserklaering.getDokument().getBlobIdPades();
       return bucketConsumer.getContentFromBucket(
-          BlobId.of(gcpBlobId.getBucket(), gcpBlobId.getName()));
+          BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
     } else {
       throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
     }
@@ -438,8 +438,8 @@ public class FarskapsportalService {
               BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
       farskapserklaering
           .getDokument()
-          .setPadesBlobId(
-              GcpBlobId.builder()
+          .setBlobIdPades(
+              BlobIdGcp.builder()
                   .bucket(blobId.getBucket())
                   .name(blobId.getName())
                   .generation(blobId.getGeneration())

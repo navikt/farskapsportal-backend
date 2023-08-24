@@ -12,7 +12,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GcpBlobId {
+public class BlobIdGcp {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -47,7 +47,7 @@ public class Dokument implements Serializable {
   private String padesUrl;
 
   @OneToOne(cascade = CascadeType.ALL)
-  private GcpBlobId padesBlobId;
+  private BlobIdGcp blobIdPades;
 
   private String bekreftelsesUrl;
 
