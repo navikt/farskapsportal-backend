@@ -38,7 +38,7 @@
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.guava.version>32.0.1-jre</google.guava.version>
         <google.api.gax.version>2.29.0</google.api.gax.version>
-        <google-cloud-storage.version>2.16.0</google-cloud-storage.version>
+        <google-cloud-storage.version>2.26.1</google-cloud-storage.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <jetty-client.version>11.0.7</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
