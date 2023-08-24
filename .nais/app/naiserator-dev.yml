@@ -97,4 +97,3 @@ spec:
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
         - host: oppgave.dev-fss-pub.nais.io
-  webproxy: true

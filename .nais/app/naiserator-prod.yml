@@ -89,4 +89,3 @@ spec:
         - host: folkeregisteret.api.skatteetaten.no
         - host: secretmanager.googleapis.com
         - host: oppgave.prod-fss-pub.nais.io
-  webproxy: true
