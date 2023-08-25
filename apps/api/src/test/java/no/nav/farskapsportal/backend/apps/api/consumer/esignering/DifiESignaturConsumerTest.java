@@ -104,18 +104,14 @@ public class DifiESignaturConsumerTest {
       var morsRedirectUrl = "https://mors-redirect-url.no/";
       var farsRedirectUrl = "https://fars-redirect-url.no/";
       var wireMockUrl = "http://localhost:" + wiremockPort;
+      var dokumentinnhold = "Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8);
+      
       difiESignaturStub.runOppretteSigneringsjobbStub(
           wireMockUrl + PATH_STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument =
           Dokument.builder()
               .navn("Farskapsportal.pdf")
-              .dokumentinnhold(
-                  Dokumentinnhold.builder()
-                      .innhold(
-                          "Farskapserklæring for barn med termindato..."
-                              .getBytes(StandardCharsets.UTF_8))
-                      .build())
               .signeringsinformasjonMor(
                   Signeringsinformasjon.builder().sendtTilSignering(LocalDateTime.now()).build())
               .statusUrl("https://getstatus.no/")
@@ -125,7 +121,7 @@ public class DifiESignaturConsumerTest {
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       // when
-      difiESignaturConsumer.oppretteSigneringsjobb(1, dokument, Skriftspraak.BOKMAAL, mor, far);
+      difiESignaturConsumer.oppretteSigneringsjobb(1, dokument, dokumentinnhold, Skriftspraak.BOKMAAL, mor, far);
 
       // then
       assertAll(
@@ -156,18 +152,14 @@ public class DifiESignaturConsumerTest {
       var morsRedirectUrl = "https://mors-redirect-url.no/";
       var farsRedirectUrl = "https://fars-redirect-url.no/";
       var wireMockUrl = "http://localhost:" + wiremockPort;
+      var dokumentinnhold = "Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8);
+
       difiESignaturStub.runOppretteSigneringsjobbStub(
           wireMockUrl + PATH_STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument =
           Dokument.builder()
               .navn("Farskapsportal.pdf")
-              .dokumentinnhold(
-                  Dokumentinnhold.builder()
-                      .innhold(
-                          "Farskapserklæring for barn med termindato..."
-                              .getBytes(StandardCharsets.UTF_8))
-                      .build())
               .signeringsinformasjonMor(
                   Signeringsinformasjon.builder().sendtTilSignering(LocalDateTime.now()).build())
               .statusUrl("https://getstatus.no/")
@@ -177,7 +169,7 @@ public class DifiESignaturConsumerTest {
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
 
       // when
-      difiESignaturConsumer.oppretteSigneringsjobb(1, dokument, Skriftspraak.ENGELSK, mor, far);
+      difiESignaturConsumer.oppretteSigneringsjobb(1, dokument, dokumentinnhold, Skriftspraak.ENGELSK, mor, far);
 
       // then
       assertAll(
@@ -200,18 +192,14 @@ public class DifiESignaturConsumerTest {
       var morsRedirectUrl = "https://mors-redirect-url.no/";
       var farsRedirectUrl = "https://fars-redirect-url.no/";
       var wireMockUrl = "http://localhost:" + wiremockPort;
+      var dokumentinnhold = "Farskapserklæring for barn med termindato...".getBytes(StandardCharsets.UTF_8);
+
       difiESignaturStub.runOppretteSigneringsjobbStub(
           wireMockUrl + PATH_STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
       var dokument =
           Dokument.builder()
               .navn("Farskapsportal.pdf")
-              .dokumentinnhold(
-                  Dokumentinnhold.builder()
-                      .innhold(
-                          "Farskapserklæring for barn med termindato..."
-                              .getBytes(StandardCharsets.UTF_8))
-                      .build())
               .statusUrl("https://getstatus.no/")
               .build();
 
@@ -228,7 +216,7 @@ public class DifiESignaturConsumerTest {
           OppretteSigneringsjobbException.class,
           () ->
               difiEsignaturConsumerWithMocks.oppretteSigneringsjobb(
-                  1, dokument, Skriftspraak.BOKMAAL, mor, far),
+                  1, dokument, dokumentinnhold, Skriftspraak.BOKMAAL, mor, far),
           "Skal kaste OppretteSigneringsjobbException dersom Difiklient feiler");
     }
   }

@@ -215,6 +215,7 @@ public class FarskapsportalService {
     difiESignaturConsumer.oppretteSigneringsjobb(
         farskapserklaering.getId(),
         farskapserklaering.getDokument(),
+        innhold,
         request.getSkriftspraak() == null ? Skriftspraak.BOKMAAL : request.getSkriftspraak(),
         mapper.toEntity(forelderDtoMor),
         mapper.toEntity(forelderDtoFar));

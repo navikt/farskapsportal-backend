@@ -298,7 +298,7 @@ public class FarskapsportalControllerTest {
         .thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
     doNothing()
         .when(difiESignaturConsumer)
-        .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+        .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
   }
 
   @AfterEach
@@ -1627,7 +1627,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       var blobId =
           BlobId.of(
@@ -1739,7 +1739,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1773,7 +1773,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1811,7 +1811,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1849,7 +1849,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1969,7 +1969,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       var blobId =
           BlobId.of(

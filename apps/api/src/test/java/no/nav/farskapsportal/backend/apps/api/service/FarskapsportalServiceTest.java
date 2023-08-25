@@ -922,7 +922,7 @@ public class FarskapsportalServiceTest {
                 return null;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       farskapsportalService.oppretteFarskapserklaering(
@@ -1052,7 +1052,7 @@ public class FarskapsportalServiceTest {
                 return null;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       farskapsportalService.oppretteFarskapserklaering(
@@ -1158,7 +1158,7 @@ public class FarskapsportalServiceTest {
                 return null;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when, then
       assertThrows(
@@ -1288,7 +1288,7 @@ public class FarskapsportalServiceTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1478,7 +1478,7 @@ public class FarskapsportalServiceTest {
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
       doNothing()
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var valideringException =
@@ -1533,7 +1533,7 @@ public class FarskapsportalServiceTest {
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
       doNothing()
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var valideringException =
@@ -1595,7 +1595,7 @@ public class FarskapsportalServiceTest {
       when(pdfGeneratorConsumer.genererePdf(any(), any(), any(), any())).thenReturn(pdf);
       doNothing()
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var valideringException =
@@ -1706,7 +1706,7 @@ public class FarskapsportalServiceTest {
 
       doNothing()
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var valideringException =
@@ -1791,7 +1791,7 @@ public class FarskapsportalServiceTest {
 
       doNothing()
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var valideringException =
@@ -1876,7 +1876,7 @@ public class FarskapsportalServiceTest {
 
       doNothing()
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var valideringException =
