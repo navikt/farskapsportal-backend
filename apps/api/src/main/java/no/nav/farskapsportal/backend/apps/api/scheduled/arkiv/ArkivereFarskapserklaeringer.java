@@ -15,9 +15,9 @@ import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturC
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
+import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
 import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;

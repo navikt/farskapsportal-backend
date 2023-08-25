@@ -91,7 +91,8 @@ public class DifiESignaturConsumer {
     var tittel = tekstvelger(Tekst.DOKUMENT_TITTEL, skriftspraak);
     var dokumentnavn = tekstvelger(Tekst.DOKUMENT_FILNAVN, skriftspraak);
 
-    var directDocument = DirectDocument.builder(tittel, dokumentinnhold).type(DocumentType.PDF).build();
+    var directDocument =
+        DirectDocument.builder(tittel, dokumentinnhold).type(DocumentType.PDF).build();
 
     var exitUrls =
         ExitUrls.of(
