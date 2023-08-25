@@ -55,15 +55,15 @@ spec:
         lifecycleCondition:
           age: 365
           createdBefore: 2022-01-01
-          numNewerVersions: 1
-          withState: ANY
+          numNewerVersions: 2
+          withState: ARCHIVED
       - name: {{ name }}-xades
         retentionPeriodDays: 365
         lifecycleCondition:
           age: 365
           createdBefore: 2022-01-01
           numNewerVersions: 1
-          withState: ANY
+          withState: ARCHIVED
     sqlInstances:
       - diskSize: {{ gcp.sql-instances.diskSize }}
         name: {{ gcp.sql-instances.name }}

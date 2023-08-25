@@ -58,15 +58,15 @@ spec:
         lifecycleCondition:
           age: 365
           createdBefore: 2022-01-01
-          numNewerVersions: 1
-          withState: ANY
+          numNewerVersions: 2
+          withState: ARCHIVED
       - name: {{ name }}-xades
         retentionPeriodDays: 365
         lifecycleCondition:
           age: 365
           createdBefore: 2022-01-01
           numNewerVersions: 1
-          withState: ANY
+          withState: ARCHIVED
     permissions:
       - resource:
           apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
