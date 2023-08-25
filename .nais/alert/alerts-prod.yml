@@ -78,7 +78,7 @@ spec:
         - apiURL:
             key: apiUrl
             name: slack-webhook
-          channel: '#farskapsportal-varsel-prod'
+          channel: 'farskapsportal-varsel-prod'
           iconEmoji: ':alert:'
           username: 'Varsel prod-gcp'
           sendResolved: true
