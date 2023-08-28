@@ -408,13 +408,19 @@ public class FarskapsportalService {
     validereAtPersonErForelderIFarskapserklaering(fnrForelder, farskapserklaering);
 
     if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
-      oppdaterePades(farskapserklaering);
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
+      if (blobIdGcp == null) {
+        // TODO: Fjerne når bucketsmigrering er fullført
+        oppdaterePades(farskapserklaering);
+      }
       return bucketConsumer.getContentFromBucket(
           BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
     } else if (morHarSignert(farskapserklaering)) {
-      oppdaterePades(farskapserklaering);
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
+      if (blobIdGcp == null) {
+        // TODO: Fjerne når bucketsmigrering er fullført
+        oppdaterePades(farskapserklaering);
+      }
       return bucketConsumer.getContentFromBucket(
           BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
     } else {

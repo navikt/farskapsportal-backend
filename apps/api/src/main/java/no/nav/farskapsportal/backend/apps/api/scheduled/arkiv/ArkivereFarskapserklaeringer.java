@@ -65,7 +65,7 @@ public class ArkivereFarskapserklaeringer {
         fpTekst);
     for (Integer farskapserklaeringsid : farskapserklaeringsider) {
       log.debug(
-          "Oppdaterer tidspunkt for oversendelse til skatt for farskapserklæring med id {}",
+          "Setter tidspunkt for oversendelse til skatt for farskapserklæring med id {}",
           farskapserklaeringsid);
       var farskapserklaering =
           persistenceService.henteFarskapserklaeringForId(farskapserklaeringsid);
@@ -77,12 +77,8 @@ public class ArkivereFarskapserklaeringer {
               tilUri(farskapserklaering.getDokument().getStatusUrl()));
 
       var blobIdPades = farskapserklaering.getDokument().getBlobIdGcp();
-      var blobIdXadesMor =
-          farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
-      var blobIdXadesFar =
-          farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
 
-      if (blobIdPades == null || blobIdXadesMor == null || blobIdXadesFar == null) {
+      if (blobIdPades == null) {
         log.info(
             "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
             farskapserklaering.getId());
@@ -115,7 +111,13 @@ public class ArkivereFarskapserklaeringer {
           }
         }
 
-        henteOgLagreXadesXml(farskapserklaering, status.getSignaturer());
+        var blobIdXadesMor =
+                farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
+        var blobIdXadesFar =
+                farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
+        if (blobIdXadesMor == null || blobIdXadesFar == null) {
+          henteOgLagreXadesXml(farskapserklaering, status.getSignaturer());
+        }
       }
 
       try {
