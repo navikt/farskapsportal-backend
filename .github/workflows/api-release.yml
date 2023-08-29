@@ -45,7 +45,7 @@ jobs:
       - uses: navikt/bidrag-maven/setup@v7
         with:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
-      - run: mvn -B --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml
+      - run: mvn -B --no-transfer-progress package --settings .m2/maven-settings.xml clean install
       - name: Build and publish Docker image
         run: |
           docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar .

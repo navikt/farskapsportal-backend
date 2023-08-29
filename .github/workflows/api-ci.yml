@@ -44,7 +44,7 @@ jobs:
         if: env.NOT_FOUND == 'true'
         with:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
-      - run: mvn -B --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml
+      - run: mvn -B --no-transfer-progress package --settings .m2/maven-settings.xml clean install
         if: env.NOT_FOUND == 'true'
       - name: Build and publish Docker image
         if: env.NOT_FOUND == 'true'
@@ -72,7 +72,7 @@ jobs:
 
       - name: Valider Java-formatering
         run: |
-          mvn fmt:check
+          mvn fmt:check --settings .m2/maven-settings.xml
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
