@@ -39,31 +39,6 @@
         <bidrag-commons-test.version>1.20230511093912_dc35d81</bidrag-commons-test.version>
 
     </properties>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <!-- Skal brukes hvis bygget kjøres fra en Github Action -->
-        <repository>
-            <id>github-package-registry-navikt</id>
-            <url>https://maven.pkg.github.com/navikt/maven-release</url>
-        </repository>
-        <!-- Skal brukes hvis bygget kjører utenfor NAV (f.eks. en ekstern maskin, eller Circle CI) -->
-        <repository>
-            <id>external-mirror-github-navikt</id>
-            <url>https://github-package-registry-mirror-sr4qwz23da-ew.a.run.app/cached/maven-release</url>
-        </repository>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
     <build>
         <finalName>app</finalName>
         <plugins>

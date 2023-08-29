@@ -267,13 +267,20 @@
     </build>
 
     <repositories>
+        <!-- Det generelle interne Nexus-repoet til NAV (brukes kun internt) -->
         <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
+            <id>nexus-internal-release</id>
+            <url>https://repo.adeo.no/repository/maven-release</url>
         </repository>
+        <!-- Mirror foran Maven Central NAV (brukes kun internt) -->
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>nexus-internal-mirror</id>
+            <url>https://repo.adeo.no/repository/maven-public</url>
+        </repository>
+        <!-- Skal brukes hvis bygget kjører internt (f.eks. Jenkins, fra utviklerimage, eller via ScaleFT) -->
+        <repository>
+            <id>internal-mirror-github-navikt</id>
+            <url>https://repo.adeo.no/repository/github-package-registry-navikt/</url>
         </repository>
         <!-- Skal brukes hvis bygget kjøres fra en Github Action -->
         <repository>
@@ -283,11 +290,7 @@
         <!-- Skal brukes hvis bygget kjører utenfor NAV (f.eks. en ekstern maskin, eller Circle CI) -->
         <repository>
             <id>external-mirror-github-navikt</id>
-            <url>https://github-package-registry-mirror-sr4qwz23da-ew.a.run.app/cached/maven-release</url>
-        </repository>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
+            <url>https://github-package-registry-mirror.gc.nav.no/cached/maven-release</url>
         </repository>
     </repositories>
 
