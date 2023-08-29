@@ -411,7 +411,7 @@ public class FarskapsportalService {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
         // TODO: Fjerne når bucketsmigrering er fullført
-        oppdaterePades(farskapserklaering);
+        blobIdGcp = oppdaterePades(farskapserklaering);
       }
       return bucketConsumer.getContentFromBucket(
           BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
@@ -419,7 +419,7 @@ public class FarskapsportalService {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
         // TODO: Fjerne når bucketsmigrering er fullført
-        oppdaterePades(farskapserklaering);
+        blobIdGcp = oppdaterePades(farskapserklaering);
       }
       return bucketConsumer.getContentFromBucket(
           BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
@@ -428,11 +428,11 @@ public class FarskapsportalService {
     }
   }
 
-  private void oppdaterePades(Farskapserklaering farskapserklaering) {
+  private BlobIdGcp oppdaterePades(Farskapserklaering farskapserklaering) {
 
     // Ikke oppdatere dersom farskapserklæringen er sendt til Skatt
     if (farskapserklaering.getSendtTilSkatt() != null) {
-      return;
+      return null;
     }
 
     try {
@@ -452,16 +452,22 @@ public class FarskapsportalService {
                   .generation(blobId.getGeneration())
                   .build());
 
+      persistenceService.oppdatereFarskapserklaering(farskapserklaering);
+
       // TODO: 22.08.2023: Fjerne bruk av dokumentinnhold når migrering til GCP Buckets er fullført
       if (farskapserklaering.getDokument().getDokumentinnhold() != null) {
         farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
       }
+
+      return  farskapserklaering.getDokument().getBlobIdGcp();
 
     } catch (URISyntaxException e) {
       log.error(
           "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
           farskapserklaering.getId());
     }
+
+    return null;
   }
 
   private void validereAtForeldreIkkeAlleredeHarSignert(
