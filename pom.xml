@@ -268,12 +268,12 @@
 
     <repositories>
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/navikt/bidrag-commons</url>
-        </repository>
-        <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/navikt/bidrag-commons</url>
         </repository>
         <repository>
             <id>github-package-registry-navikt</id>
