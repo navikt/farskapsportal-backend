@@ -14,7 +14,6 @@ on:
 env:
   GITHUB_USERNAME: x-access-token
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  image: ${{ jobs.build.outputs.image }}
 
 jobs:
   style:
@@ -89,7 +88,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/app/naiserator-dev.yml
           VARS: deploy/.nais/app/main.yml
-          IMAGE: ${{ needs.build.output.image }}
+          IMAGE: ${{ needs.build.outputs.image }}
       - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
@@ -98,4 +97,4 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/app/naiserator-dev.yml
           VARS: deploy/.nais/app/feature.yml
-          IMAGE: ${{ needs.build.output.image }}
+          IMAGE: ${{ needs.build.outputs.image }}
