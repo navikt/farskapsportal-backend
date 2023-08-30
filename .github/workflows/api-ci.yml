@@ -24,11 +24,6 @@ jobs:
       contents: "read"
       id-token: "write"
     steps:
-      - uses: navikt/bidrag-docker/exists@v1
-        id: dockerimage
-        with:
-          image_name: farskapsportal-api
-      - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
       - uses: actions/checkout@v3
         if: env.NOT_FOUND == 'true'
       - uses: actions/setup-java@v3
@@ -43,7 +38,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn --no-transfer-progress package --settings .m2/maven-settings.xml clean install
+      - run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml clean install --file pom.xml
         if: env.NOT_FOUND == 'true'
       - name: Build and publish Docker image
         if: env.NOT_FOUND == 'true'
