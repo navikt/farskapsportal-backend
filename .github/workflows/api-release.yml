@@ -27,7 +27,6 @@ jobs:
           git log | grep -c ${{ github.sha }}
   build:
     name: Build release with maven and docker
-    id: build
     runs-on: ubuntu-latest
     needs: verify
     permissions:
