@@ -92,3 +92,4 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/app/naiserator-dev.yml
           VARS: deploy/.nais/app/feature.yml
+          IMAGE: ${{ needs.build.output.image }}
