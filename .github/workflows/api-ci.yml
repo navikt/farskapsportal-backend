@@ -38,11 +38,12 @@ jobs:
             ${{ runner.os }}-maven-
       - run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml
       - name: Build and publish Docker image
-        run: |
-          docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar --build-arg JAVA_OPTS=-Djavax.net.debug=handshake .
-          docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-          docker push ${IMAGE}
-
+      - uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: farskapsportal
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
   style:
     name: 📝 Sjekk kodestil
