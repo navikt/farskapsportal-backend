@@ -47,8 +47,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml
-      - name: Build and publish Docker image
-        uses: nais/docker-build-push@v0
+      - uses: nais/docker-build-push@v0
         id: docker-push
         with:
           team: farskapsportal
