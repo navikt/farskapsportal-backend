@@ -112,9 +112,9 @@ public class ArkivereFarskapserklaeringer {
         }
 
         var blobIdXadesMor =
-                farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
+            farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
         var blobIdXadesFar =
-                farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
+            farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
         if (blobIdXadesMor == null || blobIdXadesFar == null) {
           henteOgLagreXadesXml(farskapserklaering, status.getSignaturer());
         }

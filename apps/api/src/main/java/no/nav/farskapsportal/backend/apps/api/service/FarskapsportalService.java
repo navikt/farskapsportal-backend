@@ -459,7 +459,7 @@ public class FarskapsportalService {
         farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
       }
 
-      return  farskapserklaering.getDokument().getBlobIdGcp();
+      return farskapserklaering.getDokument().getBlobIdGcp();
 
     } catch (URISyntaxException e) {
       log.error(
