@@ -32,7 +32,9 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
-
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
+      tag: ${{ steps.docker-push.outputs.tag }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -53,10 +55,6 @@ jobs:
           team: farskapsportal
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-    outputs:
-      image: ${{ steps.docker-push.outputs.image }}
-      tag: ${{ steps.docker-push.outputs.tag }}
-
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to prod
@@ -72,5 +70,5 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: deploy/.nais/app/naiserator-prod.yml
           VARS: deploy/.nais/app/prod.yml
-          IMAGE: ${{ needs.build.output.image }}
+          IMAGE: ${{ needs.build.outputs.image }}
 
