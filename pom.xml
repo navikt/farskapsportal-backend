@@ -275,6 +275,10 @@
             <id>github</id>
             <url>https://maven.pkg.github.com/navikt/bidrag-commons</url>
         </repository>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
     </repositories>
 
     <!-- spring -->
