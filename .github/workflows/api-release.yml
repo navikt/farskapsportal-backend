@@ -13,7 +13,6 @@ on:
 env:
   GITHUB_USERNAME: x-access-token
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  IMAGE: ghcr.io/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
 
 jobs:
   verify:
@@ -55,6 +54,10 @@ jobs:
           team: farskapsportal
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
+      tag: ${{ steps.docker-push.outputs.tag }}
+
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to prod
@@ -70,4 +73,5 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: deploy/.nais/app/naiserator-prod.yml
           VARS: deploy/.nais/app/prod.yml
+          IMAGE: ${{ needs.build.output.image }}
 

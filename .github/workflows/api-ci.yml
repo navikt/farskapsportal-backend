@@ -14,7 +14,6 @@ on:
 env:
   GITHUB_USERNAME: x-access-token
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  IMAGE: ghcr.io/${{ github.repository }}/farskapsportal-api:${{ github.sha }}
 
 jobs:
   build:
@@ -44,6 +43,9 @@ jobs:
           team: farskapsportal
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
+      tag: ${{ steps.docker-push.outputs.tag }}
 
   style:
     name: 📝 Sjekk kodestil
@@ -81,6 +83,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/app/naiserator-dev.yml
           VARS: deploy/.nais/app/main.yml
+          IMAGE: ${{ needs.build.output.image }}
       - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
