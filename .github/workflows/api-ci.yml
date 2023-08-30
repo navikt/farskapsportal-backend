@@ -67,8 +67,6 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
       - run: |
           echo "steps.docker-push.outputs.image: ${{ steps.docker-push.outputs.image }}"
-          echo "image: ${{ build.outputs.image }}"
-
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
