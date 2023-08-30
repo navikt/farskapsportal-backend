@@ -266,17 +266,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>nexus-internal-release</id>
-            <url>https://repo.adeo.no/repository/maven-release</url>
-        </repository>
-        <repository>
-            <id>nexus-internal-mirror</id>
-            <url>https://repo.adeo.no/repository/maven-public</url>
-        </repository>
-    </repositories>
-
     <!-- spring -->
     <dependencies>
         <dependency>
@@ -285,4 +274,25 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <os>
+                    <name>Mac OS X</name>
+                </os>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>nexus-internal-release</id>
+                    <url>https://repo.adeo.no/repository/maven-release</url>
+                </repository>
+                <repository>
+                    <id>nexus-internal-mirror</id>
+                    <url>https://repo.adeo.no/repository/maven-public</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 </project>
