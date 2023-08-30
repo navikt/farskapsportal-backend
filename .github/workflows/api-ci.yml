@@ -36,7 +36,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml
+      - run: mvn -B -e --no-transfer-progress package --file pom.xml
       - name: Build and publish Docker image
         run: |
           docker build --tag ${IMAGE} --build-arg JAR_PATH=apps/api/target/app.jar --build-arg JAVA_OPTS=-Djavax.net.debug=handshake .
@@ -62,7 +62,7 @@ jobs:
 
       - name: Valider Java-formatering
         run: |
-          mvn fmt:check --settings .m2/maven-settings.xml
+          mvn fmt:check
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
