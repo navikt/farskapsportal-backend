@@ -16,4 +16,36 @@
     </server>
   </servers>
 
+  <profiles>
+    <profile>
+      <id>nais</id>
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+          <id>github</id>
+          <url>https://maven.pkg.github.com/navikt/bidrag-commons</url>
+        </repository>
+        <repository>
+          <id>github-package-registry-navikt</id>
+          <url>https://maven.pkg.github.com/navikt/maven-release</url>
+        </repository>
+        <repository>
+          <id>jitpack.io</id>
+          <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+          <id>confluent</id>
+          <url>https://packages.confluent.io/maven/</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>nais</activeProfile>
+  </activeProfiles>
+
 </settings>
