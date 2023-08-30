@@ -62,6 +62,9 @@ jobs:
           team: farskapsportal
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - run: |
+          echo "output: steps.docker-push.outputs.image ${{ steps.docker-push.outputs.image }}"
+          echo "image: {{ image }}"
     outputs:
       image: ${{ steps.docker-push.outputs.image }}
       tag: ${{ steps.docker-push.outputs.tag }}
@@ -93,3 +96,5 @@ jobs:
           RESOURCE: deploy/.nais/app/naiserator-dev.yml
           VARS: deploy/.nais/app/feature.yml
           IMAGE: ${{ needs.build.output.image }}
+      - run: |
+          echo "needs.build.output.image: ${{ needs.build.output.image }}"
