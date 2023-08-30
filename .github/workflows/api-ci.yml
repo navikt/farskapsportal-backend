@@ -29,22 +29,19 @@ jobs:
       - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
       - uses: actions/checkout@v3
         if: env.NOT_FOUND == 'true'
-      - uses: actions/setup-java@v1
-        if: env.NOT_FOUND == 'true'
+      - uses: actions/setup-java@v3
         with:
-          java-version: '17'
-      - uses: actions/cache@v2.1.5
+          java-version: 17
+          distribution: 'temurin'
+          cache: 'maven'
+      - uses: actions/cache@v3
         if: env.NOT_FOUND == 'true'
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-maven/setup@v7
-        if: env.NOT_FOUND == 'true'
-        with:
-          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
-      - run: mvn -B --no-transfer-progress package --settings .m2/maven-settings.xml clean install
+      - run: mvn --no-transfer-progress package --settings .m2/maven-settings.xml clean install
         if: env.NOT_FOUND == 'true'
       - name: Build and publish Docker image
         if: env.NOT_FOUND == 'true'
