@@ -5,11 +5,6 @@
 
   <servers>
     <server>
-      <id>github</id>
-      <username>${GITHUB_USERNAME}</username>
-      <password>${GITHUB_TOKEN}</password>
-    </server>
-    <server>
       <id>github-package-registry-navikt</id>
       <username>${GITHUB_USERNAME}</username>
       <password>${GITHUB_TOKEN}</password>
