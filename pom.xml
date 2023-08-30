@@ -271,10 +271,6 @@
             <id>github-package-registry-navikt</id>
             <url>https://maven.pkg.github.com/navikt/maven-release</url>
         </repository>
-        <repository>
-            <id>maven2</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
         <!-- Det generelle interne Nexus-repoet til NAV (brukes kun internt) -->
         <repository>
             <id>nexus-internal-release</id>
