@@ -42,6 +42,9 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
+      tag: ${{ steps.docker-push.outputs.tag }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -63,11 +66,8 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
       - run: |
-          echo "output: steps.docker-push.outputs.image ${{ steps.docker-push.outputs.image }}"
+          echo "steps.docker-push.outputs.image: ${{ steps.docker-push.outputs.image }}"
           echo "image: {{ image }}"
-    outputs:
-      image: ${{ steps.docker-push.outputs.image }}
-      tag: ${{ steps.docker-push.outputs.tag }}
 
   deploy:
     runs-on: ubuntu-latest
