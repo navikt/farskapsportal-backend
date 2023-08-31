@@ -71,4 +71,3 @@ jobs:
           RESOURCE: deploy/.nais/app/naiserator-prod.yml
           VARS: deploy/.nais/app/prod.yml
           IMAGE: ${{ needs.build.outputs.image }}
-

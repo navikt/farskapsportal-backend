@@ -236,7 +236,7 @@ public class SkattConsumer {
       Validate.isTrue(farskapserklaering.getFar().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getMor().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getDokument().getNavn() != null);
-      Validate.isTrue(farskapserklaering.getDokument().getDokumentinnhold().getInnhold() != null);
+      Validate.isTrue(farskapserklaering.getDokument().getBlobIdGcp() != null);
       Validate.isTrue(
           farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()
               != null);
