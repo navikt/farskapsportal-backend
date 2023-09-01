@@ -236,7 +236,6 @@ public class SkattConsumer {
   private void validereFarskapserklaeringKlarTilOversendelse(
       Farskapserklaering farskapserklaering) {
     try {
-      Validate.isTrue(farskapserklaering.getMeldingsidSkatt() != null);
       Validate.isTrue(farskapserklaering.getFar().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getMor().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getDokument().getNavn() != null);
