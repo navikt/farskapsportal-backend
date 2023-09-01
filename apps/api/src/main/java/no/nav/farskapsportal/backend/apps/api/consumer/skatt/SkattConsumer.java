@@ -242,7 +242,7 @@ public class SkattConsumer {
 
       Validate.isTrue(
           farskapserklaering.getDokument().getBlobIdGcp() != null
-                  // TODO: Fjerne sjekk når bucket-migrering er fullført
+              // TODO: Fjerne sjekk når bucket-migrering er fullført
               || (farskapserklaering.getDokument().getDokumentinnhold() != null
                   && farskapserklaering.getDokument().getDokumentinnhold().getInnhold() != null));
       Validate.isTrue(

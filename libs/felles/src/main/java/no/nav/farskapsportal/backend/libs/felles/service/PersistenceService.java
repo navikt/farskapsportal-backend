@@ -300,6 +300,7 @@ public class PersistenceService {
             .tidspunktForOversendelse(tidspunktForOverfoering)
             .meldingsidSkatt(meldingsidSkatt)
             .build();
+
     meldingsloggDao.save(nyttInnslag);
   }
 

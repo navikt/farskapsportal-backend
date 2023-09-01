@@ -93,7 +93,6 @@ public class ArkivereFarskapserklaeringerTest {
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
     farskapserklaering.setFarBorSammenMedMor(true);
-    farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
     return farskapserklaering;
   }
 
@@ -244,6 +243,10 @@ public class ArkivereFarskapserklaeringerTest {
 
       // given
       Farskapserklaering farskapserklaering1 = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+      farskapserklaering1.getDokument().setStatusQueryToken("token1");
+      farskapserklaering1.getDokument().setJobbref("jobRef1");
+      farskapserklaering1.getDokument().setStatusUrl("http://url1");
+      farskapserklaering1.getDokument().setPadesUrl("http://pades-url1");
       var farskapserklaeringDokumentinnhold =
           "Jeg erklærer herved sannsynligvis farskap til dette barnet"
               .getBytes(StandardCharsets.UTF_8);
@@ -256,11 +259,17 @@ public class ArkivereFarskapserklaeringerTest {
 
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering1))
           .thenReturn(LocalDateTime.now().minusMinutes(1));
-      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+      when(difiESignaturConsumer.henteStatus(
+              farskapserklaering1.getDokument().getStatusQueryToken(),
+              farskapserklaering1.getDokument().getJobbref(),
+              tilUri(farskapserklaering1.getDokument().getStatusUrl())))
           .thenReturn(getStatusDto(lagretSignertFarskapserklaering1));
 
       Farskapserklaering farskapserklaering2 = henteFarskapserklaeringNyfoedtSignertAvMor("54321");
-      farskapserklaering2.getDokument().setPadesUrl("http://url2");
+      farskapserklaering2.getDokument().setStatusQueryToken("token2");
+      farskapserklaering2.getDokument().setJobbref("jobRef2");
+      farskapserklaering2.getDokument().setStatusUrl("http://url2");
+      farskapserklaering2.getDokument().setPadesUrl("http://pades-url2");
       var lagretSignertFarskapserklaering2 =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
       assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
@@ -282,7 +291,10 @@ public class ArkivereFarskapserklaeringerTest {
       when(difiESignaturConsumer.henteSignertDokument(
               new URI(farskapserklaering2.getDokument().getPadesUrl())))
           .thenReturn((farskapserklaeringDokumentinnhold.toString() + "2").getBytes());
-      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+      when(difiESignaturConsumer.henteStatus(
+              farskapserklaering2.getDokument().getStatusQueryToken(),
+              farskapserklaering2.getDokument().getJobbref(),
+              tilUri(farskapserklaering2.getDokument().getStatusUrl())))
           .thenReturn(getStatusDto(lagretSignertFarskapserklaering2));
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering2))
@@ -577,17 +589,15 @@ public class ArkivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaeringAlleredeOverfoert = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+      var datoSendtTilSkatt = LocalDateTime.now().minusDays(10);
       farskapserklaeringAlleredeOverfoert
           .getDokument()
           .getSigneringsinformasjonFar()
           .setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(LocalDateTime.now());
+      farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(datoSendtTilSkatt);
 
       var lagretFarskapserklaeringAlleredeOverfoert =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringAlleredeOverfoert);
-
-      verify(skattConsumerMock, never())
-          .registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);
 
       // when
       arkivereFarskapserklaeringer.vurdereArkivering();
@@ -596,10 +606,14 @@ public class ArkivereFarskapserklaeringerTest {
       var arkivertFarskapserklaering =
           farskapserklaeringDao.findById(lagretFarskapserklaeringAlleredeOverfoert.getId());
 
+      verify(skattConsumerMock, never())
+          .registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);
+
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
-          () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isNotNull(),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isNotNull());
+          () ->
+              assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt())
+                  .isEqualTo(datoSendtTilSkatt));
     }
   }
 }

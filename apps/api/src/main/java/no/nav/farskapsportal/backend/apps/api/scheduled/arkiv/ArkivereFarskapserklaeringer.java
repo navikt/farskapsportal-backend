@@ -103,11 +103,7 @@ public class ArkivereFarskapserklaeringer {
 
           if (farskapserklaering.getMeldingsidSkatt() == null) {
             farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering, pades));
-            try {
-              persistenceService.oppdatereFarskapserklaering(farskapserklaering);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
+            persistenceService.oppdatereFarskapserklaering(farskapserklaering);
           }
         }
 
