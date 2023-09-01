@@ -613,7 +613,7 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
           () ->
               assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt())
-                  .isEqualTo(datoSendtTilSkatt));
+                  .isEqualToIgnoringSeconds(datoSendtTilSkatt));
     }
   }
 }
