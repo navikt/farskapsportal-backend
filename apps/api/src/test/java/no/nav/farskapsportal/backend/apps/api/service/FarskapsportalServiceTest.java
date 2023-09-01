@@ -4100,6 +4100,7 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
+      var statuslenke = lageUri(wiremockPort, "/status");
       var dokumenttekst =
           "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
       var farskapserklaering =
@@ -4115,6 +4116,7 @@ public class FarskapsportalServiceTest {
       farskapserklaering
           .getDokument()
           .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
+      farskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       var blobIdGcp =
@@ -4128,7 +4130,21 @@ public class FarskapsportalServiceTest {
               .build();
       when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumenttekst);
-
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(
+              DokumentStatusDto.builder()
+                  .bekreftelseslenke(lageUri(wiremockPort, "/confirmation"))
+                  .statuslenke(statuslenke)
+                  .statusSignering(StatusSignering.PAAGAAR)
+                  .signaturer(
+                      List.of(
+                          SignaturDto.builder()
+                              .signatureier(MOR.getFoedselsnummer())
+                              .harSignert(true)
+                              .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
+                              .xadeslenke(lageUri(wiremockPort, "/xades"))
+                              .build()))
+                  .build());
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 
@@ -4226,6 +4242,7 @@ public class FarskapsportalServiceTest {
       forelderDao.deleteAll();
 
       // given
+      var statuslenke = lageUri(wiremockPort, "/status");
       var dokumenttekst =
           "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
       var farskapserklaering =
@@ -4237,6 +4254,7 @@ public class FarskapsportalServiceTest {
       farskapserklaering
           .getDokument()
           .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
+      farskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       var blobIdGcp =
@@ -4250,6 +4268,21 @@ public class FarskapsportalServiceTest {
               .build();
       when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumenttekst);
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(
+              DokumentStatusDto.builder()
+                  .bekreftelseslenke(lageUri(wiremockPort, "/confirmation"))
+                  .statuslenke(statuslenke)
+                  .statusSignering(StatusSignering.PAAGAAR)
+                  .signaturer(
+                      List.of(
+                          SignaturDto.builder()
+                              .signatureier(MOR.getFoedselsnummer())
+                              .harSignert(true)
+                              .tidspunktForStatus(ZonedDateTime.now().minusSeconds(3))
+                              .xadeslenke(lageUri(wiremockPort, "/xades"))
+                              .build()))
+                  .build());
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 

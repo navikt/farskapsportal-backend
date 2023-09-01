@@ -243,6 +243,11 @@ public class FarskapsportalController {
     var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     var respons =
         farskapsportalService.henteDokumentinnhold(fnrPaaloggetPerson, idFarskapserklaering);
-    return new ResponseEntity<>(respons, HttpStatus.OK);
+
+    if (respons != null) {
+      return new ResponseEntity<>(respons, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
   }
 }

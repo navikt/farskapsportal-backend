@@ -1,15 +1,13 @@
 package no.nav.farskapsportal.backend.apps.api.service;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+import static no.nav.farskapsportal.backend.libs.felles.util.Utils.getMeldingsidSkatt;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -402,6 +400,7 @@ public class FarskapsportalService {
         .build();
   }
 
+  @Transactional
   public byte[] henteDokumentinnhold(String fnrForelder, int idFarskapserklaering) {
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
     validereAtPersonErForelderIFarskapserklaering(fnrForelder, farskapserklaering);
@@ -409,21 +408,133 @@ public class FarskapsportalService {
     if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
-        // TODO: Fjerne når bucketsmigrering er fullført
-        blobIdGcp = oppdaterePades(farskapserklaering);
+        try {
+          return henteOgLagrePades(farskapserklaering);
+        } catch (InternFeilException e) {
+          log.error(
+              "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
+              farskapserklaering.getId());
+        }
+        return null;
       }
       return bucketConsumer.getContentFromBucket(blobIdGcp);
     } else if (morHarSignert(farskapserklaering)) {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
-        // TODO: Fjerne når bucketsmigrering er fullført
-        blobIdGcp = oppdaterePades(farskapserklaering);
+        try {
+          return henteOgLagrePades(farskapserklaering);
+        } catch (InternFeilException e) {
+          log.error(
+              "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
+              farskapserklaering.getId());
+        }
+        return null;
       }
-
-      var content = bucketConsumer.getContentFromBucket(blobIdGcp);
       return bucketConsumer.getContentFromBucket(blobIdGcp);
     } else {
       throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
+    }
+  }
+
+  @Transactional
+  public byte[] henteOgLagrePades(Farskapserklaering farskapserklaering) {
+
+    // Ikke oppdatere dersom farskapserklæringen er sendt til Skatt
+    if (farskapserklaering.getSendtTilSkatt() != null) {
+      return null;
+    }
+
+    var signeringsstatus = henteDokumentstatus(farskapserklaering);
+
+    log.info(
+        "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
+        farskapserklaering.getId());
+
+    var pades = difiESignaturConsumer.henteSignertDokument(signeringsstatus.getPadeslenke());
+
+    if (pades == null) {
+      log.error(
+          "Henting av signering dokument feilet for farskapserklæring med id {}.",
+          farskapserklaering.getId());
+      throw new InternFeilException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
+    }
+
+    var blobId =
+        bucketConsumer.saveContentToBucket(
+            BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
+    farskapserklaering
+        .getDokument()
+        .setBlobIdGcp(
+            BlobIdGcp.builder()
+                .bucket(blobId.getBucket())
+                .generation(blobId.getGeneration())
+                .name(blobId.getName())
+                .build());
+
+    // TODO: Fjerne når bucket-migrering er fullført
+    farskapserklaering
+        .getDokument()
+        .setDokumentinnhold(Dokumentinnhold.builder().innhold(null).build());
+
+    if (farskapserklaering.getMeldingsidSkatt() == null) {
+      farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering, pades));
+    }
+
+    return pades;
+  }
+
+  public void henteOgLagreXadesXml(Farskapserklaering farskapserklaering) {
+
+    var signeringsstatus = henteDokumentstatus(farskapserklaering);
+
+    for (SignaturDto signatur : signeringsstatus.getSignaturer()) {
+      var xades = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
+      if (signatur.getSignatureier().equals(farskapserklaering.getMor().getFoedselsnummer())
+          && xades != null) {
+        var blobId =
+            bucketConsumer.saveContentToBucket(
+                BucketConsumer.ContentType.XADES, "xades-mor-" + farskapserklaering.getId(), xades);
+        farskapserklaering
+            .getDokument()
+            .getSigneringsinformasjonMor()
+            .setBlobIdGcp(
+                BlobIdGcp.builder()
+                    .bucket(blobId.getBucket())
+                    .generation(blobId.getGeneration())
+                    .name(blobId.getName())
+                    .build());
+
+        // TODO: Fjerne når bucket-migrering er fullført
+        farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
+
+      } else if (signatur.getSignatureier().equals(farskapserklaering.getFar().getFoedselsnummer())
+          && xades != null) {
+        var blobId =
+            bucketConsumer.saveContentToBucket(
+                BucketConsumer.ContentType.XADES, "xades-far-" + farskapserklaering.getId(), xades);
+        farskapserklaering
+            .getDokument()
+            .getSigneringsinformasjonFar()
+            .setBlobIdGcp(
+                BlobIdGcp.builder()
+                    .bucket(blobId.getBucket())
+                    .generation(blobId.getGeneration())
+                    .name(blobId.getName())
+                    .build());
+
+        // TODO: Fjerne når bucket-migrering er fullført
+        farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
+
+      } else {
+        log.error(
+            "Personer i signeringsoppdrag stemmer ikke med foreldrene i farskapserklæring med id {}",
+            farskapserklaering.getId());
+        SIKKER_LOGG.error(
+            "Person i signeringsoppdrag (personident: {}), er forskjellig fra foreldrene i farskapserklæring med id {}",
+            signatur.getSignatureier(),
+            farskapserklaering.getId());
+        throw new InternFeilException(Feilkode.FARSKAPSERKLAERING_HAR_INKONSISTENTE_DATA);
+      }
     }
   }
 
@@ -975,6 +1086,11 @@ public class FarskapsportalService {
     }
 
     throw new ValideringException(Feilkode.TERMINDATO_UGYLDIG);
+  }
+
+  private DokumentStatusDto henteDokumentstatus(Farskapserklaering farskapserklaering) {
+    return henteDokumentstatus(
+        farskapserklaering.getDokument().getStatusQueryToken(), farskapserklaering);
   }
 
   private DokumentStatusDto henteDokumentstatus(

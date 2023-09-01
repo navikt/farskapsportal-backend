@@ -21,6 +21,7 @@ import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentSt
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
+import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
@@ -54,6 +55,7 @@ public class ArkivereFarskapserklaeringerTest {
   private @MockBean BucketConsumer bucketConsumer;
   private @MockBean SkattConsumer skattConsumerMock;
   private @MockBean DifiESignaturConsumer difiESignaturConsumer;
+  private @Autowired FarskapsportalService farskapsportalService;
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired ForelderDao forelderDao;
@@ -75,7 +77,7 @@ public class ArkivereFarskapserklaeringerTest {
         ArkivereFarskapserklaeringer.builder()
             .bucketConsumer(bucketConsumer)
             .skattConsumer(skattConsumerMock)
-            .difiESignaturConsumer(difiESignaturConsumer)
+            .farskapsportalService(farskapsportalService)
             .maksAntallFeilPaaRad(
                 farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad())
             .persistenceService(persistenceService)
