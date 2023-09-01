@@ -33,7 +33,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.cloud.storage.BlobId;
 import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -65,13 +64,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle.Sivi
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
@@ -875,8 +868,16 @@ public class FarskapsportalServiceTest {
 
       var pdf = "Jeg erklærer med dette farskap til barnet..".getBytes();
 
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any()))
-          .thenReturn(BlobId.of("PADES", "fp"));
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer()))
@@ -988,8 +989,16 @@ public class FarskapsportalServiceTest {
 
       var pdf = "Jeg erklærer med dette farskap til barnet..".getBytes();
 
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any()))
-          .thenReturn(BlobId.of("PADES", "fp"));
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
@@ -1225,8 +1234,17 @@ public class FarskapsportalServiceTest {
                       .getSigneringsinformasjonFar()
                       .getSigneringstidspunkt()));
 
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any()))
-          .thenReturn(BlobId.of("PADES", "fp"));
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer()))
@@ -4099,9 +4117,17 @@ public class FarskapsportalServiceTest {
           .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
-      var blobId = BlobId.of("PADES", "fp");
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobId);
-      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumenttekst);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumenttekst);
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
@@ -4213,9 +4239,17 @@ public class FarskapsportalServiceTest {
           .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
-      var blobId = BlobId.of("PADES", "fp");
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobId);
-      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumenttekst);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumenttekst);
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 

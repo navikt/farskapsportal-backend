@@ -17,7 +17,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-import com.google.cloud.storage.BlobId;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -67,13 +66,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.UtenlandskAdresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
@@ -1629,14 +1622,17 @@ public class FarskapsportalControllerTest {
           .when(difiESignaturConsumer)
           .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
-      var blobId =
-          BlobId.of(
-              farskapsportalApiEgenskaper
-                  .getFarskapsportalFellesEgenskaper()
-                  .getBucket()
-                  .getPadesName(),
-              "fp-1");
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
 
       // when
@@ -1971,15 +1967,17 @@ public class FarskapsportalControllerTest {
           .when(difiESignaturConsumer)
           .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
-      var blobId =
-          BlobId.of(
-              farskapsportalApiEgenskaper
-                  .getFarskapsportalFellesEgenskaper()
-                  .getBucket()
-                  .getPadesName(),
-              "fp-1");
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
-      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumentinnhold);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(blobIdGcp)).thenReturn(dokumentinnhold);
 
       // when
       var respons =
@@ -3029,6 +3027,7 @@ public class FarskapsportalControllerTest {
 
       // given
       loggePaaPerson(FAR.getFoedselsnummer());
+      var dokumentnavn = "fp-1";
       var dokumentinnhold =
           "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
 
@@ -3037,19 +3036,23 @@ public class FarskapsportalControllerTest {
               henteForelder(Forelderrolle.MOR),
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
+
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name(dokumentnavn)
+              .build();
+      farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
       farskapserklaeringDao.save(farskapserklaering);
 
-      var blobId =
-          BlobId.of(
-              farskapsportalApiEgenskaper
-                  .getFarskapsportalFellesEgenskaper()
-                  .getBucket()
-                  .getPadesName(),
-              "fp-1");
       when(bucketConsumer.saveContentToBucket(
-              BucketConsumer.ContentType.PADES, blobId.getName(), dokumentinnhold))
-          .thenReturn(blobId);
-      when(bucketConsumer.getContentFromBucket(blobId)).thenReturn(dokumentinnhold);
+              BucketConsumer.ContentType.PADES, dokumentnavn, dokumentinnhold))
+          .thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
 
       // when

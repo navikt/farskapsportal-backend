@@ -2,6 +2,7 @@ package no.nav.farskapsportal.backend.libs.felles.consumer.bucket;
 
 import com.google.cloud.storage.*;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.BucketConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -15,11 +16,12 @@ public class BucketConsumer {
   private @Autowired FarskapsportalFellesEgenskaper fellesEgenskaper;
   private @Autowired GcpStorageWrapper gcpStorageWrapper;
 
-  public byte[] getContentFromBucket(BlobId blobId) {
-    return gcpStorageWrapper.getContent(blobId);
+  public byte[] getContentFromBucket(BlobIdGcp blobIdGcp) {
+    return gcpStorageWrapper.getContent(BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
   }
 
-  public BlobId saveContentToBucket(ContentType contentType, String documentName, byte[] content) {
+  public BlobIdGcp saveContentToBucket(
+      ContentType contentType, String documentName, byte[] content) {
     var bucketName =
         ContentType.PADES.equals(contentType)
             ? fellesEgenskaper.getBucket().getPadesName()
@@ -30,11 +32,15 @@ public class BucketConsumer {
       var oppdatertBlobId = gcpStorageWrapper.updateBlob(blobId, content);
       if (oppdatertBlobId != null) {
         log.info("Ekisterende GCP storage blob ble oppdatert for dokument {}", documentName);
-        return oppdatertBlobId;
       } else {
         log.info("Ny GCP storage blob ble opprettet for dokument {}", documentName);
-        return gcpStorageWrapper.saveContentToBucket(bucketName, documentName, content);
+        blobId = gcpStorageWrapper.saveContentToBucket(bucketName, documentName, content);
       }
+      return BlobIdGcp.builder()
+          .bucket(blobId.getBucket())
+          .generation(blobId.getGeneration())
+          .name(blobId.getName())
+          .build();
     } catch (Exception e) {
       log.error(
           "Feil ved oppdatering av {}-dokument med navn {} til bucket", contentType, documentName);

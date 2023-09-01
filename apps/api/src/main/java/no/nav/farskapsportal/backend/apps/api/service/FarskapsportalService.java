@@ -2,7 +2,6 @@ package no.nav.farskapsportal.backend.apps.api.service;
 
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
-import com.google.cloud.storage.BlobId;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -413,16 +412,16 @@ public class FarskapsportalService {
         // TODO: Fjerne når bucketsmigrering er fullført
         blobIdGcp = oppdaterePades(farskapserklaering);
       }
-      return bucketConsumer.getContentFromBucket(
-          BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
+      return bucketConsumer.getContentFromBucket(blobIdGcp);
     } else if (morHarSignert(farskapserklaering)) {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
         // TODO: Fjerne når bucketsmigrering er fullført
         blobIdGcp = oppdaterePades(farskapserklaering);
       }
-      return bucketConsumer.getContentFromBucket(
-          BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
+
+      var content = bucketConsumer.getContentFromBucket(blobIdGcp);
+      return bucketConsumer.getContentFromBucket(blobIdGcp);
     } else {
       throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
     }

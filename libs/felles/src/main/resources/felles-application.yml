@@ -54,3 +54,5 @@ spring:
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
   jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+
+APPNAVN: farskapsportal-api-local

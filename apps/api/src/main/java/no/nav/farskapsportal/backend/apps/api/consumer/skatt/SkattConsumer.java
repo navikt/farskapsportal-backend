@@ -32,6 +32,7 @@ import no.nav.farskapsportal.backend.libs.dto.skatt.api.Tekst;
 import no.nav.farskapsportal.backend.libs.dto.skatt.api.Vedlegg;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import org.apache.commons.lang3.Validate;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -51,6 +52,7 @@ public class SkattConsumer {
   private static String AVSENDER_KILDESYSTEM = "FARSKAPSPORTAL";
   private final CloseableHttpClient httpClient;
   private final ConsumerEndpoint consumerEndpoint;
+  private BucketConsumer bucketConsumer;
 
   @Retryable(value = IOException.class, maxAttempts = 10, backoff = @Backoff(delay = 1000000))
   public LocalDateTime registrereFarskap(Farskapserklaering farskapserklaering) {
@@ -62,15 +64,23 @@ public class SkattConsumer {
     var meldingOmRegistreringAvFarskap = tilMeldingOmRegistreringAvFarskap(farskapserklaering);
     var xml = tilStreng(meldingOmRegistreringAvFarskap);
 
-    if (farskapserklaering.getDokument().getDokumentinnhold().getInnhold().length < 1) {
+    var innholdPades =
+        bucketConsumer.getContentFromBucket(farskapserklaering.getDokument().getBlobIdGcp());
+    if (innholdPades.length < 1) {
       throw new SkattConsumerException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
     }
 
-    if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml().length < 1) {
+    var innholdXadesMor =
+        bucketConsumer.getContentFromBucket(
+            farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp());
+    if (innholdXadesMor.length < 1) {
       throw new SkattConsumerException((Feilkode.XADES_MOR_UTEN_INNHOLD));
     }
 
-    if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml().length < 1) {
+    var innholdXadesFar =
+        bucketConsumer.getContentFromBucket(
+            farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp());
+    if (innholdXadesFar.length < 1) {
       throw new SkattConsumerException((Feilkode.XADES_FAR_UTEN_INNHOLD));
     }
 
@@ -84,19 +94,13 @@ public class SkattConsumer {
       // Ferdig signert dokument. Inneholder både mor og fars XADES-signeringsfiler
       final var pades =
           new ByteArrayBody(
-              farskapserklaering.getDokument().getDokumentinnhold().getInnhold(),
+              innholdPades,
               ContentType.APPLICATION_PDF,
               farskapserklaering.getDokument().getNavn());
       final var xadesMor =
-          new ByteArrayBody(
-              farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml(),
-              ContentType.APPLICATION_XML,
-              "xadesMor.xml");
+          new ByteArrayBody(innholdXadesMor, ContentType.APPLICATION_XML, "xadesMor.xml");
       final var xadesFar =
-          new ByteArrayBody(
-              farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml(),
-              ContentType.APPLICATION_XML,
-              "xadesFar.xml");
+          new ByteArrayBody(innholdXadesFar, ContentType.APPLICATION_XML, "xadesFar.xml");
       final var reqEntity =
           MultipartEntityBuilder.create()
               .addPart("melding", melding)

@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.google.cloud.storage.BlobId;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -141,15 +140,16 @@ public class ArkivereFarskapserklaeringerTest {
       var lagretSignertFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
-
-      var blobId =
-          BlobId.of(
-              farskapsportalAsynkronEgenskaper
-                  .getFarskapsportalFellesEgenskaper()
-                  .getBucket()
-                  .getPadesName(),
-              "fp-" + lagretSignertFarskapserklaering.getId());
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + lagretSignertFarskapserklaering.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
 
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering))
           .thenReturn(LocalDateTime.now());
@@ -265,14 +265,16 @@ public class ArkivereFarskapserklaeringerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
       assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
 
-      var blobId =
-          BlobId.of(
-              farskapsportalAsynkronEgenskaper
-                  .getFarskapsportalFellesEgenskaper()
-                  .getBucket()
-                  .getPadesName(),
-              "fp-" + farskapserklaering1.getId());
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + farskapserklaering1.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
 
       when(difiESignaturConsumer.henteSignertDokument(
               new URI(farskapserklaering1.getDokument().getPadesUrl())))
@@ -364,14 +366,16 @@ public class ArkivereFarskapserklaeringerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
 
-      var blobId =
-          BlobId.of(
-              farskapsportalAsynkronEgenskaper
-                  .getFarskapsportalFellesEgenskaper()
-                  .getBucket()
-                  .getPadesName(),
-              "fp-" + lagretSignertFarskapserklaering.getId());
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + lagretSignertFarskapserklaering.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
 
       doThrow(SkattConsumerException.class)
           .when(skattConsumerMock)
@@ -460,14 +464,16 @@ public class ArkivereFarskapserklaeringerTest {
             persistenceService.lagreNyFarskapserklaering(farskapserklaering);
         assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
 
-        var blobId =
-            BlobId.of(
-                farskapsportalAsynkronEgenskaper
-                    .getFarskapsportalFellesEgenskaper()
-                    .getBucket()
-                    .getPadesName(),
-                "test");
-        when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+        var blobIdGcp =
+            BlobIdGcp.builder()
+                .bucket(
+                    farskapsportalAsynkronEgenskaper
+                        .getFarskapsportalFellesEgenskaper()
+                        .getBucket()
+                        .getPadesName())
+                .name("fp-" + lagretSignertFarskapserklaering.getId())
+                .build();
+        when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
 
         when(difiESignaturConsumer.henteStatus(
                 farskapserklaering.getDokument().getStatusQueryToken(),
@@ -523,14 +529,16 @@ public class ArkivereFarskapserklaeringerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSignertAvBeggeParter);
       assert (lagretFarskapserklaeringSignertAvBeggeParter.getSendtTilSkatt() == null);
 
-      var blobId =
-          BlobId.of(
-              farskapsportalAsynkronEgenskaper
-                  .getFarskapsportalFellesEgenskaper()
-                  .getBucket()
-                  .getPadesName(),
-              "fp-" + farskapserklaeringSignertAvBeggeParter.getId());
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobId);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + farskapserklaeringSignertAvBeggeParter.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaeringDokumentinnhold);
