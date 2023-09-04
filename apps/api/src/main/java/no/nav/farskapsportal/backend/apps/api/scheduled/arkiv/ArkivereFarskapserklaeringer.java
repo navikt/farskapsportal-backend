@@ -60,9 +60,10 @@ public class ArkivereFarskapserklaeringer {
       var farskapserklaering =
           persistenceService.henteFarskapserklaeringForId(farskapserklaeringsid);
 
-      var blobIdPades = farskapserklaering.getDokument().getBlobIdGcp();
+      var blobIdXadesFar =
+          farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
 
-      if (blobIdPades == null) {
+      if (blobIdXadesFar == null) {
         log.info(
             "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
             farskapserklaering.getId());
@@ -71,8 +72,6 @@ public class ArkivereFarskapserklaeringer {
 
         var blobIdXadesMor =
             farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
-        var blobIdXadesFar =
-            farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
         if (blobIdXadesMor == null || blobIdXadesFar == null) {
           farskapsportalService.henteOgLagreXadesXml(farskapserklaering);
         }
