@@ -491,9 +491,22 @@ public class FarskapsportalService {
       var xades = difiESignaturConsumer.henteXadesXml(signatur.getXadeslenke());
       if (signatur.getSignatureier().equals(farskapserklaering.getMor().getFoedselsnummer())
           && xades != null) {
+
+        var eksisterendeBlobIdGcp =
+            bucketConsumer.getExistingBlobIdGcp(
+                farskapsportalApiEgenskaper
+                    .getFarskapsportalFellesEgenskaper()
+                    .getBucket()
+                    .getXadesName(),
+                "xades-mor-" + farskapserklaering.getId());
+
         var blobId =
-            bucketConsumer.saveContentToBucket(
-                BucketConsumer.ContentType.XADES, "xades-mor-" + farskapserklaering.getId(), xades);
+            eksisterendeBlobIdGcp != null
+                ? eksisterendeBlobIdGcp
+                : bucketConsumer.saveContentToBucket(
+                    BucketConsumer.ContentType.XADES,
+                    "xades-mor-" + farskapserklaering.getId(),
+                    xades);
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonMor()
@@ -509,9 +522,21 @@ public class FarskapsportalService {
 
       } else if (signatur.getSignatureier().equals(farskapserklaering.getFar().getFoedselsnummer())
           && xades != null) {
+
+        var eksisterendeBlobIdGcp =
+            bucketConsumer.getExistingBlobIdGcp(
+                farskapsportalApiEgenskaper
+                    .getFarskapsportalFellesEgenskaper()
+                    .getBucket()
+                    .getXadesName(),
+                "xades-far-" + farskapserklaering.getId());
         var blobId =
-            bucketConsumer.saveContentToBucket(
-                BucketConsumer.ContentType.XADES, "xades-far-" + farskapserklaering.getId(), xades);
+            eksisterendeBlobIdGcp != null
+                ? eksisterendeBlobIdGcp
+                : bucketConsumer.saveContentToBucket(
+                    BucketConsumer.ContentType.XADES,
+                    "xades-far-" + farskapserklaering.getId(),
+                    xades);
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonFar()

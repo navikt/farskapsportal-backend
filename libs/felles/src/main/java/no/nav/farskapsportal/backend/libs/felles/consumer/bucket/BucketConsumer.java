@@ -16,6 +16,15 @@ public class BucketConsumer {
   private @Autowired FarskapsportalFellesEgenskaper fellesEgenskaper;
   private @Autowired GcpStorageWrapper gcpStorageWrapper;
 
+  public BlobIdGcp getExistingBlobIdGcp(String bucket, String documentName) {
+    var blobId = gcpStorageWrapper.getBlobId(bucket, documentName);
+    return BlobIdGcp.builder()
+        .bucket(blobId.getBucket())
+        .name(blobId.getName())
+        .generation(blobId.getGeneration())
+        .build();
+  }
+
   public byte[] getContentFromBucket(BlobIdGcp blobIdGcp) {
     return gcpStorageWrapper.getContent(BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
   }

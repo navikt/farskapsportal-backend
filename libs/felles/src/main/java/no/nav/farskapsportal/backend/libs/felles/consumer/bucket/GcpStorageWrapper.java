@@ -11,6 +11,10 @@ public class GcpStorageWrapper {
 
   private final Storage storage = StorageOptions.getDefaultInstance().getService();
 
+  public BlobId getBlobId(String bucket, String documentName) {
+    return storage.get(BlobId.of(bucket, documentName)).getBlobId();
+  }
+
   public byte[] getContent(BlobId blobId) {
     return storage.get(blobId).getContent();
   }
