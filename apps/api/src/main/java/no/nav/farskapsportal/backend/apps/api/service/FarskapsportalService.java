@@ -1167,7 +1167,7 @@ public class FarskapsportalService {
     throw new ValideringException(Feilkode.PERSON_IKKE_PART_I_FARSKAPSERKLAERING);
   }
 
-  private boolean personErFarIFarskapserklaering(
+   private boolean personErFarIFarskapserklaering(
       String foedselsnummer, Farskapserklaering farskapserklaering) {
     return foedselsnummer.equals(farskapserklaering.getFar().getFoedselsnummer());
   }

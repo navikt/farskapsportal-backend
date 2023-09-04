@@ -51,19 +51,9 @@ spec:
   gcp:
     buckets:
       - name: {{ name }}-pades
-        retentionPeriodDays: 365
-        lifecycleCondition:
-          age: 365
-          createdBefore: 2022-01-01
-          numNewerVersions: 2
-          withState: ARCHIVED
+        retentionPeriodDays: 0
       - name: {{ name }}-xades
-        retentionPeriodDays: 365
-        lifecycleCondition:
-          age: 365
-          createdBefore: 2022-01-01
-          numNewerVersions: 1
-          withState: ARCHIVED
+        retentionPeriodDays: 0
     sqlInstances:
       - diskSize: {{ gcp.sql-instances.diskSize }}
         name: {{ gcp.sql-instances.name }}

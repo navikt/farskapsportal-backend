@@ -24,7 +24,6 @@ public class BucketConsumer {
         .generation(blobId.getGeneration())
         .build();
   }
-
   public byte[] getContentFromBucket(BlobIdGcp blobIdGcp) {
     return gcpStorageWrapper.getContent(BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
   }
