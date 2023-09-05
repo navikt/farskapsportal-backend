@@ -403,37 +403,32 @@ public class FarskapsportalService {
   @Transactional
   public byte[] henteDokumentinnhold(String fnrForelder, int idFarskapserklaering) {
     var farskapserklaering = persistenceService.henteFarskapserklaeringForId(idFarskapserklaering);
+
     validereAtPersonErForelderIFarskapserklaering(fnrForelder, farskapserklaering);
 
-    if (!personErFarIFarskapserklaering(fnrForelder, farskapserklaering)) {
+    if (farskapserklaering.getSendtTilSkatt() != null) {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
-        try {
-          return henteOgLagrePades(farskapserklaering);
-        } catch (InternFeilException e) {
-          log.error(
-              "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
-              farskapserklaering.getId());
-        }
-        return null;
-      }
-      return bucketConsumer.getContentFromBucket(blobIdGcp);
-    } else if (morHarSignert(farskapserklaering)) {
-      var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
-      if (blobIdGcp == null) {
-        try {
-          return henteOgLagrePades(farskapserklaering);
-        } catch (InternFeilException e) {
-          log.error(
-              "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
-              farskapserklaering.getId());
-        }
+        log.error(
+            "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
+            farskapserklaering.getId());
         return null;
       }
       return bucketConsumer.getContentFromBucket(blobIdGcp);
     } else {
-      throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
+      validereAtBeggeForeldreHarSignert(farskapserklaering);
+      return hentePadesFraPosten(farskapserklaering);
     }
+  }
+
+  public byte[] hentePadesFraPosten(Farskapserklaering farskapserklaering) {
+    var signeringsstatus = henteDokumentstatus(farskapserklaering);
+
+    log.info(
+        "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
+        farskapserklaering.getId());
+
+    return difiESignaturConsumer.henteSignertDokument(signeringsstatus.getPadeslenke());
   }
 
   @Transactional
@@ -444,13 +439,7 @@ public class FarskapsportalService {
       return null;
     }
 
-    var signeringsstatus = henteDokumentstatus(farskapserklaering);
-
-    log.info(
-        "Henter oppdaterte signeringsdokumenter fra esigneringstjenesten for farskapserklaering med id {}",
-        farskapserklaering.getId());
-
-    var pades = difiESignaturConsumer.henteSignertDokument(signeringsstatus.getPadeslenke());
+    var pades = hentePadesFraPosten(farskapserklaering);
 
     if (pades == null) {
       log.error(
@@ -1113,9 +1102,17 @@ public class FarskapsportalService {
     throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
   }
 
-  private boolean morHarSignert(Farskapserklaering farskapserklaering) {
-    return farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()
-        != null;
+  private void validereAtBeggeForeldreHarSignert(Farskapserklaering farskapserklaering) {
+    if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()
+            != null
+        && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()
+            != null) {
+      return;
+    }
+    log.error(
+        "Farskapserklæring med id {} er ikke signert av begge foreldrene",
+        farskapserklaering.getId());
+    throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR);
   }
 
   private void validereAtPersonErForelderIFarskapserklaering(
