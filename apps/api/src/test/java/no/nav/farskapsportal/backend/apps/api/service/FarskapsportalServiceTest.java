@@ -4093,7 +4093,7 @@ public class FarskapsportalServiceTest {
 
     @Test
     @Transactional
-    void skalHenteDokumentinnholdForFarMedVentendeErklaering() {
+    void skalIkkeHenteDokumentinnholdForErklaeringSomManglerSignaturFraBeggeForeldrene() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -4157,7 +4157,7 @@ public class FarskapsportalServiceTest {
       var oppdatertFarskapserklaering = farskapserklaeringDao.findById(farskapserklaering.getId());
 
       assertAll(
-          () -> assertThat(dokumentinnhold).isNotNull(),
+          () -> assertThat(dokumentinnhold).isNull(),
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
           () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp() != null),
           () ->
@@ -4205,37 +4205,7 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalKasteExceptionForFarHvisMorIkkeHarSignert() {
-
-      // rydde testdata
-      farskapserklaeringDao.deleteAll();
-      forelderDao.deleteAll();
-
-      // given
-      var farskapserklaering =
-          henteFarskapserklaering(
-              henteForelder(Forelderrolle.MOR),
-              henteForelder(Forelderrolle.FAR),
-              henteBarnUtenFnr(5));
-      farskapserklaering.getDokument().getSigneringsinformasjonMor().setSigneringstidspunkt(null);
-      var lagretFarskapserklaering =
-          persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-
-      // when
-      var valideringException =
-          assertThrows(
-              ValideringException.class,
-              () ->
-                  farskapsportalService.henteDokumentinnhold(
-                      FAR.getFoedselsnummer(), lagretFarskapserklaering.getId()));
-
-      // then
-      assertThat(valideringException.getFeilkode())
-          .isEqualTo(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR_MOR);
-    }
-
-    @Test
-    void skalHenteDokumentForMorMedAktivErklaering() {
+    void skalHenteDokumentForErklaeringSinertAvBeggeForeldre() {
 
       // rydde testdata
       farskapserklaeringDao.deleteAll();
@@ -4255,6 +4225,10 @@ public class FarskapsportalServiceTest {
           .getDokument()
           .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
       farskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
+      farskapserklaering
+          .getDokument()
+          .getSigneringsinformasjonFar()
+          .setSigneringstidspunkt(LocalDateTime.now());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       var blobIdGcp =

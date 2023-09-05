@@ -5,6 +5,7 @@ import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -317,6 +318,7 @@ public class FarskapsportalControllerTest {
                 Signeringsinformasjon.builder()
                     .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
                     .build())
+            .statusUrl("https://status.no")
             .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
@@ -3023,7 +3025,59 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    void skalHenteDokumentInnholdForFarMedVentendeErklaering() {
+    void skalHenteDokumentInnholdForErklaeringSomErSignertAvBeggeForeldrene() {
+
+      // given
+      loggePaaPerson(FAR.getFoedselsnummer());
+      var dokumentnavn = "fp-1";
+      var dokumentinnhold =
+          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+
+      var farskapserklaering =
+          henteFarskapserklaering(
+              henteForelder(Forelderrolle.MOR),
+              henteForelder(Forelderrolle.FAR),
+              henteBarnUtenFnr(5));
+
+      farskapserklaering
+          .getDokument()
+          .getSigneringsinformasjonFar()
+          .setSigneringstidspunkt(LocalDateTime.now());
+
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name(dokumentnavn)
+              .build();
+      farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
+      farskapserklaeringDao.save(farskapserklaering);
+
+      when(bucketConsumer.saveContentToBucket(
+              BucketConsumer.ContentType.PADES, dokumentnavn, dokumentinnhold))
+          .thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(farskapserklaering));
+
+      // when
+      var respons =
+          httpHeaderTestRestTemplateApi.exchange(
+              initHenteDokumentinnhold(farskapserklaering.getId()),
+              HttpMethod.GET,
+              initHttpEntity(null),
+              byte[].class);
+
+      // then
+      assertArrayEquals(dokumentinnhold, respons.getBody());
+    }
+
+    @Test
+    void skalIkkeHenteDokumentinnholdDersomErklaeringenManglerSignatur() {
 
       // given
       loggePaaPerson(FAR.getFoedselsnummer());
@@ -3054,6 +3108,8 @@ public class FarskapsportalControllerTest {
           .thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(farskapserklaering));
 
       // when
       var respons =
@@ -3064,7 +3120,7 @@ public class FarskapsportalControllerTest {
               byte[].class);
 
       // then
-      assertArrayEquals(dokumentinnhold, respons.getBody());
+      assertNull(respons.getBody());
     }
 
     @Test
@@ -3120,5 +3176,19 @@ public class FarskapsportalControllerTest {
               assertThat(respons.getBody().getFeilkode())
                   .isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING));
     }
+  }
+
+  private DokumentStatusDto getStatusDto(Farskapserklaering farskapserklaering) {
+    return DokumentStatusDto.builder()
+        .signaturer(
+            listOf(
+                SignaturDto.builder()
+                    .signatureier(farskapserklaering.getMor().getFoedselsnummer())
+                    .build(),
+                SignaturDto.builder()
+                    .signatureier(farskapserklaering.getFar().getFoedselsnummer())
+                    .build()))
+        .padeslenke(tilUri(farskapserklaering.getDokument().getPadesUrl()))
+        .build();
   }
 }

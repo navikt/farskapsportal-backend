@@ -416,8 +416,9 @@ public class FarskapsportalService {
       }
       return bucketConsumer.getContentFromBucket(blobIdGcp);
     } else {
-      validereAtBeggeForeldreHarSignert(farskapserklaering);
-      return hentePadesFraPosten(farskapserklaering);
+      return beggeForeldreHarSignert(farskapserklaering)
+          ? hentePadesFraPosten(farskapserklaering)
+          : null;
     }
   }
 
@@ -1102,17 +1103,17 @@ public class FarskapsportalService {
     throw new ValideringException(Feilkode.PERSON_HAR_ALLEREDE_SIGNERT);
   }
 
-  private void validereAtBeggeForeldreHarSignert(Farskapserklaering farskapserklaering) {
+  private boolean beggeForeldreHarSignert(Farskapserklaering farskapserklaering) {
     if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt()
             != null
         && farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()
             != null) {
-      return;
+      return true;
     }
-    log.error(
+    log.warn(
         "Farskapserklæring med id {} er ikke signert av begge foreldrene",
         farskapserklaering.getId());
-    throw new ValideringException(Feilkode.FARSKAPSERKLAERING_MANGLER_SIGNATUR);
+    return false;
   }
 
   private void validereAtPersonErForelderIFarskapserklaering(
