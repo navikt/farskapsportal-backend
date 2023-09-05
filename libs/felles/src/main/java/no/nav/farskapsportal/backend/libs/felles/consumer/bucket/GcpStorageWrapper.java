@@ -4,6 +4,7 @@ import com.google.cloud.storage.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,8 +12,9 @@ public class GcpStorageWrapper {
 
   private final Storage storage = StorageOptions.getDefaultInstance().getService();
 
-  public BlobId getBlobId(String bucket, String documentName) {
-    return storage.get(BlobId.of(bucket, documentName)).getBlobId();
+  public Optional<BlobId> getBlobId(String bucket, String documentName) {
+    var blob = storage.get(BlobId.of(bucket, documentName));
+    return blob != null ? Optional.of(blob.getBlobId()) : Optional.empty();
   }
 
   public byte[] getContent(BlobId blobId) {

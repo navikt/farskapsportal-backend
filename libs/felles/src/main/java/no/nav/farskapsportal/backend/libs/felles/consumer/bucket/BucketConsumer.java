@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.bucket;
 
 import com.google.cloud.storage.*;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
@@ -8,8 +9,6 @@ import no.nav.farskapsportal.backend.libs.felles.exception.BucketConsumerExcepti
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -20,12 +19,16 @@ public class BucketConsumer {
 
   public Optional<BlobIdGcp> getExistingBlobIdGcp(String bucket, String documentName) {
     var blobId = gcpStorageWrapper.getBlobId(bucket, documentName);
-    return blobId == null ? Optional.empty() : Optional.of(BlobIdGcp.builder()
-        .bucket(blobId.getBucket())
-        .name(blobId.getName())
-        .generation(blobId.getGeneration())
-        .build());
+    return blobId.isEmpty()
+        ? Optional.empty()
+        : Optional.of(
+            BlobIdGcp.builder()
+                .bucket(blobId.get().getBucket())
+                .name(blobId.get().getName())
+                .generation(blobId.get().getGeneration())
+                .build());
   }
+
   public byte[] getContentFromBucket(BlobIdGcp blobIdGcp) {
     return gcpStorageWrapper.getContent(BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
   }
