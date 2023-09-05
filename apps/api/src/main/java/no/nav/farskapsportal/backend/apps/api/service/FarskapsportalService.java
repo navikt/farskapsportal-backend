@@ -501,12 +501,13 @@ public class FarskapsportalService {
                 "xades-mor-" + farskapserklaering.getId());
 
         var blobId =
-            eksisterendeBlobIdGcp != null
-                ? eksisterendeBlobIdGcp
+            eksisterendeBlobIdGcp.isPresent()
+                ? eksisterendeBlobIdGcp.get()
                 : bucketConsumer.saveContentToBucket(
                     BucketConsumer.ContentType.XADES,
                     "xades-mor-" + farskapserklaering.getId(),
                     xades);
+
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonMor()
@@ -531,12 +532,13 @@ public class FarskapsportalService {
                     .getXadesName(),
                 "xades-far-" + farskapserklaering.getId());
         var blobId =
-            eksisterendeBlobIdGcp != null
-                ? eksisterendeBlobIdGcp
+            eksisterendeBlobIdGcp.isPresent()
+                ? eksisterendeBlobIdGcp.get()
                 : bucketConsumer.saveContentToBucket(
                     BucketConsumer.ContentType.XADES,
                     "xades-far-" + farskapserklaering.getId(),
                     xades);
+
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonFar()
@@ -562,49 +564,7 @@ public class FarskapsportalService {
       }
     }
   }
-
-  private BlobIdGcp oppdaterePades(Farskapserklaering farskapserklaering) {
-
-    // Ikke oppdatere dersom farskapserklæringen er sendt til Skatt
-    if (farskapserklaering.getSendtTilSkatt() != null) {
-      return null;
-    }
-
-    try {
-      var pades =
-          difiESignaturConsumer.henteSignertDokument(
-              new URI(farskapserklaering.getDokument().getPadesUrl()));
-
-      var blobId =
-          bucketConsumer.saveContentToBucket(
-              BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
-      farskapserklaering
-          .getDokument()
-          .setBlobIdGcp(
-              BlobIdGcp.builder()
-                  .bucket(blobId.getBucket())
-                  .name(blobId.getName())
-                  .generation(blobId.getGeneration())
-                  .build());
-
-      persistenceService.oppdatereFarskapserklaering(farskapserklaering);
-
-      // TODO: 22.08.2023: Fjerne bruk av dokumentinnhold når migrering til GCP Buckets er fullført
-      if (farskapserklaering.getDokument().getDokumentinnhold() != null) {
-        farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
-      }
-
-      return farskapserklaering.getDokument().getBlobIdGcp();
-
-    } catch (URISyntaxException e) {
-      log.error(
-          "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
-          farskapserklaering.getId());
-    }
-
-    return null;
-  }
-
+  
   private void validereAtForeldreIkkeAlleredeHarSignert(
       String fnrPaaloggetPerson, Farskapserklaering aktuellFarskapserklaering) {
     if (fnrPaaloggetPerson.equals(aktuellFarskapserklaering.getMor().getFoedselsnummer())
