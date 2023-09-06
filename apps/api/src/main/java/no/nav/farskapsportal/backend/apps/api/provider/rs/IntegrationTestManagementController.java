@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
-import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
@@ -93,8 +92,8 @@ public class IntegrationTestManagementController {
   public ResponseEntity<byte[]> henteXadesMor(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
     var innholdXadesMor =
-            bucketConsumer.getContentFromBucket(
-                    fp.get().getDokument().getSigneringsinformasjonMor().getBlobIdGcp());
+        bucketConsumer.getContentFromBucket(
+            fp.get().getDokument().getSigneringsinformasjonMor().getBlobIdGcp());
     return new ResponseEntity<>(innholdXadesMor, HttpStatus.OK);
   }
 
@@ -116,8 +115,8 @@ public class IntegrationTestManagementController {
   public ResponseEntity<byte[]> henteXadesFar(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
     var innholdXadesFar =
-            bucketConsumer.getContentFromBucket(
-                    fp.get().getDokument().getSigneringsinformasjonFar().getBlobIdGcp());
+        bucketConsumer.getContentFromBucket(
+            fp.get().getDokument().getSigneringsinformasjonFar().getBlobIdGcp());
     return new ResponseEntity<>(innholdXadesFar, HttpStatus.OK);
   }
 
