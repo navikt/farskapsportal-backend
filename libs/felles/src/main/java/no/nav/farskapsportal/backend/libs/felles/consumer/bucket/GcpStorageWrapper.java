@@ -25,8 +25,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class GcpStorageWrapper {
 
-  private @Value("${farskapsportal.egenskaper.kryptering-paa}") boolean krypteringPaa;
-  private @Value("${GCP_KMS_KEY_PATH}") String gcpKmsKeyPath;
+  @Value("${farskapsportal.egenskaper.kryptering-paa}")
+  private boolean krypteringPaa;
+
+  @Value("${GCP_KMS_KEY_PATH}")
+  private String gcpKmsKeyPath;
+
   private int keyVersion = -1;
   private final Storage storage = StorageOptions.getDefaultInstance().getService();
   private final Aead tinkClient;
