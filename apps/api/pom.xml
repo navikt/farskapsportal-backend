@@ -23,7 +23,7 @@
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <asm.version>9.1</asm.version>
         <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
-        <google.api.gax.version>2.5.0</google.api.gax.version>
+        <google.api.gax.version>2.23.0</google.api.gax.version>
         <google-cloud-libraries-bom.version>26.22.0</google-cloud-libraries-bom.version>
         <jsoup.version>1.16.1</jsoup.version>
         <openhtml.version>1.0.10</openhtml.version>
