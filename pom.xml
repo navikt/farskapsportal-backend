@@ -37,7 +37,6 @@
         <modelmapper.version>3.1.1</modelmapper.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.guava.version>32.0.1-jre</google.guava.version>
-        <google.api.gax.version>2.29.0</google.api.gax.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <jetty-client.version>11.0.7</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
@@ -169,11 +168,6 @@
                 <artifactId>spring-cloud-contract-wiremock</artifactId>
                 <version>${spring-cloud-contract-wiremock.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.api</groupId>
-                <artifactId>gax</artifactId>
-                <version>${google.api.gax.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
