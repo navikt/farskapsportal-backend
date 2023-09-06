@@ -3,8 +3,7 @@
 /*** revert **
 
  ALTER TABLE public.dokument
-    DROP COLUMN blob_id_gcp_id,
-    DROP CONSTRAINT fk_blob_id_gcp;
+    DROP COLUMN blob_id_gcp_id;
 
  DELETE FROM flyway_schema_history WHERE version = '15.0.1';
  */
