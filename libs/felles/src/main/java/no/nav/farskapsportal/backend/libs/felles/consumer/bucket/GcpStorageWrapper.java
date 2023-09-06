@@ -17,6 +17,7 @@ import java.security.GeneralSecurityException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -25,17 +26,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class GcpStorageWrapper {
 
-  @Value("${farskapsportal.egenskaper.kryptering-paa}")
-  private boolean krypteringPaa;
-
-  @Value("${GCP_KMS_KEY_PATH}")
-  private String gcpKmsKeyPath;
-
+  private final String gcpKmsKeyPath;
+  private final boolean krypteringPaa;
   private int keyVersion = -1;
   private final Storage storage = StorageOptions.getDefaultInstance().getService();
   private final Aead tinkClient;
 
-  public GcpStorageWrapper() throws GeneralSecurityException, IOException {
+  @Autowired
+  public GcpStorageWrapper(
+      @Value("${GCP_KMS_KEY_PATH}") String gcpKmsKeyPath,
+      @Value("${farskapsportal.egenskaper.kryptering-paa}") boolean krypteringPaa)
+      throws GeneralSecurityException, IOException {
+    this.gcpKmsKeyPath = gcpKmsKeyPath;
+    this.krypteringPaa = krypteringPaa;
     AeadConfig.register();
     log.info("Registerer GcpKmsClient med gcpKmsKeyPath {}.", gcpKmsKeyPath);
     GcpKmsClient.register(Optional.of(gcpKmsKeyPath), Optional.empty());
