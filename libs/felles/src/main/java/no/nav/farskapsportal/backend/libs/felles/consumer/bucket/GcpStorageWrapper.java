@@ -33,6 +33,7 @@ public class GcpStorageWrapper {
 
   public GcpStorageWrapper() throws GeneralSecurityException, IOException {
     AeadConfig.register();
+    log.info("Registerer GcpKmsClient med gcpKmsKeyPath {}.", gcpKmsKeyPath);
     GcpKmsClient.register(Optional.of(gcpKmsKeyPath), Optional.empty());
     fetchKeyVersion();
     tinkClient = initTinkClient();
