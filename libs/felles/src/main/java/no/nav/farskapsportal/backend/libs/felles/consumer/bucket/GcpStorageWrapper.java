@@ -29,12 +29,13 @@ public class GcpStorageWrapper {
   private @Value("GCP_KMS_KEY_PATH") String gcpKmsKeyPath;
   private int keyVersion = -1;
   private final Storage storage = StorageOptions.getDefaultInstance().getService();
-  private Aead tinkClient = initTinkClient();
+  private final Aead tinkClient;
 
   public GcpStorageWrapper() throws GeneralSecurityException, IOException {
     AeadConfig.register();
     GcpKmsClient.register(Optional.of(gcpKmsKeyPath), Optional.empty());
     fetchKeyVersion();
+    tinkClient = initTinkClient();
   }
 
   private void fetchKeyVersion() throws IOException {

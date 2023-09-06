@@ -16,26 +16,6 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  style:
-    name: 📝 Sjekk kodestil
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Reset working directory
-        run: |
-          ls -la ./
-          rm -rf ./* || true
-          rm -rf ./.??* || true
-
-      - name: GIT checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Valider Java-formatering
-        run: |
-          mvn fmt:check --settings .m2/maven-settings.xml
-
   build:
     name: Build with maven and docker
     runs-on: ubuntu-latest
@@ -58,7 +38,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml
+      - name: Valider Java-formatering
+        run: mvn fmt:check --settings .m2/maven-settings.xml
+      - name: Maven clean install
+        run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml clean install
       - uses: nais/docker-build-push@v0
         id: docker-push
         with:
