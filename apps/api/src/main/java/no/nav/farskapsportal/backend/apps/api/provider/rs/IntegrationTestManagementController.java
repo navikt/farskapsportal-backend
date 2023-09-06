@@ -7,10 +7,12 @@ import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplication;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
+import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.ForelderDto;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
@@ -31,10 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class IntegrationTestManagementController {
 
+  @Autowired private BucketConsumer bucketConsumer;
   @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-
   @Autowired private PdfGeneratorConsumer pdfGeneratorConsumer;
-
   @Autowired private PersistenceService persistenceService;
 
   @PostMapping("/testdata/deaktivere")
@@ -70,7 +71,7 @@ public class IntegrationTestManagementController {
       })
   public ResponseEntity<byte[]> hentePades(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
-    var innholdPades = fp.get().getDokument().getDokumentinnhold().getInnhold();
+    var innholdPades = bucketConsumer.getContentFromBucket(fp.get().getDokument().getBlobIdGcp());
     return new ResponseEntity<>(innholdPades, HttpStatus.OK);
   }
 
@@ -91,8 +92,10 @@ public class IntegrationTestManagementController {
       })
   public ResponseEntity<byte[]> henteXadesMor(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
-    var innholdXades = fp.get().getDokument().getSigneringsinformasjonMor().getXadesXml();
-    return new ResponseEntity<>(innholdXades, HttpStatus.OK);
+    var innholdXadesMor =
+            bucketConsumer.getContentFromBucket(
+                    fp.get().getDokument().getSigneringsinformasjonMor().getBlobIdGcp());
+    return new ResponseEntity<>(innholdXadesMor, HttpStatus.OK);
   }
 
   @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades/far")
@@ -112,8 +115,10 @@ public class IntegrationTestManagementController {
       })
   public ResponseEntity<byte[]> henteXadesFar(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
-    var innholdXades = fp.get().getDokument().getSigneringsinformasjonFar().getXadesXml();
-    return new ResponseEntity<>(innholdXades, HttpStatus.OK);
+    var innholdXadesFar =
+            bucketConsumer.getContentFromBucket(
+                    fp.get().getDokument().getSigneringsinformasjonFar().getBlobIdGcp());
+    return new ResponseEntity<>(innholdXadesFar, HttpStatus.OK);
   }
 
   @GetMapping("/test/pdf")
