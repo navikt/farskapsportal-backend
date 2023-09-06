@@ -70,6 +70,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -148,20 +149,21 @@ public class FarskapsportalControllerTest {
   @Qualifier("api")
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
 
-  @Autowired private PdlApiStub pdlApiStub;
-  @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
-  @MockBean private PdfGeneratorConsumer pdfGeneratorConsumer;
-  @MockBean private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  @MockBean private DifiESignaturConsumer difiESignaturConsumer;
-  @MockBean private BucketConsumer bucketConsumer;
-  @Autowired private PersistenceService persistenceService;
-  @Autowired private OppgavebestillingDao oppgavebestillingDao;
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired private ForelderDao forelderDao;
-  @Autowired private StatusKontrollereFarDao statusKontrollereFarDao;
-  @Autowired private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
-  @Autowired private Mapper mapper;
-  @Autowired private CacheManager cacheManager;
+  private @Autowired PdlApiStub pdlApiStub;
+  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
+  private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean BucketConsumer bucketConsumer;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired OppgavebestillingDao oppgavebestillingDao;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired ForelderDao forelderDao;
+  private @Autowired StatusKontrollereFarDao statusKontrollereFarDao;
+  private @Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
+  private @Autowired Mapper mapper;
+  private @Autowired CacheManager cacheManager;
 
   static <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
 

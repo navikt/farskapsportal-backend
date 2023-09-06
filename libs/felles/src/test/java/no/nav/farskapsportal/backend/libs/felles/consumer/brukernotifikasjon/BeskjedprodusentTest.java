@@ -23,6 +23,7 @@ import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,11 +40,10 @@ import org.springframework.test.context.ActiveProfiles;
 @AutoConfigureWireMock(port = 0)
 public class BeskjedprodusentTest {
 
-  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
-
-  @MockBean private KafkaTemplate<NokkelInput, BeskjedInput> ferdigkoe;
-
-  @Autowired private Beskjedprodusent beskjedprodusent;
+  private @Autowired Beskjedprodusent beskjedprodusent;
+  private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  private @MockBean KafkaTemplate<NokkelInput, BeskjedInput> ferdigkoe;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Test
   void skalOppretteBeskjedTilBruker() throws MalformedURLException {

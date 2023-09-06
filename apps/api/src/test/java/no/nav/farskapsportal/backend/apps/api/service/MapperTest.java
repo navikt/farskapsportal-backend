@@ -27,6 +27,7 @@ import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -69,9 +70,9 @@ public class MapperTest {
   private static final DokumentDto DOKUMENT_DTO = getDokumentDto();
   private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(2).minusDays(13);
 
-  @Autowired private Mapper mapper;
-
-  @MockBean private PersonopplysningService personopplysningService;
+  private @Autowired Mapper mapper;
+  private @MockBean PersonopplysningService personopplysningService;
+  private @MockBean GcpStorageWrapper gcp;
 
   private static DokumentDto getDokumentDto() {
     try {

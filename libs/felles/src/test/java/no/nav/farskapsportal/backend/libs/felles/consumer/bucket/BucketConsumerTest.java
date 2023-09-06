@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.BlobId;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Bucket;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,17 +34,18 @@ public class BucketConsumerTest {
   }
 
   @Test
-  void skalLagreNyttDokumentTilBøtte() throws IOException {
+  void skalLagreNyttDokumentTilBøtte() throws IOException, GeneralSecurityException {
 
     // given
     var dokumentnavn = "fp-1234";
     var dokumenttekst = "Jeg erklærer farskap for denne personen".getBytes(StandardCharsets.UTF_8);
     var blobId = BlobId.of(bucketProperties.getPadesName(), dokumentnavn);
+    var blobIdGcp = BlobIdGcp.builder().encryptionKeyVersion(1).name(blobId.getName()).build();
 
     when(gcpStorageWrapper.updateBlob(blobId, dokumenttekst)).thenReturn(null);
     when(gcpStorageWrapper.saveContentToBucket(
             bucketProperties.getPadesName(), dokumentnavn, dokumenttekst))
-        .thenReturn(blobId);
+        .thenReturn(blobIdGcp);
 
     // when
     var dokumentinnhold =
@@ -54,16 +57,22 @@ public class BucketConsumerTest {
   }
 
   @Test
-  void skalOppdatereEksisterendeDokumentIBøtte() {
+  void skalOppdatereEksisterendeDokumentIBøtte() throws GeneralSecurityException {
 
     // given
     var dokumentnavn = "fp-1234";
     var dokumenttekst = "Jeg erklærer farskap for denne personen".getBytes(StandardCharsets.UTF_8);
     var blobId = BlobId.of(bucketProperties.getPadesName(), dokumentnavn);
+    var blobIdGcp =
+        BlobIdGcp.builder()
+            .bucket(blobId.getBucket())
+            .name(blobId.getName())
+            .encryptionKeyVersion(1)
+            .build();
 
     when(gcpStorageWrapper.saveContentToBucket(
             bucketProperties.getPadesName(), dokumentnavn, dokumenttekst))
-        .thenReturn(blobId);
+        .thenReturn(blobIdGcp);
 
     // when
     var dokumentinnhold =

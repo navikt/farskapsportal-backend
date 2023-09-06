@@ -42,6 +42,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
@@ -72,9 +73,10 @@ public class PersonopplysningServiceTest {
   private static final Barn NYDFOEDT_BARN =
       TestUtils.henteBarnMedFnr(FOEDSELSDATO_NYFOEDT, "00000");
 
-  @MockBean private PdlApiConsumer pdlApiConsumerMock;
+  private @MockBean PdlApiConsumer pdlApiConsumerMock;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
-  @Autowired private PersonopplysningService personopplysningService;
+  private @Autowired PersonopplysningService personopplysningService;
 
   private KjoennDto henteKjoenn(KjoennType typeKjoenn) {
     return henteKjoenn(typeKjoenn, MetadataDto.builder().historisk(false).build());

@@ -66,21 +66,21 @@ public class SkattConsumer {
 
     var innholdPades =
         bucketConsumer.getContentFromBucket(farskapserklaering.getDokument().getBlobIdGcp());
-    if (innholdPades.length < 1) {
+    if (innholdPades != null && innholdPades.length < 1) {
       throw new SkattConsumerException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
     }
 
     var innholdXadesMor =
         bucketConsumer.getContentFromBucket(
             farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp());
-    if (innholdXadesMor.length < 1) {
+    if (innholdXadesMor != null && innholdXadesMor.length < 1) {
       throw new SkattConsumerException((Feilkode.XADES_MOR_UTEN_INNHOLD));
     }
 
     var innholdXadesFar =
         bucketConsumer.getContentFromBucket(
             farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp());
-    if (innholdXadesFar.length < 1) {
+    if (innholdXadesFar != null && innholdXadesFar.length < 1) {
       throw new SkattConsumerException((Feilkode.XADES_FAR_UTEN_INNHOLD));
     }
 

@@ -84,7 +84,7 @@ public class StatusKontrollereFar {
         + " Antall feilede forsøk for å kontrollere navn mot fødselsnummer til far: "
         + antallFeiledeForsoek
         + "."
-        + "\n Tidspunkt siste feilede forsøk: "
+        + "\n Tidspunkt for nullstilling: "
         + tidspunktForNullstilling;
   }
 }

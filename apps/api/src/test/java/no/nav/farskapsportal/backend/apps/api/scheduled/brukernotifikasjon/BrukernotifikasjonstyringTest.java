@@ -27,6 +27,7 @@ import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -56,15 +57,12 @@ public class BrukernotifikasjonstyringTest {
       "min-side.aapen-brukernotifikasjon-done-v1";
   private static final String GRUPPERINGSID_FARSKAP = "farskap";
 
-  @Autowired private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-
-  @Autowired private PersistenceService persistenceService;
-
-  @Autowired private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
-
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-
-  @Autowired private OppgavebestillingDao oppgavebestillingDao;
+  private @Autowired BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired OppgavebestillingDao oppgavebestillingDao;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;

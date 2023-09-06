@@ -21,7 +21,8 @@ virksomhetssertifikat:
 
 farskapsportal:
   egenskaper:
-    brukernotifikasjonerPaa: true
+    brukernotifikasjoner-paa: true
+    kryptering-paa: ${FILKRYPTERING_PAA}
     min-antall-uker-til-termindato: -3
     maks-antall-uker-til-termindato: 21
     nav-orgnummer: 889640782
@@ -201,6 +202,7 @@ INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
 FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/
+FILKRYPTERING_PAA: false
 ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet

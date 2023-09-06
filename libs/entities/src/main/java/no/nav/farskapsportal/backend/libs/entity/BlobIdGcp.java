@@ -21,4 +21,5 @@ public class BlobIdGcp {
   private String bucket;
   private String name;
   private Long generation;
+  private int encryptionKeyVersion;
 }

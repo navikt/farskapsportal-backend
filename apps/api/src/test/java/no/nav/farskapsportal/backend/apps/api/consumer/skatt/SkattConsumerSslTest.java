@@ -18,6 +18,7 @@ import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -49,6 +50,7 @@ public class SkattConsumerSslTest {
   private @MockBean PdlApiConsumer pdlApiConsumer;
   private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
   private @MockBean BucketConsumer bucketConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Value("server.port")
   private String port;

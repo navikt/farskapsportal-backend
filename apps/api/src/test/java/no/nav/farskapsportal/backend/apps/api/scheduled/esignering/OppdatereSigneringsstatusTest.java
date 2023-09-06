@@ -18,6 +18,7 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -28,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -39,13 +41,11 @@ import org.springframework.test.context.ActiveProfiles;
     classes = FarskapsportalApiApplicationLocal.class)
 public class OppdatereSigneringsstatusTest {
 
-  @Autowired private PersistenceService persistenceService;
-
-  @Autowired private FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
-
-  @Mock private FarskapsportalService farskapsportalService;
-
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
+  private @Mock FarskapsportalService farskapsportalService;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;

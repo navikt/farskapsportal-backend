@@ -21,6 +21,7 @@ import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -47,11 +48,12 @@ import org.springframework.test.context.ActiveProfiles;
     webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerTest {
 
-  @Autowired private SkattConsumer skattConsumer;
-  @Autowired private ServletWebServerApplicationContext webServerAppCtxt;
-  @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
-  @MockBean private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
-  @MockBean private BucketConsumer bucketConsumer;
+  private @Autowired SkattConsumer skattConsumer;
+  private @Autowired ServletWebServerApplicationContext webServerAppCtxt;
+  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @MockBean BucketConsumer bucketConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Test
   void skalReturnereTidspunktForOverfoeringDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {

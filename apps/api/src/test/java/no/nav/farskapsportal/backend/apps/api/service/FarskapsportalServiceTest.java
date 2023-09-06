@@ -67,6 +67,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
 import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -100,18 +101,19 @@ public class FarskapsportalServiceTest {
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
-  @MockBean DifiESignaturConsumer difiESignaturConsumer;
-  @MockBean PersonopplysningService personopplysningService;
-  @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  @MockBean BucketConsumer bucketConsumer;
-  @Autowired private PersistenceService persistenceService;
-  @Autowired private OppgavebestillingDao oppgavebestillingDao;
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired private ForelderDao forelderDao;
-  @Autowired private StatusKontrollereFarDao statusKontrollereFarDao;
-  @Autowired private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
-  @Autowired private Mapper mapper;
+  private @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
+  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockBean PersonopplysningService personopplysningService;
+  private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @MockBean BucketConsumer bucketConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired OppgavebestillingDao oppgavebestillingDao;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired ForelderDao forelderDao;
+  private @Autowired StatusKontrollereFarDao statusKontrollereFarDao;
+  private @Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
+  private @Autowired Mapper mapper;
 
   private FarskapsportalService farskapsportalService;
 
@@ -4175,6 +4177,7 @@ public class FarskapsportalServiceTest {
       // given
       var farskapserklaering =
           farskapserklaeringDao.save(henteFarskapserklaering(MOR, FAR, henteBarnUtenFnr(5)));
+
       farskapserklaering
           .getDokument()
           .getSigneringsinformasjonMor()
@@ -4182,12 +4185,13 @@ public class FarskapsportalServiceTest {
       farskapserklaeringDao.save(farskapserklaering);
 
       // when, then
+      Farskapserklaering finalFarskapserklaering = farskapserklaering;
       assertThrows(
           ValideringException.class,
           () ->
               farskapsportalService.henteDokumentinnhold(
                   FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + "35351",
-                  farskapserklaering.getId()));
+                  finalFarskapserklaering.getId()));
     }
 
     @Test

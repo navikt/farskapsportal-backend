@@ -17,6 +17,9 @@
     <javassist.version>3.28.0-GA</javassist.version>
     <kafka-avro-serializer.version>7.4.0</kafka-avro-serializer.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
+    <google-api-services-storage.version>v1-rev20230710-2.0.0</google-api-services-storage.version>
+    <google-tink.version>1.9.0</google-tink.version>
+    <google-tink-gcpkms.version>1.8.0</google-tink-gcpkms.version>
   </properties>
 
   <dependencyManagement>
@@ -109,7 +112,7 @@
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-storage</artifactId>
-      <version>v1-rev20230710-2.0.0</version>
+      <version>${google-api-services-storage.version}</version>
     </dependency>
 
     <dependency>
@@ -120,6 +123,23 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>spring-cloud-gcp-starter-storage</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.crypto.tink</groupId>
+      <artifactId>tink</artifactId>
+      <version>${google-tink.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.crypto.tink</groupId>
+      <artifactId>tink-gcpkms</artifactId>
+      <version>${google-tink-gcpkms.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-kms</artifactId>
     </dependency>
 
     <dependency>
