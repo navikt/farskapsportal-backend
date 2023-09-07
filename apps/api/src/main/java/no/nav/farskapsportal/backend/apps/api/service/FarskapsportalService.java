@@ -502,10 +502,7 @@ public class FarskapsportalService {
                     "xades-mor-" + farskapserklaering.getId() + ".xml",
                     xades);
 
-        farskapserklaering
-            .getDokument()
-            .getSigneringsinformasjonMor()
-            .setBlobIdGcp(blobIdGcp);
+        farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(blobIdGcp);
 
         // TODO: Fjerne når bucket-migrering er fullført
         farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
@@ -528,10 +525,7 @@ public class FarskapsportalService {
                     "xades-far-" + farskapserklaering.getId() + ".xml",
                     xades);
 
-        farskapserklaering
-            .getDokument()
-            .getSigneringsinformasjonFar()
-            .setBlobIdGcp(blobIdGcp);
+        farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(blobIdGcp);
 
         // TODO: Fjerne når bucket-migrering er fullført
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
