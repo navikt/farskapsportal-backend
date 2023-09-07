@@ -4,9 +4,8 @@ FROM ghcr.io/navikt/baseimages/temurin:17-appdynamics
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
-ARG JAR_PATH
 ENV JAVA_OPTS=$JAVA_OPTS
-COPY $JAR_PATH /app/app.jar
+COPY apps/api/target/app.jar app.jar
 EXPOSE 8080
 
 # Ref https://doc.nais.io/clusters/gcp/#starting-application-when-istio-proxy-is-ready
