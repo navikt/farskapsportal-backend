@@ -406,6 +406,13 @@ public class FarskapsportalService {
     if (farskapserklaering.getSendtTilSkatt() != null) {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
+
+        // TODO: Fjerne henting av dokument fra dokumentinnhold-tabell etter buckets-migrering er
+        // fullført
+        if (henteDokumentFraDatabase(farskapserklaering).isPresent()) {
+          return henteDokumentFraDatabase(farskapserklaering).get();
+        }
+
         log.error(
             "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
             farskapserklaering.getId());
@@ -446,19 +453,13 @@ public class FarskapsportalService {
       throw new InternFeilException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
     }
 
-    var blobId =
+    var blobIdGcp =
         bucketConsumer.saveContentToBucket(
             BucketConsumer.ContentType.PADES,
             "fp-" + farskapserklaering.getId() + "-pades.pdf",
             pades);
-    farskapserklaering
-        .getDokument()
-        .setBlobIdGcp(
-            BlobIdGcp.builder()
-                .bucket(blobId.getBucket())
-                .generation(blobId.getGeneration())
-                .name(blobId.getName())
-                .build());
+
+    farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
 
     // TODO: Fjerne når bucket-migrering er fullført
     farskapserklaering
@@ -536,6 +537,13 @@ public class FarskapsportalService {
         throw new InternFeilException(Feilkode.FARSKAPSERKLAERING_HAR_INKONSISTENTE_DATA);
       }
     }
+  }
+
+  // TODO: Fjerne etter at GCP bucket-migrering er fullført
+  private Optional<byte[]> henteDokumentFraDatabase(Farskapserklaering farskapserklaering) {
+    return farskapserklaering.getDokument().getDokumentinnhold() != null
+        ? Optional.of(farskapserklaering.getDokument().getDokumentinnhold().getInnhold())
+        : Optional.empty();
   }
 
   private void validereAtForeldreIkkeAlleredeHarSignert(
