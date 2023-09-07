@@ -197,17 +197,12 @@ public class FarskapsportalService {
         pdfGeneratorConsumer.genererePdf(
             barnDto, forelderDtoMor, forelderDtoFar, request.getSkriftspraak());
 
-    var blobId =
+    var blobIdGcp =
         bucketConsumer.saveContentToBucket(
             BucketConsumer.ContentType.PADES,
             "fp-" + farskapserklaering.getId() + "-pades.pdf",
             innhold);
-    var blobIdGcp =
-        BlobIdGcp.builder()
-            .bucket(blobId.getBucket())
-            .generation(blobId.getGeneration())
-            .name(blobId.getName())
-            .build();
+
     farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
 
     // Opprette signeringsjobb, oppdaterer dokument med status-url og redirect-urler
