@@ -111,7 +111,7 @@ public class GcpStorageWrapper {
   }
 
   private byte[] decryptFile(byte[] file, BlobInfo blobInfo) throws GeneralSecurityException {
-    if (krypteringPaa) return file;
+    if (!krypteringPaa) return file;
     // Based on example from https://cloud.google.com/kms/docs/client-side-encryption
     log.info("Dekryptrerer fil {}", blobInfo.getName());
     var associatedData = blobInfo.getBlobId().toString().getBytes(StandardCharsets.UTF_8);
