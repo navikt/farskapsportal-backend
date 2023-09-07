@@ -32,7 +32,9 @@ public class BucketConsumer {
 
   public byte[] getContentFromBucket(BlobIdGcp blobIdGcp) {
     try {
-      return gcpStorageWrapper.getContent(BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()));
+      return gcpStorageWrapper.getContent(
+          BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()),
+          blobIdGcp.getEncryptionKeyVersion());
     } catch (GeneralSecurityException generalSecurityException) {
       log.error(
           "En sikkerhetsfeil inntraff ved henting av innhold fra dokument {} i  bøtte {}",

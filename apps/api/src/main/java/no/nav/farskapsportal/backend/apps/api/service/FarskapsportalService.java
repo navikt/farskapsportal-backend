@@ -199,7 +199,9 @@ public class FarskapsportalService {
 
     var blobId =
         bucketConsumer.saveContentToBucket(
-            BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), innhold);
+            BucketConsumer.ContentType.PADES,
+            "fp-" + farskapserklaering.getId() + "-pades.pdf",
+            innhold);
     var blobIdGcp =
         BlobIdGcp.builder()
             .bucket(blobId.getBucket())
@@ -451,7 +453,9 @@ public class FarskapsportalService {
 
     var blobId =
         bucketConsumer.saveContentToBucket(
-            BucketConsumer.ContentType.PADES, "fp-" + farskapserklaering.getId(), pades);
+            BucketConsumer.ContentType.PADES,
+            "fp-" + farskapserklaering.getId() + "-pades.pdf",
+            pades);
     farskapserklaering
         .getDokument()
         .setBlobIdGcp(
@@ -488,25 +492,20 @@ public class FarskapsportalService {
                     .getFarskapsportalFellesEgenskaper()
                     .getBucket()
                     .getXadesName(),
-                "xades-mor-" + farskapserklaering.getId());
+                "xades-mor-" + farskapserklaering.getId() + ".xml");
 
-        var blobId =
+        var blobIdGcp =
             eksisterendeBlobIdGcp.isPresent()
                 ? eksisterendeBlobIdGcp.get()
                 : bucketConsumer.saveContentToBucket(
                     BucketConsumer.ContentType.XADES,
-                    "xades-mor-" + farskapserklaering.getId(),
+                    "xades-mor-" + farskapserklaering.getId() + ".xml",
                     xades);
 
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonMor()
-            .setBlobIdGcp(
-                BlobIdGcp.builder()
-                    .bucket(blobId.getBucket())
-                    .generation(blobId.getGeneration())
-                    .name(blobId.getName())
-                    .build());
+            .setBlobIdGcp(blobIdGcp);
 
         // TODO: Fjerne når bucket-migrering er fullført
         farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
@@ -520,24 +519,19 @@ public class FarskapsportalService {
                     .getFarskapsportalFellesEgenskaper()
                     .getBucket()
                     .getXadesName(),
-                "xades-far-" + farskapserklaering.getId());
-        var blobId =
+                "xades-far-" + farskapserklaering.getId() + ".xml");
+        var blobIdGcp =
             eksisterendeBlobIdGcp.isPresent()
                 ? eksisterendeBlobIdGcp.get()
                 : bucketConsumer.saveContentToBucket(
                     BucketConsumer.ContentType.XADES,
-                    "xades-far-" + farskapserklaering.getId(),
+                    "xades-far-" + farskapserklaering.getId() + ".xml",
                     xades);
 
         farskapserklaering
             .getDokument()
             .getSigneringsinformasjonFar()
-            .setBlobIdGcp(
-                BlobIdGcp.builder()
-                    .bucket(blobId.getBucket())
-                    .generation(blobId.getGeneration())
-                    .name(blobId.getName())
-                    .build());
+            .setBlobIdGcp(blobIdGcp);
 
         // TODO: Fjerne når bucket-migrering er fullført
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);

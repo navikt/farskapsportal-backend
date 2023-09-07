@@ -71,9 +71,14 @@ public class GcpStorageWrapper {
     return blob != null ? Optional.of(blob.getBlobId()) : Optional.empty();
   }
 
-  public byte[] getContent(BlobId blobId) throws GeneralSecurityException {
-    var encryptedContent = storage.get(blobId).getContent();
-    return decryptFile(encryptedContent, toBlobInfo(blobId));
+  public byte[] getContent(BlobId blobId, int encryptionKeyVersion)
+      throws GeneralSecurityException {
+    var storedContent = storage.get(blobId).getContent();
+    if (krypteringPaa && encryptionKeyVersion > 1) {
+      return decryptFile(storedContent, toBlobInfo(blobId));
+    } else {
+      return storedContent;
+    }
   }
 
   public BlobIdGcp updateBlob(BlobId blobId, byte[] content)
@@ -111,7 +116,6 @@ public class GcpStorageWrapper {
   }
 
   private byte[] decryptFile(byte[] file, BlobInfo blobInfo) throws GeneralSecurityException {
-    if (!krypteringPaa) return file;
     // Based on example from https://cloud.google.com/kms/docs/client-side-encryption
     log.info("Dekryptrerer fil {}", blobInfo.getName());
     var associatedData = blobInfo.getBlobId().toString().getBytes(StandardCharsets.UTF_8);
