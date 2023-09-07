@@ -74,7 +74,7 @@ public class GcpStorageWrapper {
   public byte[] getContent(BlobId blobId, int encryptionKeyVersion)
       throws GeneralSecurityException {
     var storedContent = storage.get(blobId).getContent();
-    if (krypteringPaa && encryptionKeyVersion > 1) {
+    if (krypteringPaa && encryptionKeyVersion > 0) {
       return decryptFile(storedContent, toBlobInfo(blobId));
     } else {
       return storedContent;
