@@ -83,6 +83,7 @@ public class ScheduledConfig {
   public Ryddejobb ryddejobb(
       FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper,
       PersistenceService persistenceService) {
+
     return Ryddejobb.builder()
         .arkiv(farskapsportalAsynkronEgenskaper.getArkiv())
         .persistenceService(persistenceService)

@@ -1,7 +1,5 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.arkiv;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.Builder;
@@ -11,7 +9,6 @@ import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
-import no.nav.farskapsportal.backend.libs.felles.exception.MappingException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,14 +99,6 @@ public class ArkivereFarskapserklaeringer {
     }
     if (farskapserklaeringsider.size() > 0) {
       log.info("Farskapserklæringene ble overført til Skatt uten problemer");
-    }
-  }
-
-  private URI tilUri(String url) {
-    try {
-      return new URI(url);
-    } catch (URISyntaxException urise) {
-      throw new MappingException("Lagret status-URL har feil format", urise);
     }
   }
 }

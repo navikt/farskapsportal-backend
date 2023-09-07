@@ -115,6 +115,11 @@ public class GcpStorageWrapper {
         .build();
   }
 
+  public boolean deleteContentFromBucket(String bucketName, String documentName) {
+    log.info("Sletter dokument {} fra bøtte {}.", bucketName, documentName);
+    return storage.delete(BlobId.of(bucketName, documentName));
+  }
+
   private byte[] decryptFile(byte[] file, BlobInfo blobInfo) throws GeneralSecurityException {
     // Based on example from https://cloud.google.com/kms/docs/client-side-encryption
     log.info("Dekryptrerer fil {}", blobInfo.getName());

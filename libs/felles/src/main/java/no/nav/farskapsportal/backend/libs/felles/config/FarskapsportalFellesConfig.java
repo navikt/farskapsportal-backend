@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.config;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.*;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.modelmapper.ModelMapper;
@@ -37,6 +38,7 @@ public class FarskapsportalFellesConfig {
 
   @Bean
   public PersistenceService persistenceService(
+      BucketConsumer bucketConsumer,
       OppgavebestillingDao oppgavebestillingDao,
       FarskapserklaeringDao farskapserklaeringDao,
       @Autowired ModelMapper modelMapper,
@@ -46,6 +48,7 @@ public class FarskapsportalFellesConfig {
       MeldingsloggDao meldingsloggDao) {
 
     return new PersistenceService(
+        bucketConsumer,
         oppgavebestillingDao,
         farskapserklaeringDao,
         barnDao,

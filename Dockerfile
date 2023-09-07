@@ -4,7 +4,6 @@ FROM ghcr.io/navikt/baseimages/temurin:17-appdynamics
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
-ARG JAR_PATH
 ENV JAVA_OPTS=$JAVA_OPTS
 COPY apps/api/target/app.jar app.jar
 EXPOSE 8080

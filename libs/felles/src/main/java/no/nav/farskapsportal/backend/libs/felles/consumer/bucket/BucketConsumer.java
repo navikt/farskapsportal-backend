@@ -69,6 +69,17 @@ public class BucketConsumer {
     }
   }
 
+  public boolean deleteContentFromBucket(BlobIdGcp blobIdGcp) {
+    var dokumentBleSlettet =
+        gcpStorageWrapper.deleteContentFromBucket(blobIdGcp.getBucket(), blobIdGcp.getName());
+    log.info(
+        "Dokument {} ble slettet fra bøtte {}: ",
+        blobIdGcp.getName(),
+        blobIdGcp.getBucket(),
+        dokumentBleSlettet);
+    return dokumentBleSlettet;
+  }
+
   public enum ContentType {
     PADES,
     XADES
