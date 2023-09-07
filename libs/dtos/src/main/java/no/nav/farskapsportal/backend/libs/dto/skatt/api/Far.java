@@ -17,13 +17,9 @@ import lombok.NoArgsConstructor;
 @XmlType(propOrder = {"foedselsEllerDNummer", "datoForErklaeringen", "harSignert"})
 public class Far {
 
-  @XmlElement
-  private Foedselsnummer foedselsEllerDNummer;
+  @XmlElement private Foedselsnummer foedselsEllerDNummer;
 
-  @XmlElement
-  private Dato datoForErklaeringen;
+  @XmlElement private Dato datoForErklaeringen;
 
-  @XmlElement
-  private Boolsk harSignert;
-
+  @XmlElement private Boolsk harSignert;
 }

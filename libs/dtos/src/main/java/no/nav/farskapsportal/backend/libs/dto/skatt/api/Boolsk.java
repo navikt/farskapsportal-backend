@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Boolsk {
 
-  @XmlValue
-  private boolean boolsk;
-
+  @XmlValue private boolean boolsk;
 }

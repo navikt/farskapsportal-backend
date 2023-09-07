@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.libs.felles.exception;
 
-
 public class UnrecoverableException extends RuntimeException {
 
   private final String message;

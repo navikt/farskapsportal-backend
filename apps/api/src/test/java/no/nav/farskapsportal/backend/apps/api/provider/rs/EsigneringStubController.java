@@ -4,13 +4,13 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,6 @@ import no.digipost.signature.api.xml.XMLSignerSpecificUrl;
 import no.digipost.signature.api.xml.XMLSignerStatus;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -40,8 +39,8 @@ import org.springframework.web.bind.annotation.RestController;
 @ActiveProfiles({PROFILE_TEST, PROFILE_LOCAL})
 public class EsigneringStubController {
 
-  private final static String FNR_MOR = "12345678910";
-  private final static String FNR_FAR = "11111122222";
+  private static final String FNR_MOR = "12345678910";
+  private static final String FNR_FAR = "11111122222";
 
   private boolean morHarSignert = false;
   private boolean farHarSignert = false;
@@ -63,21 +62,26 @@ public class EsigneringStubController {
       this.farHarSignert = true;
     }
 
-    return signeringsstatusOppdatert ? new ResponseEntity<>(HttpStatus.CREATED) : new ResponseEntity<>(HttpStatus.OK);
+    return signeringsstatusOppdatert
+        ? new ResponseEntity<>(HttpStatus.CREATED)
+        : new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping(value = "/api/{fnrSignatoer}/direct/signature-jobs/1/status")
-  public ResponseEntity<String> henteStatus(@PathVariable("fnrSignatoer") String fnrSignerer) throws JAXBException {
+  public ResponseEntity<String> henteStatus(@PathVariable("fnrSignatoer") String fnrSignerer)
+      throws JAXBException {
     log.info("Hente status for signeringsjobb for signerer {}", fnrSignerer);
 
     XMLSignerStatus signerStatusMor = new XMLSignerStatus();
     signerStatusMor.setSigner(FNR_MOR);
-    signerStatusMor.setValue(morHarSignert ? XMLDirectSignerStatusValue.SIGNED : XMLDirectSignerStatusValue.WAITING);
+    signerStatusMor.setValue(
+        morHarSignert ? XMLDirectSignerStatusValue.SIGNED : XMLDirectSignerStatusValue.WAITING);
     signerStatusMor.setSince(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("GMT+1")));
 
     XMLSignerStatus signerStatusFar = new XMLSignerStatus();
     signerStatusFar.setSigner(FNR_FAR);
-    signerStatusFar.setValue(farHarSignert ? XMLDirectSignerStatusValue.SIGNED : XMLDirectSignerStatusValue.WAITING);
+    signerStatusFar.setValue(
+        farHarSignert ? XMLDirectSignerStatusValue.SIGNED : XMLDirectSignerStatusValue.WAITING);
     signerStatusFar.setSince(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("GMT+1")));
 
     XMLDirectSignatureJobStatusResponse statusrespons = new XMLDirectSignatureJobStatusResponse();
@@ -85,14 +89,25 @@ public class EsigneringStubController {
     statusrespons.getStatuses().add(signerStatusFar);
     statusrespons.setConfirmationUrl(lageUri(wiremockPort, "/confirmation"));
     statusrespons.setSignatureJobStatus(
-        morHarSignert && farHarSignert ? XMLDirectSignatureJobStatus.COMPLETED_SUCCESSFULLY : XMLDirectSignatureJobStatus.IN_PROGRESS);
+        morHarSignert && farHarSignert
+            ? XMLDirectSignatureJobStatus.COMPLETED_SUCCESSFULLY
+            : XMLDirectSignatureJobStatus.IN_PROGRESS);
     statusrespons.setPadesUrl(lageUri(wiremockPort, "/pades"));
     statusrespons.setSignatureJobId(1);
     statusrespons.setDeleteDocumentsUrl(lageUri(wiremockPort, "/delete-docs"));
 
-    statusrespons.getXadesUrls().add(morHarSignert ? new XMLSignerSpecificUrl(lageUri(wiremockPort, "/" + FNR_MOR + "/xades"), FNR_MOR) : null);
-    statusrespons.getXadesUrls()
-        .add(morHarSignert && farHarSignert ? new XMLSignerSpecificUrl(lageUri(wiremockPort, "/" + FNR_FAR + "/xades"), FNR_FAR) : null);
+    statusrespons
+        .getXadesUrls()
+        .add(
+            morHarSignert
+                ? new XMLSignerSpecificUrl(lageUri(wiremockPort, "/" + FNR_MOR + "/xades"), FNR_MOR)
+                : null);
+    statusrespons
+        .getXadesUrls()
+        .add(
+            morHarSignert && farHarSignert
+                ? new XMLSignerSpecificUrl(lageUri(wiremockPort, "/" + FNR_FAR + "/xades"), FNR_FAR)
+                : null);
 
     var sw = new StringWriter();
 

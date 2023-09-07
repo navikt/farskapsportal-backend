@@ -11,5 +11,4 @@ public interface StatusKontrollereFarDao extends CrudRepository<StatusKontroller
 
   @Query("select skf from StatusKontrollereFar skf where skf.mor.foedselsnummer = :fnrMor")
   Optional<StatusKontrollereFar> henteStatusKontrollereFar(String fnrMor);
-
 }

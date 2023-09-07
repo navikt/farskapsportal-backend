@@ -14,8 +14,6 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +23,12 @@ import org.springframework.core.io.ResourceLoader;
 
 @Slf4j
 @Configuration
-@ComponentScan(excludeFilters = {
-    @ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = {FarskapsportalApiApplication.class})})
+@ComponentScan(
+    excludeFilters = {
+      @ComponentScan.Filter(
+          type = ASSIGNABLE_TYPE,
+          value = {FarskapsportalApiApplication.class})
+    })
 public class FarskapsportalApiTestConfig {
 
   public static final String PROFILE_SKATT_SSL_TEST = "skatt-ssl-test";
@@ -34,9 +36,17 @@ public class FarskapsportalApiTestConfig {
   private String keyStoreName = "esigneringkeystore.jceks";
 
   @Bean
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES, PROFILE_SCHEDULED_TEST})
-  public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader) throws IOException {
-    try (InputStream inputStream = resourceLoader.getClassLoader().getResourceAsStream("esigneringkeystore.jceks")) {
+  @Profile({
+    PROFILE_TEST,
+    PROFILE_LOCAL,
+    PROFILE_LOCAL_POSTGRES,
+    PROFILE_REMOTE_POSTGRES,
+    PROFILE_SCHEDULED_TEST
+  })
+  public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader)
+      throws IOException {
+    try (InputStream inputStream =
+        resourceLoader.getClassLoader().getResourceAsStream("esigneringkeystore.jceks")) {
       if (inputStream == null) {
         throw new IllegalArgumentException("Fant ikke esigneringkeystore.jceks");
       } else {
@@ -48,25 +58,25 @@ public class FarskapsportalApiTestConfig {
   @Bean
   @Qualifier("skatt")
   @Profile({
-          PROFILE_TEST,
-          PROFILE_LOCAL,
-          PROFILE_LOCAL_POSTGRES,
-          PROFILE_REMOTE_POSTGRES,
-          PROFILE_SCHEDULED_TEST
+    PROFILE_TEST,
+    PROFILE_LOCAL,
+    PROFILE_LOCAL_POSTGRES,
+    PROFILE_REMOTE_POSTGRES,
+    PROFILE_SCHEDULED_TEST
   })
-  public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfigSkatt(@Autowired ResourceLoader resourceLoader)
-          throws IOException {
+  public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfigSkatt(
+      @Autowired ResourceLoader resourceLoader) throws IOException {
     return SkattStubSslConfiguration.createKeyStoreConfig(
-            resourceLoader, keyStorePassword, keyStoreName);
+        resourceLoader, keyStorePassword, keyStoreName);
   }
 
   @Bean
   @Scope("prototype")
   @Profile(PROFILE_SKATT_SSL_TEST)
   SkattConsumer skattConsumer(
-          @Value("${url.skatt.base-url}") String baseUrl,
-          @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-          ConsumerEndpoint consumerEndpoint) {
+      @Value("${url.skatt.base-url}") String baseUrl,
+      @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+      ConsumerEndpoint consumerEndpoint) {
 
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
 
@@ -92,26 +102,27 @@ public class FarskapsportalApiTestConfig {
     @Value("${sertifikat.keystore-name}")
     private String keyStoreName;
 
-    public static no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig createKeyStoreConfig(
+    public static no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig
+        createKeyStoreConfig(
             ResourceLoader resourceLoader, String keyStorePassword, String keyStoreName)
             throws IOException {
       try (InputStream inputStream =
-                   resourceLoader.getClassLoader().getResourceAsStream(keyStoreName)) {
+          resourceLoader.getClassLoader().getResourceAsStream(keyStoreName)) {
         if (inputStream == null) {
           throw new IllegalArgumentException("Fant ikke " + keyStoreName);
         } else {
-          return no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig.fromJavaKeyStore(
-                  inputStream, "selfsigned", keyStorePassword, keyStorePassword);
+          return no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig
+              .fromJavaKeyStore(inputStream, "selfsigned", keyStorePassword, keyStorePassword);
         }
       }
     }
 
     @Bean
     @Qualifier("skatt")
-    public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader)
-            throws IOException {
+    public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfig(
+        @Autowired ResourceLoader resourceLoader) throws IOException {
       return SkattStubSslConfiguration.createKeyStoreConfig(
-              resourceLoader, keyStorePassword, keyStoreName);
+          resourceLoader, keyStorePassword, keyStoreName);
     }
 
     @Bean
@@ -127,8 +138,8 @@ public class FarskapsportalApiTestConfig {
     @Bean
     @Qualifier("sikret")
     SkattConsumer skattConsumerSikret(
-            @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-            CloseableHttpClient httpClient) {
+        @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+        CloseableHttpClient httpClient) {
 
       var baseUrl = "https://localhost:" + localServerPort;
       var consumerEndpoint = new ConsumerEndpoint();
@@ -139,8 +150,8 @@ public class FarskapsportalApiTestConfig {
     @Bean
     @Qualifier("usikret")
     SkattConsumer skattConsumerUsikret(
-            @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-            ConsumerEndpoint consumerEndpoint) {
+        @Value("${url.skatt.registrering-av-farskap}") String endpoint,
+        ConsumerEndpoint consumerEndpoint) {
 
       var baseUrl = "http://localhost:" + localServerPort;
 

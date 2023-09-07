@@ -15,8 +15,4 @@ public class Vedlegg {
   private Tekst dokumenttype;
 
   private Tekst multipartnavn;
-
-
-
-
 }

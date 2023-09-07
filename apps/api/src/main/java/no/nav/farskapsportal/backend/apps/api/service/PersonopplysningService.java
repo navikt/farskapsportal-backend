@@ -16,6 +16,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.Kjoenn;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
@@ -32,8 +34,6 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.VergeEllerFullmektigDto;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
-import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import org.modelmapper.ModelMapper;
@@ -44,7 +44,8 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 public class PersonopplysningService {
 
-  private static final String VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER = "personligeOgOekonomiskeInteresser";
+  private static final String VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER =
+      "personligeOgOekonomiskeInteresser";
   private static final String VERGE_OMFANG_PERSONLIGE_INTERESSER = "personligeInteresser";
 
   private final PdlApiConsumer pdlApiConsumer;
@@ -55,19 +56,29 @@ public class PersonopplysningService {
 
   public Set<String> henteNyligFoedteBarnUtenRegistrertFar(String fnrMor) {
     Set<String> spedbarnUtenFar = new HashSet<>();
-    List<ForelderBarnRelasjonDto> forelderBarnRelasjoner = pdlApiConsumer.henteForelderBarnRelasjon(fnrMor);
+    List<ForelderBarnRelasjonDto> forelderBarnRelasjoner =
+        pdlApiConsumer.henteForelderBarnRelasjon(fnrMor);
 
-    var registrerteBarn = forelderBarnRelasjoner.stream().filter(Objects::nonNull)
-        .filter(mor -> mor.getMinRolleForPerson().equals(ForelderBarnRelasjonRolle.MOR))
-        .filter(barn -> barn.getRelatertPersonsRolle().equals(ForelderBarnRelasjonRolle.BARN)).map(ForelderBarnRelasjonDto::getRelatertPersonsIdent)
-        .collect(Collectors.toSet());
+    var registrerteBarn =
+        forelderBarnRelasjoner.stream()
+            .filter(Objects::nonNull)
+            .filter(mor -> mor.getMinRolleForPerson().equals(ForelderBarnRelasjonRolle.MOR))
+            .filter(barn -> barn.getRelatertPersonsRolle().equals(ForelderBarnRelasjonRolle.BARN))
+            .map(ForelderBarnRelasjonDto::getRelatertPersonsIdent)
+            .collect(Collectors.toSet());
 
     for (String fnrBarn : registrerteBarn) {
       var fd = henteFoedselsdato(fnrBarn);
-      if (fd.isAfter(LocalDate.now().minusMonths(farskapsportalFellesEgenskaper.getMaksAntallMaanederEtterFoedsel()))) {
-        List<ForelderBarnRelasjonDto> spedbarnetsForelderBarnRelasjoner = pdlApiConsumer.henteForelderBarnRelasjon(fnrBarn);
-        var spedbarnetsFarsrelasjon = spedbarnetsForelderBarnRelasjoner.stream()
-            .filter(f -> f.getRelatertPersonsRolle().name().equals(Forelderrolle.FAR.toString())).findFirst();
+      if (fd.isAfter(
+          LocalDate.now()
+              .minusMonths(farskapsportalFellesEgenskaper.getMaksAntallMaanederEtterFoedsel()))) {
+        List<ForelderBarnRelasjonDto> spedbarnetsForelderBarnRelasjoner =
+            pdlApiConsumer.henteForelderBarnRelasjon(fnrBarn);
+        var spedbarnetsFarsrelasjon =
+            spedbarnetsForelderBarnRelasjoner.stream()
+                .filter(
+                    f -> f.getRelatertPersonsRolle().name().equals(Forelderrolle.FAR.toString()))
+                .findFirst();
         if (spedbarnetsFarsrelasjon.isEmpty()) {
           spedbarnUtenFar.add(fnrBarn);
         }
@@ -91,19 +102,27 @@ public class PersonopplysningService {
   public boolean harNorskBostedsadresse(String foedselsnummer) {
 
     var bostedsadresseDto = pdlApiConsumer.henteBostedsadresse(foedselsnummer);
-    if (bostedsadresseDto.getVegadresse() != null && bostedsadresseDto.getVegadresse().getAdressenavn() != null) {
-      log.info("Personen er registrert med norsk vegadresse på postnummer: {}", bostedsadresseDto.getVegadresse().getPostnummer());
+    if (bostedsadresseDto.getVegadresse() != null
+        && bostedsadresseDto.getVegadresse().getAdressenavn() != null) {
+      log.info(
+          "Personen er registrert med norsk vegadresse på postnummer: {}",
+          bostedsadresseDto.getVegadresse().getPostnummer());
       return true;
-    } else if (bostedsadresseDto.getMatrikkeladresse() != null && bostedsadresseDto.getMatrikkeladresse().getPostnummer() != null) {
-      log.warn("Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}",
+    } else if (bostedsadresseDto.getMatrikkeladresse() != null
+        && bostedsadresseDto.getMatrikkeladresse().getPostnummer() != null) {
+      log.warn(
+          "Personen er ikke registrert med norsk vegadresse, men har matrikkeladresse, hentet ut postnummer {}",
           bostedsadresseDto.getMatrikkeladresse().getPostnummer());
       return true;
     } else if (bostedsadresseDto.getUtenlandskAdresse() != null) {
       var utenlandskAdresseDto = bostedsadresseDto.getUtenlandskAdresse();
-      log.warn("Personen står oppført med utenlands adresse i PDL, landkode: {}", utenlandskAdresseDto.getLandkode());
+      log.warn(
+          "Personen står oppført med utenlands adresse i PDL, landkode: {}",
+          utenlandskAdresseDto.getLandkode());
     } else if (bostedsadresseDto.getUkjentBosted() != null) {
       var ukjentBostedDto = bostedsadresseDto.getUkjentBosted();
-      log.warn("Personen står oppført med ukjent bosted i PDL, kommunenummer fra siste kjente bostedsadresse: {}",
+      log.warn(
+          "Personen står oppført med ukjent bosted i PDL, kommunenummer fra siste kjente bostedsadresse: {}",
           ukjentBostedDto.getBostedskommune());
     }
     return false;
@@ -126,21 +145,27 @@ public class PersonopplysningService {
     return !pdlApiConsumer.henteVergeEllerFremtidsfullmakt(foedselsnummer).stream()
         .filter(Objects::nonNull)
         .filter(verge -> harVerge(verge.getVergeEllerFullmektig()) == true)
-        .collect(Collectors.toList()).isEmpty();
+        .collect(Collectors.toList())
+        .isEmpty();
   }
 
   public Optional<String> henteAktoerid(String foedselsnummer) {
-    var aktoerPersonident = pdlApiConsumer.henteIdenter(foedselsnummer).stream().filter(Predicate.not(Personident::isHistorisk))
-        .filter(pi -> Identgruppe.AKTORID.equals(pi.getGruppe())).findFirst();
-    return aktoerPersonident.isPresent() ? Optional.of(aktoerPersonident.get().getIdent()) : Optional.empty();
+    var aktoerPersonident =
+        pdlApiConsumer.henteIdenter(foedselsnummer).stream()
+            .filter(Predicate.not(Personident::isHistorisk))
+            .filter(pi -> Identgruppe.AKTORID.equals(pi.getGruppe()))
+            .findFirst();
+    return aktoerPersonident.isPresent()
+        ? Optional.of(aktoerPersonident.get().getIdent())
+        : Optional.empty();
   }
 
   private boolean harVerge(VergeEllerFullmektigDto verge) {
     if (verge.getOmfang() == null) {
       return true;
     }
-    return verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER) ||
-        verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_INTERESSER);
+    return verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_OG_OEKONOMISKE_INTERESSER)
+        || verge.getOmfang().equalsIgnoreCase(VERGE_OMFANG_PERSONLIGE_INTERESSER);
   }
 
   public FolkeregisteridentifikatorDto henteFolkeregisteridentifikator(String foedselsnummer) {
@@ -158,18 +183,22 @@ public class PersonopplysningService {
     var foedekjoenn = hentFoedekjoenn(kjoennshistorikk);
 
     // MOR -> Fødekjønn == kvinne && gjeldende kjønn == kvinne
-    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn()) && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn())
+        && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MOR;
     }
 
     // MOR_ELLER_FAR -> Fødekjønn == kvinne && gjeldende kjønn == mann
-    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn()) && KjoennType.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
+    if (KjoennType.KVINNE.equals(foedekjoenn.getKjoenn())
+        && KjoennType.MANN.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MOR_ELLER_FAR;
     }
 
     // MEDMOR -> Fødekjønn == mann && gjeldende kjønn == kvinne
-    // TODO: Undersøke om person med fødekjønn mann, men med gjeldende kjønn kvinn kan opptre som far
-    if (KjoennType.MANN.equals(foedekjoenn.getKjoenn()) && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
+    // TODO: Undersøke om person med fødekjønn mann, men med gjeldende kjønn kvinn kan opptre som
+    // far
+    if (KjoennType.MANN.equals(foedekjoenn.getKjoenn())
+        && KjoennType.KVINNE.equals(gjeldendeKjoenn.getKjoenn())) {
       return Forelderrolle.MEDMOR;
     }
 
@@ -191,7 +220,9 @@ public class PersonopplysningService {
   public boolean erOver18Aar(String foedselsnummer) {
     var foedselsdato = henteFoedselsdato(foedselsnummer);
     if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
-      log.warn("Forelder med fødselsdato {}, er ikke myndig", foedselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+      log.warn(
+          "Forelder med fødselsdato {}, er ikke myndig",
+          foedselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
       return false;
     }
     return true;
@@ -199,10 +230,12 @@ public class PersonopplysningService {
 
   public void navnekontroll(String oppgittNavn, String navnFraRegister) {
 
-    boolean navnStemmer = normalisereNavn(navnFraRegister).equalsIgnoreCase(normalisereNavn(oppgittNavn));
+    boolean navnStemmer =
+        normalisereNavn(navnFraRegister).equalsIgnoreCase(normalisereNavn(oppgittNavn));
 
     if (!navnStemmer) {
-      log.warn("Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn  er forskjellig fra navn i register.");
+      log.warn(
+          "Navnekontroll feilet. Navn stemmer ikke med navn registrert i folkeregisteret. Oppgitt navn  er forskjellig fra navn i register.");
       throw new FeilNavnOppgittException(oppgittNavn, navnFraRegister);
     }
 
@@ -222,29 +255,40 @@ public class PersonopplysningService {
       return kjoennshistorikk.get(0);
     }
 
-    var eldsteInnslag = kjoennshistorikk.stream()
-        .filter(kjoennDto -> kjoennDto.getMetadata().getHistorisk() == true)
-        .flatMap(kjoennDto -> kjoennDto.getMetadata().getEndringer().stream())
-        .filter(e -> e.getType().equals(Type.OPPRETT))
-        .map(e -> e.getRegistrert())
-        .min(LocalDateTime::compareTo)
-        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ElDSTE_INNSLAG));
+    var eldsteInnslag =
+        kjoennshistorikk.stream()
+            .filter(kjoennDto -> kjoennDto.getMetadata().getHistorisk() == true)
+            .flatMap(kjoennDto -> kjoennDto.getMetadata().getEndringer().stream())
+            .filter(e -> e.getType().equals(Type.OPPRETT))
+            .map(e -> e.getRegistrert())
+            .min(LocalDateTime::compareTo)
+            .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ElDSTE_INNSLAG));
 
     return kjoennshistorikk.stream()
         .filter(kjoennDto -> kjoennDto.getMetadata().getHistorisk() == true)
-        .filter(e -> inkludererEndringMedRegistreringstidspunkt(e.getMetadata().getEndringer(), eldsteInnslag))
+        .filter(
+            e ->
+                inkludererEndringMedRegistreringstidspunkt(
+                    e.getMetadata().getEndringer(), eldsteInnslag))
         .findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_KJOENN_ORIGINALT));
   }
 
-  private boolean inkludererEndringMedRegistreringstidspunkt(List<EndringDto> endringer, LocalDateTime registreringstidspunkt) {
-    var endring = endringer.stream().filter(e -> e.getRegistrert().equals(registreringstidspunkt)).findFirst();
+  private boolean inkludererEndringMedRegistreringstidspunkt(
+      List<EndringDto> endringer, LocalDateTime registreringstidspunkt) {
+    var endring =
+        endringer.stream()
+            .filter(e -> e.getRegistrert().equals(registreringstidspunkt))
+            .findFirst();
     return endring.isPresent();
   }
 
   private Set<String> filtrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
-    return nyfoedteBarn.stream().filter(barn -> henteFoedeland(barn) != null).filter(barn -> henteFoedeland(barn).equalsIgnoreCase(
-            FarskapsportalFellesConfig.KODE_LAND_NORGE))
+    return nyfoedteBarn.stream()
+        .filter(barn -> henteFoedeland(barn) != null)
+        .filter(
+            barn ->
+                henteFoedeland(barn).equalsIgnoreCase(FarskapsportalFellesConfig.KODE_LAND_NORGE))
         .collect(Collectors.toSet());
   }
 }

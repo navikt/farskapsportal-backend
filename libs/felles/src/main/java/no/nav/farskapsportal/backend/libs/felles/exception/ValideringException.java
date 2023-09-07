@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class ValideringException extends UnrecoverableException  {
+public class ValideringException extends UnrecoverableException {
   private final Feilkode feilkode;
 
   public ValideringException(Feilkode feilkode) {

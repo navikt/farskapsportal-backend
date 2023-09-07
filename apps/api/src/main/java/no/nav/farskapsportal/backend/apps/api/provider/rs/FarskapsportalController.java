@@ -42,7 +42,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class FarskapsportalController {
 
   @Autowired private FarskapsportalService farskapsportalService;
-  @Autowired private FarskapsportalApiConfig.OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor;
+
+  @Autowired
+  private FarskapsportalApiConfig.OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor;
 
   @GetMapping(value = "/brukerinformasjon")
   @Operation(

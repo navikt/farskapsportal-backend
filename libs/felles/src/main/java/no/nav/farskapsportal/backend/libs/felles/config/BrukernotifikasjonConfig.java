@@ -60,7 +60,8 @@ public class BrukernotifikasjonConfig {
   @Value("${KAFKA_CREDSTORE_PASSWORD}")
   private String sslKeyPassword;
 
-  public BrukernotifikasjonConfig(@Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
+  public BrukernotifikasjonConfig(
+      @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) {
     this.farskapsportalFellesEgenskaper = farskapsportalFellesEgenskaper;
   }
 
@@ -70,13 +71,16 @@ public class BrukernotifikasjonConfig {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
-    configProps.put(ProducerConfig.CLIENT_ID_CONFIG, NAMESPACE_FARSKAPSPORTAL + getHostname(new InetSocketAddress(0)));
+    configProps.put(
+        ProducerConfig.CLIENT_ID_CONFIG,
+        NAMESPACE_FARSKAPSPORTAL + getHostname(new InetSocketAddress(0)));
     configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 40000);
     configProps.put(ProducerConfig.ACKS_CONFIG, "all");
     configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
     configProps.put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, aivenSchemaRegistryCredentials);
     configProps.put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
-    configProps.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
+    configProps.put(
+        KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaSchemaRegistryUrlConfig);
     configProps.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
     configProps.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, trustStorePath);
     configProps.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, trustStorePwd);
@@ -107,28 +111,46 @@ public class BrukernotifikasjonConfig {
   }
 
   @Bean
-  BrukernotifikasjonConsumer brukernotifikasjonConsumer(Beskjedprodusent beskjedprodusent, Ferdigprodusent ferdigprodusent,
-      Oppgaveprodusent oppgaveprodusent, FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper) throws MalformedURLException {
-    return new BrukernotifikasjonConsumer(beskjedprodusent, ferdigprodusent, oppgaveprodusent, farskapsportalFellesEgenskaper);
+  BrukernotifikasjonConsumer brukernotifikasjonConsumer(
+      Beskjedprodusent beskjedprodusent,
+      Ferdigprodusent ferdigprodusent,
+      Oppgaveprodusent oppgaveprodusent,
+      FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper)
+      throws MalformedURLException {
+    return new BrukernotifikasjonConsumer(
+        beskjedprodusent, ferdigprodusent, oppgaveprodusent, farskapsportalFellesEgenskaper);
   }
 
   @Bean
-  Beskjedprodusent beskjedprodusent(@Qualifier("beskjed") KafkaTemplate<NokkelInput, BeskjedInput> kafkaTemplate) throws MalformedURLException {
-    return new Beskjedprodusent(kafkaTemplate, toUrl(farskapsportalFellesEgenskaper.getUrl()),
-        toUrl(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"), farskapsportalFellesEgenskaper);
+  Beskjedprodusent beskjedprodusent(
+      @Qualifier("beskjed") KafkaTemplate<NokkelInput, BeskjedInput> kafkaTemplate)
+      throws MalformedURLException {
+    return new Beskjedprodusent(
+        kafkaTemplate,
+        toUrl(farskapsportalFellesEgenskaper.getUrl()),
+        toUrl(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"),
+        farskapsportalFellesEgenskaper);
   }
 
   @Bean
   Oppgaveprodusent oppgaveprodusent(
-      @Qualifier("oppgave") KafkaTemplate<NokkelInput, OppgaveInput> kafkaTemplate, PersistenceService persistenceService)
+      @Qualifier("oppgave") KafkaTemplate<NokkelInput, OppgaveInput> kafkaTemplate,
+      PersistenceService persistenceService)
       throws MalformedURLException {
-    return new Oppgaveprodusent(kafkaTemplate, persistenceService, toUrl(farskapsportalFellesEgenskaper.getUrl()), farskapsportalFellesEgenskaper);
+    return new Oppgaveprodusent(
+        kafkaTemplate,
+        persistenceService,
+        toUrl(farskapsportalFellesEgenskaper.getUrl()),
+        farskapsportalFellesEgenskaper);
   }
 
   @Bean
-  Ferdigprodusent ferdigprodusent(@Qualifier("ferdig") KafkaTemplate<NokkelInput, DoneInput> kafkaTemplate, PersistenceService persistenceService,
+  Ferdigprodusent ferdigprodusent(
+      @Qualifier("ferdig") KafkaTemplate<NokkelInput, DoneInput> kafkaTemplate,
+      PersistenceService persistenceService,
       OppgavebestillingDao oppgavebestillingDao) {
-    return new Ferdigprodusent(kafkaTemplate, persistenceService, oppgavebestillingDao, farskapsportalFellesEgenskaper);
+    return new Ferdigprodusent(
+        kafkaTemplate, persistenceService, oppgavebestillingDao, farskapsportalFellesEgenskaper);
   }
 
   private URL toUrl(String url) throws MalformedURLException {

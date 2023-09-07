@@ -21,11 +21,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class Mapper {
 
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private ModelMapper modelMapper;
 
-  @Autowired
-  private PersonopplysningService personopplysningService;
+  @Autowired private PersonopplysningService personopplysningService;
 
   public Barn toEntity(BarnDto barnDto) {
     return modelMapper.map(barnDto, Barn.class);
@@ -37,7 +35,8 @@ public class Mapper {
 
   public ForelderDto toDto(Forelder forelder) {
     var foedselsdato = personopplysningService.henteFoedselsdato(forelder.getFoedselsnummer());
-    var navnDto = modelMapper(personopplysningService.henteNavn(forelder.getFoedselsnummer()), NavnDto.class);
+    var navnDto =
+        modelMapper(personopplysningService.henteNavn(forelder.getFoedselsnummer()), NavnDto.class);
     var forelderDto = modelMapper.map(forelder, ForelderDto.class);
     forelderDto.setFoedselsdato(foedselsdato);
     forelderDto.setNavn(navnDto);
@@ -49,14 +48,20 @@ public class Mapper {
     try {
       return DokumentDto.builder()
           .dokumentnavn(dokument.getNavn())
-          .redirectUrlFar(dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
-              ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null)
-          .redirectUrlMor(dokument.getSigneringsinformasjonMor().getRedirectUrl() != null
-              ? new URI(dokument.getSigneringsinformasjonMor().getRedirectUrl()) : null)
+          .redirectUrlFar(
+              dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
+                  ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl())
+                  : null)
+          .redirectUrlMor(
+              dokument.getSigneringsinformasjonMor().getRedirectUrl() != null
+                  ? new URI(dokument.getSigneringsinformasjonMor().getRedirectUrl())
+                  : null)
           .signertAvMor(dokument.getSigneringsinformasjonMor().getSigneringstidspunkt())
           .signertAvFar(dokument.getSigneringsinformasjonFar().getSigneringstidspunkt())
-          .redirectUrlFar(dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
-              ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl()) : null)
+          .redirectUrlFar(
+              dokument.getSigneringsinformasjonFar().getRedirectUrl() != null
+                  ? new URI(dokument.getSigneringsinformasjonFar().getRedirectUrl())
+                  : null)
           .build();
 
     } catch (URISyntaxException uriSyntaxException) {
@@ -86,13 +91,19 @@ public class Mapper {
 
   public StatusKontrollereFar toEntity(StatusKontrollereFarDto statusKontrollereFarDto) {
     var mor = toEntity(statusKontrollereFarDto.getMor());
-    return StatusKontrollereFar.builder().mor(mor).tidspunktForNullstilling(statusKontrollereFarDto.getTidspunktForNullstilling())
-        .antallFeiledeForsoek(statusKontrollereFarDto.getAntallFeiledeForsoek()).build();
+    return StatusKontrollereFar.builder()
+        .mor(mor)
+        .tidspunktForNullstilling(statusKontrollereFarDto.getTidspunktForNullstilling())
+        .antallFeiledeForsoek(statusKontrollereFarDto.getAntallFeiledeForsoek())
+        .build();
   }
 
   public StatusKontrollereFarDto toDto(StatusKontrollereFar statusKontrollereFar) {
     var morDto = toDto(statusKontrollereFar.getMor());
-    return StatusKontrollereFarDto.builder().mor(morDto).tidspunktForNullstilling(statusKontrollereFar.getTidspunktForNullstilling())
-        .antallFeiledeForsoek(statusKontrollereFar.getAntallFeiledeForsoek()).build();
+    return StatusKontrollereFarDto.builder()
+        .mor(morDto)
+        .tidspunktForNullstilling(statusKontrollereFar.getTidspunktForNullstilling())
+        .antallFeiledeForsoek(statusKontrollereFar.getAntallFeiledeForsoek())
+        .build();
   }
 }

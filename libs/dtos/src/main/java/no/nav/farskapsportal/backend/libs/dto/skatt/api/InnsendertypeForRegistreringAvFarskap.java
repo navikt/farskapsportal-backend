@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InnsendertypeForRegistreringAvFarskap {
 
-  @XmlValue
-  private String type;
-
+  @XmlValue private String type;
 }

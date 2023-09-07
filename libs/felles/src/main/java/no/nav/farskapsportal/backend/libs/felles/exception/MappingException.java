@@ -17,5 +17,4 @@ public class MappingException extends UnrecoverableException {
   public String getMessage() {
     return this.message;
   }
-
 }

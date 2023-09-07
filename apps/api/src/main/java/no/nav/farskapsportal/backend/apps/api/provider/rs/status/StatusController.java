@@ -36,36 +36,47 @@ public class StatusController {
   }
 
   @GetMapping(value = "/status")
-  @Operation(description = "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn",
+  @Operation(
+      description =
+          "Avgjør foreldrerolle til person. Henter ventende farskapserklæringer. Henter nyfødte barn",
       security = {@SecurityRequirement(name = "bearer-key")})
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Statusinformasjon hentet"),
-      @ApiResponse(responseCode = "400", description = "Ugyldig request"),
-      @ApiResponse(responseCode = "404", description = "Fant ikke statusinformasjon"),
-      @ApiResponse(responseCode = "500", description = "Serverfeil"),
-      @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Statusinformasjon hentet"),
+        @ApiResponse(responseCode = "400", description = "Ugyldig request"),
+        @ApiResponse(responseCode = "404", description = "Fant ikke statusinformasjon"),
+        @ApiResponse(responseCode = "500", description = "Serverfeil"),
+        @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
+      })
   public ResponseEntity<OperasjonellStatus> henteStatus() {
 
-    var helsesjekk = restTemplate.exchange(
-        "/internal/actuator/health",
-        HttpMethod.GET,
-        new HttpEntity<>(null, null),
-        ActuatorHealth.class);
+    var helsesjekk =
+        restTemplate.exchange(
+            "/internal/actuator/health",
+            HttpMethod.GET,
+            new HttpEntity<>(null, null),
+            ActuatorHealth.class);
 
     var actuatorHealth = helsesjekk.getBody();
 
-    var operasjonellStatus = actuatorHealth.getStatus().equals(Status.UP) ? Systemstatus.OK : Systemstatus.ERROR;
+    var operasjonellStatus =
+        actuatorHealth.getStatus().equals(Status.UP) ? Systemstatus.OK : Systemstatus.ERROR;
 
-    return new ResponseEntity<>(OperasjonellStatus.builder()
-        .name("Farskapsportal")
-        .status(operasjonellStatus.toString())
-        .team("Bidrag")
-        .timestamp(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS z")))
-        .build(), HttpStatus.OK);
+    return new ResponseEntity<>(
+        OperasjonellStatus.builder()
+            .name("Farskapsportal")
+            .status(operasjonellStatus.toString())
+            .team("Bidrag")
+            .timestamp(
+                ZonedDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:MM:ss.SSS z")))
+            .build(),
+        HttpStatus.OK);
   }
 
   enum Systemstatus {
-    OK, WARN, ERROR
+    OK,
+    WARN,
+    ERROR
   }
-
 }

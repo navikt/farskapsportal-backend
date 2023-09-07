@@ -29,5 +29,4 @@ public class OppretteFarskapserklaeringRequest {
   @NotNull
   @Parameter(description = "Skriftspråket erklæringen skal være på")
   Skriftspraak skriftspraak;
-
 }

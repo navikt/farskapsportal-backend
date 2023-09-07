@@ -12,12 +12,14 @@
 
   <properties>
     <asm.version>9.1</asm.version>
-    <brukernotifikasjon-schemas.version>v2.5.1</brukernotifikasjon-schemas.version>
+    <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <javassist.version>3.28.0-GA</javassist.version>
     <kafka-avro-serializer.version>7.4.0</kafka-avro-serializer.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
-    <google.spring-cloud-gcp.version>4.5.0</google.spring-cloud-gcp.version>
+    <google-api-services-storage.version>v1-rev20230710-2.0.0</google-api-services-storage.version>
+    <google-tink.version>1.9.0</google-tink.version>
+    <google-tink-gcpkms.version>1.8.0</google-tink-gcpkms.version>
   </properties>
 
   <dependencyManagement>
@@ -31,11 +33,6 @@
         <groupId>com.google.errorprone</groupId>
         <artifactId>error_prone_annotations</artifactId>
         <version>${google.errorprone.annotations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.api</groupId>
-        <artifactId>gax</artifactId>
-        <version>${google.api.gax.version}</version>
       </dependency>
       <dependency>
         <groupId>org.javassist</groupId>
@@ -105,6 +102,39 @@
           <artifactId>httpcore</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-storage</artifactId>
+      <version>${google-api-services-storage.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-storage</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-storage</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.crypto.tink</groupId>
+      <artifactId>tink</artifactId>
+      <version>${google-tink.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.crypto.tink</groupId>
+      <artifactId>tink-gcpkms</artifactId>
+      <version>${google-tink-gcpkms.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-kms</artifactId>
     </dependency>
 
     <dependency>

@@ -193,7 +193,7 @@ public class DifiESignaturConsumer {
   }
 
   public byte[] henteSignertDokument(URI padesUrl) {
-    try (final var c = client.getPAdES(PAdESReference.of(padesUrl))){
+    try (final var c = client.getPAdES(PAdESReference.of(padesUrl))) {
       return c.readAllBytes();
     } catch (IOException e) {
       throw new InternFeilException(Feilkode.PADESURL_FEILFORMATERT);
@@ -201,7 +201,7 @@ public class DifiESignaturConsumer {
   }
 
   public byte[] henteXadesXml(URI xadesUrl) {
-    try (final var c = client.getXAdES(XAdESReference.of(xadesUrl))){
+    try (final var c = client.getXAdES(XAdESReference.of(xadesUrl))) {
       return c.readAllBytes();
     } catch (IOException e) {
       throw new InternFeilException(Feilkode.XADESURL_FEILFORMATERT);

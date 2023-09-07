@@ -15,5 +15,4 @@ public class OppdatereFarskapserklaeringResponse {
 
   @Parameter(description = "Oppdatert farskapserklæring")
   FarskapserklaeringDto oppdatertFarskapserklaeringDto;
-
 }

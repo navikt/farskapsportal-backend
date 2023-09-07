@@ -28,20 +28,38 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var etDokument = Dokument.builder().navn("signertErklaeringMor.pdf").statusUrl("")
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
-        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build()).build();
+    var etDokument =
+        Dokument.builder()
+            .navn("signertErklaeringMor.pdf")
+            .statusUrl("")
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .build();
 
-    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(etDokument).build();
+    var farskapserklaering =
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(etDokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
     var enAnnenMor = Forelder.builder().foedselsnummer("31019123450").build();
-    var etAnnetDokument = Dokument.builder()
-        .signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).statusUrl("")
-        .navn("EtAnnetDokument.pdf").build();
+    var etAnnetDokument =
+        Dokument.builder()
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .statusUrl("")
+            .navn("EtAnnetDokument.pdf")
+            .build();
 
-    var enAnnenFarskapserklaering = Farskapserklaering.builder().barn(etAnnetBarn).mor(enAnnenMor).far(far).dokument(etAnnetDokument).build();
+    var enAnnenFarskapserklaering =
+        Farskapserklaering.builder()
+            .barn(etAnnetBarn)
+            .mor(enAnnenMor)
+            .far(far)
+            .dokument(etAnnetDokument)
+            .build();
 
     // when, then
     assertNotEquals(farskapserklaering.hashCode(), enAnnenFarskapserklaering.hashCode());
@@ -57,23 +75,37 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).statusUrl("")
-        .navn("farskapserklaering.pdf").build();
+    var dokument =
+        Dokument.builder()
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .statusUrl("")
+            .navn("farskapserklaering.pdf")
+            .build();
 
-    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering =
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     var sammeMor = Forelder.builder().foedselsnummer(mor.getFoedselsnummer()).build();
     var sammeFar = Forelder.builder().foedselsnummer(far.getFoedselsnummer()).build();
 
-    var enAnnenFarskapserklaeringMedSammeParter = Farskapserklaering.builder().barn(barn).mor(sammeMor).far(sammeFar).dokument(dokument).build();
+    var enAnnenFarskapserklaeringMedSammeParter =
+        Farskapserklaering.builder()
+            .barn(barn)
+            .mor(sammeMor)
+            .far(sammeFar)
+            .dokument(dokument)
+            .build();
 
     // when, then
     assertEquals(farskapserklaering.hashCode(), enAnnenFarskapserklaeringMedSammeParter.hashCode());
   }
 
   @Test
-  @DisplayName("To farskapserklæringer skal ikke kategoriseres som like dersom partene ikke er de samme")
+  @DisplayName(
+      "To farskapserklæringer skal ikke kategoriseres som like dersom partene ikke er de samme")
   void farskapserklaeringerMedUlikeParterSkalKategoriseresSomUlike() {
 
     // given
@@ -83,16 +115,29 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).statusUrl("")
-        .navn("farskapserklaering.pdf").build();
+    var dokument =
+        Dokument.builder()
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .statusUrl("")
+            .navn("farskapserklaering.pdf")
+            .build();
 
-    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering =
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
     var enAnnenMor = Forelder.builder().foedselsnummer("31019123450").build();
 
-    var enAnnenFarskapserklaering = Farskapserklaering.builder().barn(etAnnetBarn).mor(enAnnenMor).far(far).dokument(dokument).build();
+    var enAnnenFarskapserklaering =
+        Farskapserklaering.builder()
+            .barn(etAnnetBarn)
+            .mor(enAnnenMor)
+            .far(far)
+            .dokument(dokument)
+            .build();
 
     // when, then
     assertNotEquals(farskapserklaering, enAnnenFarskapserklaering);
@@ -110,24 +155,38 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).statusUrl("")
-        .navn("farskapserklaering.pdf").build();
+    var dokument =
+        Dokument.builder()
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .statusUrl("")
+            .navn("farskapserklaering.pdf")
+            .build();
 
-    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering =
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     var sammeMor = Forelder.builder().foedselsnummer(mor.getFoedselsnummer()).build();
 
     var sammeFar = Forelder.builder().foedselsnummer(far.getFoedselsnummer()).build();
 
-    var enAnnenFarskapserklaeringMedSammeParter = Farskapserklaering.builder().barn(barn).mor(sammeMor).far(sammeFar).dokument(dokument).build();
+    var enAnnenFarskapserklaeringMedSammeParter =
+        Farskapserklaering.builder()
+            .barn(barn)
+            .mor(sammeMor)
+            .far(sammeFar)
+            .dokument(dokument)
+            .build();
 
     // when, then
     assertEquals(farskapserklaering, enAnnenFarskapserklaeringMedSammeParter);
   }
 
   @Test
-  void deaktivertFarskapserklaeringEllersIdentiskMedAktivFarskapserklaeringSkalKategoriseresSomUlike() {
+  void
+      deaktivertFarskapserklaeringEllersIdentiskMedAktivFarskapserklaeringSkalKategoriseresSomUlike() {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
@@ -137,20 +196,34 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).statusUrl("")
-        .navn("farskapserklaering.pdf").build();
+    var dokument =
+        Dokument.builder()
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .statusUrl("")
+            .navn("farskapserklaering.pdf")
+            .build();
 
-    var aktivFarskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
-    var deaktivFarskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).deaktivert(LocalDateTime.now())
-        .build();
+    var aktivFarskapserklaering =
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var deaktivFarskapserklaering =
+        Farskapserklaering.builder()
+            .barn(barn)
+            .mor(mor)
+            .far(far)
+            .dokument(dokument)
+            .deaktivert(LocalDateTime.now())
+            .build();
 
     // when, then
     assertThat(aktivFarskapserklaering).isNotEqualTo(deaktivFarskapserklaering);
   }
 
   @Test
-  void toFarskapserklaeringerMedSammeParterMenForskjelligDeaktiveringstidspunktSkalKategoriseresSomUlike() {
+  void
+      toFarskapserklaeringerMedSammeParterMenForskjelligDeaktiveringstidspunktSkalKategoriseresSomUlike() {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
@@ -160,14 +233,32 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).statusUrl("")
-        .navn("farskapserklaering.pdf").build();
+    var dokument =
+        Dokument.builder()
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .statusUrl("")
+            .navn("farskapserklaering.pdf")
+            .build();
 
-    var deaktivFarskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument)
-        .deaktivert(LocalDateTime.now().minusMinutes(3)).build();
-    var deaktivFarskapserklaering2 = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).deaktivert(LocalDateTime.now())
-        .build();
+    var deaktivFarskapserklaering =
+        Farskapserklaering.builder()
+            .barn(barn)
+            .mor(mor)
+            .far(far)
+            .dokument(dokument)
+            .deaktivert(LocalDateTime.now().minusMinutes(3))
+            .build();
+    var deaktivFarskapserklaering2 =
+        Farskapserklaering.builder()
+            .barn(barn)
+            .mor(mor)
+            .far(far)
+            .dokument(dokument)
+            .deaktivert(LocalDateTime.now())
+            .build();
 
     // when, then
     assertThat(deaktivFarskapserklaering).isNotEqualTo(deaktivFarskapserklaering2);
@@ -184,16 +275,30 @@ public class FarskapserklaeringTest {
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
-    var dokument = Dokument.builder().signeringsinformasjonMor(Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build()).statusUrl("")
-        .navn("farskapserklaering.pdf").build();
+    var dokument =
+        Dokument.builder()
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlMor).build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(redirectUrlFar).build())
+            .statusUrl("")
+            .navn("farskapserklaering.pdf")
+            .build();
 
-    var farskapserklaering = Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+    var farskapserklaering =
+        Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     // when
     var toString = farskapserklaering.toString();
 
     // then
-    assertEquals("Farskapserklaering gjelder " + barn.toString() + " med foreldrene: \n -Mor: " + mor + "\n -Far: " + far, toString);
+    assertEquals(
+        "Farskapserklaering gjelder "
+            + barn.toString()
+            + " med foreldrene: \n -Mor: "
+            + mor
+            + "\n -Far: "
+            + far,
+        toString);
   }
 }

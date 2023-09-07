@@ -18,29 +18,52 @@ public class Varsel {
   private Brukernotifikasjon egenskaperBrukernotifikasjon;
 
   @SchedulerLock(name = "manglende_signering", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron}", zone = "Europe/Oslo")
+  @Scheduled(
+      cron =
+          "${farskapsportal.asynkron.egenskaper.brukernotifikasjon.varsle-om-uferdig-erklaering-cron}",
+      zone = "Europe/Oslo")
   public void varsleOmManglendeSigneringsinfo() {
 
-    var grensetidspunkt = LocalDateTime.now()
-        .minusDays(egenskaperBrukernotifikasjon.getOppgavestyringsforsinkelse());
+    var grensetidspunkt =
+        LocalDateTime.now().minusDays(egenskaperBrukernotifikasjon.getOppgavestyringsforsinkelse());
 
-    var ider = persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(grensetidspunkt);
+    var ider =
+        persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(
+            grensetidspunkt);
 
     var farskapserklaering_tekst = ider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
 
-    log.info("Fant id til {} {} som det sendes eksternt varsel til foreldrene om.", ider.size(), farskapserklaering_tekst);
+    log.info(
+        "Fant id til {} {} som det sendes eksternt varsel til foreldrene om.",
+        ider.size(),
+        farskapserklaering_tekst);
 
     for (int id : ider) {
       var farskapserklaering = persistenceService.henteFarskapserklaeringForId(id);
-      var sendtTilSignering = farskapserklaering.getDokument().getSigneringsinformasjonFar().getSendtTilSignering();
-      var sendeVarsel = sendtTilSignering == null
-          ? farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().isBefore(grensetidspunkt)
-          : sendtTilSignering.isBefore(grensetidspunkt);
+      var sendtTilSignering =
+          farskapserklaering.getDokument().getSigneringsinformasjonFar().getSendtTilSignering();
+      var sendeVarsel =
+          sendtTilSignering == null
+              ? farskapserklaering
+                  .getDokument()
+                  .getSigneringsinformasjonMor()
+                  .getSigneringstidspunkt()
+                  .isBefore(grensetidspunkt)
+              : sendtTilSignering.isBefore(grensetidspunkt);
       if (sendeVarsel) {
-        brukernotifikasjonConsumer.varsleForeldreOmManglendeSignering(farskapserklaering.getMor(), farskapserklaering.getFar(),
-            farskapserklaering.getBarn(), farskapserklaering.getDokument().getSigneringsinformasjonMor().getSigneringstidspunkt().toLocalDate());
+        brukernotifikasjonConsumer.varsleForeldreOmManglendeSignering(
+            farskapserklaering.getMor(),
+            farskapserklaering.getFar(),
+            farskapserklaering.getBarn(),
+            farskapserklaering
+                .getDokument()
+                .getSigneringsinformasjonMor()
+                .getSigneringstidspunkt()
+                .toLocalDate());
       } else {
-        log.info("Varsel ikke sendt for farskapserklæring med id {} ettersom det var for kort tid siden denne ble oppdatert", id);
+        log.info(
+            "Varsel ikke sendt for farskapserklæring med id {} ettersom det var for kort tid siden denne ble oppdatert",
+            id);
       }
     }
   }

@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Foedselsnummer {
 
-  @XmlValue
-  private Tekst foedselsnummer;
-
+  @XmlValue private Tekst foedselsnummer;
 }

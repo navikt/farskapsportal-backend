@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KanalForRegistreringAvFarskap {
 
-  @XmlValue
-  private String kanal;
-
+  @XmlValue private String kanal;
 }
