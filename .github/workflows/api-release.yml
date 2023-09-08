@@ -5,6 +5,8 @@ on:
       - release
     paths:
       - 'pom.xml'
+      - '.m2/**'
+      - '.github/workflows/**'
       - 'apps/api/**'
       - 'libs/**'
       - '.nais/app/**'
