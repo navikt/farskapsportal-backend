@@ -225,26 +225,32 @@ public class PersistenceService {
       if (erklaeringHarReferanserTilBuckets(farskapserklaering.get())) {
 
         var padesBlobGcp = farskapserklaering.get().getDokument().getBlobIdGcp();
-        if (bucketConsumer.deleteContentFromBucket(padesBlobGcp)) {
-          farskapserklaering.get().getDokument().setBlobIdGcp(null);
-        } else {
-          validerAtBlobIkkeEksisterer(padesBlobGcp);
+        if (padesBlobGcp != null) {
+          if (bucketConsumer.deleteContentFromBucket(padesBlobGcp)) {
+            farskapserklaering.get().getDokument().setBlobIdGcp(null);
+          } else {
+            validerAtBlobIkkeEksisterer(padesBlobGcp);
+          }
         }
 
         var xadesMorBlobGcp =
             farskapserklaering.get().getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
-        if (bucketConsumer.deleteContentFromBucket(xadesMorBlobGcp)) {
-          farskapserklaering.get().getDokument().getSigneringsinformasjonMor().setBlobIdGcp(null);
-        } else {
-          validerAtBlobIkkeEksisterer(xadesMorBlobGcp);
+        if (xadesMorBlobGcp != null) {
+          if (bucketConsumer.deleteContentFromBucket(xadesMorBlobGcp)) {
+            farskapserklaering.get().getDokument().getSigneringsinformasjonMor().setBlobIdGcp(null);
+          } else {
+            validerAtBlobIkkeEksisterer(xadesMorBlobGcp);
+          }
         }
 
-        var xadeFarBlobGcp =
+        var xadesFarBlobGcp =
             farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
-        if (bucketConsumer.deleteContentFromBucket(xadeFarBlobGcp)) {
-          farskapserklaering.get().getDokument().getSigneringsinformasjonFar().setBlobIdGcp(null);
-        } else {
-          validerAtBlobIkkeEksisterer(xadesMorBlobGcp);
+        if (xadesFarBlobGcp != null) {
+          if (bucketConsumer.deleteContentFromBucket(xadesFarBlobGcp)) {
+            farskapserklaering.get().getDokument().getSigneringsinformasjonFar().setBlobIdGcp(null);
+          } else {
+            validerAtBlobIkkeEksisterer(xadesMorBlobGcp);
+          }
         }
       }
 

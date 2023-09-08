@@ -1,4 +1,6 @@
-server.shutdown: graceful
+server:
+  forward-headers-strategy: framework
+  shutdown: graceful
 
 spring:
   devtools.add-properties: false
