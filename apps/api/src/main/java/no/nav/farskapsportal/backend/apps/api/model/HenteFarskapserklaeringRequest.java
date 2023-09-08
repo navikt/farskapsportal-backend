@@ -15,5 +15,4 @@ public class HenteFarskapserklaeringRequest {
 
   BarnDto barn;
   ForelderDto motpart;
-
 }

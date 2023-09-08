@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DatoKlokkeslett {
 
-  @XmlValue
-  private String dateTime;
-
+  @XmlValue private String dateTime;
 }

@@ -14,16 +14,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"avsendersMeldingsidentifikator", "avsendersInnsendingstidspunkt", "kildesystem"})
+@XmlType(
+    propOrder = {"avsendersMeldingsidentifikator", "avsendersInnsendingstidspunkt", "kildesystem"})
 public class Innsending {
 
-  @XmlElement
-  private Tekst avsendersMeldingsidentifikator;
+  @XmlElement private Tekst avsendersMeldingsidentifikator;
 
-  @XmlElement
-  private DatoKlokkeslett avsendersInnsendingstidspunkt;
+  @XmlElement private DatoKlokkeslett avsendersInnsendingstidspunkt;
 
-  @XmlElement
-  private Tekst kildesystem;
-
+  @XmlElement private Tekst kildesystem;
 }

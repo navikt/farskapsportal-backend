@@ -15,5 +15,4 @@ public class ClassPathStreamFactory implements com.openhtmltopdf.extend.FSStream
       throw new RuntimeException(ex);
     }
   }
-
 }

@@ -14,23 +14,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"farsForeldreHarSignert", "skjemaErAttestert", "vedlagtFarskapsskjemaErOriginalt", "manuellBehandlingErOensket",
-    "kommentarForManuellBehandling"})
+@XmlType(
+    propOrder = {
+      "farsForeldreHarSignert",
+      "skjemaErAttestert",
+      "vedlagtFarskapsskjemaErOriginalt",
+      "manuellBehandlingErOensket",
+      "kommentarForManuellBehandling"
+    })
 public class SaksbehandlersVurdering {
 
-  @XmlElement
-  private Boolsk farsForeldreHarSignert;
+  @XmlElement private Boolsk farsForeldreHarSignert;
 
-  @XmlElement
-  private Boolsk skjemaErAttestert;
+  @XmlElement private Boolsk skjemaErAttestert;
 
-  @XmlElement
-  private Boolsk vedlagtFarskapsskjemaErOriginalt;
+  @XmlElement private Boolsk vedlagtFarskapsskjemaErOriginalt;
 
-  @XmlElement
-  private Boolsk manuellBehandlingErOensket;
+  @XmlElement private Boolsk manuellBehandlingErOensket;
 
-  @XmlElement
-  private Tekst kommentarForManuellBehandling;
-
+  @XmlElement private Tekst kommentarForManuellBehandling;
 }

@@ -50,7 +50,9 @@ public class RestTemplateConfig {
         Optional.ofNullable(
                 clientConfigurationProperties.getRegistration().get(CLIENT_FARSKAPSPORTAL_API))
             .orElseThrow(
-                () -> new RuntimeException("fant ikke oauth2-klientkonfig for " + CLIENT_FARSKAPSPORTAL_API));
+                () ->
+                    new RuntimeException(
+                        "fant ikke oauth2-klientkonfig for " + CLIENT_FARSKAPSPORTAL_API));
 
     restTemplate
         .getInterceptors()
@@ -70,7 +72,10 @@ public class RestTemplateConfig {
 
     ClientProperties clientProperties =
         Optional.ofNullable(clientConfigurationProperties.getRegistration().get(CLIENT_OPPGAVE_API))
-            .orElseThrow(() -> new RuntimeException("fant ikke oauth2-klientkonfig for " + CLIENT_OPPGAVE_API));
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        "fant ikke oauth2-klientkonfig for " + CLIENT_OPPGAVE_API));
 
     var restTemplate = new RestTemplate();
     restTemplate
@@ -85,15 +90,18 @@ public class RestTemplateConfig {
 
   @Bean("pdl-api")
   @Scope("prototype")
-  public HttpHeaderRestTemplate pdlApiRestTemplate(@Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
-    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.CONTENT_TYPE, () -> MediaType.APPLICATION_JSON_VALUE);
+  public HttpHeaderRestTemplate pdlApiRestTemplate(
+      @Qualifier("base") HttpHeaderRestTemplate httpHeaderRestTemplate) {
+    httpHeaderRestTemplate.addHeaderGenerator(
+        HttpHeaders.CONTENT_TYPE, () -> MediaType.APPLICATION_JSON_VALUE);
     httpHeaderRestTemplate.addHeaderGenerator(BEHANDLINGSNUMMER, () -> BEHANDLINGSNUMMER_FARSKAP);
     httpHeaderRestTemplate.addHeaderGenerator(TEMA, () -> TEMA_FAR);
 
-    httpHeaderRestTemplate.getInterceptors().add(securityTokenService.clientCredentialsTokenInterceptor(CLIENT_PDL_API));
+    httpHeaderRestTemplate
+        .getInterceptors()
+        .add(securityTokenService.clientCredentialsTokenInterceptor(CLIENT_PDL_API));
     return httpHeaderRestTemplate;
   }
-
 
   private ClientHttpRequestInterceptor accessTokenInterceptor(
       ClientProperties clientProperties, OAuth2AccessTokenService oAuth2AccessTokenService) {

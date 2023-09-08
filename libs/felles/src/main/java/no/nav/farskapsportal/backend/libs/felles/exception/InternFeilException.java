@@ -23,7 +23,6 @@ public class InternFeilException extends UnrecoverableException {
     this.originalException = originalException;
   }
 
-
   public Feilkode getFeilkode() {
     return this.feilkode;
   }

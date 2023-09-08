@@ -13,7 +13,12 @@ public class HentPersonNavn implements HentPersonSubResponse {
   }
 
   public HentPersonNavn(no.nav.farskapsportal.backend.libs.dto.NavnDto navnDto) {
-    buildResponse(NavnDto.builder().fornavn(navnDto.getFornavn()).mellomnavn(navnDto.getMellomnavn()).etternavn(navnDto.getEtternavn()).build(),
+    buildResponse(
+        NavnDto.builder()
+            .fornavn(navnDto.getFornavn())
+            .mellomnavn(navnDto.getMellomnavn())
+            .etternavn(navnDto.getEtternavn())
+            .build(),
         "sagga-dagga");
   }
 

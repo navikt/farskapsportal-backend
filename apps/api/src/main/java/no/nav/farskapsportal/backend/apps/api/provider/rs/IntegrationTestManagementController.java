@@ -31,14 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class IntegrationTestManagementController {
 
-  @Autowired
-  private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
 
-  @Autowired
-  private PdfGeneratorConsumer pdfGeneratorConsumer;
+  @Autowired private PdfGeneratorConsumer pdfGeneratorConsumer;
 
-  @Autowired
-  private PersistenceService persistenceService;
+  @Autowired private PersistenceService persistenceService;
 
   @PostMapping("/testdata/deaktivere")
   @Operation(description = "Deaktiverer farskapserklæringer. Tilgjengelig kun i DEV.")
@@ -58,13 +55,19 @@ public class IntegrationTestManagementController {
 
   @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/pades")
   @Operation(description = "Henter PADES for en farskapserklærings forelder")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
-      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
-      @ApiResponse(responseCode = "500", description = "Serverfeil"),
-      @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
+        @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Fant ikke farskapserklæring eller dokument"),
+        @ApiResponse(responseCode = "500", description = "Serverfeil"),
+        @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
+      })
   public ResponseEntity<byte[]> hentePades(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
     var innholdPades = fp.get().getDokument().getDokumentinnhold().getInnhold();
@@ -73,13 +76,19 @@ public class IntegrationTestManagementController {
 
   @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades/mor")
   @Operation(description = "Henter XADES for en farskapserklærings forelder")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
-      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
-      @ApiResponse(responseCode = "500", description = "Serverfeil"),
-      @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
+        @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Fant ikke farskapserklæring eller dokument"),
+        @ApiResponse(responseCode = "500", description = "Serverfeil"),
+        @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
+      })
   public ResponseEntity<byte[]> henteXadesMor(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
     var innholdXades = fp.get().getDokument().getSigneringsinformasjonMor().getXadesXml();
@@ -88,13 +97,19 @@ public class IntegrationTestManagementController {
 
   @GetMapping("/test/farskapserklaering/{idFarskapserklaering}/xades/far")
   @Operation(description = "Henter XADES for en farskapserklærings forelder")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
-      @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
-      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(responseCode = "404", description = "Fant ikke farskapserklæring eller dokument"),
-      @ApiResponse(responseCode = "500", description = "Serverfeil"),
-      @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")})
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Dokument hentet uten feil"),
+        @ApiResponse(responseCode = "400", description = "Feil opplysninger oppgitt"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Fant ikke farskapserklæring eller dokument"),
+        @ApiResponse(responseCode = "500", description = "Serverfeil"),
+        @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
+      })
   public ResponseEntity<byte[]> henteXadesFar(@PathVariable int idFarskapserklaering) {
     var fp = farskapserklaeringDao.findById(idFarskapserklaering);
     var innholdXades = fp.get().getDokument().getSigneringsinformasjonFar().getXadesXml();
@@ -107,19 +122,22 @@ public class IntegrationTestManagementController {
 
     var barn = BarnDto.builder().termindato(LocalDate.now().plusMonths(1)).build();
 
-    var mor = ForelderDto.builder()
-        .foedselsnummer("11046000201")
-        .foedselsdato(LocalDate.now().minusYears(26))
-        .navn(NavnDto.builder().fornavn("Bambi").etternavn("Normann").build()).build();
+    var mor =
+        ForelderDto.builder()
+            .foedselsnummer("11046000201")
+            .foedselsdato(LocalDate.now().minusYears(26))
+            .navn(NavnDto.builder().fornavn("Bambi").etternavn("Normann").build())
+            .build();
 
-    var far = ForelderDto.builder()
-        .foedselsnummer("11029400522")
-        .foedselsdato(LocalDate.now().minusYears(26))
-        .navn(NavnDto.builder().fornavn("Bamse").etternavn("Normann").build()).build();
+    var far =
+        ForelderDto.builder()
+            .foedselsnummer("11029400522")
+            .foedselsdato(LocalDate.now().minusYears(26))
+            .navn(NavnDto.builder().fornavn("Bamse").etternavn("Normann").build())
+            .build();
 
     var pdf = pdfGeneratorConsumer.genererePdf(barn, mor, far, null);
 
     return new ResponseEntity<>(pdf, HttpStatus.OK);
   }
-
 }

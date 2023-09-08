@@ -25,8 +25,9 @@ public class Oppgavestyring {
 
   private static final String OPPGAVE_DATOFORMAT_I_BESKRIVELSE = "dd.MM.YYYY";
 
-  private static final String OPPGAVEBESKRIVELSE_GENERELL = "ELEKTRONISK ERKLÆRING -"
-      + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
+  private static final String OPPGAVEBESKRIVELSE_GENERELL =
+      "ELEKTRONISK ERKLÆRING -"
+          + " Farskap for %s er erklært elektronisk. Far (%s) har oppgitt at han ikke bor sammen med mor (%s). Vurder om det skal tas opp bidragssak.";
 
   @SchedulerLock(name = "oppgave", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
   @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.oppgave.vurdere-opprettelse}")
@@ -35,16 +36,21 @@ public class Oppgavestyring {
     log.info("Vurderer opprettelse av oppgave for foreldre som ikke bor sammen ved fødsel.");
     var grenseverdiTermindato = LocalDate.now().minusWeeks(2);
     var grenseverdiSigneringstidspunktFar = LocalDateTime.now().with(LocalTime.MIDNIGHT);
-    var farskapseerklaeringerDetSkalOpprettesOppgaverFor = farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(
-        grenseverdiTermindato, grenseverdiSigneringstidspunktFar);
+    var farskapseerklaeringerDetSkalOpprettesOppgaverFor =
+        farskapserklaeringDao.henteIdTilFarskapserklaeringerDetSkalOpprettesOppgaverFor(
+            grenseverdiTermindato, grenseverdiSigneringstidspunktFar);
 
-    log.info("Fant {} farskapserklæringer som gjelder foreldre som ikke bor sammen som det skal opprettes oppgave om bidrag for.",
+    log.info(
+        "Fant {} farskapserklæringer som gjelder foreldre som ikke bor sammen som det skal opprettes oppgave om bidrag for.",
         farskapseerklaeringerDetSkalOpprettesOppgaverFor.size());
 
-    if (egenskaperOppgavestyring.getMaksAntallOppgaverPerDag() < farskapseerklaeringerDetSkalOpprettesOppgaverFor.size()) {
-      log.info("Maks antall oppgaver per dag er lavere enn antall farskapserklæringer identifisert ({} vs {}). Forsøker å opprette"
+    if (egenskaperOppgavestyring.getMaksAntallOppgaverPerDag()
+        < farskapseerklaeringerDetSkalOpprettesOppgaverFor.size()) {
+      log.info(
+          "Maks antall oppgaver per dag er lavere enn antall farskapserklæringer identifisert ({} vs {}). Forsøker å opprette"
               + " oppgave for {} erklæringer.",
-          egenskaperOppgavestyring.getMaksAntallOppgaverPerDag(), farskapseerklaeringerDetSkalOpprettesOppgaverFor.size(),
+          egenskaperOppgavestyring.getMaksAntallOppgaverPerDag(),
+          farskapseerklaeringerDetSkalOpprettesOppgaverFor.size(),
           egenskaperOppgavestyring.getMaksAntallOppgaverPerDag());
     }
 
@@ -56,12 +62,15 @@ public class Oppgavestyring {
           teller++;
         }
       } else {
-        log.info("Dagligmaksimumsantall oppgaver er nådd, avslutter opprettelse av de resterende oppgavene.");
+        log.info(
+            "Dagligmaksimumsantall oppgaver er nådd, avslutter opprettelse av de resterende oppgavene.");
         break;
       }
     }
 
-    log.info("Det ble opprettet oppgave for {} av {} identifiserte farskapserklæringer", teller,
+    log.info(
+        "Det ble opprettet oppgave for {} av {} identifiserte farskapserklæringer",
+        teller,
         farskapseerklaeringerDetSkalOpprettesOppgaverFor.size());
   }
 
@@ -73,31 +82,46 @@ public class Oppgavestyring {
       var far = farskapserklaering.get().getFar();
       var mor = farskapserklaering.get().getMor();
 
-      var beskrivelse = barn.getFoedselsnummer() == null
-          ? String.format(OPPGAVEBESKRIVELSE_GENERELL,
-          "barn oppgitt med termin " + barn.getTermindato().format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT_I_BESKRIVELSE)),
-          far.getFoedselsnummer(), mor.getFoedselsnummer())
-          : String.format(OPPGAVEBESKRIVELSE_GENERELL, "barn med fødselsnummer " + barn.getFoedselsnummer(), far.getFoedselsnummer(),
-              mor.getFoedselsnummer());
+      var beskrivelse =
+          barn.getFoedselsnummer() == null
+              ? String.format(
+                  OPPGAVEBESKRIVELSE_GENERELL,
+                  "barn oppgitt med termin "
+                      + barn.getTermindato()
+                          .format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT_I_BESKRIVELSE)),
+                  far.getFoedselsnummer(),
+                  mor.getFoedselsnummer())
+              : String.format(
+                  OPPGAVEBESKRIVELSE_GENERELL,
+                  "barn med fødselsnummer " + barn.getFoedselsnummer(),
+                  far.getFoedselsnummer(),
+                  mor.getFoedselsnummer());
 
-      var aktoerid = personopplysningService.henteAktoerid(farskapserklaering.get().getMor().getFoedselsnummer());
+      var aktoerid =
+          personopplysningService.henteAktoerid(
+              farskapserklaering.get().getMor().getFoedselsnummer());
 
       if (aktoerid.isPresent()) {
-        var oppgaveforespoersel = new Oppgaveforespoersel().toBuilder()
-            .aktoerId(aktoerid.get())
-            .beskrivelse(beskrivelse).build();
+        var oppgaveforespoersel =
+            new Oppgaveforespoersel()
+                .toBuilder().aktoerId(aktoerid.get()).beskrivelse(beskrivelse).build();
         var oppgaveId = oppgaveApiConsumer.oppretteOppgave(oppgaveforespoersel);
 
         if (oppgaveId != -1) {
           farskapserklaering.get().setOppgaveSendt(LocalDateTime.now());
           farskapserklaeringDao.save(farskapserklaering.get());
-          log.info("Oppgave opprettet for farskapserklæring med id {}", farskapserklaering.get().getId());
+          log.info(
+              "Oppgave opprettet for farskapserklæring med id {}",
+              farskapserklaering.get().getId());
           return oppgaveId;
         } else {
-          log.warn("Opprettelse av oppgave feilet for farskapserklæring med id {}", farskapserklaering.get().getId());
+          log.warn(
+              "Opprettelse av oppgave feilet for farskapserklæring med id {}",
+              farskapserklaering.get().getId());
         }
       } else {
-        log.warn("Fant ingen aktørid knyttet til mor i farskapserklæring med id {}. Oppgaven ble derfor ikke opprettet.",
+        log.warn(
+            "Fant ingen aktørid knyttet til mor i farskapserklæring med id {}. Oppgaven ble derfor ikke opprettet.",
             farskapserklaering.get().getId());
       }
     } else {

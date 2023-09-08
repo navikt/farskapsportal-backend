@@ -52,18 +52,13 @@ public class FerdigprodusentTest {
 
   @Value("${wiremock.server.port}")
   private String wiremockPort;
-  @Autowired
-  private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
-  @MockBean
-  private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
-  @Autowired
-  private Ferdigprodusent ferdigprodusent;
-  @Autowired
-  private PersistenceService persistenceService;
-  @Autowired
-  private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired
-  private OppgavebestillingDao oppgavebestillingDao;
+
+  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  @MockBean private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
+  @Autowired private Ferdigprodusent ferdigprodusent;
+  @Autowired private PersistenceService persistenceService;
+  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
+  @Autowired private OppgavebestillingDao oppgavebestillingDao;
 
   @Test
   void skalFerdigstilleFarsSigneringsoppgave() {
@@ -77,25 +72,44 @@ public class FerdigprodusentTest {
 
     var fnrFar = "11111122222";
 
-    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnUtenFnr(6));
-    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
+    var farskapserklaeringSomVenterPaaFarsSignatur =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnUtenFnr(6));
+    farskapserklaeringSomVenterPaaFarsSignatur
+        .getDokument()
+        .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
-    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+    var farskapserklaering =
+        persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
-    var oppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
-        .opprettet(LocalDateTime.now()).eventId(UUID.randomUUID().toString()).forelder(farskapserklaering.getFar()).build());
+    var oppgavebestilling =
+        oppgavebestillingDao.save(
+            Oppgavebestilling.builder()
+                .opprettet(LocalDateTime.now())
+                .eventId(UUID.randomUUID().toString())
+                .forelder(farskapserklaering.getFar())
+                .build());
 
     // when
-    ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
-        new NokkelInputBuilder().withFodselsnummer(fnrFar)
-            .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
-            .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn()).withNamespace(NAMESPACE_FARSKAPSPORTAL)
-            .withEventId(oppgavebestilling.getEventId()).build());
+    ferdigprodusent.ferdigstilleFarsSigneringsoppgave(
+        Forelder.builder().foedselsnummer(fnrFar).build(),
+        new NokkelInputBuilder()
+            .withFodselsnummer(fnrFar)
+            .withGrupperingsId(
+                farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+            .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
+            .withNamespace(NAMESPACE_FARSKAPSPORTAL)
+            .withEventId(oppgavebestilling.getEventId())
+            .build());
 
-    //then
+    // then
     verify(ferdigkoe, times(1))
-        .send(eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicFerdig()), noekkelfanger.capture(), ferdigfanger.capture());
+        .send(
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicFerdig()),
+            noekkelfanger.capture(),
+            ferdigfanger.capture());
 
     var noekler = noekkelfanger.getAllValues();
     var ferdigmeldinger = ferdigfanger.getAllValues();
@@ -108,10 +122,14 @@ public class FerdigprodusentTest {
     var ferdigmelding = ferdigmeldinger.get(0);
 
     assertAll(
-        () -> assertThat(LocalDateTime.ofInstant(Instant.ofEpochMilli(ferdigmelding.getTidspunkt()), ZoneId.of("UTC")))
-            .isBetween(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2), ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime()),
-        () -> assertThat(noekkel.getEventId()).isEqualTo(oppgavebestilling.getEventId())
-    );
+        () ->
+            assertThat(
+                    LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(ferdigmelding.getTidspunkt()), ZoneId.of("UTC")))
+                .isBetween(
+                    ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().minusSeconds(2),
+                    ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime()),
+        () -> assertThat(noekkel.getEventId()).isEqualTo(oppgavebestilling.getEventId()));
   }
 
   @Test
@@ -123,34 +141,58 @@ public class FerdigprodusentTest {
 
     var fnrFar = "11111122222";
 
-    var farskapserklaeringSomVenterPaaFarsSignatur = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR),
-        henteBarnUtenFnr(6));
-    farskapserklaeringSomVenterPaaFarsSignatur.getDokument().getSigneringsinformasjonMor()
+    var farskapserklaeringSomVenterPaaFarsSignatur =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnUtenFnr(6));
+    farskapserklaeringSomVenterPaaFarsSignatur
+        .getDokument()
+        .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(LocalDateTime.now().minusMinutes(3));
-    var farskapserklaering = persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
+    var farskapserklaering =
+        persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
-    var oppgavebestilling = oppgavebestillingDao.save(Oppgavebestilling.builder()
-        .opprettet(LocalDateTime.now()).eventId(UUID.randomUUID().toString()).forelder(farskapserklaering.getFar()).ferdigstilt(LocalDateTime.now())
-        .build());
+    var oppgavebestilling =
+        oppgavebestillingDao.save(
+            Oppgavebestilling.builder()
+                .opprettet(LocalDateTime.now())
+                .eventId(UUID.randomUUID().toString())
+                .forelder(farskapserklaering.getFar())
+                .ferdigstilt(LocalDateTime.now())
+                .build());
 
     // when
-    ferdigprodusent.ferdigstilleFarsSigneringsoppgave(Forelder.builder().foedselsnummer(fnrFar).build(),
-        new NokkelInputBuilder().withFodselsnummer(fnrFar)
-            .withGrupperingsId(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
+    ferdigprodusent.ferdigstilleFarsSigneringsoppgave(
+        Forelder.builder().foedselsnummer(fnrFar).build(),
+        new NokkelInputBuilder()
+            .withFodselsnummer(fnrFar)
+            .withGrupperingsId(
+                farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
             .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
-            .withNamespace(NAMESPACE_FARSKAPSPORTAL).withEventId(oppgavebestilling.getEventId()).build());
+            .withNamespace(NAMESPACE_FARSKAPSPORTAL)
+            .withEventId(oppgavebestilling.getEventId())
+            .build());
 
-    //then
+    // then
     verify(ferdigkoe, times(0)).send(anyString(), any(NokkelInput.class), any(DoneInput.class));
   }
 
   private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
 
-    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "redirect-mor")).signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(Signeringsinformasjon.builder().redirectUrl(lageUrl(wiremockPort, "/redirect-far")).build())
-        .build();
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }

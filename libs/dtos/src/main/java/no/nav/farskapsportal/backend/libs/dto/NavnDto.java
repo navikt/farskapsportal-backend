@@ -29,7 +29,7 @@ public class NavnDto {
 
   public String sammensattNavn() {
     return Stream.of(getFornavn(), getMellomnavn(), getEtternavn())
-        .filter(s -> s != null && !toString().isEmpty()).collect(
-            Collectors.joining(" "));
+        .filter(s -> s != null && !toString().isEmpty())
+        .collect(Collectors.joining(" "));
   }
 }

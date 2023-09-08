@@ -17,13 +17,9 @@ import lombok.NoArgsConstructor;
 @XmlType(propOrder = {"informasjonskanal", "mottakstidspunktFraOpprinneligkanal", "puncher"})
 public class Informasjonsmottak {
 
-  @XmlElement
-  private KanalForRegistreringAvFarskap informasjonskanal;
+  @XmlElement private KanalForRegistreringAvFarskap informasjonskanal;
 
-  @XmlElement
-  private Dato mottakstidspunktFraOpprinneligkanal;
+  @XmlElement private Dato mottakstidspunktFraOpprinneligkanal;
 
-  @XmlElement
-  private NorskIdentifikator puncher;
-
+  @XmlElement private NorskIdentifikator puncher;
 }

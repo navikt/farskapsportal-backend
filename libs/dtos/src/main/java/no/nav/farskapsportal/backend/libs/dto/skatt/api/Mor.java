@@ -15,11 +15,7 @@ import lombok.NoArgsConstructor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Mor {
 
-  @XmlElement
-  private Foedselsnummer foedselsEllerDNummer;
+  @XmlElement private Foedselsnummer foedselsEllerDNummer;
 
-  @XmlElement
-  private Boolsk harSignert;
-
-
+  @XmlElement private Boolsk harSignert;
 }

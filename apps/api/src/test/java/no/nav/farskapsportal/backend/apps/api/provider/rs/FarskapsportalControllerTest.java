@@ -150,7 +150,7 @@ public class FarskapsportalControllerTest {
   @Autowired
   @Qualifier("api")
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
-  
+
   @Autowired private PdlApiStub pdlApiStub;
   @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
   @MockBean private PdfGeneratorConsumer pdfGeneratorConsumer;
@@ -449,7 +449,7 @@ public class FarskapsportalControllerTest {
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
-      
+
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -563,8 +563,6 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -668,8 +666,6 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.MANN);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -756,8 +752,6 @@ public class FarskapsportalControllerTest {
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.MANN);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -807,7 +801,6 @@ public class FarskapsportalControllerTest {
 
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
 
-
       var spedbarnetsRelasjonTilMor =
           ForelderBarnRelasjonDto.builder()
               .relatertPersonsRolle(ForelderBarnRelasjonRolle.MOR)
@@ -851,8 +844,6 @@ public class FarskapsportalControllerTest {
       // given
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
-
-
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -996,8 +987,6 @@ public class FarskapsportalControllerTest {
       kjoennshistorikk.put(LocalDateTime.now().minusYears(9), KjoennType.KVINNE);
       kjoennshistorikk.put(LocalDateTime.now().minusYears(2), KjoennType.MANN);
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
@@ -1102,7 +1091,6 @@ public class FarskapsportalControllerTest {
               .navn(fornavnFar + " " + etternavnFar)
               .build();
 
-
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
@@ -1178,7 +1166,6 @@ public class FarskapsportalControllerTest {
               .etternavn(etternavnFar)
               .build();
 
-
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
@@ -1248,8 +1235,6 @@ public class FarskapsportalControllerTest {
       var oppgittNavn = NAVN_FAR;
       loggePaaPerson(MOR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
@@ -1309,8 +1294,6 @@ public class FarskapsportalControllerTest {
       // given
       loggePaaPerson(MOR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
@@ -1368,8 +1351,6 @@ public class FarskapsportalControllerTest {
       var fnrFar = "01058011444";
 
       loggePaaPerson(MOR.getFoedselsnummer());
-
-
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
@@ -1470,8 +1451,6 @@ public class FarskapsportalControllerTest {
           new OAuth2AccessTokenResponse(
               generereTesttoken(MOR.getFoedselsnummer()), 1000, 1000, null);
       when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
-
-
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
@@ -2019,7 +1998,6 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(MOR.getFoedselsnummer());
 
-
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =
           getKjoennshistorikk(KjoennType.KVINNE);
 
@@ -2131,7 +2109,6 @@ public class FarskapsportalControllerTest {
       var statuslenke = farskapserklaeringSignertAvMor.getDokument().getStatusUrl();
 
       loggePaaPerson(FAR.getFoedselsnummer());
-
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkFar =
           getKjoennshistorikk(KjoennType.MANN);
@@ -2370,8 +2347,6 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(MOR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkMor),
@@ -2471,8 +2446,6 @@ public class FarskapsportalControllerTest {
 
       loggePaaPerson(FAR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
@@ -2571,8 +2544,6 @@ public class FarskapsportalControllerTest {
           getKjoennshistorikk(KjoennType.MANN);
 
       loggePaaPerson(FAR.getFoedselsnummer());
-
-
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -2853,8 +2824,6 @@ public class FarskapsportalControllerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       loggePaaPerson(FAR.getFoedselsnummer());
 
-
-
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
@@ -2907,8 +2876,6 @@ public class FarskapsportalControllerTest {
 
       var lagretFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
-
-
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -3016,7 +2983,8 @@ public class FarskapsportalControllerTest {
                   .build());
       farskapserklaeringDao.save(farskapserklaering);
 
-      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+      when(difiESignaturConsumer.henteSignertDokument(any()))
+          .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
 
       // when
       var respons =

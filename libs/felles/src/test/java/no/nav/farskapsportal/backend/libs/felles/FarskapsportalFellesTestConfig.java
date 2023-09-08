@@ -9,6 +9,4 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @ComponentScan("no.nav.farskapsportal.backend")
 @EntityScan("no.nav.farskapsportal.backend.libs.entity")
-public class FarskapsportalFellesTestConfig {
-
-}
+public class FarskapsportalFellesTestConfig {}

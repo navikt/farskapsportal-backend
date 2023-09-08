@@ -8,5 +8,4 @@ public class ActuatorHealth {
   Status status;
   Components components;
   String[] groups;
-
 }

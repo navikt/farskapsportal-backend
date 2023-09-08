@@ -11,9 +11,8 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "esignering")
 public class Esignering {
 
-    private boolean innhenteStatusVedPolling;
-    private String suksessUrl;
-    private String avbruttUrl;
-    private String feiletUrl;
-
+  private boolean innhenteStatusVedPolling;
+  private String suksessUrl;
+  private String avbruttUrl;
+  private String feiletUrl;
 }

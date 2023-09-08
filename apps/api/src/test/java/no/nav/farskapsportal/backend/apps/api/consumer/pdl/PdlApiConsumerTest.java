@@ -65,29 +65,27 @@ import org.springframework.test.context.ContextConfiguration;
 @DirtiesContext
 @DisplayName("PdlApiConsumer")
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = FarskapsportalApiApplicationLocal.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {FarskapsportalApiConfig.class, RestTemplateFellesConfig.class})
 public class PdlApiConsumerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
 
-  @Autowired
-  private PdlApiConsumer pdlApiConsumer;
+  @Autowired private PdlApiConsumer pdlApiConsumer;
 
-  @Autowired
-  private PdlApiStub pdlApiStub;
+  @Autowired private PdlApiStub pdlApiStub;
 
-  @Autowired
-  private CacheManager cacheManager;
+  @Autowired private CacheManager cacheManager;
 
-  @MockBean
-  private OAuth2AccessTokenService oAuth2AccessTokenService;
+  @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
 
-  @MockBean
-  private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  @MockBean private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
 
   private void mockAccessToken() {
-    when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+    when(oAuth2AccessTokenService.getAccessToken(any()))
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
   }
 
   @Nested
@@ -148,7 +146,8 @@ public class PdlApiConsumerTest {
       mockAccessToken();
 
       // when, then
-      assertThrows(RessursIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor));
+      assertThrows(
+          RessursIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor));
     }
 
     @Test
@@ -161,7 +160,8 @@ public class PdlApiConsumerTest {
       pdlApiStub.runPdlApiHentPersonValideringsfeil();
 
       // when, then
-      assertThrows(PdlApiErrorException.class, () -> pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor));
+      assertThrows(
+          PdlApiErrorException.class, () -> pdlApiConsumer.henteKjoennUtenHistorikk(fnrMor));
     }
 
     @Test
@@ -185,14 +185,29 @@ public class PdlApiConsumerTest {
       // then
       assertAll(
           () -> assertThat(historikk.size()).isEqualTo(2),
-          () -> assertThat(
-              historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.MANN)).findFirst().get().getMetadata().getHistorisk()).isFalse(),
-          () -> assertThat(
-              historikk.stream().filter(k -> k.getKjoenn().equals(KjoennType.KVINNE)).findFirst().get().getMetadata().getHistorisk()).isTrue());
+          () ->
+              assertThat(
+                      historikk.stream()
+                          .filter(k -> k.getKjoenn().equals(KjoennType.MANN))
+                          .findFirst()
+                          .get()
+                          .getMetadata()
+                          .getHistorisk())
+                  .isFalse(),
+          () ->
+              assertThat(
+                      historikk.stream()
+                          .filter(k -> k.getKjoenn().equals(KjoennType.KVINNE))
+                          .findFirst()
+                          .get()
+                          .getMetadata()
+                          .getHistorisk())
+                  .isTrue());
     }
 
     @Test
-    @DisplayName("Skal kaste PersonIkkeFunnetException hvis person med kjønnshistorikk ikke eksisterer")
+    @DisplayName(
+        "Skal kaste PersonIkkeFunnetException hvis person med kjønnshistorikk ikke eksisterer")
     void skalKastePersonIkkeFunnetExceptionHvisPersonMedKjoennshistorikkIkkeEksisterer() {
 
       // given
@@ -201,7 +216,8 @@ public class PdlApiConsumerTest {
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
       // when, then
-      assertThrows(RessursIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennMedHistorikk(fnrMor));
+      assertThrows(
+          RessursIkkeFunnetException.class, () -> pdlApiConsumer.henteKjoennMedHistorikk(fnrMor));
     }
   }
 
@@ -220,7 +236,8 @@ public class PdlApiConsumerTest {
 
       // given
       var fnrOppgittFar = "01018512345";
-      var registrertNavn = NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
+      var registrertNavn =
+          NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
       mockAccessToken();
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
@@ -229,9 +246,16 @@ public class PdlApiConsumerTest {
       var navnDto = pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar);
 
       // then
-      assertAll(() -> assertEquals(registrertNavn.getFornavn(), navnDto != null ? navnDto.getFornavn() : null),
-          () -> assertEquals(registrertNavn.getMellomnavn(), navnDto != null ? navnDto.getMellomnavn() : null),
-          () -> assertEquals(registrertNavn.getEtternavn(), navnDto != null ? navnDto.getEtternavn() : null));
+      assertAll(
+          () ->
+              assertEquals(
+                  registrertNavn.getFornavn(), navnDto != null ? navnDto.getFornavn() : null),
+          () ->
+              assertEquals(
+                  registrertNavn.getMellomnavn(), navnDto != null ? navnDto.getMellomnavn() : null),
+          () ->
+              assertEquals(
+                  registrertNavn.getEtternavn(), navnDto != null ? navnDto.getEtternavn() : null));
     }
 
     @Test
@@ -246,7 +270,8 @@ public class PdlApiConsumerTest {
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when, then
-      assertThrows(NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
+      assertThrows(
+          NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
     }
 
     @Test
@@ -261,7 +286,8 @@ public class PdlApiConsumerTest {
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when, then
-      assertThrows(NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
+      assertThrows(
+          NullPointerException.class, () -> pdlApiConsumer.hentNavnTilPerson(fnrOppgittFar));
     }
   }
 
@@ -278,20 +304,29 @@ public class PdlApiConsumerTest {
     void skalHenteFolkeregisteridentifikatorForMor() {
 
       // given
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFolkeregisteridentifikator(
-          FolkeregisteridentifikatorDto.builder().identifikasjonsnummer(MOR.getFoedselsnummer()).type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK).build()));
+      List<HentPersonSubResponse> subResponses =
+          List.of(
+              new HentPersonFolkeregisteridentifikator(
+                  FolkeregisteridentifikatorDto.builder()
+                      .identifikasjonsnummer(MOR.getFoedselsnummer())
+                      .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                      .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                      .build()));
       mockAccessToken();
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var folkeregisteridentifikatorDto = pdlApiConsumer.henteFolkeregisteridentifikator(MOR.getFoedselsnummer());
+      var folkeregisteridentifikatorDto =
+          pdlApiConsumer.henteFolkeregisteridentifikator(MOR.getFoedselsnummer());
 
       // then
       assertAll(
-          () -> assertThat(folkeregisteridentifikatorDto.getStatus()).isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK),
-          () -> assertThat(folkeregisteridentifikatorDto.getType()).isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-      );
+          () ->
+              assertThat(folkeregisteridentifikatorDto.getStatus())
+                  .isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK),
+          () ->
+              assertThat(folkeregisteridentifikatorDto.getType())
+                  .isEqualTo(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR));
     }
   }
 
@@ -312,14 +347,18 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "030493240280";
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFoedsel(morsFoedselsdato, false));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonFoedsel(morsFoedselsdato, false));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var foedselDto = pdlApiConsumer.henteFoedsel(fnrMor);
 
       // then
-      assertEquals(morsFoedselsdato, foedselDto.getFoedselsdato(), "Mors fødselsdato skal være den samme som den returnerte datoen");
+      assertEquals(
+          morsFoedselsdato,
+          foedselDto.getFoedselsdato(),
+          "Mors fødselsdato skal være den samme som den returnerte datoen");
     }
 
     @Test
@@ -329,14 +368,18 @@ public class PdlApiConsumerTest {
       // given
       var fnrMor = "030493240280";
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonFoedsel(morsFoedselsdato, "Tana", false));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonFoedsel(morsFoedselsdato, "Tana", false));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var foedselDto = pdlApiConsumer.henteFoedsel(fnrMor);
 
       // then
-      assertEquals("Tana", foedselDto.getFoedested(), "Mors fødested skal være den samme som det registrerte fødestedet");
+      assertEquals(
+          "Tana",
+          foedselDto.getFoedested(),
+          "Mors fødested skal være den samme som det registrerte fødestedet");
     }
   }
 
@@ -350,20 +393,23 @@ public class PdlApiConsumerTest {
     }
 
     @Test
-    @DisplayName("Skal ikke feile dersom  mor ikke har noen forelder-barn-relasjon før barnet er født")
+    @DisplayName(
+        "Skal ikke feile dersom  mor ikke har noen forelder-barn-relasjon før barnet er født")
     void skalIkkeFeileDersomMorIkkeHarForelderBarnRelasjonFoerFoedsel() {
 
       // given
       var fnrMor = "13108411110";
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonForelderBarnRelasjon(null, "1234"));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonForelderBarnRelasjon(null, "1234"));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
       var morsForelderBarnRelasjon = pdlApiConsumer.henteForelderBarnRelasjon(fnrMor);
 
       // then
-      assertEquals(morsForelderBarnRelasjon.size(), 0, "Mor har ingen forelderBarnRelasjon før fødsel");
+      assertEquals(
+          morsForelderBarnRelasjon.size(), 0, "Mor har ingen forelderBarnRelasjon før fødsel");
     }
 
     @Test
@@ -374,10 +420,14 @@ public class PdlApiConsumerTest {
       var fnrFar = "13108411111";
       var fnrBarn = "01112009091";
       mockAccessToken();
-      var forelderBarnRelasjonDto = ForelderBarnRelasjonDto.builder().relatertPersonsIdent(fnrBarn)
-          .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN)
-          .minRolleForPerson(ForelderBarnRelasjonRolle.FAR).build();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonForelderBarnRelasjon(forelderBarnRelasjonDto, "1234"));
+      var forelderBarnRelasjonDto =
+          ForelderBarnRelasjonDto.builder()
+              .relatertPersonsIdent(fnrBarn)
+              .relatertPersonsRolle(ForelderBarnRelasjonRolle.BARN)
+              .minRolleForPerson(ForelderBarnRelasjonRolle.FAR)
+              .build();
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonForelderBarnRelasjon(forelderBarnRelasjonDto, "1234"));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -385,11 +435,27 @@ public class PdlApiConsumerTest {
 
       // then
       assertAll(
-          () -> assertEquals(fnrBarn, farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getRelatertPersonsIdent).findAny().get()),
-          () -> assertEquals(forelderBarnRelasjonDto.getMinRolleForPerson(),
-              farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getMinRolleForPerson).findAny().get()),
-          () -> assertEquals(forelderBarnRelasjonDto.getRelatertPersonsRolle(),
-              farsForelderBarnRelasjoner.stream().map(ForelderBarnRelasjonDto::getRelatertPersonsRolle).findAny().get()));
+          () ->
+              assertEquals(
+                  fnrBarn,
+                  farsForelderBarnRelasjoner.stream()
+                      .map(ForelderBarnRelasjonDto::getRelatertPersonsIdent)
+                      .findAny()
+                      .get()),
+          () ->
+              assertEquals(
+                  forelderBarnRelasjonDto.getMinRolleForPerson(),
+                  farsForelderBarnRelasjoner.stream()
+                      .map(ForelderBarnRelasjonDto::getMinRolleForPerson)
+                      .findAny()
+                      .get()),
+          () ->
+              assertEquals(
+                  forelderBarnRelasjonDto.getRelatertPersonsRolle(),
+                  farsForelderBarnRelasjoner.stream()
+                      .map(ForelderBarnRelasjonDto::getRelatertPersonsRolle)
+                      .findAny()
+                      .get()));
     }
   }
 
@@ -409,7 +475,8 @@ public class PdlApiConsumerTest {
       // given
       var fnrFar = "13108411111";
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.UGIFT));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonSivilstand(Sivilstandtype.UGIFT));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -426,7 +493,8 @@ public class PdlApiConsumerTest {
       // given
       var fnr = "1310841511";
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -442,7 +510,8 @@ public class PdlApiConsumerTest {
       // given
       var fnr = "13108411311";
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -467,8 +536,18 @@ public class PdlApiConsumerTest {
 
       // given
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonBostedsadresse(BostedsadresseDto.builder()
-          .vegadresse(VegadresseDto.builder().adressenavn("Stortingsgaten").husnummer("5").husbokstav("B").postnummer("0202").build()).build()));
+      List<HentPersonSubResponse> subResponses =
+          List.of(
+              new HentPersonBostedsadresse(
+                  BostedsadresseDto.builder()
+                      .vegadresse(
+                          VegadresseDto.builder()
+                              .adressenavn("Stortingsgaten")
+                              .husnummer("5")
+                              .husbokstav("B")
+                              .postnummer("0202")
+                              .build())
+                      .build()));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -476,10 +555,11 @@ public class PdlApiConsumerTest {
 
       // then
       assertAll(
-          () -> assertThat(bostedsadresseDto.getVegadresse().getAdressenavn()).isEqualTo("Stortingsgaten"),
+          () ->
+              assertThat(bostedsadresseDto.getVegadresse().getAdressenavn())
+                  .isEqualTo("Stortingsgaten"),
           () -> assertThat(bostedsadresseDto.getVegadresse().getHusnummer()).isEqualTo("5"),
-          () -> assertThat(bostedsadresseDto.getVegadresse().getPostnummer()).isEqualTo("0202")
-      );
+          () -> assertThat(bostedsadresseDto.getVegadresse().getPostnummer()).isEqualTo("0202"));
     }
   }
 
@@ -497,7 +577,8 @@ public class PdlApiConsumerTest {
 
       // given
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(null).build()));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(null).build()));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -505,7 +586,6 @@ public class PdlApiConsumerTest {
 
       // then
       assertThat(doedsfallDto).isNull();
-
     }
 
     @Test
@@ -514,7 +594,8 @@ public class PdlApiConsumerTest {
       // given
       mockAccessToken();
       var doedsdato = LocalDate.now().minusWeeks(5);
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(doedsdato).build()));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonDoedsfall(DoedsfallDto.builder().doedsdato(doedsdato).build()));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
@@ -523,9 +604,7 @@ public class PdlApiConsumerTest {
       // then
       assertAll(
           () -> assertThat(doedsfallDto).isNotNull(),
-          () -> assertThat(doedsfallDto.getDoedsdato()).isEqualTo(doedsdato)
-      );
-
+          () -> assertThat(doedsfallDto.getDoedsdato()).isEqualTo(doedsdato));
     }
   }
 
@@ -544,22 +623,37 @@ public class PdlApiConsumerTest {
 
       // given
       mockAccessToken();
-      var vergemaalEllerFremtidsfullmaktDto = VergemaalEllerFremtidsfullmaktDto.builder().type("voksen").embete("Fylkesmannen i Innlandet")
-          .vergeEllerFullmektig(
-              VergeEllerFullmektigDto.builder().omfang("personligeOgOekonomiskeInteresser").build()).build();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonVergeEllerFremtidsfullmakt(vergemaalEllerFremtidsfullmaktDto));
+      var vergemaalEllerFremtidsfullmaktDto =
+          VergemaalEllerFremtidsfullmaktDto.builder()
+              .type("voksen")
+              .embete("Fylkesmannen i Innlandet")
+              .vergeEllerFullmektig(
+                  VergeEllerFullmektigDto.builder()
+                      .omfang("personligeOgOekonomiskeInteresser")
+                      .build())
+              .build();
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonVergeEllerFremtidsfullmakt(vergemaalEllerFremtidsfullmaktDto));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var vergemaalEllerFremtidsfullmaktDtos = pdlApiConsumer.henteVergeEllerFremtidsfullmakt(MOR.getFoedselsnummer());
+      var vergemaalEllerFremtidsfullmaktDtos =
+          pdlApiConsumer.henteVergeEllerFremtidsfullmakt(MOR.getFoedselsnummer());
 
       // then
       assertAll(
           () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.size()).isEqualTo(1),
           () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.get(0).getType()).isEqualTo("voksen"),
-          () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.get(0).getEmbete()).isEqualTo("Fylkesmannen i Innlandet"),
-          () -> assertThat(vergemaalEllerFremtidsfullmaktDtos.get(0).getVergeEllerFullmektig().getOmfang()).isEqualTo(
-              "personligeOgOekonomiskeInteresser"));
+          () ->
+              assertThat(vergemaalEllerFremtidsfullmaktDtos.get(0).getEmbete())
+                  .isEqualTo("Fylkesmannen i Innlandet"),
+          () ->
+              assertThat(
+                      vergemaalEllerFremtidsfullmaktDtos
+                          .get(0)
+                          .getVergeEllerFullmektig()
+                          .getOmfang())
+                  .isEqualTo("personligeOgOekonomiskeInteresser"));
     }
 
     @Test
@@ -568,11 +662,13 @@ public class PdlApiConsumerTest {
 
       // given
       mockAccessToken();
-      List<HentPersonSubResponse> subResponses = List.of(new HentPersonVergeEllerFremtidsfullmakt(null));
+      List<HentPersonSubResponse> subResponses =
+          List.of(new HentPersonVergeEllerFremtidsfullmakt(null));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var vergemaalEllerFremtidsfullmaktDtos = pdlApiConsumer.henteVergeEllerFremtidsfullmakt(MOR.getFoedselsnummer());
+      var vergemaalEllerFremtidsfullmaktDtos =
+          pdlApiConsumer.henteVergeEllerFremtidsfullmakt(MOR.getFoedselsnummer());
 
       // then
       assertThat(vergemaalEllerFremtidsfullmaktDtos.size()).isEqualTo(0);

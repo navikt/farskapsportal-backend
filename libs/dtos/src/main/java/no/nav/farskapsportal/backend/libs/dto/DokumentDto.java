@@ -17,12 +17,16 @@ import lombok.Setter;
 public class DokumentDto {
   @Parameter(description = "Navn på farskapserklæringsdokument", example = "farskapserklaering.pdf")
   private String dokumentnavn;
+
   @Parameter(description = "Mors Url for å utføre dokumentsignering hos Posten")
   private URI redirectUrlMor;
+
   @Parameter(description = "Fars Url for å utføre dokumentsignering hos Posten")
   private URI redirectUrlFar;
+
   @Parameter(description = "Signeringstidspunkt mor")
   private LocalDateTime signertAvMor;
+
   @Parameter(description = "Signeringstidspunkt far")
   private LocalDateTime signertAvFar;
 }

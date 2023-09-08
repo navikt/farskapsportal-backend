@@ -15,5 +15,4 @@ public class UtenlandskAdresseDto implements PdlDto {
   String bySted;
   String regionDistriktOmraade;
   String landkode;
-
 }

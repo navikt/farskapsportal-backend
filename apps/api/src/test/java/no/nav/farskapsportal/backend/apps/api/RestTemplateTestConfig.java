@@ -7,7 +7,6 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import com.google.common.net.HttpHeaders;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -19,8 +18,7 @@ import org.springframework.context.annotation.Profile;
 @Profile({PROFILE_TEST, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
 public class RestTemplateTestConfig {
 
-  @Autowired
-  private MockOAuth2Server mockOAuth2Server;
+  @Autowired private MockOAuth2Server mockOAuth2Server;
 
   private String generateTestToken(Farskapsportalapp farskapsportalapp) {
 
@@ -33,13 +31,16 @@ public class RestTemplateTestConfig {
   @Bean("api")
   HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi() {
     TestRestTemplate testRestTemplate = new TestRestTemplate(new RestTemplateBuilder());
-    HttpHeaderTestRestTemplate httpHeaderTestRestTemplate = new HttpHeaderTestRestTemplate(testRestTemplate);
-    httpHeaderTestRestTemplate.add(HttpHeaders.AUTHORIZATION, () -> generateTestToken(Farskapsportalapp.API));
+    HttpHeaderTestRestTemplate httpHeaderTestRestTemplate =
+        new HttpHeaderTestRestTemplate(testRestTemplate);
+    httpHeaderTestRestTemplate.add(
+        HttpHeaders.AUTHORIZATION, () -> generateTestToken(Farskapsportalapp.API));
 
     return httpHeaderTestRestTemplate;
   }
 
   public enum Farskapsportalapp {
-    API, ASYNKRON
+    API,
+    ASYNKRON
   }
 }

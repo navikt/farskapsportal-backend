@@ -27,6 +27,4 @@ public class Db extends Statuskomponent {
     Database database;
     String validationQuery;
   }
-
-
 }

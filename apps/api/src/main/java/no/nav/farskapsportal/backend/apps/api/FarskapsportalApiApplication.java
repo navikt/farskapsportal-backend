@@ -3,7 +3,6 @@ package no.nav.farskapsportal.backend.apps.api;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,11 +11,11 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.ComponentScan;
 
 @Slf4j
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
+@SpringBootApplication(
+    exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.api.config.egenskaper")
 @ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
 public class FarskapsportalApiApplication {
-
   public static final String ISSUER_TOKENX = "tokenx";
   public static final String ISSUER_AZURE_AD = "aad";
 

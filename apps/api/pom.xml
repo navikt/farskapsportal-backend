@@ -23,8 +23,7 @@
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <asm.version>9.1</asm.version>
         <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
-        <google.api.gax.version>2.5.0</google.api.gax.version>
-        <google-cloud-libraries-bom.version>23.1.0</google-cloud-libraries-bom.version>
+        <google-cloud-libraries-bom.version>26.22.0</google-cloud-libraries-bom.version>
         <jsoup.version>1.16.1</jsoup.version>
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0-RC8</signature-api-client-java.version>
@@ -39,27 +38,6 @@
         <bidrag-commons-test.version>1.20230511093912_dc35d81</bidrag-commons-test.version>
 
     </properties>
-
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <!-- Skal brukes hvis bygget kjøres fra en Github Action -->
-        <repository>
-            <id>github-package-registry-navikt</id>
-            <url>https://maven.pkg.github.com/navikt/maven-release</url>
-        </repository>
-        <!-- Skal brukes hvis bygget kjører utenfor NAV (f.eks. en ekstern maskin, eller Circle CI) -->
-        <repository>
-            <id>external-mirror-github-navikt</id>
-            <url>https://github-package-registry-mirror-sr4qwz23da-ew.a.run.app/cached/maven-release</url>
-        </repository>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
     <build>
         <finalName>app</finalName>
         <plugins>
@@ -144,11 +122,6 @@
                 <version>${google-cloud-libraries-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.api</groupId>
-                <artifactId>gax</artifactId>
-                <version>${google.api.gax.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>

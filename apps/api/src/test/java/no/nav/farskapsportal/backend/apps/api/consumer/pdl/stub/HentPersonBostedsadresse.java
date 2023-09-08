@@ -39,7 +39,9 @@ public class HentPersonBostedsadresse implements HentPersonSubResponse {
           " \"bostedsadresse\": [",
           " {",
           " \"utenlandsadresse\": {",
-          " \"adressenavnNummer\": \"" + bostedsadresseDto.getUtenlandskAdresse().getAdressenavnNummer() + "\"",
+          " \"adressenavnNummer\": \""
+              + bostedsadresseDto.getUtenlandskAdresse().getAdressenavnNummer()
+              + "\"",
           " },",
           " \"metadata\": {",
           " \"master\": \"FREG\"",

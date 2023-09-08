@@ -3842,25 +3842,27 @@ public class FarskapsportalServiceTest {
     }
 
     @Test
-    void skalIkkeKasteValideringExceptionForPersonMedNyfoedtUtenRegistrertFarOgForelderrolleUkjent() {
+    void
+        skalIkkeKasteValideringExceptionForPersonMedNyfoedtUtenRegistrertFarOgForelderrolleUkjent() {
 
       // given
       var nyligFoedtBarn = henteNyligFoedtBarn();
 
       when(personopplysningService.erOver18Aar(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer()))
-              .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+          .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer()))
-              .thenReturn(true);
+          .thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
-              .thenReturn(Forelderrolle.UKJENT);
+          .thenReturn(Forelderrolle.UKJENT);
       when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer()))
-              .thenReturn(
-                      FolkeregisteridentifikatorDto.builder()
-                              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
-                              .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-                              .build());
-      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer())).thenReturn(Set.of(nyligFoedtBarn.getFoedselsnummer()));
+          .thenReturn(
+              FolkeregisteridentifikatorDto.builder()
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                  .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .build());
+      when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
+          .thenReturn(Set.of(nyligFoedtBarn.getFoedselsnummer()));
 
       // when, then
       assertDoesNotThrow(() -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
@@ -3872,23 +3874,23 @@ public class FarskapsportalServiceTest {
       // given
       when(personopplysningService.erOver18Aar(MOR.getFoedselsnummer())).thenReturn(true);
       when(personopplysningService.henteSivilstand(MOR.getFoedselsnummer()))
-              .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
+          .thenReturn(SivilstandDto.builder().type(Sivilstandtype.UGIFT).build());
       when(personopplysningService.harNorskBostedsadresse(MOR.getFoedselsnummer()))
-              .thenReturn(true);
+          .thenReturn(true);
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
-              .thenReturn(Forelderrolle.UKJENT);
+          .thenReturn(Forelderrolle.UKJENT);
       when(personopplysningService.henteFolkeregisteridentifikator(MOR.getFoedselsnummer()))
-              .thenReturn(
-                      FolkeregisteridentifikatorDto.builder()
-                              .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
-                              .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
-                              .build());
+          .thenReturn(
+              FolkeregisteridentifikatorDto.builder()
+                  .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
+                  .type(PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR)
+                  .build());
 
       // when
       var valideringException =
-              assertThrows(
-                      ValideringException.class,
-                      () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
+          assertThrows(
+              ValideringException.class,
+              () -> farskapsportalService.validereMor(MOR.getFoedselsnummer()));
 
       // then
       assertThat(valideringException.getFeilkode()).isEqualTo(Feilkode.FEIL_ROLLE_OPPRETTE);

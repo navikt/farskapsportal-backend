@@ -49,7 +49,12 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
       "aapen-brukernotifikasjon-nyOppgave-v1"
     })
 @EnableSecurityConfiguration
-@EnableJwtTokenValidation(ignore={"org.springdoc.webmvc.ui.SwaggerConfigResource", "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController","org.springdoc.webmvc.api.OpenApiWebMvcResource"})
+@EnableJwtTokenValidation(
+    ignore = {
+      "org.springdoc.webmvc.ui.SwaggerConfigResource",
+      "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
+      "org.springdoc.webmvc.api.OpenApiWebMvcResource"
+    })
 @Slf4j
 @EntityScan("no.nav.farskapsportal.backend.libs.entity")
 public class FarskapsportalApiApplicationLocal {
@@ -75,7 +80,10 @@ public class FarskapsportalApiApplicationLocal {
       throws URISyntaxException {
 
     var serviceEnvironmentLocal =
-        new ServiceEnvironment("Lokal test", new URI(esigneringUrl + "/esignering"), Certificates.TEST.certificatePaths);
+        new ServiceEnvironment(
+            "Lokal test",
+            new URI(esigneringUrl + "/esignering"),
+            Certificates.TEST.certificatePaths);
     return ClientConfiguration.builder(keyStoreConfig)
         .serviceEnvironment(serviceEnvironmentLocal)
         .serviceEnvironment(serviceEnvironmentLocal)
@@ -99,11 +107,11 @@ public class FarskapsportalApiApplicationLocal {
 
     final List<String> certificatePaths;
 
-     Certificates(String... certificatePaths) {
+    Certificates(String... certificatePaths) {
       this.certificatePaths =
-              Stream.of(certificatePaths)
-                  .map("classpath:/certificates/"::concat)
-                  .collect(Collectors.toList());
+          Stream.of(certificatePaths)
+              .map("classpath:/certificates/"::concat)
+              .collect(Collectors.toList());
     }
 
     public List<String> certificatePaths() {
@@ -116,23 +124,14 @@ public class FarskapsportalApiApplicationLocal {
   static class FlywayConfiguration {
 
     @Autowired
-    public FlywayConfiguration(
-        @Qualifier("dataSource") DataSource dataSource){
+    public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
 
-      Flyway.configure()
-          .baselineOnMigrate(true)
-          .dataSource(dataSource)
-          .load()
-          .migrate();
+      Flyway.configure().baselineOnMigrate(true).dataSource(dataSource).load().migrate();
     }
   }
 
   @Configuration
-  @Profile({
-    PROFILE_LOCAL,
-    PROFILE_LOCAL_POSTGRES,
-    PROFILE_REMOTE_POSTGRES
-  })
+  @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   @EnableMockOAuth2Server
   @AutoConfigureWireMock(port = 0)
   class MockOauthServerLocalConfig {

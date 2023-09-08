@@ -12,5 +12,4 @@ public class MatrikkeladresseDto implements PdlDto {
   String tilleggsnavn;
   String postnummer;
   String kommunenummer;
-
 }

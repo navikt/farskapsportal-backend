@@ -15,6 +15,9 @@ public class EndringDto {
   String kilde;
 
   public enum Type {
-    OPPRETT, KORRIGER, OPPHOER, ANNULLER
+    OPPRETT,
+    KORRIGER,
+    OPPHOER,
+    ANNULLER
   }
 }

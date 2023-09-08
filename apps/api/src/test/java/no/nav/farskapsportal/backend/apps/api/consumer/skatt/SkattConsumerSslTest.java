@@ -41,7 +41,9 @@ import org.springframework.test.context.ActiveProfiles;
 @EnableMockOAuth2Server
 @DisplayName("SkattConsumerSslTest")
 @ActiveProfiles(PROFILE_SKATT_SSL_TEST)
-@SpringBootTest(classes = {FarskapsportalApiApplicationLocal.class, FarskapsportalApiConfig.class}, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(
+    classes = {FarskapsportalApiApplicationLocal.class, FarskapsportalApiConfig.class},
+    webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerSslTest {
 
   private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
@@ -64,17 +66,35 @@ public class SkattConsumerSslTest {
   void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
 
     // given
-    when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
-    var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+    when(oAuth2AccessTokenService.getAccessToken(any()))
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnUtenFnr(5));
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonMor()
+        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
 
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonFar()
+        .setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonFar()
+        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
 
     farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
-    farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+    farskapserklaering
+        .getDokument()
+        .setDokumentinnhold(
+            Dokumentinnhold.builder()
+                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+                .build());
 
     // when, then
     Assertions.assertDoesNotThrow(() -> skattConsumerSikret.registrereFarskap(farskapserklaering));
@@ -84,34 +104,57 @@ public class SkattConsumerSslTest {
   void skalKasteSkattConsumerExceptionDersomKommunikasjonMotSkattSkjerOverUsikretProtokoll() {
 
     // given
-    when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
-    var farskapserklaering = henteFarskapserklaering(henteForelder(Forelderrolle.MOR), henteForelder(Forelderrolle.FAR), henteBarnUtenFnr(5));
+    when(oAuth2AccessTokenService.getAccessToken(any()))
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+    var farskapserklaering =
+        henteFarskapserklaering(
+            henteForelder(Forelderrolle.MOR),
+            henteForelder(Forelderrolle.FAR),
+            henteBarnUtenFnr(5));
 
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonMor()
+        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
 
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonFar()
+        .setSigneringstidspunkt(LocalDateTime.now());
+    farskapserklaering
+        .getDokument()
+        .getSigneringsinformasjonFar()
+        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
 
-    farskapserklaering.getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("Jeg erklærer med dette farskap til barnet..".getBytes()).build());
+    farskapserklaering
+        .getDokument()
+        .setDokumentinnhold(
+            Dokumentinnhold.builder()
+                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
+                .build());
 
     farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
 
     // when, then
-    assertThrows(SkattConsumerException.class, () -> skattConsumerUsikret.registrereFarskap(farskapserklaering));
+    assertThrows(
+        SkattConsumerException.class,
+        () -> skattConsumerUsikret.registrereFarskap(farskapserklaering));
   }
 
   public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
 
-    var dokument = Dokument.builder().navn("farskapserklaering.pdf")
-        .signeringsinformasjonMor(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(port, "redirect-mor"))
-                .signeringstidspunkt(LocalDateTime.now()).build())
-        .signeringsinformasjonFar(
-            Signeringsinformasjon.builder().redirectUrl(lageUrl(port, "/redirect-far"))
-                .build())
-        .build();
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(port, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder().redirectUrl(lageUrl(port, "/redirect-far")).build())
+            .build();
 
     return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }

@@ -3,25 +3,25 @@ package no.nav.farskapsportal.backend.libs.felles.test.utils;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 
 public class TestUtils {
 
-  public static final LocalDate FOEDSELSDATO_FAR = LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
+  public static final LocalDate FOEDSELSDATO_FAR =
+      LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
   public static final LocalDate FOEDSELSDATO_MOR = FOEDSELSDATO_FAR.plusYears(4);
   public static final Forelder FAR = henteForelder(Forelderrolle.FAR);
   public static final Forelder MOR = henteForelder(Forelderrolle.MOR);
-  public static final LocalDate FOEDSELSDATO_NYFOEDT_BARN = LocalDate.now().minusMonths(2).minusDays(13);
-  public static final NavnDto NAVN_FAR = NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build();
-  public static final NavnDto NAVN_MOR = NavnDto.builder().fornavn("Ronaldina").etternavn("McDonald").build();
+  public static final LocalDate FOEDSELSDATO_NYFOEDT_BARN =
+      LocalDate.now().minusMonths(2).minusDays(13);
+  public static final NavnDto NAVN_FAR =
+      NavnDto.builder().fornavn("Ronald").etternavn("McDonald").build();
+  public static final NavnDto NAVN_MOR =
+      NavnDto.builder().fornavn("Ronaldina").etternavn("McDonald").build();
 
   public static String lageUrl(String port, String kontekst) {
     return "http://localhost:" + port + kontekst;
@@ -69,11 +69,15 @@ public class TestUtils {
     if (Forelderrolle.MOR.equals(forelderrolle)) {
       var personnummerMor = "12340";
       return Forelder.builder()
-          .foedselsnummer(FOEDSELSDATO_MOR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor).build();
+          .foedselsnummer(
+              FOEDSELSDATO_MOR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor)
+          .build();
     } else {
       var personnummerFar = "12345";
       return Forelder.builder()
-          .foedselsnummer(FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar).build();
+          .foedselsnummer(
+              FOEDSELSDATO_FAR.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerFar)
+          .build();
     }
   }
 }

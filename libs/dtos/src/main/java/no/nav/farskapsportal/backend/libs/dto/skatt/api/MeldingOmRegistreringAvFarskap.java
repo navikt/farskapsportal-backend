@@ -19,10 +19,7 @@ import lombok.NoArgsConstructor;
 @XmlType(propOrder = {"innsending", "forespoersel"})
 public class MeldingOmRegistreringAvFarskap {
 
-  @XmlElement
-  private Innsending innsending;
+  @XmlElement private Innsending innsending;
 
-  @XmlElement
-  private ForespoerselOmRegistreringAvFarskap forespoersel;
-
+  @XmlElement private ForespoerselOmRegistreringAvFarskap forespoersel;
 }

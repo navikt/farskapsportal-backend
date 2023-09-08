@@ -18,31 +18,46 @@ public class Brukernotifikasjonstyring {
   private FarskapserklaeringDao farskapserklaeringDao;
 
   @SchedulerLock(name = "oppgavestyring", lockAtLeastFor = "PT1M", lockAtMostFor = "PT10M")
-  @Scheduled(cron = "${farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall}")
+  @Scheduled(
+      cron = "${farskapsportal.asynkron.egenskaper.brukernotifikasjon.oppgavestyringsintervall}")
   public void rydddeISigneringsoppgaver() {
-    var farskapserklaeringerMedAktiveOppgaver = persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver();
+    var farskapserklaeringerMedAktiveOppgaver =
+        persistenceService.henteIdTilFarskapserklaeringerMedAktiveOppgaver();
 
-    log.info("Fant {} farskapserklæringer med aktive signeringsoppgaver.", farskapserklaeringerMedAktiveOppgaver.size());
+    log.info(
+        "Fant {} farskapserklæringer med aktive signeringsoppgaver.",
+        farskapserklaeringerMedAktiveOppgaver.size());
 
     for (int farskapserklaeringsId : farskapserklaeringerMedAktiveOppgaver) {
       var farskapserklaering = farskapserklaeringDao.findById(farskapserklaeringsId);
 
       // Sletter oppgaver relatert til ferdigstilte eller deaktiverte erklæringer
       if (farskapserklaering.isPresent()
-          && (farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt() != null
-          || farskapserklaering.get().getDeaktivert() != null)) {
+          && (farskapserklaering
+                      .get()
+                      .getDokument()
+                      .getSigneringsinformasjonFar()
+                      .getSigneringstidspunkt()
+                  != null
+              || farskapserklaering.get().getDeaktivert() != null)) {
 
-        var aktiveOppgaver = persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(farskapserklaeringsId,
-            farskapserklaering.get().getFar());
+        var aktiveOppgaver =
+            persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(
+                farskapserklaeringsId, farskapserklaering.get().getFar());
 
-        log.info("Fant {} aktive signeringsoppgaver knyttet til ferdigstilt/ deaktivert farskapserklæring med id {}.", aktiveOppgaver.size(),
+        log.info(
+            "Fant {} aktive signeringsoppgaver knyttet til ferdigstilt/ deaktivert farskapserklæring med id {}.",
+            aktiveOppgaver.size(),
             farskapserklaeringsId);
 
         for (Oppgavebestilling oppgave : aktiveOppgaver) {
-          log.info("Sletter utdatert signeringsoppgave for far (id {}) i farskapserklæring (id {})", farskapserklaering.get().getFar().getId(),
+          log.info(
+              "Sletter utdatert signeringsoppgave for far (id {}) i farskapserklæring (id {})",
+              farskapserklaering.get().getFar().getId(),
               farskapserklaeringsId);
 
-          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(oppgave.getEventId(), farskapserklaering.get().getFar());
+          brukernotifikasjonConsumer.sletteFarsSigneringsoppgave(
+              oppgave.getEventId(), farskapserklaering.get().getFar());
         }
       }
     }

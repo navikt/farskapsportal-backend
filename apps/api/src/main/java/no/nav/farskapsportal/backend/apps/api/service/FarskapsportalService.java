@@ -241,25 +241,28 @@ public class FarskapsportalService {
     // Mor må ha norsk bostedsadresse
     validereMorErBosattINorge(fnrMor);
 
-    // Mors ektefelle registreres automatisk som far etter norsk lov dersom mor er gift - gifte mødre får derfor ikke opprette farskapserklæring
+    // Mors ektefelle registreres automatisk som far etter norsk lov dersom mor er gift - gifte
+    // mødre får derfor ikke opprette farskapserklæring
     validereSivilstand(fnrMor);
 
     // har mor noen nyfødte barn uten registrert far?
-    Set<String> nyligFoedteBarnSomManglerFar = personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
+    Set<String> nyligFoedteBarnSomManglerFar =
+        personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(fnrMor);
 
-    // Sjekke at mor tilfredsstiller rollekrav for mor med mindre hun har nyfødt barn uten registrert far
+    // Sjekke at mor tilfredsstiller rollekrav for mor med mindre hun har nyfødt barn uten
+    // registrert far
     if (nyligFoedteBarnSomManglerFar.size() < 1) {
       log.info("Mor er ikke registrert med nyfødte barn uten far");
       SIKKER_LOGG.info("Mor ({}) er ikke registrert med nyfødte barn uten far", fnrMor);
       riktigRolleForOpprettingAvErklaering(fnrMor);
     } else if (nyligFoedteBarnSomManglerFar.size() > 1) {
       log.info(
-              "Mor har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
-              nyligFoedteBarnSomManglerFar.size());
+          "Mor har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
+          nyligFoedteBarnSomManglerFar.size());
       SIKKER_LOGG.info(
-              "Mor ({}) har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
-              fnrMor, nyligFoedteBarnSomManglerFar.size());
-
+          "Mor ({}) har mer enn én nyfødt uten registrert far. Antall nyfødte er {}",
+          fnrMor,
+          nyligFoedteBarnSomManglerFar.size());
     }
     return nyligFoedteBarnSomManglerFar;
   }
@@ -639,7 +642,8 @@ public class FarskapsportalService {
 
   private void riktigRolleForOpprettingAvErklaering(String fnrPaaloggetPerson) {
     log.info("Sjekker om person kan opprette farskapserklaering..");
-    SIKKER_LOGG.info("Sjekker om person ({}) kan opprette farskapserklaering..", fnrPaaloggetPerson);
+    SIKKER_LOGG.info(
+        "Sjekker om person ({}) kan opprette farskapserklaering..", fnrPaaloggetPerson);
 
     var forelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
     var paaloggetPersonKanOpptreSomMor =

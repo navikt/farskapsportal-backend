@@ -22,7 +22,8 @@ public class PdlApiStub {
   @Value("${url.pdl-api.graphql}")
   private String pdlApiGraphqlEndpoint;
 
-  private static String stubHentPerson(List<HentPersonSubResponse> subResponses, boolean medHistorikk) {
+  private static String stubHentPerson(
+      List<HentPersonSubResponse> subResponses, boolean medHistorikk) {
 
     var startingElements = String.join("\n", " {", " \"data\": {", " \"hentPerson\": {");
 
@@ -53,7 +54,8 @@ public class PdlApiStub {
         " }");
   }
 
-  public static String hentMetadataElement(String opplysningsId, boolean historisk, LocalDateTime opprettet) {
+  public static String hentMetadataElement(
+      String opplysningsId, boolean historisk, LocalDateTime opprettet) {
     return String.join(
         "\n",
         " \"metadata\": {",
@@ -80,27 +82,87 @@ public class PdlApiStub {
     var responsUtenHistorikk = stubHentPerson(subResponses, false);
     var responsMedHistorikk = stubHentPerson(subResponses, true);
 
-    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).withRequestBody(containing("historikk\":false")).willReturn(
-        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK.value()).withBody(responsUtenHistorikk)));
+    stubFor(
+        post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .withRequestBody(containing(ident))
+            .withRequestBody(containing("historikk\":false"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withStatus(HttpStatus.OK.value())
+                    .withBody(responsUtenHistorikk)));
 
-    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).withRequestBody(containing(ident)).withRequestBody(containing("historikk\":true")).willReturn(
-        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK.value()).withBody(responsMedHistorikk)));
+    stubFor(
+        post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .withRequestBody(containing(ident))
+            .withRequestBody(containing("historikk\":true"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withStatus(HttpStatus.OK.value())
+                    .withBody(responsMedHistorikk)));
   }
 
   public void runPdlApiHentPersonFantIkkePersonenStub() {
-    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).willReturn(
-        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK.value()).withBody(String
-            .join("\n", " {", "\"errors\": [", "{", "\"message\": \"Fant ikke person\",", "\"locations\": [", "{", "\"line\": 8,", "\"column\": 3",
-                "}", "],", "\"path\": [", "\"hentPerson\"", "],", "\"extensions\": {", "\"code\": \"not_found\",",
-                "\"classification\": \"ExecutionAborted\"", "}", "}", "],", "\"data\": {", "\"hentPerson\": null", "}", "}"))));
+    stubFor(
+        post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withStatus(HttpStatus.OK.value())
+                    .withBody(
+                        String.join(
+                            "\n",
+                            " {",
+                            "\"errors\": [",
+                            "{",
+                            "\"message\": \"Fant ikke person\",",
+                            "\"locations\": [",
+                            "{",
+                            "\"line\": 8,",
+                            "\"column\": 3",
+                            "}",
+                            "],",
+                            "\"path\": [",
+                            "\"hentPerson\"",
+                            "],",
+                            "\"extensions\": {",
+                            "\"code\": \"not_found\",",
+                            "\"classification\": \"ExecutionAborted\"",
+                            "}",
+                            "}",
+                            "],",
+                            "\"data\": {",
+                            "\"hentPerson\": null",
+                            "}",
+                            "}"))));
   }
 
   public void runPdlApiHentPersonValideringsfeil() {
-    stubFor(post(urlEqualTo(pdlApiGraphqlEndpoint)).willReturn(
-        aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(HttpStatus.OK.value()).withBody(String
-            .join("\n", " {", "\"errors\": [", "{",
-                "\"message\": \"Validation error of type FieldUndefined: Field 'mellomnav' in type 'Navn' is undefined @ 'hentPerson/navn/mellomnav\",",
-                "\"locations\": [", "{", "\"line\": 11,", "\"column\": 5", "}", "],", "\"extensions\": {", "\"classification\": \"ValidationError\"",
-                "}", "}", "]", "}"))));
+    stubFor(
+        post(urlEqualTo(pdlApiGraphqlEndpoint))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withStatus(HttpStatus.OK.value())
+                    .withBody(
+                        String.join(
+                            "\n",
+                            " {",
+                            "\"errors\": [",
+                            "{",
+                            "\"message\": \"Validation error of type FieldUndefined: Field 'mellomnav' in type 'Navn' is undefined @ 'hentPerson/navn/mellomnav\",",
+                            "\"locations\": [",
+                            "{",
+                            "\"line\": 11,",
+                            "\"column\": 5",
+                            "}",
+                            "],",
+                            "\"extensions\": {",
+                            "\"classification\": \"ValidationError\"",
+                            "}",
+                            "}",
+                            "]",
+                            "}"))));
   }
 }

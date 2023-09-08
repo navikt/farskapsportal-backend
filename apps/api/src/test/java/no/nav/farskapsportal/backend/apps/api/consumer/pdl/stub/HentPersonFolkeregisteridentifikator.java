@@ -10,7 +10,8 @@ public class HentPersonFolkeregisteridentifikator implements HentPersonSubRespon
 
   String response;
 
-  public HentPersonFolkeregisteridentifikator(FolkeregisteridentifikatorDto folkeregisteridentifikatorDto) {
+  public HentPersonFolkeregisteridentifikator(
+      FolkeregisteridentifikatorDto folkeregisteridentifikatorDto) {
     this.response = buildResponse(folkeregisteridentifikatorDto);
   }
 
@@ -22,7 +23,9 @@ public class HentPersonFolkeregisteridentifikator implements HentPersonSubRespon
           "\n",
           " \"folkeregisteridentifikator\": [",
           " {",
-          " \"identifikasjonsnummer\": \"" + folkeregisteridentifikatorDto.getIdentifikasjonsnummer() + "\",",
+          " \"identifikasjonsnummer\": \""
+              + folkeregisteridentifikatorDto.getIdentifikasjonsnummer()
+              + "\",",
           " \"status\": \"" + folkeregisteridentifikatorDto.getStatus() + "\",",
           " \"type\": \"" + folkeregisteridentifikatorDto.getType() + "\",",
           " \"metadata\": {",

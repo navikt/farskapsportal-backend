@@ -24,11 +24,13 @@ public class Oppgaveforespoersel {
   public static final String TEMA_BIDRAG = "BID";
   private static final String OPPGAVE_DATOFORMAT = "YYYY-MM-dd";
 
-  private String aktivDato = LocalDate.now().format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT));
+  private String aktivDato =
+      LocalDate.now().format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT));
   private String aktoerId;
   private String behandlingstype = BEHANDLINGSTYPE_NASJONAL;
   private String beskrivelse;
-  private String fristFerdigstillelse = LocalDate.now().plusWeeks(1).format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT));
+  private String fristFerdigstillelse =
+      LocalDate.now().plusWeeks(1).format(DateTimeFormatter.ofPattern(OPPGAVE_DATOFORMAT));
   private String oppgavetype = OPPGAVETYPE_GENERELL;
   private String opprettetAvEnhetsnr = ENHETSNUMMER_SYSTEM;
   private String prioritet = PRIORITET_NORMAL;

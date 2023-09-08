@@ -25,29 +25,28 @@ import org.springframework.test.context.ContextConfiguration;
 @DirtiesContext
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(classes = FarskapsportalApiApplicationLocal.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = FarskapsportalApiApplicationLocal.class,
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = RestTemplateConfig.class)
 public class OppgaveApiConsumerTest {
 
-  @Autowired
-  private OppgaveApiConsumer oppgaveApiConsumer;
+  @Autowired private OppgaveApiConsumer oppgaveApiConsumer;
 
-  @MockBean
-  private OAuth2AccessTokenService oAuth2AccessTokenService;
+  @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
 
-  @MockBean
-  private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  @MockBean private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
 
   @Test
   void skalOppretteOppgave() {
 
     // given
-    var oppgaveIdIStub = 50;  // Se mappings/oppgave-stub.json
-    var oppgaveforespoersel = new Oppgaveforespoersel().toBuilder()
-        .aktoerId("123")
-        .beskrivelse("testing 1-2").build();
+    var oppgaveIdIStub = 50; // Se mappings/oppgave-stub.json
+    var oppgaveforespoersel =
+        new Oppgaveforespoersel().toBuilder().aktoerId("123").beskrivelse("testing 1-2").build();
 
-    when(oAuth2AccessTokenService.getAccessToken(any())).thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+    when(oAuth2AccessTokenService.getAccessToken(any()))
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
 
     // when
     var oppgaveid = oppgaveApiConsumer.oppretteOppgave(oppgaveforespoersel);

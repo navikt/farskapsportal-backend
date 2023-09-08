@@ -15,7 +15,8 @@ public class HentPersonForelderBarnRelasjon implements HentPersonSubResponse {
     this.response = buildResponse(forelderBarnRelasjonDto, opplysningsId);
   }
 
-  private String buildResponse(ForelderBarnRelasjonDto forelderBarnRelasjonDto, String opplysningsId) {
+  private String buildResponse(
+      ForelderBarnRelasjonDto forelderBarnRelasjonDto, String opplysningsId) {
     if (forelderBarnRelasjonDto == null) {
       return String.join("\n", " \"forelderBarnRelasjon\": [", "]");
     } else {
@@ -23,8 +24,12 @@ public class HentPersonForelderBarnRelasjon implements HentPersonSubResponse {
           "\n",
           " \"forelderBarnRelasjon\": [",
           " {",
-          " \"relatertPersonsIdent\": \"" + forelderBarnRelasjonDto.getRelatertPersonsIdent() + "\",",
-          " \"relatertPersonsRolle\": \"" + forelderBarnRelasjonDto.getRelatertPersonsRolle() + "\",",
+          " \"relatertPersonsIdent\": \""
+              + forelderBarnRelasjonDto.getRelatertPersonsIdent()
+              + "\",",
+          " \"relatertPersonsRolle\": \""
+              + forelderBarnRelasjonDto.getRelatertPersonsRolle()
+              + "\",",
           " \"minRolleForPerson\": \"" + forelderBarnRelasjonDto.getMinRolleForPerson() + "\",",
           " \"metadata\": {",
           " \"opplysningsId\": \"" + opplysningsId + "\",",

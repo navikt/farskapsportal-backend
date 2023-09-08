@@ -17,10 +17,7 @@ public class SignertDokumentTest {
   @DisplayName("Streng representasjonen av objektet skal vise dokumentnavn")
   void strengRepresentasjonenAvObjektetSkalViseDokumentnavn() throws URISyntaxException {
 
-    var signertDokument =
-        Dokument.builder()
-            .navn("farsSignerteErklaering.pdf")
-            .build();
+    var signertDokument = Dokument.builder().navn("farsSignerteErklaering.pdf").build();
 
     var toString = signertDokument.toString();
 
