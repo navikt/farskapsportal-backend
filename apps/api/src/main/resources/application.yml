@@ -4,7 +4,7 @@ spring:
   devtools.add-properties: false
 
 springdoc:
-  packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
+  packages-to-scan: { no.nav.farskapsportal.backend, no.nav.farskapsportal.backend.apps.api.provider.rs }
   show-login-endpoint: true
   swagger-ui:
     path: /swagger-ui.html

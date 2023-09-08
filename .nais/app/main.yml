@@ -43,6 +43,8 @@ env:
     value: https://farskapsportal.ekstern.dev.nav.no
   - name: INTEGRATION_TEST_CONTROLLER_PAA
     value: true
+  - name: GCP_KMS_KEY_PATH
+    value: "gcp-kms://projects/farskapsportal-dev-169c/locations/europe-north1/keyRings/farskapsportal-api-key-ring/cryptoKeys/farskapsportal-api-key"
   - name: FILKRYPTERING_PAA
     value: true
   - name: PDL_SCOPE
