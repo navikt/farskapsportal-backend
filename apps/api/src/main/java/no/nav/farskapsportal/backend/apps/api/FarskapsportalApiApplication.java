@@ -16,7 +16,6 @@ import org.springframework.context.annotation.ComponentScan;
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.api.config.egenskaper")
 @ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
 public class FarskapsportalApiApplication {
-
   public static final String ISSUER_TOKENX = "tokenx";
   public static final String ISSUER_AZURE_AD = "aad";
 

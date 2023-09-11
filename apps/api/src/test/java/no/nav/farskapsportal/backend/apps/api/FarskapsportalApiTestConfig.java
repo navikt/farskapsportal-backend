@@ -79,6 +79,8 @@ public class FarskapsportalApiTestConfig {
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
       ConsumerEndpoint consumerEndpoint,
       BucketConsumer bucketConsumer) {
+
+  }
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
     var httpClient = HttpClients.custom().evictExpiredConnections().build();
     return new SkattConsumer(httpClient, consumerEndpoint, bucketConsumer);
@@ -153,7 +155,6 @@ public class FarskapsportalApiTestConfig {
         @Value("${url.skatt.registrering-av-farskap}") String endpoint,
         ConsumerEndpoint consumerEndpoint,
         BucketConsumer bucketConsumer) {
-
       var baseUrl = "http://localhost:" + localServerPort;
 
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);

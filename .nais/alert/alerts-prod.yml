@@ -21,7 +21,7 @@ spec:
           labels:
             namespace: farskapsportal
             severity: critical
-            sp_test_alert: sp-test-alert
+            sp_alert: sp-alert-farskapsportal
             farskapsportal_template_type: farskapsportal-template
             alert_type: custom
             nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
@@ -38,7 +38,7 @@ spec:
           labels:
             namespace: farskapsportal
             severity: critical
-            sp_test_alert: sp-test-alert
+            sp_alert: sp-alert-farskapsportal
             farskapsportal_template_type: farskapsportal-template
             alert_type: custom
             nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
@@ -56,7 +56,7 @@ spec:
           labels:
             namespace: farskapsportal
             severity: critical
-            sp_test_alert: sp-test-alert
+            sp_alert: sp-alert-farskapsportal
             farskapsportal_template_type: farskapsportal-templates
             alert_type: custom
             nav_service_id: 9742f24f-cff9-4953-bc53-9b762e263e42 #Service id fra statusplatformen
@@ -78,7 +78,7 @@ spec:
         - apiURL:
             key: apiUrl
             name: slack-webhook
-          channel: '#farskapsportal-varsel-prod'
+          channel: 'farskapsportal-varsel-prod'
           iconEmoji: ':alert:'
           username: 'Varsel prod-gcp'
           sendResolved: true
@@ -125,10 +125,10 @@ spec:
     groupBy:
       - alertname
     matchers:
-      - name: "sp_test_alert"
+      - name: "sp_alert"
         matchType: "="
-        value: "sp-test-alert"
+        value: "sp-alert-farskapsportal"
     groupInterval: 10s
     groupWait: 5s
     receiver: status_proxy
-    repeatInterval: 1s
+    repeatInterval: 2m

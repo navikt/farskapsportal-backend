@@ -202,8 +202,7 @@ public class DifiESignaturConsumerTest {
       difiESignaturStub.runOppretteSigneringsjobbStub(
           wireMockUrl + PATH_STATUS_URL, morsRedirectUrl, farsRedirectUrl);
 
-      var dokument =
-          Dokument.builder().navn("Farskapsportal.pdf").statusUrl("https://getstatus.no/").build();
+      var dokument =          Dokument.builder().navn("Farskapsportal.pdf").statusUrl("https://getstatus.no/").build();
 
       var mor = Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build();
       var far = Forelder.builder().foedselsnummer(FAR.getFoedselsnummer()).build();
