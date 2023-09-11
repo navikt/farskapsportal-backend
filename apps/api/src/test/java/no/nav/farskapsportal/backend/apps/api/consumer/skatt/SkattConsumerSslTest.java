@@ -16,12 +16,9 @@ import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsume
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.*;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -52,6 +49,8 @@ public class SkattConsumerSslTest {
   private @MockBean no.digipost.signature.client.direct.DirectClient directClient;
   private @MockBean PdlApiConsumer pdlApiConsumer;
   private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
+  private @MockBean BucketConsumer bucketConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Value("server.port")
   private String port;
@@ -66,6 +65,10 @@ public class SkattConsumerSslTest {
   void skalIkkeKasteExceptionDersomKommunikasjonMotSkattSkjerMedSikretProtokoll() {
 
     // given
+    var innholdPades = "Jeg erklærer farskap til barnet".getBytes(StandardCharsets.UTF_8);
+    var innholdXadesFar = "Fars signatur".getBytes(StandardCharsets.UTF_8);
+    var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
+
     when(oAuth2AccessTokenService.getAccessToken(any()))
         .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
     var farskapserklaering =
@@ -73,28 +76,29 @@ public class SkattConsumerSslTest {
             henteForelder(Forelderrolle.MOR),
             henteForelder(Forelderrolle.FAR),
             henteBarnUtenFnr(5));
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(innholdXadesMor);
 
     farskapserklaering
         .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(innholdXadesFar);
 
     farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
+
+    var padesBlob = BlobIdGcp.builder().bucket("padesr").name("fp-1").build();
+    farskapserklaering.getDokument().setBlobIdGcp(padesBlob);
+
+    var xadesMorBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-mor").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(xadesMorBlob);
+
+    var xadesFarBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-far").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(xadesFarBlob);
+
+    when(bucketConsumer.getContentFromBucket(padesBlob)).thenReturn(innholdPades);
+    when(bucketConsumer.getContentFromBucket(xadesMorBlob)).thenReturn(innholdXadesMor);
+    when(bucketConsumer.getContentFromBucket(xadesFarBlob)).thenReturn(innholdXadesFar);
 
     // when, then
     Assertions.assertDoesNotThrow(() -> skattConsumerSikret.registrereFarskap(farskapserklaering));
@@ -104,6 +108,10 @@ public class SkattConsumerSslTest {
   void skalKasteSkattConsumerExceptionDersomKommunikasjonMotSkattSkjerOverUsikretProtokoll() {
 
     // given
+    var innholdPades = "Jeg erklærer farskap til barnet".getBytes(StandardCharsets.UTF_8);
+    var innholdXadesFar = "Fars signatur".getBytes(StandardCharsets.UTF_8);
+    var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
+
     when(oAuth2AccessTokenService.getAccessToken(any()))
         .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
     var farskapserklaering =
@@ -135,6 +143,19 @@ public class SkattConsumerSslTest {
 
     farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+
+    var padesBlob = BlobIdGcp.builder().bucket("padesr").name("fp-1").build();
+    farskapserklaering.getDokument().setBlobIdGcp(padesBlob);
+
+    var xadesMorBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-mor").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(xadesMorBlob);
+
+    var xadesFarBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-far").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(xadesFarBlob);
+
+    when(bucketConsumer.getContentFromBucket(padesBlob)).thenReturn(innholdPades);
+    when(bucketConsumer.getContentFromBucket(xadesMorBlob)).thenReturn(innholdXadesMor);
+    when(bucketConsumer.getContentFromBucket(xadesFarBlob)).thenReturn(innholdXadesFar);
 
     // when, then
     assertThrows(

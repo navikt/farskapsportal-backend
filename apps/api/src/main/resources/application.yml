@@ -1,10 +1,12 @@
-server.shutdown: graceful
+server:
+  forward-headers-strategy: framework
+  shutdown: graceful
 
 spring:
   devtools.add-properties: false
 
 springdoc:
-  packages-to-scan: { no.nav.farskapsportal.api, no.nav.farskapsportal.provider.rs }
+  packages-to-scan: { no.nav.farskapsportal.backend, no.nav.farskapsportal.backend.apps.api.provider.rs }
   show-login-endpoint: true
   swagger-ui:
     path: /swagger-ui.html
@@ -21,7 +23,8 @@ virksomhetssertifikat:
 
 farskapsportal:
   egenskaper:
-    brukernotifikasjonerPaa: true
+    brukernotifikasjoner-paa: true
+    kryptering-paa: ${FILKRYPTERING_PAA}
     min-antall-uker-til-termindato: -3
     maks-antall-uker-til-termindato: 21
     nav-orgnummer: 889640782
@@ -201,6 +204,7 @@ INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
 FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/
+FILKRYPTERING_PAA: false
 ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
@@ -209,7 +213,6 @@ KAFKA_SCHEMA_REGISTRY: http://localhost:8081
 NAV_TRUSTSTORE_PATH: certs/server-selfsigned.jks
 NAV_TRUSTSTORE_PASSWORD: qwer1234
 NAIS_CLUSTER_NAME: dev
-SRVFARSKAPSPORTAL_PWD: top_hemmelig
 DEAKTIVERINGSRATE: "1 * * * * ?"
 DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER: 1
 SKATT_URL: http://localhost:8080
@@ -293,6 +296,9 @@ KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY: http://localhost:8080
 BRUKERNOTIFIKASJON_PAA: false
 NAIS_CLUSTER_NAME: dev-gcp
+ARKIVERINGSINTERVALL: 600000000
+OPPGAVESTYRINGSFORSINKELSE: 100000000
+INTEGRATION_TEST_CONTROLLER_PAA: true
 
 url:
   pdl-api.base-url: ${WIREMOCK_URL}
@@ -312,7 +318,7 @@ spring:
     locations: classpath:/db/migration
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://localhost:5433/fpdb-feature
+    url: jdbc:postgresql://127.0.0.1:5432/fpdb-feature
     password: ${REMOTE_POSTGRES_PWD}
     databaseName: fpdb-feature
 

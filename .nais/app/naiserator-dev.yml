@@ -52,6 +52,19 @@ spec:
       value: "{{this.value}}"
   {{/each}}
   gcp:
+    buckets:
+      - name: {{ name }}-pades
+        lifecycleCondition:
+          age: 7
+          createdBefore: 2023-01-01
+          numNewerVersions: 1
+          withState: ANY
+      - name: {{ name }}-xades
+        lifecycleCondition:
+          age: 7
+          createdBefore: 2023-01-01
+          numNewerVersions: 1
+          withState: ANY
     permissions:
       - resource:
           apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
@@ -64,6 +77,9 @@ spec:
         databases:
           - name: {{ gcp.sql-instances.databases.name }}
             envVarPrefix: {{ gcp.sql-instances.databases.env-var-prefix }}
+        flags:
+          - name: autovacuum
+            value: "on"
   accessPolicy:
     inbound:
       rules:
@@ -74,9 +90,7 @@ spec:
           cluster: dev-gcp
     outbound:
       external:
-        - host: api-gw-q1.oera.no
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
         - host: secretmanager.googleapis.com
         - host: oppgave.dev-fss-pub.nais.io
-  webproxy: true

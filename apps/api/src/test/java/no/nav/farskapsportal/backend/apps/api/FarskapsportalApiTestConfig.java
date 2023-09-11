@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -76,13 +77,12 @@ public class FarskapsportalApiTestConfig {
   SkattConsumer skattConsumer(
       @Value("${url.skatt.base-url}") String baseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-      ConsumerEndpoint consumerEndpoint) {
+      ConsumerEndpoint consumerEndpoint,
+      BucketConsumer bucketConsumer) {
 
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
-
     var httpClient = HttpClients.custom().evictExpiredConnections().build();
-
-    return new SkattConsumer(httpClient, consumerEndpoint);
+    return new SkattConsumer(httpClient, consumerEndpoint, bucketConsumer);
   }
 
   @Lazy
@@ -139,25 +139,26 @@ public class FarskapsportalApiTestConfig {
     @Qualifier("sikret")
     SkattConsumer skattConsumerSikret(
         @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-        CloseableHttpClient httpClient) {
+        CloseableHttpClient httpClient,
+        BucketConsumer bucketConsumer) {
 
       var baseUrl = "https://localhost:" + localServerPort;
       var consumerEndpoint = new ConsumerEndpoint();
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
-      return new SkattConsumer(httpClient, consumerEndpoint);
+      return new SkattConsumer(httpClient, consumerEndpoint, bucketConsumer);
     }
 
     @Bean
     @Qualifier("usikret")
     SkattConsumer skattConsumerUsikret(
         @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-        ConsumerEndpoint consumerEndpoint) {
-
+        ConsumerEndpoint consumerEndpoint,
+        BucketConsumer bucketConsumer) {
       var baseUrl = "http://localhost:" + localServerPort;
 
       consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
       var httpClient = HttpClients.custom().evictExpiredConnections().build();
-      return new SkattConsumer(httpClient, consumerEndpoint);
+      return new SkattConsumer(httpClient, consumerEndpoint, bucketConsumer);
     }
   }
 }

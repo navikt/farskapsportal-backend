@@ -151,8 +151,6 @@ public class FarskapsportalController {
         @ApiResponse(responseCode = "500", description = "Serverfeil"),
         @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
       })
-  // TOOD: Parameter id_farskapserklaering skal være påkrevd etter overgang til ny modell for å
-  // hente status på signeringsoppdrag (25.12.2021)
   public ResponseEntity<FarskapserklaeringDto> oppdatereStatusEtterRedirect(
       @Parameter(
               name = "id_farskapserklaering",
@@ -245,6 +243,11 @@ public class FarskapsportalController {
     var fnrPaaloggetPerson = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
     var respons =
         farskapsportalService.henteDokumentinnhold(fnrPaaloggetPerson, idFarskapserklaering);
-    return new ResponseEntity<>(respons, HttpStatus.OK);
+
+    if (respons != null) {
+      return new ResponseEntity<>(respons, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
   }
 }

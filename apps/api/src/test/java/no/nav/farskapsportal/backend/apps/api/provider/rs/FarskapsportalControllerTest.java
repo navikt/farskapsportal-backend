@@ -5,6 +5,7 @@ import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,14 +67,10 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.UtenlandskAdresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -141,6 +138,7 @@ public class FarskapsportalControllerTest {
   private static final BostedsadresseDto BOSTEDSADRESSE = getBostedsadresse(true);
   private static final String REDIRECT_URL =
       "https://redirect.mot.signeringstjensesten.settes.under.normal.kjoering.etter.opprettelse.av.signeringsjobb.no";
+  @Autowired protected MockOAuth2Server mockOAuth2Server;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
@@ -151,20 +149,21 @@ public class FarskapsportalControllerTest {
   @Qualifier("api")
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
 
-  @Autowired private PdlApiStub pdlApiStub;
-  @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
-  @MockBean private PdfGeneratorConsumer pdfGeneratorConsumer;
-  @MockBean private BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  @MockBean private DifiESignaturConsumer difiESignaturConsumer;
-  @Autowired private PersistenceService persistenceService;
-  @Autowired private OppgavebestillingDao oppgavebestillingDao;
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired private ForelderDao forelderDao;
-  @Autowired private StatusKontrollereFarDao statusKontrollereFarDao;
-  @Autowired private FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
-  @Autowired private Mapper mapper;
-  @Autowired private CacheManager cacheManager;
-  @Autowired protected MockOAuth2Server mockOAuth2Server;
+  private @Autowired PdlApiStub pdlApiStub;
+  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
+  private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean BucketConsumer bucketConsumer;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired OppgavebestillingDao oppgavebestillingDao;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired ForelderDao forelderDao;
+  private @Autowired StatusKontrollereFarDao statusKontrollereFarDao;
+  private @Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
+  private @Autowired Mapper mapper;
+  private @Autowired CacheManager cacheManager;
 
   static <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
 
@@ -295,7 +294,7 @@ public class FarskapsportalControllerTest {
         .thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
     doNothing()
         .when(difiESignaturConsumer)
-        .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+        .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
   }
 
   @AfterEach
@@ -304,6 +303,42 @@ public class FarskapsportalControllerTest {
     farskapserklaeringDao.deleteAll();
     statusKontrollereFarDao.deleteAll();
     forelderDao.deleteAll();
+  }
+
+  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .padesUrl("https://pades.url")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .statusUrl("https://status.no")
+            .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+  }
+
+  private String generereTesttoken(String personident) {
+    var claims = new HashMap<String, Object>();
+    claims.put("idp", personident);
+    var token = mockOAuth2Server.issueToken("selvbetjening", personident, "aud-localhost", claims);
+    return "Bearer " + token.serialize();
+  }
+
+  private void loggePaaPerson(String personident) {
+    httpHeaderTestRestTemplateApi.add(
+        HttpHeaders.AUTHORIZATION, () -> generereTesttoken(personident));
+
+    var a = new OAuth2AccessTokenResponse(generereTesttoken(personident), 1000, 1000, null);
+    when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
   }
 
   private static class CustomHeader {
@@ -1577,6 +1612,8 @@ public class FarskapsportalControllerTest {
       // given
       brukeStandardMocks(MOR.getFoedselsnummer());
 
+      var dokumentinnhold =
+          "Jeg erklærer med dette farskap til barnet..".getBytes(StandardCharsets.UTF_8);
       // legger på redirecturl til dokument i void-metode
       doAnswer(
               invocation -> {
@@ -1587,7 +1624,20 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
+
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
 
       // when
       var respons =
@@ -1689,7 +1739,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1723,7 +1773,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1761,7 +1811,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1799,7 +1849,7 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
 
       // when
       var respons =
@@ -1861,6 +1911,8 @@ public class FarskapsportalControllerTest {
       // given
       brukeStandardMocksUtenPdlApi(MOR.getFoedselsnummer());
 
+      var dokumentinnhold =
+          "Jeg erklærer med dette farskap til barnet..".getBytes(StandardCharsets.UTF_8);
       var sivilstandMor = Sivilstandtype.UGIFT;
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
@@ -1917,7 +1969,19 @@ public class FarskapsportalControllerTest {
                 return dokument;
               })
           .when(difiESignaturConsumer)
-          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any());
+          .oppretteSigneringsjobb(anyInt(), any(), any(), any(), any(), any());
+
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-1")
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(blobIdGcp)).thenReturn(dokumentinnhold);
 
       // when
       var respons =
@@ -2963,28 +3027,44 @@ public class FarskapsportalControllerTest {
     }
 
     @Test
-    void skalHenteDokumentInnholdForFarMedVentendeErklaering() {
+    void skalHenteDokumentInnholdForErklaeringSomErSignertAvBeggeForeldrene() {
 
       // given
       loggePaaPerson(FAR.getFoedselsnummer());
+      var dokumentnavn = "fp-1";
+      var dokumentinnhold =
+          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
 
       var farskapserklaering =
           henteFarskapserklaering(
               henteForelder(Forelderrolle.MOR),
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
+
       farskapserklaering
           .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold(
-                      "Jeg erklærer herved farskap til dette barnet"
-                          .getBytes(StandardCharsets.UTF_8))
-                  .build());
+          .getSigneringsinformasjonFar()
+          .setSigneringstidspunkt(LocalDateTime.now());
+
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name(dokumentnavn)
+              .build();
+      farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
       farskapserklaeringDao.save(farskapserklaering);
 
-      when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+      when(bucketConsumer.saveContentToBucket(
+              BucketConsumer.ContentType.PADES, dokumentnavn, dokumentinnhold))
+          .thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(farskapserklaering));
 
       // when
       var respons =
@@ -2995,8 +3075,54 @@ public class FarskapsportalControllerTest {
               byte[].class);
 
       // then
-      assertArrayEquals(
-          farskapserklaering.getDokument().getDokumentinnhold().getInnhold(), respons.getBody());
+      assertArrayEquals(dokumentinnhold, respons.getBody());
+    }
+
+    @Test
+    void skalIkkeHenteDokumentinnholdDersomErklaeringenManglerSignatur() {
+
+      // given
+      loggePaaPerson(FAR.getFoedselsnummer());
+      var dokumentnavn = "fp-1";
+      var dokumentinnhold =
+          "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
+
+      var farskapserklaering =
+          henteFarskapserklaering(
+              henteForelder(Forelderrolle.MOR),
+              henteForelder(Forelderrolle.FAR),
+              henteBarnUtenFnr(5));
+
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalApiEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name(dokumentnavn)
+              .build();
+      farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
+      farskapserklaeringDao.save(farskapserklaering);
+
+      when(bucketConsumer.saveContentToBucket(
+              BucketConsumer.ContentType.PADES, dokumentnavn, dokumentinnhold))
+          .thenReturn(blobIdGcp);
+      when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
+      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+          .thenReturn(getStatusDto(farskapserklaering));
+
+      // when
+      var respons =
+          httpHeaderTestRestTemplateApi.exchange(
+              initHenteDokumentinnhold(farskapserklaering.getId()),
+              HttpMethod.GET,
+              initHttpEntity(null),
+              byte[].class);
+
+      // then
+      assertNull(respons.getBody());
     }
 
     @Test
@@ -3054,38 +3180,17 @@ public class FarskapsportalControllerTest {
     }
   }
 
-  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
-
-    var dokument =
-        Dokument.builder()
-            .navn("farskapserklaering.pdf")
-            .padesUrl("https://pades.url")
-            .signeringsinformasjonMor(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
-                    .signeringstidspunkt(LocalDateTime.now())
-                    .build())
-            .signeringsinformasjonFar(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
-                    .build())
-            .build();
-
-    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
-  }
-
-  private String generereTesttoken(String personident) {
-    var claims = new HashMap<String, Object>();
-    claims.put("idp", personident);
-    var token = mockOAuth2Server.issueToken("selvbetjening", personident, "aud-localhost", claims);
-    return "Bearer " + token.serialize();
-  }
-
-  private void loggePaaPerson(String personident) {
-    httpHeaderTestRestTemplateApi.add(
-        HttpHeaders.AUTHORIZATION, () -> generereTesttoken(personident));
-
-    var a = new OAuth2AccessTokenResponse(generereTesttoken(personident), 1000, 1000, null);
-    when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
+  private DokumentStatusDto getStatusDto(Farskapserklaering farskapserklaering) {
+    return DokumentStatusDto.builder()
+        .signaturer(
+            listOf(
+                SignaturDto.builder()
+                    .signatureier(farskapserklaering.getMor().getFoedselsnummer())
+                    .build(),
+                SignaturDto.builder()
+                    .signatureier(farskapserklaering.getFar().getFoedselsnummer())
+                    .build()))
+        .padeslenke(tilUri(farskapserklaering.getDokument().getPadesUrl()))
+        .build();
   }
 }

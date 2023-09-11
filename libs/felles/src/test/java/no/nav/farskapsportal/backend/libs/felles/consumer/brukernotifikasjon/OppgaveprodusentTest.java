@@ -25,6 +25,7 @@ import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -47,17 +48,13 @@ public class OppgaveprodusentTest {
   @Value("${wiremock.server.port}")
   private String wiremockPort;
 
-  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
-
-  @MockBean private KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
-
-  @Autowired private Oppgaveprodusent oppgaveprodusent;
-
-  @Autowired private PersistenceService persistenceService;
-
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-
-  @Autowired private OppgavebestillingDao oppgavebestillingDao;
+  private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  private @Autowired Oppgaveprodusent oppgaveprodusent;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired OppgavebestillingDao oppgavebestillingDao;
+  private @MockBean KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Test
   void skalOppretteOppgaveForSigneringAvFarskapserklaering() {

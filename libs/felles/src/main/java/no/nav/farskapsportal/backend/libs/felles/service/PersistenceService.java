@@ -7,11 +7,8 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Meldingslogg;
-import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
-import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
+import no.nav.farskapsportal.backend.libs.entity.*;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilIDatagrunnlagException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
@@ -27,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PersistenceService {
 
+  private final BucketConsumer bucketConsumer;
   private final OppgavebestillingDao oppgavebestillingDao;
   private final FarskapserklaeringDao farskapserklaeringDao;
   private final BarnDao barnDao;
@@ -223,14 +221,55 @@ public class PersistenceService {
             idFarskapserklaering);
         throw new IllegalStateException("Farskapserklæringen ikke deaktivert");
       }
-      farskapserklaering.get().getDokument().getDokumentinnhold().setInnhold(null);
-      farskapserklaering.get().getDokument().getSigneringsinformasjonMor().setXadesXml(null);
-      farskapserklaering.get().getDokument().getSigneringsinformasjonFar().setXadesXml(null);
+
+      if (erklaeringHarReferanserTilBuckets(farskapserklaering.get())) {
+
+        var padesBlobGcp = farskapserklaering.get().getDokument().getBlobIdGcp();
+        if (padesBlobGcp != null) {
+          if (bucketConsumer.deleteContentFromBucket(padesBlobGcp)) {
+            farskapserklaering.get().getDokument().setBlobIdGcp(null);
+          } else {
+            validerAtBlobIkkeEksisterer(padesBlobGcp);
+          }
+        }
+
+        var xadesMorBlobGcp =
+            farskapserklaering.get().getDokument().getSigneringsinformasjonMor().getBlobIdGcp();
+        if (xadesMorBlobGcp != null) {
+          if (bucketConsumer.deleteContentFromBucket(xadesMorBlobGcp)) {
+            farskapserklaering.get().getDokument().getSigneringsinformasjonMor().setBlobIdGcp(null);
+          } else {
+            validerAtBlobIkkeEksisterer(xadesMorBlobGcp);
+          }
+        }
+
+        var xadesFarBlobGcp =
+            farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
+        if (xadesFarBlobGcp != null) {
+          if (bucketConsumer.deleteContentFromBucket(xadesFarBlobGcp)) {
+            farskapserklaering.get().getDokument().getSigneringsinformasjonFar().setBlobIdGcp(null);
+          } else {
+            validerAtBlobIkkeEksisterer(xadesMorBlobGcp);
+          }
+        }
+      }
+
+      // TODO: Fjerne etter fullført bucket-migrering
+      sletteDokumentinnholdFraDatabase(farskapserklaering.get());
+
       farskapserklaering.get().setDokumenterSlettet(LocalDateTime.now());
     } else {
       log.error("Fant ikke deaktivert farskapserklæring med id {}", idFarskapserklaering);
       throw new IllegalStateException("Fant ikke farskapserklæring");
     }
+  }
+
+  // TODO: Fjernes etter fullført bucket-migrering
+  @Deprecated
+  private void sletteDokumentinnholdFraDatabase(Farskapserklaering farskapserklaering) {
+    farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
   }
 
   public Oppgavebestilling lagreNyOppgavebestilling(int idFarskapserklaering, String eventId) {
@@ -276,6 +315,7 @@ public class PersistenceService {
         morSendtTilSigneringFoer);
   }
 
+  // TODO: Oppdatere uttrekk etter fullført bucket-migrering
   public Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
       LocalDateTime sendtTilSkattFoer, LocalDateTime deaktivertFoer) {
     return farskapserklaeringDao.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
@@ -300,7 +340,26 @@ public class PersistenceService {
             .tidspunktForOversendelse(tidspunktForOverfoering)
             .meldingsidSkatt(meldingsidSkatt)
             .build();
+
     meldingsloggDao.save(nyttInnslag);
+  }
+
+  private boolean erklaeringHarReferanserTilBuckets(Farskapserklaering farskapserklaering) {
+    return farskapserklaering.getDokument().getBlobIdGcp() != null
+        || farskapserklaering.getDokument().getSigneringsinformasjonMor().getBlobIdGcp() != null
+        || farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp() != null;
+  }
+
+  private void validerAtBlobIkkeEksisterer(BlobIdGcp blob) {
+    var padesBlob = bucketConsumer.getExistingBlobIdGcp(blob.getBucket(), blob.getName());
+    if (padesBlob.isPresent()) {
+      log.error(
+          "Fikk ikke slettet dokument blob {} fra bucket {} (blobIdGcp id: {})",
+          blob.getName(),
+          blob.getBucket(),
+          blob.getId());
+      throw new InternFeilException(Feilkode.RYDDEJOBB_FEILET);
+    }
   }
 
   private void farForskjelligFraFarIEksisterendeFarskapserklaeringForNyfoedt(

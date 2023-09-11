@@ -25,6 +25,7 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -49,11 +50,10 @@ public class PdfGeneratorConsumerTest {
   private static final Barn NYFOEDT_BARN = henteNyligFoedtBarn();
   private static boolean skriveUtPdf = true;
 
-  @Autowired private PdfGeneratorConsumer pdfGeneratorConsumer;
-
-  @Autowired private Mapper mapper;
-
-  @MockBean private PersonopplysningService personopplysningServiceMock;
+  private @Autowired PdfGeneratorConsumer pdfGeneratorConsumer;
+  private @Autowired Mapper mapper;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean PersonopplysningService personopplysningServiceMock;
 
   @Test
   void skalGenererePdfPaaBokmaalForUfoedt() throws IOException {

@@ -40,6 +40,7 @@ import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Farskapsporta
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -117,6 +118,7 @@ public class FarskapsportalApiConfig {
   @Bean
   public FarskapsportalService farskapsportalService(
       BrukernotifikasjonConsumer brukernotifikasjonConsumer,
+      BucketConsumer bucketConsumer,
       FarskapsportalApiEgenskaper farskapsportalApiEgenskaper,
       DifiESignaturConsumer difiESignaturConsumer,
       PdfGeneratorConsumer pdfGeneratorConsumer,
@@ -126,6 +128,7 @@ public class FarskapsportalApiConfig {
 
     return FarskapsportalService.builder()
         .brukernotifikasjonConsumer(brukernotifikasjonConsumer)
+        .bucketConsumer(bucketConsumer)
         .farskapsportalApiEgenskaper(farskapsportalApiEgenskaper)
         .difiESignaturConsumer(difiESignaturConsumer)
         .pdfGeneratorConsumer(pdfGeneratorConsumer)
@@ -199,9 +202,10 @@ public class FarskapsportalApiConfig {
       CloseableHttpClient httpClient,
       @Value("${SKATT_URL}") String skattBaseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
-      ConsumerEndpoint consumerEndpoint) {
+      ConsumerEndpoint consumerEndpoint,
+      BucketConsumer bucketConsumer) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, skattBaseUrl + endpoint);
-    return new SkattConsumer(httpClient, consumerEndpoint);
+    return new SkattConsumer(httpClient, consumerEndpoint, bucketConsumer);
   }
 
   @Bean

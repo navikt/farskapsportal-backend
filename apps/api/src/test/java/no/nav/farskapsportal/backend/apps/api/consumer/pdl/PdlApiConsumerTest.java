@@ -43,6 +43,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseD
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
@@ -73,15 +74,12 @@ public class PdlApiConsumerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
 
-  @Autowired private PdlApiConsumer pdlApiConsumer;
-
-  @Autowired private PdlApiStub pdlApiStub;
-
-  @Autowired private CacheManager cacheManager;
-
-  @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
-
-  @MockBean private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @Autowired PdlApiConsumer pdlApiConsumer;
+  private @Autowired PdlApiStub pdlApiStub;
+  private @Autowired CacheManager cacheManager;
+  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   private void mockAccessToken() {
     when(oAuth2AccessTokenService.getAccessToken(any()))

@@ -83,6 +83,9 @@ public enum Feilkode {
       "Pålogget person er ikke forelder i oppgitt farskapserklaering"),
   PERSON_HAR_INGEN_VENTENDE_FARSKAPSERKLAERINGER(
       "Paalogget person har ingen farskapserklæringer som venter på signering"),
+
+  RYDDEJOBB_FEILET("En feil oppstod ved kjøring av ryddejobb"),
+
   SKATT_OVERFOERING_FEILET("Overføring av farskapsmelding til Skatt feilet"),
   SKATT_MELDINGSFORMAT("Feil oppstod ved opprettelse av farskapsmelding til Skatt"),
   TERMINDATO_UGYLDIG("Oppgitt termindato er ikke innenfor godkjent intervall"),

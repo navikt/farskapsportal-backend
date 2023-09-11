@@ -82,6 +82,7 @@ public class DifiESignaturConsumer {
   public void oppretteSigneringsjobb(
       int idFarskapserklaering,
       Dokument dokument,
+      byte[] dokumentinnhold,
       Skriftspraak skriftspraak,
       Forelder mor,
       Forelder far) {
@@ -91,9 +92,7 @@ public class DifiESignaturConsumer {
     var dokumentnavn = tekstvelger(Tekst.DOKUMENT_FILNAVN, skriftspraak);
 
     var directDocument =
-        DirectDocument.builder(tittel, dokument.getDokumentinnhold().getInnhold())
-            .type(DocumentType.PDF)
-            .build();
+        DirectDocument.builder(tittel, dokumentinnhold).type(DocumentType.PDF).build();
 
     var exitUrls =
         ExitUrls.of(

@@ -19,12 +19,9 @@ import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestApplication;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestConfig;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
-import no.nav.farskapsportal.backend.libs.entity.Barn;
-import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
-import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
-import no.nav.farskapsportal.backend.libs.entity.Forelder;
-import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.*;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -51,12 +48,12 @@ import org.springframework.test.context.ActiveProfiles;
     webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerTest {
 
-  @Autowired private SkattConsumer skattConsumer;
-  @Autowired private ServletWebServerApplicationContext webServerAppCtxt;
-
-  @MockBean private OAuth2AccessTokenService oAuth2AccessTokenService;
-
-  @MockBean private OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @Autowired SkattConsumer skattConsumer;
+  private @Autowired ServletWebServerApplicationContext webServerAppCtxt;
+  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @MockBean BucketConsumer bucketConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Test
   void skalReturnereTidspunktForOverfoeringDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {
@@ -69,23 +66,25 @@ public class SkattConsumerTest {
             henteBarnUtenFnr(5));
     farskapserklaering
         .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
     farskapserklaering.setMeldingsidSkatt("123");
+
+    var innholdPades = "Jeg erklærer farskap til barnet".getBytes(StandardCharsets.UTF_8);
+    var padesBlob = BlobIdGcp.builder().bucket("padesr").name("fp-1").build();
+    farskapserklaering.getDokument().setBlobIdGcp(padesBlob);
+
+    var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
+    var xadesMorBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-mor").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(xadesMorBlob);
+
+    var innholdXadesFar = "Fars signatur".getBytes(StandardCharsets.UTF_8);
+    var xadesFarBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-far").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(xadesFarBlob);
+
+    when(bucketConsumer.getContentFromBucket(padesBlob)).thenReturn(innholdPades);
+    when(bucketConsumer.getContentFromBucket(xadesMorBlob)).thenReturn(innholdXadesMor);
+    when(bucketConsumer.getContentFromBucket(xadesFarBlob)).thenReturn(innholdXadesFar);
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
         .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
@@ -110,20 +109,25 @@ public class SkattConsumerTest {
             henteBarnUtenFnr(8));
     farskapserklaering
         .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("jadda".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
+
+    var padesUtenInnhold = "".getBytes(StandardCharsets.UTF_8);
+    var padesBlob = BlobIdGcp.builder().bucket("padesr").name("fp-1").build();
+    farskapserklaering.getDokument().setBlobIdGcp(padesBlob);
+
+    var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
+    var xadesMorBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-mor").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(xadesMorBlob);
+
+    var innholdXadesFar = "Fars signatur".getBytes(StandardCharsets.UTF_8);
+    var xadesFarBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-far").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(xadesFarBlob);
+
+    when(bucketConsumer.getContentFromBucket(padesBlob)).thenReturn(padesUtenInnhold);
+    when(bucketConsumer.getContentFromBucket(xadesMorBlob)).thenReturn(innholdXadesMor);
+    when(bucketConsumer.getContentFromBucket(xadesFarBlob)).thenReturn(innholdXadesFar);
 
     // when, then
     var skattConsumerException =
@@ -131,7 +135,7 @@ public class SkattConsumerTest {
             SkattConsumerException.class,
             () -> skattConsumer.registrereFarskap(farskapserklaering));
 
-    assertThat(skattConsumerException.getFeilkode()).isEqualTo(XADES_MOR_UTEN_INNHOLD);
+    assertThat(skattConsumerException.getFeilkode()).isEqualTo(DOKUMENT_MANGLER_INNOHLD);
   }
 
   @Test
@@ -145,20 +149,25 @@ public class SkattConsumerTest {
             henteBarnUtenFnr(8));
     farskapserklaering
         .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("jadda".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
+
+    var innholdPades = "Jeg erklærer farskap til barnet".getBytes(StandardCharsets.UTF_8);
+    var padesBlob = BlobIdGcp.builder().bucket("padesr").name("fp-1").build();
+    farskapserklaering.getDokument().setBlobIdGcp(padesBlob);
+
+    var innholdXadesMorUtenInnhold = "".getBytes(StandardCharsets.UTF_8);
+    var xadesMorBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-mor").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(xadesMorBlob);
+
+    var innholdXadesFar = "Fars signatur".getBytes(StandardCharsets.UTF_8);
+    var xadesFarBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-far").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(xadesFarBlob);
+
+    when(bucketConsumer.getContentFromBucket(padesBlob)).thenReturn(innholdPades);
+    when(bucketConsumer.getContentFromBucket(xadesMorBlob)).thenReturn(innholdXadesMorUtenInnhold);
+    when(bucketConsumer.getContentFromBucket(xadesFarBlob)).thenReturn(innholdXadesFar);
 
     // when, then
     var skattConsumerException =
@@ -166,7 +175,7 @@ public class SkattConsumerTest {
             SkattConsumerException.class,
             () -> skattConsumer.registrereFarskap(farskapserklaering));
 
-    assertThat(skattConsumerException.getFeilkode()).isEqualTo(XADES_FAR_UTEN_INNHOLD);
+    assertThat(skattConsumerException.getFeilkode()).isEqualTo(XADES_MOR_UTEN_INNHOLD);
   }
 
   @Test
@@ -180,20 +189,25 @@ public class SkattConsumerTest {
             henteBarnUtenFnr(8));
     farskapserklaering
         .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold("".getBytes()).build());
     farskapserklaering.setMeldingsidSkatt("123");
+
+    var innholdPades = "Jeg erklærer farskap til barnet".getBytes(StandardCharsets.UTF_8);
+    var padesBlob = BlobIdGcp.builder().bucket("padesr").name("fp-1").build();
+    farskapserklaering.getDokument().setBlobIdGcp(padesBlob);
+
+    var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
+    var xadesMorBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-mor").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(xadesMorBlob);
+
+    var innholdXadesFarUtenInnhold = "".getBytes(StandardCharsets.UTF_8);
+    var xadesFarBlob = BlobIdGcp.builder().bucket("xades").name("fp-1-xades-far").build();
+    farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(xadesFarBlob);
+
+    when(bucketConsumer.getContentFromBucket(padesBlob)).thenReturn(innholdPades);
+    when(bucketConsumer.getContentFromBucket(xadesMorBlob)).thenReturn(innholdXadesMor);
+    when(bucketConsumer.getContentFromBucket(xadesFarBlob)).thenReturn(innholdXadesFarUtenInnhold);
 
     // when, then
     var skattConsumerException =
@@ -201,7 +215,7 @@ public class SkattConsumerTest {
             SkattConsumerException.class,
             () -> skattConsumer.registrereFarskap(farskapserklaering));
 
-    assertThat(skattConsumerException.getFeilkode()).isEqualTo(DOKUMENT_MANGLER_INNOHLD);
+    assertThat(skattConsumerException.getFeilkode()).isEqualTo(XADES_FAR_UTEN_INNHOLD);
   }
 
   public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {

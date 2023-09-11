@@ -18,6 +18,7 @@ public class FarskapsportalApiEgenskaper {
   @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   private boolean brukernotifikasjonerPaa;
+  private boolean krypteringPaa = true;
   private int minAntallUkerTilTermindato;
   private int maksAntallUkerTilTermindato;
   private int kontrollFarForsoekFornyesEtterAntallDager;

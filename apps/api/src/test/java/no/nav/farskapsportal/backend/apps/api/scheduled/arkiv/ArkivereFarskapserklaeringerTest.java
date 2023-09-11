@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -20,8 +21,11 @@ import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.DokumentSt
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDto;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
+import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.*;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.*;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -46,17 +50,19 @@ import org.springframework.test.context.ActiveProfiles;
     webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ArkivereFarskapserklaeringerTest {
 
+  @Value("${wiremock.server.port}")
+  String wiremockPort;
+
+  private @MockBean BucketConsumer bucketConsumer;
   private @MockBean SkattConsumer skattConsumerMock;
   private @MockBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @Autowired FarskapsportalService farskapsportalService;
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired ForelderDao forelderDao;
   private @Autowired MeldingsloggDao meldingsloggDao;
   private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
-
-  @Value("${wiremock.server.port}")
-  String wiremockPort;
-
   private ArkivereFarskapserklaeringer arkivereFarskapserklaeringer;
 
   @BeforeEach
@@ -71,8 +77,9 @@ public class ArkivereFarskapserklaeringerTest {
     // skedulert trigging av metoden under test.
     arkivereFarskapserklaeringer =
         ArkivereFarskapserklaeringer.builder()
+            .bucketConsumer(bucketConsumer)
             .skattConsumer(skattConsumerMock)
-            .difiESignaturConsumer(difiESignaturConsumer)
+            .farskapsportalService(farskapsportalService)
             .maksAntallFeilPaaRad(
                 farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad())
             .persistenceService(persistenceService)
@@ -89,13 +96,29 @@ public class ArkivereFarskapserklaeringerTest {
         .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder().innhold("dette er en erklæring".getBytes()).build());
     farskapserklaering.setFarBorSammenMedMor(true);
-    farskapserklaering.setMeldingsidSkatt(LocalDateTime.now().toString());
     return farskapserklaering;
+  }
+
+  public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .statusUrl("http://posten.status.no/")
+            .padesUrl("http://url1")
+            .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 
   @Nested
@@ -120,6 +143,16 @@ public class ArkivereFarskapserklaeringerTest {
       var lagretSignertFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + lagretSignertFarskapserklaering.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
 
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering))
           .thenReturn(LocalDateTime.now());
@@ -148,7 +181,51 @@ public class ArkivereFarskapserklaeringerTest {
                       .iterator()
                       .next()
                       .getTidspunktForOversendelse()
-                      .isEqual(oppdatertFarskapserklaering.get().getSendtTilSkatt())));
+                      .isEqual(oppdatertFarskapserklaering.get().getSendtTilSkatt())),
+          () ->
+              assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getBlobIdGcp())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonMor()
+                          .getBlobIdGcp())
+                  .isNotNull(),
+          // TODO: Fjerne når bucket-migrering er fullført
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getDokumentinnhold()
+                          .getInnhold())
+                  .isNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getXadesXml())
+                  .isNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonMor()
+                          .getXadesXml())
+                  .isNull());
     }
 
     private DokumentStatusDto getStatusDto(Farskapserklaering farskapserklaering) {
@@ -161,6 +238,7 @@ public class ArkivereFarskapserklaeringerTest {
                   SignaturDto.builder()
                       .signatureier(farskapserklaering.getFar().getFoedselsnummer())
                       .build()))
+          .padeslenke(tilUri(farskapserklaering.getDokument().getPadesUrl()))
           .build();
     }
 
@@ -169,6 +247,10 @@ public class ArkivereFarskapserklaeringerTest {
 
       // given
       Farskapserklaering farskapserklaering1 = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+      farskapserklaering1.getDokument().setStatusQueryToken("token1");
+      farskapserklaering1.getDokument().setJobbref("jobRef1");
+      farskapserklaering1.getDokument().setStatusUrl("http://url1");
+      farskapserklaering1.getDokument().setPadesUrl("http://pades-url1");
       var farskapserklaeringDokumentinnhold =
           "Jeg erklærer herved sannsynligvis farskap til dette barnet"
               .getBytes(StandardCharsets.UTF_8);
@@ -181,21 +263,42 @@ public class ArkivereFarskapserklaeringerTest {
 
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering1))
           .thenReturn(LocalDateTime.now().minusMinutes(1));
-      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+      when(difiESignaturConsumer.henteStatus(
+              farskapserklaering1.getDokument().getStatusQueryToken(),
+              farskapserklaering1.getDokument().getJobbref(),
+              tilUri(farskapserklaering1.getDokument().getStatusUrl())))
           .thenReturn(getStatusDto(lagretSignertFarskapserklaering1));
 
       Farskapserklaering farskapserklaering2 = henteFarskapserklaeringNyfoedtSignertAvMor("54321");
-      farskapserklaering2.getDokument().setPadesUrl("http://url2");
+      farskapserklaering2.getDokument().setStatusQueryToken("token2");
+      farskapserklaering2.getDokument().setJobbref("jobRef2");
+      farskapserklaering2.getDokument().setStatusUrl("http://url2");
+      farskapserklaering2.getDokument().setPadesUrl("http://pades-url2");
       var lagretSignertFarskapserklaering2 =
           persistenceService.lagreNyFarskapserklaering(farskapserklaering2);
       assert (lagretSignertFarskapserklaering2.getSendtTilSkatt() == null);
+
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + farskapserklaering1.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+
       when(difiESignaturConsumer.henteSignertDokument(
               new URI(farskapserklaering1.getDokument().getPadesUrl())))
           .thenReturn(farskapserklaeringDokumentinnhold);
       when(difiESignaturConsumer.henteSignertDokument(
               new URI(farskapserklaering2.getDokument().getPadesUrl())))
           .thenReturn((farskapserklaeringDokumentinnhold.toString() + "2").getBytes());
-      when(difiESignaturConsumer.henteStatus(any(), any(), any()))
+      when(difiESignaturConsumer.henteStatus(
+              farskapserklaering2.getDokument().getStatusQueryToken(),
+              farskapserklaering2.getDokument().getJobbref(),
+              tilUri(farskapserklaering2.getDokument().getStatusUrl())))
           .thenReturn(getStatusDto(lagretSignertFarskapserklaering2));
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
       when(skattConsumerMock.registrereFarskap(lagretSignertFarskapserklaering2))
@@ -215,10 +318,55 @@ public class ArkivereFarskapserklaeringerTest {
           () -> assertThat(oppdatertFarskapserklaering1).isPresent(),
           () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNotNull(),
           () -> assertThat(oppdatertFarskapserklaering2).isPresent(),
-          () -> assertThat(oppdatertFarskapserklaering2.get().getSendtTilSkatt()).isNotNull());
+          () -> assertThat(oppdatertFarskapserklaering2.get().getSendtTilSkatt()).isNotNull(),
+          () ->
+              assertThat(oppdatertFarskapserklaering1.get().getDokument().getBlobIdGcp())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getBlobIdGcp())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonMor()
+                          .getBlobIdGcp())
+                  .isNotNull(),
+          // TODO: Fjerne når bucket-migrering er fullført
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getDokumentinnhold()
+                          .getInnhold())
+                  .isNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getXadesXml())
+                  .isNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonMor()
+                          .getXadesXml())
+                  .isNull());
     }
 
     @Test
+    @Transactional
     void skalLagreMeldingsidSkattSelvOmOverfoeringFeiler() throws URISyntaxException {
 
       // given
@@ -234,15 +382,28 @@ public class ArkivereFarskapserklaeringerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaering);
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
 
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + lagretSignertFarskapserklaering.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+
       doThrow(SkattConsumerException.class)
           .when(skattConsumerMock)
           .registrereFarskap(lagretSignertFarskapserklaering);
+
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
           .thenReturn(getStatusDto(lagretSignertFarskapserklaering));
 
       when(difiESignaturConsumer.henteSignertDokument(
               new URI(farskapserklaering.getDokument().getPadesUrl())))
           .thenReturn(farskapserklaeringDokumentinnhold);
+
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
 
       // when
@@ -255,7 +416,51 @@ public class ArkivereFarskapserklaeringerTest {
       assertAll(
           () -> assertThat(oppdatertFarskapserklaering1).isPresent(),
           () -> assertThat(oppdatertFarskapserklaering1.get().getSendtTilSkatt()).isNull(),
-          () -> assertThat(oppdatertFarskapserklaering1.get().getMeldingsidSkatt()).isNotNull());
+          () -> assertThat(oppdatertFarskapserklaering1.get().getMeldingsidSkatt()).isNotNull(),
+          () ->
+              assertThat(oppdatertFarskapserklaering1.get().getDokument().getBlobIdGcp())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getBlobIdGcp())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonMor()
+                          .getBlobIdGcp())
+                  .isNotNull(),
+          // TODO: Fjerne når bucket-migrering er fullført
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getDokumentinnhold()
+                          .getInnhold())
+                  .isNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getXadesXml())
+                  .isNull(),
+          () ->
+              assertThat(
+                      oppdatertFarskapserklaering1
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonMor()
+                          .getXadesXml())
+                  .isNull());
     }
 
     @Test
@@ -266,13 +471,26 @@ public class ArkivereFarskapserklaeringerTest {
           farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad();
       for (int i = 0; i < maksAntallFeilPaaRad + 1; i++) {
         Farskapserklaering farskapserklaering =
-            henteFarskapserklaeringNyfoedtSignertAvMor("1234" + Integer.toString(i));
+            henteFarskapserklaeringNyfoedtSignertAvMor("1234" + i);
         farskapserklaering.setMeldingsidSkatt(null);
         farskapserklaering.getDokument().setStatusQueryToken(Integer.toString(i));
         farskapserklaering.setBarn(henteBarnMedFnr(LocalDate.now().minusDays(i)));
+
         var lagretSignertFarskapserklaering =
             persistenceService.lagreNyFarskapserklaering(farskapserklaering);
         assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
+
+        var blobIdGcp =
+            BlobIdGcp.builder()
+                .bucket(
+                    farskapsportalAsynkronEgenskaper
+                        .getFarskapsportalFellesEgenskaper()
+                        .getBucket()
+                        .getPadesName())
+                .name("fp-" + lagretSignertFarskapserklaering.getId())
+                .build();
+        when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+
         when(difiESignaturConsumer.henteStatus(
                 farskapserklaering.getDokument().getStatusQueryToken(),
                 farskapserklaering.getDokument().getJobbref(),
@@ -327,6 +545,17 @@ public class ArkivereFarskapserklaeringerTest {
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSignertAvBeggeParter);
       assert (lagretFarskapserklaeringSignertAvBeggeParter.getSendtTilSkatt() == null);
 
+      var blobIdGcp =
+          BlobIdGcp.builder()
+              .bucket(
+                  farskapsportalAsynkronEgenskaper
+                      .getFarskapsportalFellesEgenskaper()
+                      .getBucket()
+                      .getPadesName())
+              .name("fp-" + farskapserklaeringSignertAvBeggeParter.getId())
+              .build();
+      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+
       when(difiESignaturConsumer.henteSignertDokument(any()))
           .thenReturn(farskapserklaeringDokumentinnhold);
       when(difiESignaturConsumer.henteXadesXml(any())).thenReturn(xadesXml);
@@ -364,17 +593,15 @@ public class ArkivereFarskapserklaeringerTest {
 
       // given
       var farskapserklaeringAlleredeOverfoert = henteFarskapserklaeringNyfoedtSignertAvMor("12345");
+      var datoSendtTilSkatt = LocalDateTime.now().minusDays(10);
       farskapserklaeringAlleredeOverfoert
           .getDokument()
           .getSigneringsinformasjonFar()
           .setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(LocalDateTime.now());
+      farskapserklaeringAlleredeOverfoert.setSendtTilSkatt(datoSendtTilSkatt);
 
       var lagretFarskapserklaeringAlleredeOverfoert =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringAlleredeOverfoert);
-
-      verify(skattConsumerMock, never())
-          .registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);
 
       // when
       arkivereFarskapserklaeringer.vurdereArkivering();
@@ -383,31 +610,14 @@ public class ArkivereFarskapserklaeringerTest {
       var arkivertFarskapserklaering =
           farskapserklaeringDao.findById(lagretFarskapserklaeringAlleredeOverfoert.getId());
 
+      verify(skattConsumerMock, never())
+          .registrereFarskap(lagretFarskapserklaeringAlleredeOverfoert);
+
       assertAll(
           () -> assertThat(arkivertFarskapserklaering).isPresent(),
-          () -> assertThat(arkivertFarskapserklaering.get().getMeldingsidSkatt()).isNotNull(),
-          () -> assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt()).isNotNull());
+          () ->
+              assertThat(arkivertFarskapserklaering.get().getSendtTilSkatt())
+                  .isEqualToIgnoringSeconds(datoSendtTilSkatt));
     }
-  }
-
-  public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
-
-    var dokument =
-        Dokument.builder()
-            .navn("farskapserklaering.pdf")
-            .signeringsinformasjonMor(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
-                    .signeringstidspunkt(LocalDateTime.now())
-                    .build())
-            .signeringsinformasjonFar(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
-                    .build())
-            .statusUrl("http://posten.status.no/")
-            .padesUrl("http://url1")
-            .build();
-
-    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 }

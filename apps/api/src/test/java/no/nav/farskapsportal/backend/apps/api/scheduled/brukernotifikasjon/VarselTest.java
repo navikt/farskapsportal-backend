@@ -26,6 +26,7 @@ import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -58,6 +59,7 @@ public class VarselTest {
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;

@@ -21,6 +21,7 @@ import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
@@ -43,6 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -66,13 +68,14 @@ public class PersistenceServiceTest {
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  @Autowired private PersistenceService persistenceService;
-  @Autowired private FarskapserklaeringDao farskapserklaeringDao;
-  @Autowired private ForelderDao forelderDao;
-  @Autowired private DokumentDao dokumentDao;
-  @Autowired private StatusKontrollereFarDao statusKontrollereFarDao;
-  @Autowired private ModelMapper modelMapper;
-  @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
+  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @Autowired PersistenceService persistenceService;
+  private @Autowired FarskapserklaeringDao farskapserklaeringDao;
+  private @Autowired ForelderDao forelderDao;
+  private @Autowired DokumentDao dokumentDao;
+  private @Autowired StatusKontrollereFarDao statusKontrollereFarDao;
+  private @Autowired ModelMapper modelMapper;
+  private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Nested
   @DisplayName("Lagre")

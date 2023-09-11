@@ -4,7 +4,6 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_SCHEDULED_TEST;
 
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
-import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.scheduled.arkiv.ArkivereFarskapserklaeringer;
@@ -17,6 +16,7 @@ import no.nav.farskapsportal.backend.apps.api.scheduled.oppgave.Oppgavestyring;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.apps.api.service.PersonopplysningService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,15 +41,17 @@ public class ScheduledConfig {
 
   @Bean
   public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(
-      DifiESignaturConsumer difiEsignerinConsumer,
+      BucketConsumer bucketConsumer,
+      FarskapsportalService farskapsportalService,
       PersistenceService persistenceService,
       SkattConsumer skattConsumer) {
 
     return ArkivereFarskapserklaeringer.builder()
+        .bucketConsumer(bucketConsumer)
         .intervallMellomForsoek(
             farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
         .maksAntallFeilPaaRad(farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad())
-        .difiESignaturConsumer(difiEsignerinConsumer)
+        .farskapsportalService(farskapsportalService)
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
         .build();
@@ -81,6 +83,7 @@ public class ScheduledConfig {
   public Ryddejobb ryddejobb(
       FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper,
       PersistenceService persistenceService) {
+
     return Ryddejobb.builder()
         .arkiv(farskapsportalAsynkronEgenskaper.getArkiv())
         .persistenceService(persistenceService)
