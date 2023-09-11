@@ -872,11 +872,7 @@ public class FarskapsportalServiceTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
       when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
@@ -993,11 +989,7 @@ public class FarskapsportalServiceTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
       when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
@@ -1238,11 +1230,7 @@ public class FarskapsportalServiceTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
 
@@ -4123,11 +4111,7 @@ public class FarskapsportalServiceTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
       when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
@@ -4237,11 +4221,7 @@ public class FarskapsportalServiceTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
       when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);

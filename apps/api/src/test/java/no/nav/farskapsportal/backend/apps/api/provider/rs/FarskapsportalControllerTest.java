@@ -341,6 +341,20 @@ public class FarskapsportalControllerTest {
     when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
   }
 
+  private DokumentStatusDto getStatusDto(Farskapserklaering farskapserklaering) {
+    return DokumentStatusDto.builder()
+        .signaturer(
+            listOf(
+                SignaturDto.builder()
+                    .signatureier(farskapserklaering.getMor().getFoedselsnummer())
+                    .build(),
+                SignaturDto.builder()
+                    .signatureier(farskapserklaering.getFar().getFoedselsnummer())
+                    .build()))
+        .padeslenke(tilUri(farskapserklaering.getDokument().getPadesUrl()))
+        .build();
+  }
+
   private static class CustomHeader {
 
     String headerName;
@@ -1628,11 +1642,7 @@ public class FarskapsportalControllerTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
 
@@ -1973,11 +1983,7 @@ public class FarskapsportalControllerTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
       when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
@@ -3048,11 +3054,7 @@ public class FarskapsportalControllerTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name(dokumentnavn)
               .build();
       farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
@@ -3095,11 +3097,7 @@ public class FarskapsportalControllerTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalApiEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name(dokumentnavn)
               .build();
       farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
@@ -3178,19 +3176,5 @@ public class FarskapsportalControllerTest {
               assertThat(respons.getBody().getFeilkode())
                   .isEqualTo(Feilkode.FANT_IKKE_FARSKAPSERKLAERING));
     }
-  }
-
-  private DokumentStatusDto getStatusDto(Farskapserklaering farskapserklaering) {
-    return DokumentStatusDto.builder()
-        .signaturer(
-            listOf(
-                SignaturDto.builder()
-                    .signatureier(farskapserklaering.getMor().getFoedselsnummer())
-                    .build(),
-                SignaturDto.builder()
-                    .signatureier(farskapserklaering.getFar().getFoedselsnummer())
-                    .build()))
-        .padeslenke(tilUri(farskapserklaering.getDokument().getPadesUrl()))
-        .build();
   }
 }

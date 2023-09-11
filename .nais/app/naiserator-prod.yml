@@ -50,13 +50,13 @@ spec:
   {{/each}}
   gcp:
     buckets:
-      - name: {{ name }}-pades
+      - name: {{ name }}-prod-pades
         lifecycleCondition:
           age: 7
           createdBefore: 2023-01-01
           numNewerVersions: 1
           withState: ANY
-      - name: {{ name }}-xades
+      - name: {{ name }}-prod-xades
         lifecycleCondition:
           age: 7
           createdBefore: 2023-01-01
