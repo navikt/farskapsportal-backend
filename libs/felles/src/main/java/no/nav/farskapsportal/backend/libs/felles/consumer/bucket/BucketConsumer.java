@@ -5,18 +5,19 @@ import java.security.GeneralSecurityException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.BucketConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class BucketConsumer {
 
-  private @Autowired FarskapsportalFellesEgenskaper fellesEgenskaper;
   private @Autowired GcpStorageWrapper gcpStorageWrapper;
+  private @Value("${APPNAVN}") String appnavn;
+  private @Value("${NAIS_CLUSTER_NAME}") String naisClusterName;
 
   public Optional<BlobIdGcp> getExistingBlobIdGcp(String bucket, String documentName) {
     var blobId = gcpStorageWrapper.getBlobId(bucket, documentName);
@@ -47,10 +48,7 @@ public class BucketConsumer {
 
   public BlobIdGcp saveContentToBucket(
       ContentType contentType, String documentName, byte[] content) {
-    var bucketName =
-        ContentType.PADES.equals(contentType)
-            ? fellesEgenskaper.getBucket().getPadesName()
-            : fellesEgenskaper.getBucket().getXadesName();
+    var bucketName = getBucketName(contentType);
     var blobId = BlobId.of(bucketName, documentName);
 
     try {
@@ -83,5 +81,15 @@ public class BucketConsumer {
   public enum ContentType {
     PADES,
     XADES
+  }
+
+  public String getBucketName(ContentType contentType) {
+    return ContentType.PADES.equals(contentType)
+        ? appnavn + "-" + getEnvironment() + "-pades"
+        : appnavn + "-" + getEnvironment() + "-xades";
+  }
+
+  private String getEnvironment() {
+    return "prod-gcp".equals(naisClusterName) ? "prod" : "dev";
   }
 }

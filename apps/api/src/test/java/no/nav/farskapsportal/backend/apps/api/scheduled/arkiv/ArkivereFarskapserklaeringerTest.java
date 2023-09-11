@@ -145,11 +145,7 @@ public class ArkivereFarskapserklaeringerTest {
       assert (lagretSignertFarskapserklaering.getSendtTilSkatt() == null);
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalAsynkronEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-" + lagretSignertFarskapserklaering.getId())
               .build();
       when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
@@ -280,11 +276,7 @@ public class ArkivereFarskapserklaeringerTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalAsynkronEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-" + farskapserklaering1.getId())
               .build();
       when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
@@ -384,11 +376,7 @@ public class ArkivereFarskapserklaeringerTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalAsynkronEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-" + lagretSignertFarskapserklaering.getId())
               .build();
       when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
@@ -482,11 +470,7 @@ public class ArkivereFarskapserklaeringerTest {
 
         var blobIdGcp =
             BlobIdGcp.builder()
-                .bucket(
-                    farskapsportalAsynkronEgenskaper
-                        .getFarskapsportalFellesEgenskaper()
-                        .getBucket()
-                        .getPadesName())
+                .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
                 .name("fp-" + lagretSignertFarskapserklaering.getId())
                 .build();
         when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
@@ -547,11 +531,7 @@ public class ArkivereFarskapserklaeringerTest {
 
       var blobIdGcp =
           BlobIdGcp.builder()
-              .bucket(
-                  farskapsportalAsynkronEgenskaper
-                      .getFarskapsportalFellesEgenskaper()
-                      .getBucket()
-                      .getPadesName())
+              .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-" + farskapserklaeringSignertAvBeggeParter.getId())
               .build();
       when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);

@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
-import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Bucket;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,27 +22,18 @@ public class BucketConsumerTest {
   private @Mock GcpStorageWrapper gcpStorageWrapper;
   private @InjectMocks BucketConsumer bucketConsumer;
 
-  private Bucket bucketProperties = new Bucket();
-
-  @BeforeEach
-  void setup() {
-    bucketProperties.setPadesName("PaDES_bucketnavn");
-    bucketProperties.setXadesName("XaDES_bucketnavn");
-    when(fellesEgenskaper.getBucket()).thenReturn(bucketProperties);
-  }
-
   @Test
   void skalLagreNyttDokumentTilBøtte() throws IOException, GeneralSecurityException {
 
     // given
     var dokumentnavn = "fp-1234";
     var dokumenttekst = "Jeg erklærer farskap for denne personen".getBytes(StandardCharsets.UTF_8);
-    var blobId = BlobId.of(bucketProperties.getPadesName(), dokumentnavn);
+    var blobId =
+        BlobId.of(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES), dokumentnavn);
     var blobIdGcp = BlobIdGcp.builder().encryptionKeyVersion(1).name(blobId.getName()).build();
 
     when(gcpStorageWrapper.updateBlob(blobId, dokumenttekst)).thenReturn(null);
-    when(gcpStorageWrapper.saveContentToBucket(
-            bucketProperties.getPadesName(), dokumentnavn, dokumenttekst))
+    when(gcpStorageWrapper.saveContentToBucket(blobId.getBucket(), blobId.getName(), dokumenttekst))
         .thenReturn(blobIdGcp);
 
     // when
@@ -62,7 +51,8 @@ public class BucketConsumerTest {
     // given
     var dokumentnavn = "fp-1234";
     var dokumenttekst = "Jeg erklærer farskap for denne personen".getBytes(StandardCharsets.UTF_8);
-    var blobId = BlobId.of(bucketProperties.getPadesName(), dokumentnavn);
+    var blobId =
+        BlobId.of(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES), dokumentnavn);
     var blobIdGcp =
         BlobIdGcp.builder()
             .bucket(blobId.getBucket())
@@ -70,8 +60,7 @@ public class BucketConsumerTest {
             .encryptionKeyVersion(1)
             .build();
 
-    when(gcpStorageWrapper.saveContentToBucket(
-            bucketProperties.getPadesName(), dokumentnavn, dokumenttekst))
+    when(gcpStorageWrapper.saveContentToBucket(blobId.getBucket(), blobId.getName(), dokumenttekst))
         .thenReturn(blobIdGcp);
 
     // when

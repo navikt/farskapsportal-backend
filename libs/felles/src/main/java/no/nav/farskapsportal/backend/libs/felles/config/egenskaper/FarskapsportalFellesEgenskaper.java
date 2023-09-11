@@ -21,5 +21,4 @@ public class FarskapsportalFellesEgenskaper {
   private int kontrollFarMaksAntallForsoek;
   private String url;
   private Brukernotifikasjon brukernotifikasjon;
-  private Bucket bucket;
 }

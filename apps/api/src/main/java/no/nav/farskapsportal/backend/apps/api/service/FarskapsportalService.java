@@ -484,10 +484,7 @@ public class FarskapsportalService {
 
         var eksisterendeBlobIdGcp =
             bucketConsumer.getExistingBlobIdGcp(
-                farskapsportalApiEgenskaper
-                    .getFarskapsportalFellesEgenskaper()
-                    .getBucket()
-                    .getXadesName(),
+                bucketConsumer.getBucketName(BucketConsumer.ContentType.XADES),
                 "xades-mor-" + farskapserklaering.getId() + ".xml");
 
         var blobIdGcp =
@@ -508,10 +505,7 @@ public class FarskapsportalService {
 
         var eksisterendeBlobIdGcp =
             bucketConsumer.getExistingBlobIdGcp(
-                farskapsportalApiEgenskaper
-                    .getFarskapsportalFellesEgenskaper()
-                    .getBucket()
-                    .getXadesName(),
+                bucketConsumer.getBucketName(BucketConsumer.ContentType.XADES),
                 "xades-far-" + farskapserklaering.getId() + ".xml");
         var blobIdGcp =
             eksisterendeBlobIdGcp.isPresent()
