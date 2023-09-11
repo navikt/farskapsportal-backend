@@ -82,7 +82,6 @@ spec:
           cluster: prod-gcp
     outbound:
       external:
-        - host: api-gw.oera.no
         - host: api.signering.posten.no
         - host: folkeregisteret.api.skatteetaten.no
         - host: secretmanager.googleapis.com
