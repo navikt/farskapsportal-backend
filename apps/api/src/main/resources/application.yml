@@ -318,7 +318,7 @@ spring:
     locations: classpath:/db/migration
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://localhost:5433/fpdb-feature
+    url: jdbc:postgresql://127.0.0.1:5432/fpdb-feature
     password: ${REMOTE_POSTGRES_PWD}
     databaseName: fpdb-feature
 
