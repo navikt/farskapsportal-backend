@@ -318,9 +318,11 @@ spring:
     locations: classpath:/db/migration
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://127.0.0.1:5432/fpdb-feature
+    url: jdbc:postgresql://127.0.0.1:5433/fpdb-feature
     password: ${REMOTE_POSTGRES_PWD}
     databaseName: fpdb-feature
+
+APPNAVN: farskapsportal-api-feature
 
 ---
 # Integrasjonstesting mot Posten
