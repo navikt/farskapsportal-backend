@@ -3105,7 +3105,6 @@ public class FarskapsportalControllerTest {
       farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
       farskapserklaeringDao.save(farskapserklaering);
 
-<<<<<<< HEAD
       when(bucketConsumer.saveContentToBucket(
               BucketConsumer.ContentType.PADES, dokumentnavn, dokumentinnhold))
           .thenReturn(blobIdGcp);
@@ -3113,10 +3112,6 @@ public class FarskapsportalControllerTest {
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
           .thenReturn(getStatusDto(farskapserklaering));
-=======
-      when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
->>>>>>> main
 
       // when
       var respons =

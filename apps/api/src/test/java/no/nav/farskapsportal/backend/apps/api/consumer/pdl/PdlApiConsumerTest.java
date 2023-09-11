@@ -73,7 +73,7 @@ import org.springframework.test.context.ContextConfiguration;
 public class PdlApiConsumerTest {
 
   private static final Forelder MOR = henteForelder(Forelderrolle.MOR);
-  
+
   private @Autowired PdlApiConsumer pdlApiConsumer;
   private @Autowired PdlApiStub pdlApiStub;
   private @Autowired CacheManager cacheManager;

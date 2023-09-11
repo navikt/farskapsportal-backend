@@ -72,8 +72,4 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: deploy/.nais/app/naiserator-prod.yml
           VARS: deploy/.nais/app/prod.yml
-<<<<<<< HEAD
           IMAGE: ${{ needs.build.outputs.image }}
-=======
-          IMAGE: ${{ needs.build.outputs.image }}
->>>>>>> main

@@ -70,15 +70,9 @@ public class MapperTest {
   private static final DokumentDto DOKUMENT_DTO = getDokumentDto();
   private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(2).minusDays(13);
 
-<<<<<<< HEAD
   private @Autowired Mapper mapper;
   private @MockBean PersonopplysningService personopplysningService;
   private @MockBean GcpStorageWrapper gcp;
-=======
-  @Autowired private Mapper mapper;
-
-  @MockBean private PersonopplysningService personopplysningService;
->>>>>>> main
 
   private static DokumentDto getDokumentDto() {
     try {

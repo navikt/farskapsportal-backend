@@ -80,7 +80,6 @@ public class FarskapsportalApiTestConfig {
       ConsumerEndpoint consumerEndpoint,
       BucketConsumer bucketConsumer) {
 
-  }
     consumerEndpoint.addEndpoint(MOTTA_FARSKAPSERKLAERING, baseUrl + endpoint);
     var httpClient = HttpClients.custom().evictExpiredConnections().build();
     return new SkattConsumer(httpClient, consumerEndpoint, bucketConsumer);
