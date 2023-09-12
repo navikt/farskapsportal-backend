@@ -120,7 +120,7 @@ public class FarskapsportalApiApplicationLocal {
   }
 
   @Configuration
-  @Profile({PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
+  @Profile({PROFILE_LOCAL_POSTGRES})
   static class FlywayConfiguration {
 
     @Autowired
