@@ -20,8 +20,6 @@ import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.commons.web.DefaultCorsFilter;
-import no.nav.bidrag.commons.web.UserMdcFilter;
 import no.nav.bidrag.tilgangskontroll.felles.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
