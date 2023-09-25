@@ -20,6 +20,8 @@ import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
+import no.nav.bidrag.commons.web.DefaultCorsFilter;
+import no.nav.bidrag.commons.web.UserMdcFilter;
 import no.nav.bidrag.tilgangskontroll.felles.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
@@ -57,7 +59,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Slf4j
@@ -85,11 +86,6 @@ public class FarskapsportalApiConfig {
       log.warn("Identen er ikke numerisk");
       return false;
     }
-  }
-
-  @Bean
-  ForwardedHeaderFilter forwardedHeaderFilter() {
-    return new ForwardedHeaderFilter();
   }
 
   @Bean
@@ -220,6 +216,16 @@ public class FarskapsportalApiConfig {
   @Bean
   public CorrelationIdFilter correlationIdFilter() {
     return new CorrelationIdFilter();
+  }
+
+  @Bean
+  public DefaultCorsFilter defaultCorsFilter() {
+    return new DefaultCorsFilter();
+  }
+
+  @Bean
+  public UserMdcFilter userMdcFilter() {
+    return new UserMdcFilter();
   }
 
   @Bean
