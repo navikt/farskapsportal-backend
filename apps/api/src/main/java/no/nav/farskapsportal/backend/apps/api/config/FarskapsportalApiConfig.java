@@ -57,6 +57,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Slf4j
@@ -84,6 +85,11 @@ public class FarskapsportalApiConfig {
       log.warn("Identen er ikke numerisk");
       return false;
     }
+  }
+
+  @Bean
+  ForwardedHeaderFilter forwardedHeaderFilter() {
+    return new ForwardedHeaderFilter();
   }
 
   @Bean
