@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "OPTIONS",
-    "url": "/pdl-api/graphql"
+    "url": "/graphql"
   },
   "response": {
     "status": 200,
