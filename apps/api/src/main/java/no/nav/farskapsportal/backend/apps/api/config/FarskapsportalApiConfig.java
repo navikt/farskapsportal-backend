@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -51,7 +51,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -61,7 +64,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Slf4j
 @Configuration
 @EnableSecurityConfiguration
-@io.swagger.v3.oas.annotations.security.SecurityScheme(
+@SecurityScheme(
     bearerFormat = "JWT",
     name = "bearer-key",
     scheme = "bearer",
@@ -74,18 +77,15 @@ public class FarskapsportalApiConfig {
 
   @Autowired private OidcTokenManager oidcTokenManager;
 
-  @Bean
-  public OpenAPI openAPI() {
-    return new OpenAPI()
-        .components(
-            new Components()
-                .addSecuritySchemes(
-                    "bearer-key",
-                    new SecurityScheme()
-                        .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
-                        .bearerFormat("JWT")))
-        .info(new io.swagger.v3.oas.models.info.Info().title("farskapsportal-api").version("v1"));
+  public static boolean erNumerisk(String ident) {
+    try {
+      Long.parseLong(ident);
+      log.info("Identen er numerisk");
+      return true;
+    } catch (NumberFormatException e) {
+      log.warn("Identen er ikke numerisk");
+      return false;
+    }
   }
 
   @Bean
@@ -223,15 +223,15 @@ public class FarskapsportalApiConfig {
     return () -> henteIdentFraToken();
   }
 
+  private String henteIdentFraToken() {
+    var ident = SecurityUtils.hentePid(oidcTokenManager.hentToken());
+    return erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentToken());
+  }
+
   @FunctionalInterface
   public interface OidcTokenPersonalIdExtractor {
 
     String hentPaaloggetPerson();
-  }
-
-  private String henteIdentFraToken() {
-    var ident = SecurityUtils.hentePid(oidcTokenManager.hentToken());
-    return erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentToken());
   }
 
   @Configuration
@@ -248,18 +248,6 @@ public class FarskapsportalApiConfig {
       placeholders.put("user_asynkron", dbUserAsynkron);
 
       Flyway.configure().dataSource(dataSource).placeholders(placeholders).load().migrate();
-    }
-  }
-
-  @Configuration
-  @Profile({PROFILE_LIVE, PROFILE_LOCAL_POSTGRES})
-  @EnableScheduling
-  @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
-  public class SchedulerConfiguration {
-
-    @Bean
-    public LockProvider lockProvider(DataSource dataSource) {
-      return new JdbcTemplateLockProvider(dataSource);
     }
   }
 
@@ -280,14 +268,15 @@ public class FarskapsportalApiConfig {
     }
   }
 
-  public static boolean erNumerisk(String ident) {
-    try {
-      Long.parseLong(ident);
-      log.info("Identen er numerisk");
-      return true;
-    } catch (NumberFormatException e) {
-      log.warn("Identen er ikke numerisk");
-      return false;
+  @Configuration
+  @Profile({PROFILE_LIVE, PROFILE_LOCAL_POSTGRES})
+  @EnableScheduling
+  @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
+  public class SchedulerConfiguration {
+
+    @Bean
+    public LockProvider lockProvider(DataSource dataSource) {
+      return new JdbcTemplateLockProvider(dataSource);
     }
   }
 }
