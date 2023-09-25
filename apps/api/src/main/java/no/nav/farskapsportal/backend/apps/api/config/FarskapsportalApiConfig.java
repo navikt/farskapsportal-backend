@@ -219,16 +219,6 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  public DefaultCorsFilter defaultCorsFilter() {
-    return new DefaultCorsFilter();
-  }
-
-  @Bean
-  public UserMdcFilter userMdcFilter() {
-    return new UserMdcFilter();
-  }
-
-  @Bean
   public OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor() {
     return () -> henteIdentFraToken();
   }
