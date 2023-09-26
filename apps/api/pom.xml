@@ -20,7 +20,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- other -->
-        <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
+        <apache-pdfbox.version>3.0.0</apache-pdfbox.version>
         <asm.version>9.1</asm.version>
         <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
         <google-cloud-libraries-bom.version>26.22.0</google-cloud-libraries-bom.version>
