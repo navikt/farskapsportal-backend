@@ -40,7 +40,7 @@
         <javassist.version>3.28.0-GA</javassist.version>
         <jetty-client.version>11.0.7</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
-        <scala.version>2.13.9</scala.version>
+        <scala.version>2.13.12</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>4.7.2</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.0.3</spring-cloud-starter.version>
