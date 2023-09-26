@@ -1,7 +1,7 @@
 {
 "request": {
   "method": "POST",
-  "url": "/pdl-api/graphql",
+  "url": "/graphql",
   "bodyPatterns" : [ {
     "matches" : ".*12345678910.*"
   },

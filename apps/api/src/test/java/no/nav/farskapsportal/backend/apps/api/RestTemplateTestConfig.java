@@ -22,7 +22,7 @@ public class RestTemplateTestConfig {
 
   private String generateTestToken(Farskapsportalapp farskapsportalapp) {
 
-    var issuerid = farskapsportalapp.equals(Farskapsportalapp.API) ? "selvbetjening" : "aad";
+    var issuerid = farskapsportalapp.equals(Farskapsportalapp.API) ? "tokenx" : "aad";
 
     var token = mockOAuth2Server.issueToken(issuerid, "aud-localhost", "aud-localhost");
     return "Bearer " + token.serialize();

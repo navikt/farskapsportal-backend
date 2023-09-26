@@ -329,7 +329,7 @@ public class FarskapsportalControllerTest {
   private String generereTesttoken(String personident) {
     var claims = new HashMap<String, Object>();
     claims.put("idp", personident);
-    var token = mockOAuth2Server.issueToken("selvbetjening", personident, "aud-localhost", claims);
+    var token = mockOAuth2Server.issueToken("tokenx", personident, "aud-localhost", claims);
     return "Bearer " + token.serialize();
   }
 
