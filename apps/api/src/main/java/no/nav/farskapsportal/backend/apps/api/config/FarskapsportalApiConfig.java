@@ -221,7 +221,8 @@ public class FarskapsportalApiConfig {
       EncryptionProvider encryptionProvider,
       @Value("${farskapsportal.egenskaper.kryptering-paa}") boolean krypteringPaa)
       throws GeneralSecurityException, IOException {
-    return new GcpStorageManager(encryptionProvider, StorageOptions.getDefaultInstance().getService(), krypteringPaa);
+    return new GcpStorageManager(
+        encryptionProvider, StorageOptions.getDefaultInstance().getService(), krypteringPaa);
   }
 
   @Bean

@@ -4,11 +4,9 @@ import java.security.GeneralSecurityException;
 
 public interface EncryptionProvider {
 
-    int getKeyVersion();
+  int getKeyVersion();
 
-    byte[] encrypt(byte[] fileContent, byte[] metadata) throws GeneralSecurityException;
+  byte[] encrypt(byte[] fileContent, byte[] metadata) throws GeneralSecurityException;
 
-    byte[] decrypt(byte[] fileContent, byte[] metadata) throws GeneralSecurityException;
-
-
+  byte[] decrypt(byte[] fileContent, byte[] metadata) throws GeneralSecurityException;
 }

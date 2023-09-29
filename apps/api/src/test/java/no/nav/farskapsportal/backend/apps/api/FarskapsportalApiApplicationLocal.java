@@ -23,7 +23,6 @@ import no.digipost.signature.client.core.internal.security.ProvidesCertificateRe
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.EncryptionProvider;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
@@ -210,18 +209,17 @@ public class FarskapsportalApiApplicationLocal {
       fakeGcs.start();
 
       String fakeGcsExternalUrl =
-              "http://" + fakeGcs.getHost() + ":" + fakeGcs.getFirstMappedPort();
+          "http://" + fakeGcs.getHost() + ":" + fakeGcs.getFirstMappedPort();
 
       updateExternalUrlWithContainerUrl(fakeGcsExternalUrl);
 
-
       var storage =
-              StorageOptions.newBuilder()
-                      .setHost(fakeGcsExternalUrl)
-                      .setProjectId("test-project")
-                      .setCredentials(NoCredentials.getInstance())
-                      .build()
-                      .getService();
+          StorageOptions.newBuilder()
+              .setHost(fakeGcsExternalUrl)
+              .setProjectId("test-project")
+              .setCredentials(NoCredentials.getInstance())
+              .build()
+              .getService();
 
       storage.create(BucketInfo.newBuilder(appnavn + "-dev-pades").build());
       storage.create(BucketInfo.newBuilder(appnavn + "-dev-xades").build());
@@ -231,7 +229,7 @@ public class FarskapsportalApiApplicationLocal {
   }
 
   @Component
-  class FakeEncryption implements EncryptionProvider{
+  class FakeEncryption implements EncryptionProvider {
 
     @Override
     public int getKeyVersion() {
@@ -239,7 +237,7 @@ public class FarskapsportalApiApplicationLocal {
     }
 
     @Override
-    public byte[] encrypt(byte[] fileContent, byte[] metadata){
+    public byte[] encrypt(byte[] fileContent, byte[] metadata) {
       return new byte[0];
     }
 

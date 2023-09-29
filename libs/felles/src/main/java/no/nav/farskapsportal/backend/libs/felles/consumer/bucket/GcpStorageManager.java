@@ -2,15 +2,13 @@ package no.nav.farskapsportal.backend.libs.felles.consumer.bucket;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Optional;
-
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
 import org.springframework.http.MediaType;
@@ -23,8 +21,7 @@ public class GcpStorageManager {
   private final Storage storage;
 
   public GcpStorageManager(
-          EncryptionProvider encryptionProvider,
-      Storage storage,  boolean krypteringPaa)
+      EncryptionProvider encryptionProvider, Storage storage, boolean krypteringPaa)
       throws GeneralSecurityException, IOException {
 
     this.encryptionProvider = encryptionProvider;
