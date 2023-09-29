@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.RestTemplateConfig;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -33,7 +33,7 @@ import org.springframework.test.context.ContextConfiguration;
 public class OppgaveApiConsumerTest {
 
   private @Autowired OppgaveApiConsumer oppgaveApiConsumer;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
   private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
   private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
 

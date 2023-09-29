@@ -3,8 +3,14 @@ package no.nav.farskapsportal.backend.apps.api;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
+import com.google.cloud.NoCredentials;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.StorageOptions;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +23,9 @@ import no.digipost.signature.client.core.internal.security.ProvidesCertificateRe
 import no.digipost.signature.client.security.KeyStoreConfig;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.stub.DifiESignaturStub;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.EncryptionProvider;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.flywaydb.core.Flyway;
@@ -31,6 +40,10 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.*;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.stereotype.Component;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootApplication(
     exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
@@ -142,6 +155,97 @@ public class FarskapsportalApiApplicationLocal {
     public void runStubs() {
       difiESignaturStub.runGetSignedDocument(PADES);
       difiESignaturStub.runGetXades(XADES);
+    }
+  }
+
+  @Configuration
+  @Testcontainers
+  @Profile(PROFILE_LOCAL)
+  class LocalConfig {
+
+    @Value("${APPNAVN}")
+    private String appnavn;
+
+    @Container
+    static final GenericContainer<?> fakeGcs =
+        new GenericContainer<>("fsouza/fake-gcs-server")
+            .withExposedPorts(4443)
+            .withCreateContainerCmdModifier(
+                cmd -> cmd.withEntrypoint("/bin/fake-gcs-server", "-scheme", "http"));
+
+    private static void updateExternalUrlWithContainerUrl(String fakeGcsExternalUrl)
+        throws Exception {
+
+      String modifyExternalUrlRequestUri = fakeGcsExternalUrl + "/_internal/config";
+      String updateExternalUrlJson = "{" + "\"externalUrl\": \"" + fakeGcsExternalUrl + "\"" + "}";
+
+      HttpRequest req =
+          HttpRequest.newBuilder()
+              .uri(URI.create(modifyExternalUrlRequestUri))
+              .header("Content-Type", "application/json")
+              .PUT(HttpRequest.BodyPublishers.ofString(updateExternalUrlJson))
+              .build();
+      HttpResponse<Void> response =
+          HttpClient.newBuilder().build().send(req, HttpResponse.BodyHandlers.discarding());
+
+      if (response.statusCode() != 200) {
+        throw new RuntimeException(
+            "error updating fake-gcs-server with external url, response status code "
+                + response.statusCode()
+                + " != 200");
+      }
+    }
+
+    @Bean
+    @Primary
+    public EncryptionProvider encryptionProvider() {
+      return new FakeEncryption();
+    }
+
+    @Bean
+    @Primary
+    public GcpStorageManager storageManager(EncryptionProvider encryptionProvider)
+        throws Exception {
+
+      fakeGcs.start();
+
+      String fakeGcsExternalUrl =
+              "http://" + fakeGcs.getHost() + ":" + fakeGcs.getFirstMappedPort();
+
+      updateExternalUrlWithContainerUrl(fakeGcsExternalUrl);
+
+
+      var storage =
+              StorageOptions.newBuilder()
+                      .setHost(fakeGcsExternalUrl)
+                      .setProjectId("test-project")
+                      .setCredentials(NoCredentials.getInstance())
+                      .build()
+                      .getService();
+
+      storage.create(BucketInfo.newBuilder(appnavn + "-dev-pades").build());
+      storage.create(BucketInfo.newBuilder(appnavn + "-dev-xades").build());
+
+      return new GcpStorageManager(encryptionProvider, storage, false);
+    }
+  }
+
+  @Component
+  class FakeEncryption implements EncryptionProvider{
+
+    @Override
+    public int getKeyVersion() {
+      return 0;
+    }
+
+    @Override
+    public byte[] encrypt(byte[] fileContent, byte[] metadata){
+      return new byte[0];
+    }
+
+    @Override
+    public byte[] decrypt(byte[] fileContent, byte[] metadata) {
+      return new byte[0];
     }
   }
 }

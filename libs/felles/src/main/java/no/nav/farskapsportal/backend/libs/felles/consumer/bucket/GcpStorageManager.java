@@ -1,69 +1,35 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.bucket;
 
-import com.google.cloud.kms.v1.CryptoKeyName;
-import com.google.cloud.kms.v1.KeyManagementServiceClient;
-import com.google.cloud.storage.*;
-import com.google.crypto.tink.Aead;
-import com.google.crypto.tink.KeyTemplates;
-import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.aead.AeadConfig;
-import com.google.crypto.tink.aead.KmsEnvelopeAeadKeyManager;
-import com.google.crypto.tink.integration.gcpkms.GcpKmsClient;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Optional;
+
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
-public class GcpStorageWrapper {
+public class GcpStorageManager {
 
-  private final String gcpKmsKeyPath;
   private final boolean krypteringPaa;
-  private int keyVersion = -1;
-  private final Storage storage = StorageOptions.getDefaultInstance().getService();
-  private final Aead tinkClient;
+  private final EncryptionProvider encryptionProvider;
+  private final Storage storage;
 
-  @Autowired
-  public GcpStorageWrapper(
-      @Value("${GCP_KMS_KEY_PATH}") String gcpKmsKeyPath,
-      @Value("${farskapsportal.egenskaper.kryptering-paa}") boolean krypteringPaa)
+  public GcpStorageManager(
+          EncryptionProvider encryptionProvider,
+      Storage storage,  boolean krypteringPaa)
       throws GeneralSecurityException, IOException {
-    this.gcpKmsKeyPath = gcpKmsKeyPath;
+
+    this.encryptionProvider = encryptionProvider;
+    this.storage = storage;
     this.krypteringPaa = krypteringPaa;
-    AeadConfig.register();
-    log.info("Registerer GcpKmsClient med gcpKmsKeyPath {}.", gcpKmsKeyPath);
-    GcpKmsClient.register(Optional.of(gcpKmsKeyPath), Optional.empty());
-    fetchKeyVersion();
-    tinkClient = initTinkClient();
-  }
-
-  private void fetchKeyVersion() throws IOException {
-    if (!krypteringPaa) return;
-
-    try (KeyManagementServiceClient keyManagementServiceClient =
-        KeyManagementServiceClient.create()) {
-      var keyName = CryptoKeyName.parse(gcpKmsKeyPath.replace("gcp-kms://", ""));
-      var key = keyManagementServiceClient.getCryptoKey(keyName);
-      keyVersion = Integer.parseInt(key.getPrimary().getName().split("cryptoKeyVersions/")[1]);
-    }
-  }
-
-  private Aead initTinkClient() throws GeneralSecurityException {
-    var handle =
-        KeysetHandle.generateNew(
-            KmsEnvelopeAeadKeyManager.createKeyTemplate(
-                gcpKmsKeyPath, KeyTemplates.get("AES256_GCM")));
-
-    return handle.getPrimitive(Aead.class);
   }
 
   public Optional<BlobId> getBlobId(String bucket, String documentName) {
@@ -95,7 +61,7 @@ public class GcpStorageWrapper {
         .bucket(blobId.getBucket())
         .generation(blobId.getGeneration())
         .name(blobId.getName())
-        .encryptionKeyVersion(keyVersion)
+        .encryptionKeyVersion(encryptionProvider.getKeyVersion())
         .build();
   }
 
@@ -111,7 +77,7 @@ public class GcpStorageWrapper {
         .bucket(blobId.getBucket())
         .generation(blobId.getGeneration())
         .name(blobId.getName())
-        .encryptionKeyVersion(keyVersion)
+        .encryptionKeyVersion(encryptionProvider.getKeyVersion())
         .build();
   }
 
@@ -121,10 +87,11 @@ public class GcpStorageWrapper {
   }
 
   private byte[] decryptFile(byte[] file, BlobInfo blobInfo) throws GeneralSecurityException {
+
     // Based on example from https://cloud.google.com/kms/docs/client-side-encryption
     log.info("Dekryptrerer fil {}", blobInfo.getName());
     var associatedData = blobInfo.getBlobId().toString().getBytes(StandardCharsets.UTF_8);
-    return tinkClient.decrypt(file, associatedData);
+    return encryptionProvider.decrypt(file, associatedData);
   }
 
   private byte[] encryptFile(byte[] file, BlobInfo blobInfo) throws GeneralSecurityException {
@@ -136,7 +103,7 @@ public class GcpStorageWrapper {
     // Based on example from https://cloud.google.com/kms/docs/client-side-encryption
     log.info("Kryptrerer fil {}", blobInfo.getName());
     var associatedData = blobInfo.getBlobId().toString().getBytes(StandardCharsets.UTF_8);
-    return tinkClient.encrypt(file, associatedData);
+    return encryptionProvider.encrypt(file, associatedData);
   }
 
   private BlobInfo toBlobInfo(BlobId blobId) {

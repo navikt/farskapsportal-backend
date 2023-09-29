@@ -33,7 +33,7 @@ import no.nav.farskapsportal.backend.libs.dto.NavnDto;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.exception.OppretteSigneringsjobbException;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.assertj.core.api.AssertionsForClassTypes;
@@ -89,7 +89,7 @@ public class DifiESignaturConsumerTest {
   private @Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   private @Autowired DifiESignaturConsumer difiESignaturConsumer;
   private @Autowired DifiESignaturStub difiESignaturStub;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
 
   @Nested
   @DisplayName("Teste oppretteSigneringsjobb")

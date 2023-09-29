@@ -140,10 +140,13 @@ spring:
 ### H2 ###
 spring:
   config.activate.on-profile: test, local, skatt-ssl-test, scheduled-test
+  cloud.bootstrap.enabled: true
   flyway.enabled: false
   datasource:
     url: jdbc:h2:mem:default
     datasource.type: com.zaxxer.hikari.HikariDataSource
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   data.jpa.repositories.bootstrap-mode: default
   h2.console.enabled: true
   jpa:
@@ -153,6 +156,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         jdbc.lob.non_contextual_creation: true
+  sql.init.mode: always
+
+DB_PASSWORD: 123
+DB_USERNAME: sa
 
 ---
 ### POSTGRES ###
@@ -179,23 +186,6 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 ---
-### MOCK AZURE ###
-spring:
-  config.activate.on-profile: local, test, local-postgres, remote-postgres, integration-test, skatt-ssl-test, scheduled-test
-
-no.nav.security.jwt:
-  expirythreshold: 1
-  issuer:
-    aad:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
-      accepted_audience: aud-localhost
-      cookie_name: localhost-idtoken
-    tokenx:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
-      accepted_audience: aud-localhost
-      cookie_name: localhost-idtoken
-
----
 spring:
   config.activate.on-profile: test, local, local-postgres, remote-postgres
   main.allow-bean-definition-overriding: true
@@ -204,7 +194,7 @@ INTEGRATION_TEST_CONTROLLER_PAA: true
 ########## Mock props ##########
 WIREMOCK_URL: http://localhost:${wiremock.server.port}
 FARSKAPSPORTAL_URL: https://farskapsportal.dev.nav.no/
-FILKRYPTERING_PAA: false
+FILKRYPTERING_PAA: true
 ESIGNERING_SUKSESS_URL: localhost:8082/esignering/suksess
 ESIGNERING_AVBRUTT_URL: localhost:8082/esignering/avbrutt
 ESIGNERING_FEILET_URL: localhost:8082/esignering/feilet
@@ -218,7 +208,10 @@ DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER: 1
 SKATT_URL: http://localhost:8080
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
 TOKEN_X_WELL_KNOWN_URL:  http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
-TOKEN_X_CLIENT_ID: tokenx
+TOKEN_X_CLIENT_ID: aud-localhost
+AZURE_APP_WELL_KNOWN_URL: http://localhost:${mock-oauth2-server.port}/aad/.well-known/openid-configuration
+AZURE_APP_CLIENT_ID: aud-localhost
+GCP_KMS_KEY_PATH: gcp-kms://localhost
 
 
 url:
@@ -286,7 +279,6 @@ wiremock.server:
   port: 0
   files: classpath:/__files
   stubs: classpath:/mappings
-
 ---
 spring:
   config.activate.on-profile: local-postgres, remote-postgres
@@ -318,11 +310,11 @@ spring:
     locations: classpath:/db/migration
   datasource:
     username: ${REMOTE_POSTGRES_USER}
-    url: jdbc:postgresql://127.0.0.1:5433/fpdb-feature
+    url: jdbc:postgresql://127.0.0.1:5433/fpdb-prod
     password: ${REMOTE_POSTGRES_PWD}
-    databaseName: fpdb-feature
+    databaseName: fpdb-prod
 
-APPNAVN: farskapsportal-api-feature
+APPNAVN: farskapsportal-api
 
 ---
 # Integrasjonstesting mot Posten

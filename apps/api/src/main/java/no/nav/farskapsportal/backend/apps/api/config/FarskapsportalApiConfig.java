@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.apps.api.config;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.cloud.storage.StorageOptions;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +40,7 @@ import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Farskapsporta
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.*;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -196,7 +198,7 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  SkattConsumer skattConsumer(
+  public SkattConsumer skattConsumer(
       CloseableHttpClient httpClient,
       @Value("${SKATT_URL}") String skattBaseUrl,
       @Value("${url.skatt.registrering-av-farskap}") String endpoint,
@@ -204,6 +206,22 @@ public class FarskapsportalApiConfig {
       BucketConsumer bucketConsumer) {
     consumerEndpoint.addEndpoint(SkattEndpoint.MOTTA_FARSKAPSERKLAERING, skattBaseUrl + endpoint);
     return new SkattConsumer(httpClient, consumerEndpoint, bucketConsumer);
+  }
+
+  @Bean
+  @Profile("!local")
+  public EncryptionProvider encryptionProvider(@Value("${GCP_KMS_KEY_PATH}") String gcpKmsKeyPath)
+      throws GeneralSecurityException, IOException {
+    return new GcpCloudKms(gcpKmsKeyPath);
+  }
+
+  @Bean
+  @Profile("!local")
+  public GcpStorageManager storageManager(
+      EncryptionProvider encryptionProvider,
+      @Value("${farskapsportal.egenskaper.kryptering-paa}") boolean krypteringPaa)
+      throws GeneralSecurityException, IOException {
+    return new GcpStorageManager(encryptionProvider, StorageOptions.getDefaultInstance().getService(), krypteringPaa);
   }
 
   @Bean

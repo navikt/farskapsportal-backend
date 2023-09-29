@@ -70,7 +70,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringConsumerException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
@@ -154,7 +154,7 @@ public class FarskapsportalControllerTest {
   private @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
   private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private @MockBean DifiESignaturConsumer difiESignaturConsumer;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
   private @MockBean BucketConsumer bucketConsumer;
   private @Autowired PersistenceService persistenceService;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;

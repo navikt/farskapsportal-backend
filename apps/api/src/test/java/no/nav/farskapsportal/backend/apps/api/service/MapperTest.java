@@ -27,7 +27,7 @@ import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -72,7 +72,7 @@ public class MapperTest {
 
   private @Autowired Mapper mapper;
   private @MockBean PersonopplysningService personopplysningService;
-  private @MockBean GcpStorageWrapper gcp;
+  private @MockBean GcpStorageManager gcp;
 
   private static DokumentDto getDokumentDto() {
     try {

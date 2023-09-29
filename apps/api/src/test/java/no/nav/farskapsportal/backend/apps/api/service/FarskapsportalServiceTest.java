@@ -67,7 +67,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
 import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.exception.EsigneringStatusFeiletException;
 import no.nav.farskapsportal.backend.libs.felles.exception.FeilNavnOppgittException;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
@@ -106,7 +106,7 @@ public class FarskapsportalServiceTest {
   private @MockBean PersonopplysningService personopplysningService;
   private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private @MockBean BucketConsumer bucketConsumer;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
   private @Autowired PersistenceService persistenceService;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
