@@ -159,7 +159,7 @@ public class FarskapsportalApiApplicationLocal {
 
   @Configuration
   @Testcontainers
-  @Profile({PROFILE_LOCAL, PROFILE_TEST, PROFILE_SCHEDULED_TEST})
+  @Profile("!live")
   class LocalConfig {
 
     @Value("${APPNAVN}")
