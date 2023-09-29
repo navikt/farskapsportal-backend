@@ -209,14 +209,14 @@ public class FarskapsportalApiConfig {
   }
 
   @Bean
-  @Profile("!local & !test")
+  @Profile("!local & !test & !scheduled-test")
   public EncryptionProvider encryptionProvider(@Value("${GCP_KMS_KEY_PATH}") String gcpKmsKeyPath)
       throws GeneralSecurityException, IOException {
     return new GcpCloudKms(gcpKmsKeyPath);
   }
 
   @Bean
-  @Profile("!local & !test")
+  @Profile("!local & !test & !scheduled-test")
   public GcpStorageManager storageManager(
       EncryptionProvider encryptionProvider,
       @Value("${farskapsportal.egenskaper.kryptering-paa}") boolean krypteringPaa)
