@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    gcp:
+      secretmanager.enabled: false
+      storage.enabled: false
+    bootstrap.enabled: true
+  config.activate.on-profile: test, local, local-postgres, remote-postgres, scheduled-test, skatt-ssl-test
