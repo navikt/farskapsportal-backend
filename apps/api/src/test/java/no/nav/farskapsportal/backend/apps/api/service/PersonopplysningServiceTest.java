@@ -42,7 +42,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.KontrollereNavnFarException;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
@@ -74,7 +74,7 @@ public class PersonopplysningServiceTest {
       TestUtils.henteBarnMedFnr(FOEDSELSDATO_NYFOEDT, "00000");
 
   private @MockBean PdlApiConsumer pdlApiConsumerMock;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
 
   private @Autowired PersonopplysningService personopplysningService;
 

@@ -21,7 +21,7 @@ import no.nav.farskapsportal.backend.libs.entity.*;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.farskapsportal.backend.libs.felles.exception.ValideringException;
@@ -68,7 +68,7 @@ public class PersistenceServiceTest {
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired ForelderDao forelderDao;

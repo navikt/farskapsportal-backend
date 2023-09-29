@@ -9,7 +9,7 @@ import no.nav.farskapsportal.backend.apps.api.config.ScheduledConfig;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -41,7 +41,7 @@ public class ArkivereFarskapserklaeringerSchedulingTest {
   private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
   private @MockBean @Qualifier("oppgave") RestTemplate oppgaveRestTemplate;
   private @MockBean @Qualifier("farskapsportal-api") RestTemplate farskapsportalApiRestTemplate;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
 
   private @MockBean PersistenceService persistenceService;
   private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;

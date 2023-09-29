@@ -49,6 +49,11 @@ CURLs kan etter dette kjøres direkte fra Swagger uten eksplisitt å legge inn B
 
 Swagger URL: http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
 
+For kjøring med profilen "local" må et lokalt Docker-miljø være tilgjengelig. Start f.eks Docker Colima på MacOS med
+
+> colima start
+
+før testappen FarskapsportalApplicationLocal startes.
 
 ##### Brukernotifikasjon
 

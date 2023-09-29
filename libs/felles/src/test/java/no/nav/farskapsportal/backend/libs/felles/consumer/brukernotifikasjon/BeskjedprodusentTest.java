@@ -23,7 +23,7 @@ import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,7 +43,7 @@ public class BeskjedprodusentTest {
   private @Autowired Beskjedprodusent beskjedprodusent;
   private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
   private @MockBean KafkaTemplate<NokkelInput, BeskjedInput> ferdigkoe;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
 
   @Test
   void skalOppretteBeskjedTilBruker() throws MalformedURLException {

@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class BucketConsumerTest {
 
   private @Mock FarskapsportalFellesEgenskaper fellesEgenskaper;
-  private @Mock GcpStorageWrapper gcpStorageWrapper;
+  private @Mock GcpStorageManager gcpStorageManager;
   private @InjectMocks BucketConsumer bucketConsumer;
 
   @Test
@@ -32,8 +32,8 @@ public class BucketConsumerTest {
         BlobId.of(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES), dokumentnavn);
     var blobIdGcp = BlobIdGcp.builder().encryptionKeyVersion(1).name(blobId.getName()).build();
 
-    when(gcpStorageWrapper.updateBlob(blobId, dokumenttekst)).thenReturn(null);
-    when(gcpStorageWrapper.saveContentToBucket(blobId.getBucket(), blobId.getName(), dokumenttekst))
+    when(gcpStorageManager.updateBlob(blobId, dokumenttekst)).thenReturn(null);
+    when(gcpStorageManager.saveContentToBucket(blobId.getBucket(), blobId.getName(), dokumenttekst))
         .thenReturn(blobIdGcp);
 
     // when
@@ -60,7 +60,7 @@ public class BucketConsumerTest {
             .encryptionKeyVersion(1)
             .build();
 
-    when(gcpStorageWrapper.saveContentToBucket(blobId.getBucket(), blobId.getName(), dokumenttekst))
+    when(gcpStorageManager.saveContentToBucket(blobId.getBucket(), blobId.getName(), dokumenttekst))
         .thenReturn(blobIdGcp);
 
     // when

@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class BucketConsumer {
 
-  private @Autowired GcpStorageWrapper gcpStorageWrapper;
+  private @Autowired GcpStorageManager gcpStorageManager;
   private @Value("${APPNAVN}") String appnavn;
   private @Value("${NAIS_CLUSTER_NAME}") String naisClusterName;
 
   public Optional<BlobIdGcp> getExistingBlobIdGcp(String bucket, String documentName) {
-    var blobId = gcpStorageWrapper.getBlobId(bucket, documentName);
+    var blobId = gcpStorageManager.getBlobId(bucket, documentName);
     return blobId.isEmpty()
         ? Optional.empty()
         : Optional.of(
@@ -33,7 +33,7 @@ public class BucketConsumer {
 
   public byte[] getContentFromBucket(BlobIdGcp blobIdGcp) {
     try {
-      return gcpStorageWrapper.getContent(
+      return gcpStorageManager.getContent(
           BlobId.of(blobIdGcp.getBucket(), blobIdGcp.getName()),
           blobIdGcp.getEncryptionKeyVersion());
     } catch (GeneralSecurityException generalSecurityException) {
@@ -52,13 +52,13 @@ public class BucketConsumer {
     var blobId = BlobId.of(bucketName, documentName);
 
     try {
-      var oppdatertBlobId = gcpStorageWrapper.updateBlob(blobId, content);
+      var oppdatertBlobId = gcpStorageManager.updateBlob(blobId, content);
       if (oppdatertBlobId != null) {
         log.info("Ekisterende GCP storage blob ble oppdatert for dokument {}", documentName);
         return oppdatertBlobId;
       } else {
         log.info("Ny GCP storage blob ble opprettet for dokument {}", documentName);
-        return gcpStorageWrapper.saveContentToBucket(bucketName, documentName, content);
+        return gcpStorageManager.saveContentToBucket(bucketName, documentName, content);
       }
     } catch (Exception e) {
       log.error(
@@ -69,7 +69,7 @@ public class BucketConsumer {
 
   public boolean deleteContentFromBucket(BlobIdGcp blobIdGcp) {
     var dokumentBleSlettet =
-        gcpStorageWrapper.deleteContentFromBucket(blobIdGcp.getBucket(), blobIdGcp.getName());
+        gcpStorageManager.deleteContentFromBucket(blobIdGcp.getBucket(), blobIdGcp.getName());
     log.info(
         "Dokument {} ble slettet fra bøtte {}: ",
         blobIdGcp.getName(),

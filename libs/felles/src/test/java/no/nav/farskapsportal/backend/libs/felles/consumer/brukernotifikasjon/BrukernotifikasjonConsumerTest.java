@@ -34,7 +34,7 @@ import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -78,7 +78,7 @@ public class BrukernotifikasjonConsumerTest {
   private @MockBean KafkaTemplate<NokkelInput, BeskjedInput> beskjedkoe;
   private @MockBean KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
   private @MockBean KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
   private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Test

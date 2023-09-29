@@ -28,7 +28,7 @@ import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -62,7 +62,7 @@ public class OppgavestyringTest {
   private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
   private @MockBean Oppgave egenskaperOppgave;
   private @MockBean PersonopplysningService personopplysningService;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
   private Oppgavestyring oppgavestyring;
 
   @BeforeEach

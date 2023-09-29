@@ -43,7 +43,7 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseD
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.RestTemplateFellesConfig;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageWrapper;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.exception.RessursIkkeFunnetException;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
@@ -79,7 +79,7 @@ public class PdlApiConsumerTest {
   private @Autowired CacheManager cacheManager;
   private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
   private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
-  private @MockBean GcpStorageWrapper gcpStorageWrapper;
+  private @MockBean GcpStorageManager gcpStorageManager;
 
   private void mockAccessToken() {
     when(oAuth2AccessTokenService.getAccessToken(any()))
