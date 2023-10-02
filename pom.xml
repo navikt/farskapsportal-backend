@@ -36,7 +36,7 @@
         <jackson-core.version>2.14.3</jackson-core.version>
         <modelmapper.version>3.1.1</modelmapper.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
-        <google.guava.version>32.0.1-jre</google.guava.version>
+        <google.guava.version>32.1.2-jre</google.guava.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <jetty-client.version>11.0.7</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
