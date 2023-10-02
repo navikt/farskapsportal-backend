@@ -14,7 +14,7 @@
     <asm.version>9.1</asm.version>
     <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
     <hikaricp.version>5.0.1</hikaricp.version>
-    <javassist.version>3.28.0-GA</javassist.version>
+    <javassist.version>3.29.2-GA</javassist.version>
     <kafka-avro-serializer.version>7.4.0</kafka-avro-serializer.version>
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google-api-services-storage.version>v1-rev20230710-2.0.0</google-api-services-storage.version>
