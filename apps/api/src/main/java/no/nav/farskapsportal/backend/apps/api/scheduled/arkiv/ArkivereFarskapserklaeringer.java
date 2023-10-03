@@ -82,8 +82,6 @@ public class ArkivereFarskapserklaeringer {
       farskapsportalService.migrereDokumenterTilBuckets(id);
     }
 
-    log.info("Dokumentsletting gjennomført uten feil.");
-
     var resterende =
         persistenceService
             .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
