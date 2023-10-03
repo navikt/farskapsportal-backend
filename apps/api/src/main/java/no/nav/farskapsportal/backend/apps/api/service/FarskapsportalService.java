@@ -480,7 +480,8 @@ public class FarskapsportalService {
 
       farskapserklaering.getDokument().setBlobIdGcp(blobIdGcpPades);
       farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
-      log.info("PAdES for farskapserklæring med id {} ble migrert til bøtte.", idFarskapserklaering);
+      log.info(
+          "PAdES for farskapserklæring med id {} ble migrert til bøtte.", idFarskapserklaering);
     }
 
     if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml() != null) {
@@ -493,7 +494,9 @@ public class FarskapsportalService {
           .getSigneringsinformasjonMor()
           .setBlobIdGcp(blobIdGcpXadesMor);
       farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
-      log.info("Mors XAdES for farskapserklæring med id {} ble migrert til bøtte.", idFarskapserklaering);
+      log.info(
+          "Mors XAdES for farskapserklæring med id {} ble migrert til bøtte.",
+          idFarskapserklaering);
     }
 
     if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() != null) {
@@ -506,7 +509,9 @@ public class FarskapsportalService {
           .getSigneringsinformasjonMor()
           .setBlobIdGcp(blobIdGcpXadesFar);
       farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
-      log.info("Fars XAdES for farskapserklæring med id {} ble migrert til bøtte.", idFarskapserklaering);
+      log.info(
+          "Fars XAdES for farskapserklæring med id {} ble migrert til bøtte.",
+          idFarskapserklaering);
     }
   }
 
