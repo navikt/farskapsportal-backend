@@ -197,11 +197,7 @@ public class FarskapsportalService {
         pdfGeneratorConsumer.genererePdf(
             barnDto, forelderDtoMor, forelderDtoFar, request.getSkriftspraak());
 
-    var blobIdGcp =
-        bucketConsumer.saveContentToBucket(
-            BucketConsumer.ContentType.PADES,
-            "fp-" + farskapserklaering.getId() + "-pades.pdf",
-            innhold);
+    var blobIdGcp = bucketConsumer.lagrePades(farskapserklaering.getId(), innhold);
 
     farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
 
@@ -453,11 +449,7 @@ public class FarskapsportalService {
       throw new InternFeilException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
     }
 
-    var blobIdGcp =
-        bucketConsumer.saveContentToBucket(
-            BucketConsumer.ContentType.PADES,
-            "fp-" + farskapserklaering.getId() + "-pades.pdf",
-            pades);
+    var blobIdGcp = bucketConsumer.lagrePades(farskapserklaering.getId(), pades);
 
     farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
 
@@ -490,10 +482,7 @@ public class FarskapsportalService {
         var blobIdGcp =
             eksisterendeBlobIdGcp.isPresent()
                 ? eksisterendeBlobIdGcp.get()
-                : bucketConsumer.saveContentToBucket(
-                    BucketConsumer.ContentType.XADES,
-                    "xades-mor-" + farskapserklaering.getId() + ".xml",
-                    xades);
+                : bucketConsumer.lagreXadesMor(farskapserklaering.getId(), xades);
 
         farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(blobIdGcp);
 
@@ -510,10 +499,7 @@ public class FarskapsportalService {
         var blobIdGcp =
             eksisterendeBlobIdGcp.isPresent()
                 ? eksisterendeBlobIdGcp.get()
-                : bucketConsumer.saveContentToBucket(
-                    BucketConsumer.ContentType.XADES,
-                    "xades-far-" + farskapserklaering.getId() + ".xml",
-                    xades);
+                : bucketConsumer.lagreXadesFar(farskapserklaering.getId(), xades);
 
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(blobIdGcp);
 

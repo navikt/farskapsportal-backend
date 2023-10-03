@@ -1646,7 +1646,7 @@ public class FarskapsportalControllerTest {
               .name("fp-1")
               .build();
 
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(anyInt(), any())).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
 
       // when
@@ -1986,7 +1986,7 @@ public class FarskapsportalControllerTest {
               .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
               .name("fp-1")
               .build();
-      when(bucketConsumer.saveContentToBucket(any(), any(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(anyInt(), any())).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(blobIdGcp)).thenReturn(dokumentinnhold);
 
       // when
@@ -3037,7 +3037,8 @@ public class FarskapsportalControllerTest {
 
       // given
       loggePaaPerson(FAR.getFoedselsnummer());
-      var dokumentnavn = "fp-1";
+      var idFarskapserklaering = 1;
+      var dokumentnavn = "fp-" + idFarskapserklaering + ".pdf";
       var dokumentinnhold =
           "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
 
@@ -3060,9 +3061,7 @@ public class FarskapsportalControllerTest {
       farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
       farskapserklaeringDao.save(farskapserklaering);
 
-      when(bucketConsumer.saveContentToBucket(
-              BucketConsumer.ContentType.PADES, dokumentnavn, dokumentinnhold))
-          .thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(idFarskapserklaering, dokumentinnhold)).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
@@ -3085,7 +3084,8 @@ public class FarskapsportalControllerTest {
 
       // given
       loggePaaPerson(FAR.getFoedselsnummer());
-      var dokumentnavn = "fp-1";
+      var idFarskapserklaering = 1;
+      var dokumentnavn = "fp-" + idFarskapserklaering + ".pdf";
       var dokumentinnhold =
           "Jeg erklærer herved farskap til dette barnet".getBytes(StandardCharsets.UTF_8);
 
@@ -3103,9 +3103,7 @@ public class FarskapsportalControllerTest {
       farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
       farskapserklaeringDao.save(farskapserklaering);
 
-      when(bucketConsumer.saveContentToBucket(
-              BucketConsumer.ContentType.PADES, dokumentnavn, dokumentinnhold))
-          .thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(idFarskapserklaering, dokumentinnhold)).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumentinnhold);
       when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumentinnhold);
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))

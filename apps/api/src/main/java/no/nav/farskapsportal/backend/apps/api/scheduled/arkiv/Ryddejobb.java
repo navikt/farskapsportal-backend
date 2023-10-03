@@ -36,7 +36,7 @@ public class Ryddejobb {
     if (idTilGamleFarskapserklaeringer.length
         > arkiv.getMaksAntallDokumenterSomSlettesPerKjoering()) {
       log.info(
-          "Begrenser sletting til {} dokumenter i denne kjøringen.",
+          "Begrenser sletting til {} erklæringer i denne kjøringen.",
           arkiv.getMaksAntallDokumenterSomSlettesPerKjoering());
     }
 

@@ -9,6 +9,7 @@ import no.nav.farskapsportal.backend.apps.api.consumer.skatt.SkattConsumer;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
 import no.nav.farskapsportal.backend.apps.api.service.FarskapsportalService;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Builder
 public class ArkivereFarskapserklaeringer {
 
+  public static int MAKS_ANTALL_ERKLAERINGER_PER_KJOERING = 1000;
+
   private final BucketConsumer bucketConsumer;
+  private final FarskapserklaeringDao farskapserklaeringDao;
   private final FarskapsportalService farskapsportalService;
   private final PersistenceService persistenceService;
   private final SkattConsumer skattConsumer;
@@ -41,6 +45,53 @@ public class ArkivereFarskapserklaeringer {
           "Overføring til Skatt feilet. Nytt forsøk vil bli gjennomført ved neste overføringsintervall kl {}",
           LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000));
     }
+  }
+
+  @SchedulerLock(name = "migrere-dokumenter", lockAtLeastFor = "PT1M", lockAtMostFor = "PT100M")
+  @Scheduled(
+      cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentmigreringsrate}",
+      zone = "Europe/Oslo")
+  public void migrereDokumenterTilBuckets() {
+    var dokumentArkivertFoer = LocalDateTime.now().minusDays(20);
+
+    var idTilGamleFarskapserklaeringer =
+        persistenceService
+            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+                dokumentArkivertFoer, dokumentArkivertFoer)
+            .toArray();
+
+    log.info(
+        "Antall farskapserklæringer med dokumenter som er klar for migrering: {} (arkivert og deaktivert før {})",
+        idTilGamleFarskapserklaeringer.length,
+        dokumentArkivertFoer);
+    if (idTilGamleFarskapserklaeringer.length > MAKS_ANTALL_ERKLAERINGER_PER_KJOERING) {
+      log.info(
+          "Begrenser migrering til å gjelde {} farskapserklæringer i denne kjøringen.",
+          MAKS_ANTALL_ERKLAERINGER_PER_KJOERING);
+    }
+
+    var antallErklaerringerForKjoering =
+        idTilGamleFarskapserklaeringer.length > MAKS_ANTALL_ERKLAERINGER_PER_KJOERING
+            ? MAKS_ANTALL_ERKLAERINGER_PER_KJOERING
+            : idTilGamleFarskapserklaeringer.length;
+
+    for (int i = 0; i < antallErklaerringerForKjoering; i++) {
+
+      var id = (Integer) idTilGamleFarskapserklaeringer[i];
+
+      migrereDokumenterTilBuckets(id);
+    }
+
+    log.info("Dokumentsletting gjennomført uten feil.");
+
+    var resterende =
+        persistenceService
+            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+                dokumentArkivertFoer, dokumentArkivertFoer)
+            .toArray();
+    log.info(
+        "Resterende farskapserklaeringer med gamle dokumenter etter kjøring: {}",
+        resterende.length);
   }
 
   private void overfoereTilSkatt(Set<Integer> farskapserklaeringsider) {
@@ -100,5 +151,37 @@ public class ArkivereFarskapserklaeringer {
     if (farskapserklaeringsider.size() > 0) {
       log.info("Farskapserklæringene ble overført til Skatt uten problemer");
     }
+  }
+
+  private void migrereDokumenterTilBuckets(int idFarskapserklaering) {
+    var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
+
+    if (farskapserklaering.isEmpty()) {
+      log.warn(
+          "Fant ikke farskapserklæring med id {} - hopper til neste erklæring i lista",
+          idFarskapserklaering);
+      return;
+    }
+
+    var blobIdGcpPades =
+        bucketConsumer.lagrePades(
+            farskapserklaering.get().getId(),
+            farskapserklaering.get().getDokument().getDokumentinnhold().getInnhold());
+
+    farskapserklaering.get().getDokument().setBlobIdGcp(blobIdGcpPades);
+    log.info("PAdES for farskapserklæring med id {} ble lagret i bøtte.");
+
+    bucketConsumer.lagreXadesMor(
+        idFarskapserklaering,
+        farskapserklaering.get().getDokument().getSigneringsinformasjonMor().getXadesXml());
+    log.info("Mors XAdES for farskapserklæring med id {} ble lagret i bøtte.");
+
+    bucketConsumer.lagreXadesFar(
+        idFarskapserklaering,
+        farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml());
+    log.info("Fars XAdES for farskapserklæring med id {} ble lagret i bøtte.");
+
+    persistenceService.sletteDokumentinnhold(idFarskapserklaering);
+    log.info("Dokumenter tilkyttet farskapserklaering med id {} ble slettes fra databasen.");
   }
 }
