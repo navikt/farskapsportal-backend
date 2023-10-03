@@ -807,5 +807,84 @@ public class ArkivereFarskapserklaeringerTest {
                           .getXadesXml())
                   .isNotNull());
     }
+
+    @Test
+    void skalIkkeMigrereErklaeringerSomAlleredeErMigrert() {
+
+      // given
+      var farskapserklaering = henteDeaktivertFarskapserklaeringSomHarBlittSendtTilSkatt();
+      farskapserklaering
+          .getDokument()
+          .setBlobIdGcp(BlobIdGcp.builder().bucket("123").name("123").build());
+      farskapserklaering
+          .getDokument()
+          .getSigneringsinformasjonMor()
+          .setBlobIdGcp(BlobIdGcp.builder().bucket("123").name("123").build());
+      farskapserklaering
+          .getDokument()
+          .getSigneringsinformasjonFar()
+          .setBlobIdGcp(BlobIdGcp.builder().bucket("123").name("123").build());
+
+      var lagretFarskapserklaering =
+          persistenceService.lagreNyFarskapserklaering(farskapserklaering);
+
+      assert (lagretFarskapserklaering.getDokument().getDokumentinnhold().getInnhold() != null);
+      assert (lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml()
+          != null);
+      assert (lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml()
+          != null);
+      assert (farskapserklaering.getDokument().getBlobIdGcp() != null);
+      assert (lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml()
+          != null);
+      assert (lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml()
+          != null);
+
+      // when
+      arkivereFarskapserklaeringer.migrereDokumenterTilBuckets();
+
+      // then
+      verify(bucketConsumer, times(0))
+          .lagrePades(
+              lagretFarskapserklaering.getId(),
+              lagretFarskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+      verify(bucketConsumer, times(0))
+          .lagreXadesMor(
+              lagretFarskapserklaering.getId(),
+              lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml());
+      verify(bucketConsumer, times(0))
+          .lagreXadesFar(
+              lagretFarskapserklaering.getId(),
+              lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml());
+
+      var ikkemigrertFarskapserklaering =
+          farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
+
+      assertAll(
+          () -> assertThat(ikkemigrertFarskapserklaering).isPresent(),
+          () ->
+              assertThat(
+                      ikkemigrertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getDokumentinnhold()
+                          .getInnhold())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      ikkemigrertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonMor()
+                          .getXadesXml())
+                  .isNotNull(),
+          () ->
+              assertThat(
+                      ikkemigrertFarskapserklaering
+                          .get()
+                          .getDokument()
+                          .getSigneringsinformasjonFar()
+                          .getXadesXml())
+                  .isNotNull());
+    }
   }
 }
