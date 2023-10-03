@@ -46,8 +46,7 @@ public class ArkivereFarskapserklaeringer {
           LocalDateTime.now().plusSeconds(intervallMellomForsoek / 1000));
     }
   }
-
-  @Transactional
+  
   @SchedulerLock(name = "migrere-dokumenter", lockAtLeastFor = "PT1M", lockAtMostFor = "PT100M")
   @Scheduled(
       cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentmigreringsrate}",
