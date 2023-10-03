@@ -47,6 +47,7 @@ public class ArkivereFarskapserklaeringer {
     }
   }
 
+  @Transactional
   @SchedulerLock(name = "migrere-dokumenter", lockAtLeastFor = "PT1M", lockAtMostFor = "PT100M")
   @Scheduled(
       cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentmigreringsrate}",
@@ -55,8 +56,8 @@ public class ArkivereFarskapserklaeringer {
     var dokumentArkivertFoer = LocalDateTime.now().minusDays(20);
 
     var idTilGamleFarskapserklaeringer =
-        persistenceService
-            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+        farskapserklaeringDao
+            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(
                 dokumentArkivertFoer, dokumentArkivertFoer)
             .toArray();
 
@@ -79,7 +80,7 @@ public class ArkivereFarskapserklaeringer {
 
       var id = (Integer) idTilGamleFarskapserklaeringer[i];
 
-      migrereDokumenterTilBuckets(id);
+      farskapsportalService.migrereDokumenterTilBuckets(id);
     }
 
     log.info("Dokumentsletting gjennomført uten feil.");
@@ -151,37 +152,5 @@ public class ArkivereFarskapserklaeringer {
     if (farskapserklaeringsider.size() > 0) {
       log.info("Farskapserklæringene ble overført til Skatt uten problemer");
     }
-  }
-
-  private void migrereDokumenterTilBuckets(int idFarskapserklaering) {
-    var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
-
-    if (farskapserklaering.isEmpty()) {
-      log.warn(
-          "Fant ikke farskapserklæring med id {} - hopper til neste erklæring i lista",
-          idFarskapserklaering);
-      return;
-    }
-
-    var blobIdGcpPades =
-        bucketConsumer.lagrePades(
-            farskapserklaering.get().getId(),
-            farskapserklaering.get().getDokument().getDokumentinnhold().getInnhold());
-
-    farskapserklaering.get().getDokument().setBlobIdGcp(blobIdGcpPades);
-    log.info("PAdES for farskapserklæring med id {} ble lagret i bøtte.");
-
-    bucketConsumer.lagreXadesMor(
-        idFarskapserklaering,
-        farskapserklaering.get().getDokument().getSigneringsinformasjonMor().getXadesXml());
-    log.info("Mors XAdES for farskapserklæring med id {} ble lagret i bøtte.");
-
-    bucketConsumer.lagreXadesFar(
-        idFarskapserklaering,
-        farskapserklaering.get().getDokument().getSigneringsinformasjonFar().getXadesXml());
-    log.info("Fars XAdES for farskapserklæring med id {} ble lagret i bøtte.");
-
-    persistenceService.sletteDokumentinnhold(idFarskapserklaering);
-    log.info("Dokumenter tilkyttet farskapserklaering med id {} ble slettes fra databasen.");
   }
 }
