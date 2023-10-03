@@ -109,6 +109,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
           + "and fe.deaktivert is not null "
           + "and fe.deaktivert < :deaktivertFoer "
           + "and (fe.dokument.dokumentinnhold.innhold != null or fe.dokument.signeringsinformasjonFar.xadesXml != null or fe.dokument.signeringsinformasjonMor.xadesXml != null) "
+          + "and fe.dokument.blobIdGcp is null and fe.dokument.signeringsinformasjonFar.blobIdGcp is null and fe.dokument.signeringsinformasjonMor.blobIdGcp is null "
           + "order by fe.dokument.signeringsinformasjonFar.signeringstidspunkt asc")
   Set<Integer> henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(
       LocalDateTime sendtTilSkattFoer, LocalDateTime deaktivertFoer);
