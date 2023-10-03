@@ -46,7 +46,22 @@ public class BucketConsumer {
     }
   }
 
-  public BlobIdGcp saveContentToBucket(
+  public BlobIdGcp lagrePades(int idFarskapserklaering, byte[] innhold) {
+    return saveContentToBucket(
+        BucketConsumer.ContentType.PADES, "fp-" + idFarskapserklaering + "-pades.pdf", innhold);
+  }
+
+  public BlobIdGcp lagreXadesMor(int idFarskapserklaering, byte[] innhold) {
+    return saveContentToBucket(
+        BucketConsumer.ContentType.XADES, "xades-mor-" + idFarskapserklaering + ".xml", innhold);
+  }
+
+  public BlobIdGcp lagreXadesFar(int idFarskapserklaering, byte[] innhold) {
+    return saveContentToBucket(
+        BucketConsumer.ContentType.XADES, "xades-far-" + idFarskapserklaering + ".xml", innhold);
+  }
+
+  private BlobIdGcp saveContentToBucket(
       ContentType contentType, String documentName, byte[] content) {
     var bucketName = getBucketName(contentType);
     var blobId = BlobId.of(bucketName, documentName);

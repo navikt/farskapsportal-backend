@@ -873,9 +873,9 @@ public class FarskapsportalServiceTest {
       var blobIdGcp =
           BlobIdGcp.builder()
               .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
-              .name("fp-1")
+              .name("fp-1.pdf")
               .build();
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(1, pdf)).thenReturn(blobIdGcp);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer()))
@@ -990,9 +990,9 @@ public class FarskapsportalServiceTest {
       var blobIdGcp =
           BlobIdGcp.builder()
               .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
-              .name("fp-1")
+              .name("fp-1.pdf")
               .build();
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(1, pdf)).thenReturn(blobIdGcp);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteNyligFoedteBarnUtenRegistrertFar(MOR.getFoedselsnummer()))
@@ -1231,10 +1231,10 @@ public class FarskapsportalServiceTest {
       var blobIdGcp =
           BlobIdGcp.builder()
               .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
-              .name("fp-1")
+              .name("fp-1.pdf")
               .build();
 
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(1, pdf)).thenReturn(blobIdGcp);
       when(personopplysningService.henteNavn(MOR.getFoedselsnummer()))
           .thenReturn(registrertNavnMor);
       when(personopplysningService.henteFoedselsdato(MOR.getFoedselsnummer()))
@@ -4112,9 +4112,9 @@ public class FarskapsportalServiceTest {
       var blobIdGcp =
           BlobIdGcp.builder()
               .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
-              .name("fp-1")
+              .name("fp-1.pdf")
               .build();
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(1, dokumenttekst)).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumenttekst);
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
           .thenReturn(
@@ -4222,9 +4222,9 @@ public class FarskapsportalServiceTest {
       var blobIdGcp =
           BlobIdGcp.builder()
               .bucket(bucketConsumer.getBucketName(BucketConsumer.ContentType.PADES))
-              .name("fp-1")
+              .name("fp-1.pdf")
               .build();
-      when(bucketConsumer.saveContentToBucket(any(), anyString(), any())).thenReturn(blobIdGcp);
+      when(bucketConsumer.lagrePades(1, dokumenttekst)).thenReturn(blobIdGcp);
       when(bucketConsumer.getContentFromBucket(any())).thenReturn(dokumenttekst);
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
           .thenReturn(

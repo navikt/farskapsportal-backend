@@ -197,11 +197,7 @@ public class FarskapsportalService {
         pdfGeneratorConsumer.genererePdf(
             barnDto, forelderDtoMor, forelderDtoFar, request.getSkriftspraak());
 
-    var blobIdGcp =
-        bucketConsumer.saveContentToBucket(
-            BucketConsumer.ContentType.PADES,
-            "fp-" + farskapserklaering.getId() + "-pades.pdf",
-            innhold);
+    var blobIdGcp = bucketConsumer.lagrePades(farskapserklaering.getId(), innhold);
 
     farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
 
@@ -453,11 +449,7 @@ public class FarskapsportalService {
       throw new InternFeilException(Feilkode.DOKUMENT_MANGLER_INNOHLD);
     }
 
-    var blobIdGcp =
-        bucketConsumer.saveContentToBucket(
-            BucketConsumer.ContentType.PADES,
-            "fp-" + farskapserklaering.getId() + "-pades.pdf",
-            pades);
+    var blobIdGcp = bucketConsumer.lagrePades(farskapserklaering.getId(), pades);
 
     farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
 
@@ -471,6 +463,51 @@ public class FarskapsportalService {
     }
 
     return pades;
+  }
+
+  @Deprecated
+  @Transactional
+  public void migrereDokumenterTilBuckets(int idFarskapserklaering) {
+    var farskapserklaering =
+        persistenceService.henteDeaktivertFarskapserklaering(idFarskapserklaering);
+
+    var dokumentinnhold = farskapserklaering.getDokument().getDokumentinnhold();
+    if (dokumentinnhold != null && dokumentinnhold.getInnhold() != null) {
+      var blobIdGcpPades =
+          bucketConsumer.lagrePades(
+              farskapserklaering.getId(),
+              farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+
+      farskapserklaering.getDokument().setBlobIdGcp(blobIdGcpPades);
+      farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
+      log.info("PAdES for farskapserklæring med id {} ble migrert til bøtte.");
+    }
+
+    if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml() != null) {
+      var blobIdGcpXadesMor =
+          bucketConsumer.lagreXadesMor(
+              idFarskapserklaering,
+              farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml());
+      farskapserklaering
+          .getDokument()
+          .getSigneringsinformasjonMor()
+          .setBlobIdGcp(blobIdGcpXadesMor);
+      farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
+      log.info("Mors XAdES for farskapserklæring med id {} ble migrert til bøtte.");
+    }
+
+    if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() != null) {
+      var blobIdGcpXadesFar =
+          bucketConsumer.lagreXadesFar(
+              idFarskapserklaering,
+              farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml());
+      farskapserklaering
+          .getDokument()
+          .getSigneringsinformasjonMor()
+          .setBlobIdGcp(blobIdGcpXadesFar);
+      farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
+      log.info("Fars XAdES for farskapserklæring med id {} ble migrert til bøtte.");
+    }
   }
 
   public void henteOgLagreXadesXml(Farskapserklaering farskapserklaering) {
@@ -490,10 +527,7 @@ public class FarskapsportalService {
         var blobIdGcp =
             eksisterendeBlobIdGcp.isPresent()
                 ? eksisterendeBlobIdGcp.get()
-                : bucketConsumer.saveContentToBucket(
-                    BucketConsumer.ContentType.XADES,
-                    "xades-mor-" + farskapserklaering.getId() + ".xml",
-                    xades);
+                : bucketConsumer.lagreXadesMor(farskapserklaering.getId(), xades);
 
         farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(blobIdGcp);
 
@@ -510,10 +544,7 @@ public class FarskapsportalService {
         var blobIdGcp =
             eksisterendeBlobIdGcp.isPresent()
                 ? eksisterendeBlobIdGcp.get()
-                : bucketConsumer.saveContentToBucket(
-                    BucketConsumer.ContentType.XADES,
-                    "xades-far-" + farskapserklaering.getId() + ".xml",
-                    xades);
+                : bucketConsumer.lagreXadesFar(farskapserklaering.getId(), xades);
 
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(blobIdGcp);
 

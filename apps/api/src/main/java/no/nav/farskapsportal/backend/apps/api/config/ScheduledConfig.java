@@ -42,6 +42,7 @@ public class ScheduledConfig {
   @Bean
   public ArkivereFarskapserklaeringer arkivereFarskapserklaeringer(
       BucketConsumer bucketConsumer,
+      FarskapserklaeringDao farskapserklaeringDao,
       FarskapsportalService farskapsportalService,
       PersistenceService persistenceService,
       SkattConsumer skattConsumer) {
@@ -51,6 +52,7 @@ public class ScheduledConfig {
         .intervallMellomForsoek(
             farskapsportalAsynkronEgenskaper.getArkiv().getArkiveringsintervall())
         .maksAntallFeilPaaRad(farskapsportalAsynkronEgenskaper.getArkiv().getMaksAntallFeilPaaRad())
+        .farskapserklaeringDao(farskapserklaeringDao)
         .farskapsportalService(farskapsportalService)
         .persistenceService(persistenceService)
         .skattConsumer(skattConsumer)
