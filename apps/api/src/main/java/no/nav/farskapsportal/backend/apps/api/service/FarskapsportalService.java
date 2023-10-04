@@ -286,14 +286,10 @@ public class FarskapsportalService {
           idFarskapserklaering, statusQueryToken, fnrPaaloggetPerson);
     }
 
-    var forelderrolle = personopplysningService.bestemmeForelderrolle(fnrPaaloggetPerson);
-    var forelder = persistenceService.henteForelderForIdent(fnrPaaloggetPerson);
-
-    log.error(
-        "Fant ikke farskapserklæring med id {} i databasen for person med forelderrolle {} og forelderid {}.",
+    SIKKER_LOGG.error(
+        "Fant ikke farskapserklæring med id {} i databasen for person med personident {}.",
         idFarskapserklaering,
-        forelderrolle,
-        forelder.isPresent() ? forelder.get().getId() : "ukjent");
+        fnrPaaloggetPerson);
 
     throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
   }
