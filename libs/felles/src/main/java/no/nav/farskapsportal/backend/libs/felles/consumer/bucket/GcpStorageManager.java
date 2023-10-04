@@ -83,6 +83,10 @@ public class GcpStorageManager {
     return storage.delete(BlobId.of(bucketName, documentName));
   }
 
+  public int getEncryptionKeyVersion() {
+    return encryptionProvider.getKeyVersion();
+  }
+
   private byte[] decryptFile(byte[] file, BlobInfo blobInfo) throws GeneralSecurityException {
 
     // Based on example from https://cloud.google.com/kms/docs/client-side-encryption

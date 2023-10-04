@@ -26,6 +26,7 @@ public class BucketConsumer {
         : Optional.of(
             BlobIdGcp.builder()
                 .bucket(blobId.get().getBucket())
+                .encryptionKeyVersion(gcpStorageManager.getEncryptionKeyVersion())
                 .name(blobId.get().getName())
                 .generation(blobId.get().getGeneration())
                 .build());
