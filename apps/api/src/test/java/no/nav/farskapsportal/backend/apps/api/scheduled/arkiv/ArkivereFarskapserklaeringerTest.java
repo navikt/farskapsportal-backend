@@ -698,7 +698,7 @@ public class ArkivereFarskapserklaeringerTest {
       assert (farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() != null);
 
       // when
-      arkivereFarskapserklaeringer.migrereDokumenterTilBuckets();
+      var resterendeErklaeringer = arkivereFarskapserklaeringer.migrereDokumenterTilBuckets();
 
       // then
       verify(bucketConsumer, times(1))
@@ -717,6 +717,7 @@ public class ArkivereFarskapserklaeringerTest {
       var migrertFarskapserklaering = farskapserklaeringDao.findById(farskapserklaering.getId());
 
       assertAll(
+          () -> assertThat(resterendeErklaeringer).isEqualTo(0),
           () -> assertThat(migrertFarskapserklaering).isPresent(),
           () ->
               assertThat(
