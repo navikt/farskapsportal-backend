@@ -51,7 +51,7 @@ public class ArkivereFarskapserklaeringer {
   @Scheduled(
       cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentmigreringsrate}",
       zone = "Europe/Oslo")
-  public void migrereDokumenterTilBuckets() {
+  public int migrereDokumenterTilBuckets() {
     var dokumentArkivertFoer = LocalDateTime.now().minusDays(20);
 
     var idTilGamleFarskapserklaeringer =
@@ -83,13 +83,15 @@ public class ArkivereFarskapserklaeringer {
     }
 
     var resterende =
-        persistenceService
-            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+        farskapserklaeringDao
+            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(
                 dokumentArkivertFoer, dokumentArkivertFoer)
             .toArray();
     log.info(
         "Resterende farskapserklaeringer med gamle dokumenter etter kjøring: {}",
         resterende.length);
+
+    return resterende.length;
   }
 
   private void overfoereTilSkatt(Set<Integer> farskapserklaeringsider) {
