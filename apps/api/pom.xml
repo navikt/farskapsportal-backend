@@ -32,7 +32,7 @@
         <jaxb-impl.version>2.3.8</jaxb-impl.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-core.version>4.0.3</jaxb-core.version>
-        <jakarta.xml.bind-api.version>4.0.0</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
 
         <!-- test -->
         <bidrag-commons-test.version>1.20230511093912_dc35d81</bidrag-commons-test.version>
