@@ -27,7 +27,7 @@ spec:
     timeout: 1
   prometheus:
     enabled: true
-    path: /internal/prometheus
+    path: /internal/actuator/prometheus
   resources:
     limits:
       cpu: 1000m
