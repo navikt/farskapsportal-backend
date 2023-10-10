@@ -160,6 +160,7 @@ public class ArkivereFarskapserklaeringerTest {
   class OverfoereTilSkatt {
 
     @Test
+    @Transactional
     void skalOppdatereMeldingsloggVedOverfoeringTilSkatt() {
 
       // given
@@ -285,6 +286,7 @@ public class ArkivereFarskapserklaeringerTest {
     }
 
     @Test
+    @Transactional
     void skalSetteTidspunktForOverfoeringVedOverfoeringTilSkatt() throws URISyntaxException {
 
       // given
@@ -571,6 +573,7 @@ public class ArkivereFarskapserklaeringerTest {
     }
 
     @Test
+    @Transactional
     void skalIkkeOverfoereErklaeringSomIkkeErSignertAvBeggeParter() {
 
       // given

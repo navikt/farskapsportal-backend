@@ -103,8 +103,10 @@ public class ArkivereFarskapserklaeringer {
       log.debug(
           "Setter tidspunkt for oversendelse til skatt for farskapserklæring med id {}",
           farskapserklaeringsid);
+
+
       var farskapserklaering =
-          persistenceService.henteFarskapserklaeringForId(farskapserklaeringsid);
+              farskapserklaeringDao.findById(farskapserklaeringsid).get();
 
       var blobIdXadesFar =
           farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
@@ -126,7 +128,6 @@ public class ArkivereFarskapserklaeringer {
       try {
         var tidspunktForOverfoering = skattConsumer.registrereFarskap(farskapserklaering);
         farskapserklaering.setSendtTilSkatt(tidspunktForOverfoering);
-        persistenceService.oppdatereFarskapserklaering(farskapserklaering);
         persistenceService.oppdatereMeldingslogg(
             farskapserklaering.getSendtTilSkatt(), farskapserklaering.getMeldingsidSkatt());
         antallFeilPaaRad = 0;
