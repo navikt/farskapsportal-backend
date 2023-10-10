@@ -104,9 +104,7 @@ public class ArkivereFarskapserklaeringer {
           "Setter tidspunkt for oversendelse til skatt for farskapserklæring med id {}",
           farskapserklaeringsid);
 
-
-      var farskapserklaering =
-              farskapserklaeringDao.findById(farskapserklaeringsid).get();
+      var farskapserklaering = farskapserklaeringDao.findById(farskapserklaeringsid).get();
 
       var blobIdXadesFar =
           farskapserklaering.getDokument().getSigneringsinformasjonFar().getBlobIdGcp();
