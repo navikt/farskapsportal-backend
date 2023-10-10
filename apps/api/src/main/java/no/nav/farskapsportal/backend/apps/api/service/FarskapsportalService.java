@@ -511,6 +511,7 @@ public class FarskapsportalService {
     }
   }
 
+  @Transactional
   public void henteOgLagreXadesXml(Farskapserklaering farskapserklaering) {
 
     var signeringsstatus = henteDokumentstatus(farskapserklaering);
