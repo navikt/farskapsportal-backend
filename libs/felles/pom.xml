@@ -16,7 +16,7 @@
     <hikaricp.version>5.0.1</hikaricp.version>
     <javassist.version>3.28.0-GA</javassist.version>
     <kafka-avro-serializer.version>7.4.0</kafka-avro-serializer.version>
-    <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
+    <google.errorprone.annotations.version>2.22.0</google.errorprone.annotations.version>
     <google-api-services-storage.version>v1-rev20230710-2.0.0</google-api-services-storage.version>
     <google-tink.version>1.11.0</google-tink.version>
     <google-tink-gcpkms.version>1.8.0</google-tink-gcpkms.version>
