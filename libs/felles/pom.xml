@@ -19,7 +19,7 @@
     <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
     <google-api-services-storage.version>v1-rev20230710-2.0.0</google-api-services-storage.version>
     <google-tink.version>1.11.0</google-tink.version>
-    <google-tink-gcpkms.version>1.8.0</google-tink-gcpkms.version>
+    <google-tink-gcpkms.version>1.9.0</google-tink-gcpkms.version>
   </properties>
 
   <dependencyManagement>
