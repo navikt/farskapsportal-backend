@@ -21,8 +21,6 @@
 
         <!-- other -->
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
-        <asm.version>9.1</asm.version>
-        <google.errorprone.annotations.version>2.3.4</google.errorprone.annotations.version>
         <google-cloud-libraries-bom.version>26.22.0</google-cloud-libraries-bom.version>
         <jsoup.version>1.16.1</jsoup.version>
         <openhtml.version>1.0.10</openhtml.version>
@@ -102,14 +100,8 @@
                 <version>2.4.0-b180830.0359</version>
             </dependency>
             <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>${asm.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-                <version>${google.errorprone.annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
