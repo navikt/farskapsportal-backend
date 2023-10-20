@@ -25,17 +25,19 @@
         <!-- other -->
         <apache.commons-io.version>2.14.0</apache.commons-io.version>
         <apache.commons-lang.version>3.13.0</apache.commons-lang.version>
+        <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
         <java.version>20</java.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.11.0</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <checker-qual.version>3.12.0</checker-qual.version>
+        <checker-qual.version>3.39.0</checker-qual.version>
         <commons-cli.version>1.5.0</commons-cli.version>
         <jackson-core.version>2.14.3</jackson-core.version>
         <modelmapper.version>3.1.1</modelmapper.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
+        <google.errorprone.annotations.version>2.22.0</google.errorprone.annotations.version>
         <google.guava.version>32.1.2-jre</google.guava.version>
         <javassist.version>3.29.2-GA</javassist.version>
         <jetty-client.version>12.0.1</jetty-client.version>
@@ -82,6 +84,10 @@
                 <version>${token-support.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+            </dependency>
+            <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <version>${checker-qual.version}</version>
@@ -120,6 +126,11 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>${google.code.findbugs.jsr305.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${google.errorprone.annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.javacrumbs.shedlock</groupId>
