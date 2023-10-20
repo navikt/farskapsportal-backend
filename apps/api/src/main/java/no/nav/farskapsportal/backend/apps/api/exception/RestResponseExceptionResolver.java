@@ -137,7 +137,7 @@ public class RestResponseExceptionResolver {
   @ExceptionHandler(RessursIkkeFunnetException.class)
   protected ResponseEntity<?> handleRessursIkkeFunnetException(RessursIkkeFunnetException e) {
 
-    exceptionLogger.logException(e, "RestResponseExceptionResolver");
+    log.warn("Ressurs ikke funnet: {}", e.getMessage());
 
     return generereFeilrespons(
         "Oppgitt ressurs ble ikke funnet!",
