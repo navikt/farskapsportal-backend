@@ -18,7 +18,7 @@ import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 public class BrukernotifikasjonConsumer {
 
   private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING =
-      "Du har en signert farskapserklæring er tilgjengelig for nedlasting i en begrenset tidsperiode:";
+      "Du har mottatt en signert farskapserklæring som er tilgjengelig for nedlasting i en begrenset tidsperiode.";
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING =
       "Du har mottatt en farskapserklæring som venter på din signatur.";
   private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING =
