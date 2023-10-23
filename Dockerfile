@@ -1,6 +1,6 @@
 
 #FROM redboxoss/scuttle:latest AS scuttle
-FROM ghcr.io/navikt/baseimages/temurin:20-appdynamics
+FROM ghcr.io/navikt/baseimages/temurin:21-appdynamics
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 

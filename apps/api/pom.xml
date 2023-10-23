@@ -13,7 +13,7 @@
 
     <properties>
         <!-- build -->
-        <flyway-maven-plugin.version>9.19.0</flyway-maven-plugin.version>
+        <flyway-maven-plugin.version>9.22.3</flyway-maven-plugin.version>
         <maven.surefire.version>2.22.2</maven.surefire.version>
         <build-helper-maven.version>3.4.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,7 +29,7 @@
         <springdoc-openapi-ui.version>2.2.0</springdoc-openapi-ui.version>
         <jaxb-impl.version>2.3.8</jaxb-impl.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <jaxb-core.version>4.0.3</jaxb-core.version>
+        <jaxb-core.version>4.0.4</jaxb-core.version>
         <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
 
         <!-- test -->
