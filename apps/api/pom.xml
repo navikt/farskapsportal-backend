@@ -13,7 +13,7 @@
 
     <properties>
         <!-- build -->
-        <flyway-maven-plugin.version>9.19.0</flyway-maven-plugin.version>
+        <flyway-maven-plugin.version>9.22.3</flyway-maven-plugin.version>
         <maven.surefire.version>2.22.2</maven.surefire.version>
         <build-helper-maven.version>3.4.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
