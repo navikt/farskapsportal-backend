@@ -273,7 +273,9 @@ public class PersistenceService {
   // TODO: Fjernes etter fullført bucket-migrering
   @Deprecated
   private void sletteDokumentinnholdFraDatabase(Farskapserklaering farskapserklaering) {
-    farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
+    if (farskapserklaering.getDokument().getDokumentinnhold() != null) {
+      farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
+    }
     farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
     farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
   }
