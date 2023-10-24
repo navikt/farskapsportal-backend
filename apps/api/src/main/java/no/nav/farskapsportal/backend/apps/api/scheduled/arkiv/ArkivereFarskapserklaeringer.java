@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Builder
 public class ArkivereFarskapserklaeringer {
 
-  public static int MAKS_ANTALL_ERKLAERINGER_PER_KJOERING = 1000;
+  public static int MAKS_ANTALL_ERKLAERINGER_PER_KJOERING = 10000;
 
   private final BucketConsumer bucketConsumer;
   private final FarskapserklaeringDao farskapserklaeringDao;
