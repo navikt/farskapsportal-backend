@@ -66,6 +66,6 @@ public class RyddejobbTest {
 
     // then
     assertThat(levetidDokumenter).isEqualTo(12);
-    assertThat(maksAntallDokumenterPerKjoering).isEqualTo(1000);
+    assertThat(maksAntallDokumenterPerKjoering).isEqualTo(10000);
   }
 }
