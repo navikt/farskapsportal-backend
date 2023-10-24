@@ -16,5 +16,5 @@ public class Arkiv {
   private int levetidOversendteFarskapserklaeringerIDager;
   private int levetidErklaeringerIkkeSignertAvMorIDager;
   private int levetidDokumenterIMaaneder = 12;
-  private int maksAntallDokumenterSomSlettesPerKjoering = 1000;
+  private int maksAntallDokumenterSomSlettesPerKjoering = 10000;
 }
