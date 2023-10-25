@@ -43,7 +43,7 @@ public class RyddejobbTest {
   public void skalKjoereJobbForSlettingAvGamleDokumenter() {
 
     // given
-    when(persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(any(), any()))
+    when(persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(any()))
         .thenReturn(Set.of(1));
 
     // when
@@ -51,7 +51,7 @@ public class RyddejobbTest {
 
     // then
     verify(persistenceService, times(2))
-        .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(any(), any());
+        .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(any());
     verify(persistenceService, times(1)).sletteDokumentinnhold(1);
   }
 

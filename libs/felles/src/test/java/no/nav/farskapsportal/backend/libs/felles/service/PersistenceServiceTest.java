@@ -480,8 +480,7 @@ public class PersistenceServiceTest {
 
       // when
       var idTilFarskapserklaeringer =
-          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-              grensetidspunkt, grensetidspunkt);
+          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(grensetidspunkt);
 
       // then
       assertAll(
@@ -511,8 +510,7 @@ public class PersistenceServiceTest {
 
       // when
       var idTilFarskapserklaeringer =
-          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-              grensetidspunkt, grensetidspunkt);
+          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(grensetidspunkt);
 
       // then
       assertAll(() -> assertThat(idTilFarskapserklaeringer.size()).isEqualTo(0));
@@ -538,8 +536,7 @@ public class PersistenceServiceTest {
 
       // when
       var idTilFarskapserklaeringer =
-          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-              grensetidspunkt, grensetidspunkt);
+          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(grensetidspunkt);
 
       // then
       assertAll(() -> assertThat(idTilFarskapserklaeringer.size()).isEqualTo(0));
