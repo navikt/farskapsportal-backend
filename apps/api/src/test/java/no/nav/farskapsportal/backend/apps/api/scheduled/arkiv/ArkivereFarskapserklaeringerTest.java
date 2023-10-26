@@ -748,7 +748,7 @@ public class ArkivereFarskapserklaeringerTest {
     }
 
     @Test
-    void skalIkkeMigrereDokumenterForAktivFarskapserklaering() {
+    void skalMigrereDokumenterForAktivFarskapserklaering() {
 
       // given
       var farskapserklaering = henteDeaktivertFarskapserklaeringSomHarBlittSendtTilSkatt();
@@ -767,15 +767,15 @@ public class ArkivereFarskapserklaeringerTest {
       arkivereFarskapserklaeringer.migrereDokumenterTilBuckets();
 
       // then
-      verify(bucketConsumer, times(0))
+      verify(bucketConsumer, times(1))
           .lagrePades(
               lagretFarskapserklaering.getId(),
               lagretFarskapserklaering.getDokument().getDokumentinnhold().getInnhold());
-      verify(bucketConsumer, times(0))
+      verify(bucketConsumer, times(1))
           .lagreXadesMor(
               lagretFarskapserklaering.getId(),
               lagretFarskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml());
-      verify(bucketConsumer, times(0))
+      verify(bucketConsumer, times(1))
           .lagreXadesFar(
               lagretFarskapserklaering.getId(),
               lagretFarskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml());
@@ -792,7 +792,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .getDokument()
                           .getDokumentinnhold()
                           .getInnhold())
-                  .isNotNull(),
+                  .isNull(),
           () ->
               assertThat(
                       ikkemigrertFarskapserklaering
@@ -800,7 +800,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .getDokument()
                           .getSigneringsinformasjonMor()
                           .getXadesXml())
-                  .isNotNull(),
+                  .isNull(),
           () ->
               assertThat(
                       ikkemigrertFarskapserklaering
@@ -808,7 +808,7 @@ public class ArkivereFarskapserklaeringerTest {
                           .getDokument()
                           .getSigneringsinformasjonFar()
                           .getXadesXml())
-                  .isNotNull());
+                  .isNull());
     }
 
     @Test

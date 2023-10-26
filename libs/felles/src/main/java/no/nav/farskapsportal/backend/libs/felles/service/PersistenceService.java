@@ -158,15 +158,6 @@ public class PersistenceService {
     throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
   }
 
-  public Farskapserklaering henteDeaktivertFarskapserklaering(int idFarskapserklaering) {
-    var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
-    if (farskapserklaering.isPresent() && farskapserklaering.get().getDeaktivert() != null) {
-      return farskapserklaering.get();
-    }
-    log.error("Fant ikke deaktivert farskapserklæring med id {} i databasen", idFarskapserklaering);
-    throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
-  }
-
   public void ingenKonfliktMedEksisterendeFarskapserklaeringer(
       String fnrMor, String fnrFar, BarnDto barnDto) {
 
