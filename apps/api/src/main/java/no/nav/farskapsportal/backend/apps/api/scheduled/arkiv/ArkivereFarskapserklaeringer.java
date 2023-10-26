@@ -56,8 +56,7 @@ public class ArkivereFarskapserklaeringer {
 
     var idTilGamleFarskapserklaeringer =
         farskapserklaeringDao
-            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(
-                dokumentArkivertFoer, dokumentArkivertFoer)
+            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(dokumentArkivertFoer)
             .toArray();
 
     log.info(
@@ -84,8 +83,7 @@ public class ArkivereFarskapserklaeringer {
 
     var resterende =
         farskapserklaeringDao
-            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(
-                dokumentArkivertFoer, dokumentArkivertFoer)
+            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(dokumentArkivertFoer)
             .toArray();
     log.info(
         "Resterende farskapserklaeringer med gamle dokumenter etter kjøring: {}",

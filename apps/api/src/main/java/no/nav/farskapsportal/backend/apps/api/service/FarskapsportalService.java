@@ -465,7 +465,7 @@ public class FarskapsportalService {
   @Transactional
   public void migrereDokumenterTilBuckets(int idFarskapserklaering) {
     var farskapserklaering =
-        persistenceService.henteDeaktivertFarskapserklaering(idFarskapserklaering);
+        persistenceService.henteFarskapserklaeringForId(idFarskapserklaering, true);
 
     var dokumentinnhold = farskapserklaering.getDokument().getDokumentinnhold();
     if (dokumentinnhold != null && dokumentinnhold.getInnhold() != null) {
