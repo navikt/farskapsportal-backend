@@ -25,8 +25,7 @@ public class Ryddejobb {
 
     var idTilGamleFarskapserklaeringer =
         persistenceService
-            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-                dokumentArkivertFoer, dokumentArkivertFoer)
+            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(dokumentArkivertFoer)
             .toArray();
 
     log.info(
@@ -53,8 +52,7 @@ public class Ryddejobb {
 
     var resterende =
         persistenceService
-            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-                dokumentArkivertFoer, dokumentArkivertFoer)
+            .henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(dokumentArkivertFoer)
             .toArray();
     log.info(
         "Resterende farskapserklaeringer med gamle dokumenter etter kjøring: {}",

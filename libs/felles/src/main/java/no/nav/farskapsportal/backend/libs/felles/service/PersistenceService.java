@@ -325,9 +325,9 @@ public class PersistenceService {
 
   // TODO: Oppdatere uttrekk etter fullført bucket-migrering
   public Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-      LocalDateTime sendtTilSkattFoer, LocalDateTime deaktivertFoer) {
+      LocalDateTime deaktivertFoer) {
     return farskapserklaeringDao.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-        sendtTilSkattFoer, deaktivertFoer);
+        deaktivertFoer);
   }
 
   @Transactional
