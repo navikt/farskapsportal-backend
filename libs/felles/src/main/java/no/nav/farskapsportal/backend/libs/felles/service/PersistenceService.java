@@ -149,13 +149,19 @@ public class PersistenceService {
     return statusKontrollereFarDao.henteStatusKontrollereFar(fnrMor);
   }
 
-  public Farskapserklaering henteFarskapserklaeringForId(int idFarskapserklaering) {
+  public Farskapserklaering henteFarskapserklaeringForId(
+      int idFarskapserklaering, boolean inkludereDeaktiverteErklaeringer) {
     var farskapserklaering = farskapserklaeringDao.findById(idFarskapserklaering);
-    if (farskapserklaering.isPresent() && farskapserklaering.get().getDeaktivert() == null) {
+    if (farskapserklaering.isPresent()
+        && (farskapserklaering.get().getDeaktivert() == null || inkludereDeaktiverteErklaeringer)) {
       return farskapserklaering.get();
     }
     log.error("Fant ikke farskapserklæring med id {} i databasen", idFarskapserklaering);
     throw new RessursIkkeFunnetException(Feilkode.FANT_IKKE_FARSKAPSERKLAERING);
+  }
+
+  public Farskapserklaering henteFarskapserklaeringForId(int idFarskapserklaering) {
+    return henteFarskapserklaeringForId(idFarskapserklaering, false);
   }
 
   public void ingenKonfliktMedEksisterendeFarskapserklaeringer(
