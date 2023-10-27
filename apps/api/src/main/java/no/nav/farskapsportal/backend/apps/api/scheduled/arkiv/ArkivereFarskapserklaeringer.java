@@ -52,7 +52,7 @@ public class ArkivereFarskapserklaeringer {
       cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentmigreringsrate}",
       zone = "Europe/Oslo")
   public void migrereDokumenterTilBuckets() {
-    var dokumentArkivertFoer = LocalDateTime.now().minusDays(20);
+    var dokumentArkivertFoer = LocalDateTime.now().minusDays(10);
 
     var idTilGamleFarskapserklaeringer =
         farskapserklaeringDao
