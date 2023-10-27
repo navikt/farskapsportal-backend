@@ -29,10 +29,7 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManag
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.*;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -747,6 +744,7 @@ public class ArkivereFarskapserklaeringerTest {
                   .isNull());
     }
 
+    @Disabled("BD-1744: migrerer kun deaktiverte erklæringer")
     @Test
     void skalMigrereDokumenterForAktivFarskapserklaering() {
 
