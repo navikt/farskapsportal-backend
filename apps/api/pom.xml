@@ -25,7 +25,7 @@
         <jsoup.version>1.16.1</jsoup.version>
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0.1</signature-api-client-java.version>
-        <sun.istack-commons.version>3.0.12</sun.istack-commons.version>
+        <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
         <springdoc-openapi-ui.version>2.2.0</springdoc-openapi-ui.version>
         <jaxb-impl.version>2.3.8</jaxb-impl.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
