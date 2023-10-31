@@ -3,9 +3,9 @@ ingress: https://farskapsportal-api.intern.dev.nav.no
 replicas: 2
 gcp:
   sql-instances:
-    name: fp-main
-    tier: db-custom-1-3840
-    type: POSTGRES_12
+    name: fp-main-15
+    tier: db-f1-micro
+    type: POSTGRES_15
     databases:
       name: fpdb-main
       env-var-prefix: DB
@@ -19,8 +19,6 @@ env:
     value: "true"
   - name: DB_USER_ASYNKRON
     value: asynkron_main
-  - name: POSTGRES_CONNECTION_NAME
-    value: farskapsportal-dev-169c:europe-north1:fp-main
   - name: VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID
     value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
