@@ -111,11 +111,12 @@ spring:
   cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
   config.activate.on-profile: live, integration-test
   cloud.gcp.sql.database-name: ${DB_DATABASE}
-  cloud.gcp.sql.instance-connection-name: ${POSTGRES_CONNECTION_NAME}
+  cloud.gcp.sql.instance-connection-name: "${GCP_TEAM_PROJECT_ID}:europe-north1:${DB_USERNAME}"
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
     hikari:
       idle-timeout: 10001
       max-lifetime: 30001
