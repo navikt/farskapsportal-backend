@@ -450,56 +450,6 @@ public class FarskapsportalService {
     return pades;
   }
 
-  @Deprecated
-  @Transactional
-  public void migrereDokumenterTilBuckets(int idFarskapserklaering) {
-    var farskapserklaering =
-        persistenceService.henteFarskapserklaeringForId(idFarskapserklaering, true);
-
-    var dokumentinnhold = farskapserklaering.getDokument().getDokumentinnhold();
-    if (dokumentinnhold != null && dokumentinnhold.getInnhold() != null) {
-      var blobIdGcpPades =
-          bucketConsumer.lagrePades(
-              farskapserklaering.getId(),
-              farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
-
-      farskapserklaering.getDokument().setBlobIdGcp(blobIdGcpPades);
-      farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
-      log.info(
-          "PAdES for farskapserklæring med id {} ble migrert til bøtte.", idFarskapserklaering);
-    }
-
-    if (farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml() != null) {
-      var blobIdGcpXadesMor =
-          bucketConsumer.lagreXadesMor(
-              idFarskapserklaering,
-              farskapserklaering.getDokument().getSigneringsinformasjonMor().getXadesXml());
-      farskapserklaering
-          .getDokument()
-          .getSigneringsinformasjonMor()
-          .setBlobIdGcp(blobIdGcpXadesMor);
-      farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
-      log.info(
-          "Mors XAdES for farskapserklæring med id {} ble migrert til bøtte.",
-          idFarskapserklaering);
-    }
-
-    if (farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml() != null) {
-      var blobIdGcpXadesFar =
-          bucketConsumer.lagreXadesFar(
-              idFarskapserklaering,
-              farskapserklaering.getDokument().getSigneringsinformasjonFar().getXadesXml());
-      farskapserklaering
-          .getDokument()
-          .getSigneringsinformasjonMor()
-          .setBlobIdGcp(blobIdGcpXadesFar);
-      farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
-      log.info(
-          "Fars XAdES for farskapserklæring med id {} ble migrert til bøtte.",
-          idFarskapserklaering);
-    }
-  }
-
   @Transactional
   public void henteOgLagreXadesXml(Farskapserklaering farskapserklaering) {
 

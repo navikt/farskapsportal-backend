@@ -240,11 +240,7 @@ public class SkattConsumer {
       Validate.isTrue(farskapserklaering.getMor().getFoedselsnummer() != null);
       Validate.isTrue(farskapserklaering.getDokument().getNavn() != null);
 
-      Validate.isTrue(
-          farskapserklaering.getDokument().getBlobIdGcp() != null
-              // TODO: Fjerne sjekk når bucket-migrering er fullført
-              || (farskapserklaering.getDokument().getDokumentinnhold() != null
-                  && farskapserklaering.getDokument().getDokumentinnhold().getInnhold() != null));
+      Validate.isTrue(farskapserklaering.getDokument().getBlobIdGcp() != null);
       Validate.isTrue(
           farskapserklaering.getDokument().getSigneringsinformasjonFar().getSigneringstidspunkt()
               != null);

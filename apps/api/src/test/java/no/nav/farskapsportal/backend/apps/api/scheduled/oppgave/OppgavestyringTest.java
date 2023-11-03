@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -24,7 +23,6 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
@@ -405,17 +403,11 @@ public class OppgavestyringTest {
                 Signeringsinformasjon.builder()
                     .redirectUrl(lageUrl("8080", "redirect-mor"))
                     .signeringstidspunkt(signeringstidspunktFar.minusMinutes(10))
-                    .xadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8))
                     .build())
             .signeringsinformasjonFar(
                 Signeringsinformasjon.builder()
                     .redirectUrl(lageUrl("8080", "/redirect-far"))
                     .signeringstidspunkt(signeringstidspunktFar)
-                    .xadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8))
-                    .build())
-            .dokumentinnhold(
-                Dokumentinnhold.builder()
-                    .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
                     .build())
             .build();
 

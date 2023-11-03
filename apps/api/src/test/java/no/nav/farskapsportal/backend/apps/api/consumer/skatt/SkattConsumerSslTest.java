@@ -76,13 +76,11 @@ public class SkattConsumerSslTest {
             henteForelder(Forelderrolle.MOR),
             henteForelder(Forelderrolle.FAR),
             henteBarnUtenFnr(5));
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(innholdXadesMor);
 
     farskapserklaering
         .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(innholdXadesFar);
 
     farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());
@@ -122,24 +120,8 @@ public class SkattConsumerSslTest {
 
     farskapserklaering
         .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-
-    farskapserklaering
-        .getDokument()
         .getSigneringsinformasjonFar()
         .setSigneringstidspunkt(LocalDateTime.now());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("Fars signatur".getBytes(StandardCharsets.UTF_8));
-
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
 
     farskapserklaering.setMeldingsidSkatt("123");
     farskapserklaering.setSendtTilSkatt(LocalDateTime.now());

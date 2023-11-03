@@ -21,7 +21,6 @@ import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAs
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
@@ -120,12 +119,6 @@ public class BrukernotifikasjonstyringTest {
                         + 1));
     deaktivertFarskapserklaering
         .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
-    deaktivertFarskapserklaering
-        .getDokument()
         .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(
             LocalDateTime.now()
@@ -201,12 +194,6 @@ public class BrukernotifikasjonstyringTest {
                             .getBrukernotifikasjon()
                             .getOppgavestyringsforsinkelse()
                         + 15));
-    ferdigstiltFarskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
     ferdigstiltFarskapserklaering
         .getDokument()
         .getSigneringsinformasjonMor()

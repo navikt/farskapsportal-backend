@@ -21,7 +21,6 @@ import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAs
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
@@ -107,12 +106,6 @@ public class VarselTest {
                         + 1));
     farskapserklaeringSomManglerSigneringsstatus
         .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
-    farskapserklaeringSomManglerSigneringsstatus
-        .getDokument()
         .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(
             LocalDateTime.now()
@@ -194,12 +187,6 @@ public class VarselTest {
                         + 1));
     farskapserklaeringSomManglerSigneringsstatus
         .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
-    farskapserklaeringSomManglerSigneringsstatus
-        .getDokument()
         .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(
             LocalDateTime.now()
@@ -275,12 +262,6 @@ public class VarselTest {
                         + 1));
     farskapserklaeringSomManglerSigneringsstatus
         .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
-    farskapserklaeringSomManglerSigneringsstatus
-        .getDokument()
         .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(
             LocalDateTime.now()
@@ -327,12 +308,6 @@ public class VarselTest {
                             .getBrukernotifikasjon()
                             .getOppgavestyringsforsinkelse()
                         + 1));
-    farskapserklaeringSomManglerSigneringsstatus
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
     farskapserklaeringSomManglerSigneringsstatus
         .getDokument()
         .getSigneringsinformasjonMor()

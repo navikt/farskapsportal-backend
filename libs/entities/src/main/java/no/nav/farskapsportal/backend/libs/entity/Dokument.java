@@ -37,9 +37,6 @@ public class Dokument implements Serializable {
   @Column(unique = true)
   private String jobbref;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private Dokumentinnhold dokumentinnhold;
-
   private String statusUrl;
 
   private String statusQueryToken;
