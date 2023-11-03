@@ -47,49 +47,6 @@ public class ArkivereFarskapserklaeringer {
     }
   }
 
-  @SchedulerLock(name = "migrere-dokumenter", lockAtLeastFor = "PT1M", lockAtMostFor = "PT100M")
-  @Scheduled(
-      cron = "${farskapsportal.asynkron.egenskaper.arkiv.dokumentmigreringsrate}",
-      zone = "Europe/Oslo")
-  public void migrereDokumenterTilBuckets() {
-    var dokumentArkivertFoer = LocalDateTime.now().minusDays(10);
-
-    var idTilGamleFarskapserklaeringer =
-        farskapserklaeringDao
-            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(dokumentArkivertFoer)
-            .toArray();
-
-    log.info(
-        "Antall farskapserklæringer med dokumenter som er klar for migrering: {} (arkivert og deaktivert før {})",
-        idTilGamleFarskapserklaeringer.length,
-        dokumentArkivertFoer);
-    if (idTilGamleFarskapserklaeringer.length > MAKS_ANTALL_ERKLAERINGER_PER_KJOERING) {
-      log.info(
-          "Begrenser migrering til å gjelde {} farskapserklæringer i denne kjøringen.",
-          MAKS_ANTALL_ERKLAERINGER_PER_KJOERING);
-    }
-
-    var antallErklaerringerForKjoering =
-        idTilGamleFarskapserklaeringer.length > MAKS_ANTALL_ERKLAERINGER_PER_KJOERING
-            ? MAKS_ANTALL_ERKLAERINGER_PER_KJOERING
-            : idTilGamleFarskapserklaeringer.length;
-
-    for (int i = 0; i < antallErklaerringerForKjoering; i++) {
-
-      var id = (Integer) idTilGamleFarskapserklaeringer[i];
-
-      farskapsportalService.migrereDokumenterTilBuckets(id);
-    }
-
-    var resterende =
-        farskapserklaeringDao
-            .henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(dokumentArkivertFoer)
-            .toArray();
-    log.info(
-        "Resterende farskapserklaeringer med gamle dokumenter etter kjøring: {}",
-        resterende.length);
-  }
-
   private void overfoereTilSkatt(Set<Integer> farskapserklaeringsider) {
     var fpTekst = farskapserklaeringsider.size() == 1 ? "farskapserklæring" : "farskapserklæringer";
     var antallFeilPaaRad = 0;

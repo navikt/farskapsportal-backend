@@ -399,12 +399,6 @@ public class FarskapsportalService {
       var blobIdGcp = farskapserklaering.getDokument().getBlobIdGcp();
       if (blobIdGcp == null) {
 
-        // TODO: Fjerne henting av dokument fra dokumentinnhold-tabell etter buckets-migrering er
-        // fullført
-        if (henteDokumentFraDatabase(farskapserklaering).isPresent()) {
-          return henteDokumentFraDatabase(farskapserklaering).get();
-        }
-
         log.error(
             "Feil ved henting av PAdES til nedlasting for farskapserklaering med id {}",
             farskapserklaering.getId());
@@ -448,11 +442,6 @@ public class FarskapsportalService {
     var blobIdGcp = bucketConsumer.lagrePades(farskapserklaering.getId(), pades);
 
     farskapserklaering.getDokument().setBlobIdGcp(blobIdGcp);
-
-    // TODO: Fjerne når bucket-migrering er fullført
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(Dokumentinnhold.builder().innhold(null).build());
 
     if (farskapserklaering.getMeldingsidSkatt() == null) {
       farskapserklaering.setMeldingsidSkatt(getMeldingsidSkatt(farskapserklaering, pades));
@@ -533,9 +522,6 @@ public class FarskapsportalService {
 
         farskapserklaering.getDokument().getSigneringsinformasjonMor().setBlobIdGcp(blobIdGcp);
 
-        // TODO: Fjerne når bucket-migrering er fullført
-        farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
-
       } else if (signatur.getSignatureier().equals(farskapserklaering.getFar().getFoedselsnummer())
           && xades != null) {
 
@@ -550,9 +536,6 @@ public class FarskapsportalService {
 
         farskapserklaering.getDokument().getSigneringsinformasjonFar().setBlobIdGcp(blobIdGcp);
 
-        // TODO: Fjerne når bucket-migrering er fullført
-        farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
-
       } else {
         log.error(
             "Personer i signeringsoppdrag stemmer ikke med foreldrene i farskapserklæring med id {}",
@@ -564,13 +547,6 @@ public class FarskapsportalService {
         throw new InternFeilException(Feilkode.FARSKAPSERKLAERING_HAR_INKONSISTENTE_DATA);
       }
     }
-  }
-
-  // TODO: Fjerne etter at GCP bucket-migrering er fullført
-  private Optional<byte[]> henteDokumentFraDatabase(Farskapserklaering farskapserklaering) {
-    return farskapserklaering.getDokument().getDokumentinnhold() != null
-        ? Optional.of(farskapserklaering.getDokument().getDokumentinnhold().getInnhold())
-        : Optional.empty();
   }
 
   private void validereAtForeldreIkkeAlleredeHarSignert(

@@ -77,6 +77,25 @@ public class PersistenceServiceTest {
   private @Autowired ModelMapper modelMapper;
   private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
+  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
+
+    var dokument =
+        Dokument.builder()
+            .navn("farskapserklaering.pdf")
+            .signeringsinformasjonMor(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
+                    .signeringstidspunkt(LocalDateTime.now())
+                    .build())
+            .signeringsinformasjonFar(
+                Signeringsinformasjon.builder()
+                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
+                    .build())
+            .build();
+
+    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
+  }
+
   @Nested
   @DisplayName("Lagre")
   @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -473,8 +492,8 @@ public class PersistenceServiceTest {
       farskapserklaering.setSendtTilSkatt(grensetidspunkt.minusHours(1));
       farskapserklaering
           .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder().innhold("En farskapserklæring".getBytes()).build());
+          .getSigneringsinformasjonFar()
+          .setBlobIdGcp(BlobIdGcp.builder().name("123").build());
 
       var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaering);
 
@@ -559,10 +578,8 @@ public class PersistenceServiceTest {
               TestUtils.henteForelder(Forelderrolle.MOR),
               TestUtils.henteForelder(Forelderrolle.FAR),
               TestUtils.henteBarnUtenFnr(17));
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder().innhold("En farskapserklæring".getBytes()).build());
+      farskapserklaering.getDokument().setBlobIdGcp(BlobIdGcp.builder().name("123").build());
+
       return farskapserklaeringDao.save(farskapserklaering);
     }
 
@@ -622,18 +639,7 @@ public class PersistenceServiceTest {
       var farskapserklaeringMedSlettedeDokumenter =
           farskapserklaeringDao.findById(lagretFarskapserklaering.getId());
 
-      assertAll(
-          () ->
-              assertThat(farskapserklaeringMedSlettedeDokumenter.get().getDokumenterSlettet())
-                  .isNotNull(),
-          () ->
-              assertThat(
-                      farskapserklaeringMedSlettedeDokumenter
-                          .get()
-                          .getDokument()
-                          .getDokumentinnhold()
-                          .getInnhold())
-                  .isNull());
+      assertThat(farskapserklaeringMedSlettedeDokumenter.get().getDokumenterSlettet()).isNotNull();
     }
   }
 
@@ -996,24 +1002,5 @@ public class PersistenceServiceTest {
                   FAR.getFoedselsnummer(),
                   modelMapper.map(UFOEDT_BARN, BarnDto.class)));
     }
-  }
-
-  private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {
-
-    var dokument =
-        Dokument.builder()
-            .navn("farskapserklaering.pdf")
-            .signeringsinformasjonMor(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "redirect-mor"))
-                    .signeringstidspunkt(LocalDateTime.now())
-                    .build())
-            .signeringsinformasjonFar(
-                Signeringsinformasjon.builder()
-                    .redirectUrl(lageUrl(wiremockPort, "/redirect-far"))
-                    .build())
-            .build();
-
-    return Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
   }
 }

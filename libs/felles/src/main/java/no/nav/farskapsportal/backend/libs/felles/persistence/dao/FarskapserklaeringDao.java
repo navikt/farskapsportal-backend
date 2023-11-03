@@ -94,17 +94,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       "select fe.id from Farskapserklaering fe "
           + "where fe.deaktivert is not null "
           + "and fe.deaktivert < :deaktivertFoer "
-          + "and (fe.dokument.dokumentinnhold.innhold != null or fe.dokument.signeringsinformasjonFar.xadesXml != null or fe.dokument.signeringsinformasjonMor.xadesXml != null "
-          + " or fe.dokument.blobIdGcp != null or fe.dokument.signeringsinformasjonFar.blobIdGcp != null or fe.dokument.signeringsinformasjonMor.blobIdGcp != null) "
+          + "and fe.dokument.blobIdGcp != null or fe.dokument.signeringsinformasjonFar.blobIdGcp != null or fe.dokument.signeringsinformasjonMor.blobIdGcp != null "
           + "order by fe.dokument.signeringsinformasjonFar.signeringstidspunkt asc")
   Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(LocalDateTime deaktivertFoer);
-
-  @Query(
-      "select fe.id from Farskapserklaering fe "
-          + "where fe.deaktivert is not null "
-          + "and fe.deaktivert < :deaktivert "
-          + "and (fe.dokument.dokumentinnhold.innhold != null or fe.dokument.signeringsinformasjonFar.xadesXml != null or fe.dokument.signeringsinformasjonMor.xadesXml != null) "
-          + "and fe.dokument.blobIdGcp is null and fe.dokument.signeringsinformasjonFar.blobIdGcp is null and fe.dokument.signeringsinformasjonMor.blobIdGcp is null "
-          + "order by fe.dokument.signeringsinformasjonFar.signeringstidspunkt asc")
-  Set<Integer> henteIdTilFarskapserklaeringerSomSkalMigreresTilBuckets(LocalDateTime deaktivert);
 }
