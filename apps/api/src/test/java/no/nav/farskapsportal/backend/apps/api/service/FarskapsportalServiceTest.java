@@ -198,12 +198,6 @@ public class FarskapsportalServiceTest {
 
       var farskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
@@ -279,12 +273,6 @@ public class FarskapsportalServiceTest {
 
       var farskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerMorsSignatur);
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
@@ -357,12 +345,6 @@ public class FarskapsportalServiceTest {
 
       var farskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       when(personopplysningService.bestemmeForelderrolle(MOR.getFoedselsnummer()))
@@ -751,12 +733,6 @@ public class FarskapsportalServiceTest {
 
       var farskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
       when(personopplysningService.bestemmeForelderrolle(FAR.getFoedselsnummer()))
@@ -2677,17 +2653,6 @@ public class FarskapsportalServiceTest {
                           .getDokument()
                           .getSigneringsinformasjonMor()
                           .getSigneringstidspunkt())
-                  .isNull(),
-          () ->
-              assertThat(oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold())
-                  .isNull(),
-          () ->
-              assertThat(
-                      oppdatertFarskapserklaering
-                          .get()
-                          .getDokument()
-                          .getSigneringsinformasjonMor()
-                          .getXadesXml())
                   .isNull());
     }
 
@@ -2782,14 +2747,6 @@ public class FarskapsportalServiceTest {
                           .getSigneringsinformasjonMor()
                           .getSigneringstidspunkt())
                   .isNotNull(),
-          () ->
-              assertThat(
-                      oppdatertFarskapserklaering
-                          .get()
-                          .getDokument()
-                          .getSigneringsinformasjonFar()
-                          .getXadesXml())
-                  .isNull(),
           () ->
               assertThat(
                       oppdatertFarskapserklaering
@@ -4103,9 +4060,6 @@ public class FarskapsportalServiceTest {
           .getDokument()
           .getSigneringsinformasjonMor()
           .setSigneringstidspunkt(LocalDateTime.now());
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
       farskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       persistenceService.oppdatereFarskapserklaering(farskapserklaering);
 
@@ -4132,7 +4086,7 @@ public class FarskapsportalServiceTest {
                               .build()))
                   .build());
       when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+          .thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
 
       // when
       var dokumentinnhold =
@@ -4145,10 +4099,7 @@ public class FarskapsportalServiceTest {
       assertAll(
           () -> assertThat(dokumentinnhold).isNull(),
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
-          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp() != null),
-          () ->
-              assertThat(
-                  oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold() == null));
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp() != null));
     }
 
     @Test
@@ -4209,9 +4160,6 @@ public class FarskapsportalServiceTest {
                   henteForelder(Forelderrolle.MOR),
                   henteForelder(Forelderrolle.FAR),
                   henteBarnUtenFnr(5)));
-      farskapserklaering
-          .getDokument()
-          .setDokumentinnhold(Dokumentinnhold.builder().innhold(dokumenttekst).build());
       farskapserklaering.getDokument().setStatusUrl(statuslenke.toString());
       farskapserklaering
           .getDokument()
@@ -4241,8 +4189,7 @@ public class FarskapsportalServiceTest {
                               .xadeslenke(lageUri(wiremockPort, "/xades"))
                               .build()))
                   .build());
-      when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(farskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+      when(difiESignaturConsumer.henteSignertDokument(any())).thenReturn(dokumenttekst);
 
       // when
       var dokumentinnhold =
@@ -4254,10 +4201,7 @@ public class FarskapsportalServiceTest {
       assertAll(
           () -> assertThat(dokumentinnhold).isNotNull(),
           () -> assertThat(oppdatertFarskapserklaering).isPresent(),
-          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp() != null),
-          () ->
-              assertThat(
-                  oppdatertFarskapserklaering.get().getDokument().getDokumentinnhold() == null));
+          () -> assertThat(oppdatertFarskapserklaering.get().getDokument().getBlobIdGcp() != null));
     }
 
     @Test

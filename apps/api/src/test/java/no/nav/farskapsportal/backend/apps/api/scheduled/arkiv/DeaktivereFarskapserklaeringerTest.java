@@ -7,7 +7,6 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lag
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
@@ -16,7 +15,6 @@ import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAs
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
-import no.nav.farskapsportal.backend.libs.entity.Dokumentinnhold;
 import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
@@ -97,16 +95,6 @@ public class DeaktivereFarskapserklaeringerTest {
         .getDokument()
         .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(signeringstidspunktMor);
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
     return farskapserklaering;
   }
 
@@ -121,16 +109,6 @@ public class DeaktivereFarskapserklaeringerTest {
         .getDokument()
         .getSigneringsinformasjonMor()
         .setSigneringstidspunkt(signeringstidspunktMor);
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("Mors signatur".getBytes(StandardCharsets.UTF_8));
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                .build());
     return farskapserklaering;
   }
 

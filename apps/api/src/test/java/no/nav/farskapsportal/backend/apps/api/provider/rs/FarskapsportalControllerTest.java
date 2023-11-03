@@ -487,12 +487,6 @@ public class FarskapsportalControllerTest {
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
 
-      farskapserklaeringSomVenterPaaFar
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       var lagretFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
@@ -600,12 +594,6 @@ public class FarskapsportalControllerTest {
           .getDokument()
           .getSigneringsinformasjonMor()
           .setSigneringstidspunkt(null);
-      farskapserklaeringSomVenterPaaMor
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       var lagretFarskapserklaering =
           persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaMor);
 
@@ -704,12 +692,6 @@ public class FarskapsportalControllerTest {
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
 
-      farskapserklaeringSomVenterPaaFar
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFar);
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
@@ -960,13 +942,6 @@ public class FarskapsportalControllerTest {
           .getDokument()
           .getSigneringsinformasjonFar()
           .setSigneringstidspunkt(LocalDateTime.now());
-      signertFarskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold(
-                      "Jeg erklærer med dette farskap til barnet".getBytes(StandardCharsets.UTF_8))
-                  .build());
 
       persistenceService.lagreNyFarskapserklaering(signertFarskapserklaering);
 
@@ -1007,12 +982,6 @@ public class FarskapsportalControllerTest {
           .getSigneringsinformasjonMor()
           .setSigneringstidspunkt(LocalDateTime.now().minusDays(3));
 
-      farskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       persistenceService.lagreNyFarskapserklaering(
           farskapserklaeringSomVenterPaaFarMedFoedekjoennKvinne);
 
@@ -1023,12 +992,6 @@ public class FarskapsportalControllerTest {
           .getSigneringsinformasjonMor()
           .setSigneringstidspunkt(LocalDateTime.now().minusDays(3));
 
-      farskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       persistenceService.lagreNyFarskapserklaering(
           farskapserklaeringMedMorSomNaaErMannVenterPaaFarsSignering);
 
@@ -2053,12 +2016,6 @@ public class FarskapsportalControllerTest {
           .setSigneringstidspunkt(null);
 
       var lagretFarskapserklaering = farskapserklaeringDao.save(farskapserklaeringUtenSignaturer);
-      lagretFarskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet...".getBytes())
-                  .build());
       lagretFarskapserklaering.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
       farskapserklaeringDao.save(lagretFarskapserklaering);
 
@@ -2106,7 +2063,7 @@ public class FarskapsportalControllerTest {
                   .build());
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(lagretFarskapserklaering.getDokument().getDokumentinnhold().getInnhold());
+          .thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
 
       // when
       var respons =
@@ -2161,12 +2118,6 @@ public class FarskapsportalControllerTest {
               henteForelder(Forelderrolle.MOR),
               henteForelder(Forelderrolle.FAR),
               henteBarnUtenFnr(5));
-      farskapserklaeringSignertAvMor
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet..".getBytes())
-                  .build());
       farskapserklaeringSignertAvMor.getDokument().setStatusUrl("https://esignering.no/status");
       farskapserklaeringSignertAvMor
           .getDokument()
@@ -2218,8 +2169,7 @@ public class FarskapsportalControllerTest {
                   .build());
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(
-              lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
+          .thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
 
       // when
       var respons =
@@ -2275,12 +2225,6 @@ public class FarskapsportalControllerTest {
       lagretFarskapserklaeringSignertAvMor
           .getDokument()
           .setStatusUrl(lageUrl(wiremockPort, "/status"));
-      lagretFarskapserklaeringSignertAvMor
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet...".getBytes())
-                  .build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var lagretOppgavebestilling =
@@ -2343,8 +2287,7 @@ public class FarskapsportalControllerTest {
                   .build());
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(
-              lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
+          .thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
 
       // when
       var respons =
@@ -2403,12 +2346,6 @@ public class FarskapsportalControllerTest {
       var nyopprettetFarskapserklaering =
           farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
       nyopprettetFarskapserklaering.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
-      nyopprettetFarskapserklaering
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet...".getBytes())
-                  .build());
       var farskapserklaering = farskapserklaeringDao.save(nyopprettetFarskapserklaering);
 
       var registrertNavnMor = NAVN_MOR;
@@ -2502,12 +2439,6 @@ public class FarskapsportalControllerTest {
       var farskapserklaeringSignertAvMor =
           farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
       farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
-      farskapserklaeringSignertAvMor
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet...".getBytes())
-                  .build());
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NAVN_FAR;
@@ -2601,12 +2532,6 @@ public class FarskapsportalControllerTest {
       var farskapserklaeringSignertAvMor =
           farskapserklaeringDao.save(bestillingAvNyFarskapserklaering);
       farskapserklaeringSignertAvMor.getDokument().setStatusUrl(lageUrl(wiremockPort, "/status"));
-      farskapserklaeringSignertAvMor
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet...".getBytes())
-                  .build());
       farskapserklaeringDao.save(farskapserklaeringSignertAvMor);
 
       var registrertNavnFar = NAVN_FAR;
@@ -2687,12 +2612,6 @@ public class FarskapsportalControllerTest {
       lagretFarskapserklaeringSignertAvMor
           .getDokument()
           .setStatusUrl(lageUrl(wiremockPort, "/status"));
-      lagretFarskapserklaeringSignertAvMor
-          .getDokument()
-          .setDokumentinnhold(
-              Dokumentinnhold.builder()
-                  .innhold("Jeg erklærer med dette farskap til barnet...".getBytes())
-                  .build());
       farskapserklaeringDao.save(lagretFarskapserklaeringSignertAvMor);
 
       var lagretOppgavebestilling =
@@ -2739,8 +2658,7 @@ public class FarskapsportalControllerTest {
           .thenThrow(new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_DATA));
 
       when(difiESignaturConsumer.henteSignertDokument(any()))
-          .thenReturn(
-              lagretFarskapserklaeringSignertAvMor.getDokument().getDokumentinnhold().getInnhold());
+          .thenReturn("Jeg erklærer med dette farskap til barnet..".getBytes());
 
       // when
       var respons =

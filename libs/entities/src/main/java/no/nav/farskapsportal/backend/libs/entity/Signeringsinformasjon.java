@@ -34,9 +34,6 @@ public class Signeringsinformasjon {
 
   private String undertegnerUrl;
 
-  @Column(length = 100000000)
-  private byte[] xadesXml;
-
   @OneToOne(cascade = CascadeType.ALL)
   private BlobIdGcp blobIdGcp;
 }

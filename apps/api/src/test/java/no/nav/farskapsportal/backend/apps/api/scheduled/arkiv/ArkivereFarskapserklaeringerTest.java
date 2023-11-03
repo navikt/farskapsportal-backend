@@ -84,39 +84,6 @@ public class ArkivereFarskapserklaeringerTest {
             .build();
   }
 
-  private Farskapserklaering henteDeaktivertFarskapserklaeringSomHarBlittSendtTilSkatt() {
-    var farskapserklaering =
-        henteFarskapserklaering(
-            henteForelder(Forelderrolle.MOR),
-            henteForelder(Forelderrolle.FAR),
-            henteBarnUtenFnr(5));
-    farskapserklaering
-        .getDokument()
-        .setDokumentinnhold(
-            Dokumentinnhold.builder()
-                .innhold("Jeg erklærer farskap til barnet".getBytes(StandardCharsets.UTF_8))
-                .build());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonMor()
-        .setSigneringstidspunkt(LocalDateTime.now().minusMonths(2));
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonMor()
-        .setXadesXml("jeg har signert".getBytes());
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setSigneringstidspunkt(LocalDateTime.now().minusMonths(2));
-    farskapserklaering
-        .getDokument()
-        .getSigneringsinformasjonFar()
-        .setXadesXml("jag har signerad".getBytes());
-    farskapserklaering.setDeaktivert(LocalDateTime.now().minusDays(55));
-    farskapserklaering.setSendtTilSkatt(LocalDateTime.now().minusDays(59));
-    return farskapserklaering;
-  }
-
   private Farskapserklaering henteFarskapserklaeringNyfoedtSignertAvMor(String persnrBarn) {
     var farskapserklaering =
         henteFarskapserklaering(
