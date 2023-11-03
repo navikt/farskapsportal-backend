@@ -257,24 +257,11 @@ public class PersistenceService {
         }
       }
 
-      // TODO: Fjerne etter fullført bucket-migrering
-      sletteDokumentinnholdFraDatabase(farskapserklaering.get());
-
       farskapserklaering.get().setDokumenterSlettet(LocalDateTime.now());
     } else {
       log.error("Fant ikke deaktivert farskapserklæring med id {}", idFarskapserklaering);
       throw new IllegalStateException("Fant ikke farskapserklæring");
     }
-  }
-
-  // TODO: Fjernes etter fullført bucket-migrering
-  @Deprecated
-  private void sletteDokumentinnholdFraDatabase(Farskapserklaering farskapserklaering) {
-    if (farskapserklaering.getDokument().getDokumentinnhold() != null) {
-      farskapserklaering.getDokument().getDokumentinnhold().setInnhold(null);
-    }
-    farskapserklaering.getDokument().getSigneringsinformasjonMor().setXadesXml(null);
-    farskapserklaering.getDokument().getSigneringsinformasjonFar().setXadesXml(null);
   }
 
   public Oppgavebestilling lagreNyOppgavebestilling(int idFarskapserklaering, String eventId) {
@@ -320,13 +307,6 @@ public class PersistenceService {
         morSendtTilSigneringFoer);
   }
 
-  // TODO: Oppdatere uttrekk etter fullført bucket-migrering
-  public Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-      LocalDateTime deaktivertFoer) {
-    return farskapserklaeringDao.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
-        deaktivertFoer);
-  }
-
   @Transactional
   public void setteOppgaveTilFerdigstilt(String eventId) {
     var aktiveOppgaver = oppgavebestillingDao.henteOppgavebestilling(eventId);
@@ -337,6 +317,12 @@ public class PersistenceService {
       log.warn(
           "Fant ingen oppgavebestilling med eventId {}, ferdigstiltstatus ble ikke satt!", eventId);
     }
+  }
+
+  public Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+      LocalDateTime deaktivertFoer) {
+    return farskapserklaeringDao.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+        deaktivertFoer);
   }
 
   public void oppdatereMeldingslogg(LocalDateTime tidspunktForOverfoering, String meldingsidSkatt) {
