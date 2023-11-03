@@ -3,7 +3,7 @@ ingress: https://farskapsportal-api.intern.nav.no
 gcp:
   secretmanager.host: secretmanager.googleapis.com
   sql-instances:
-    name: fp-prod-15
+    name: farskapsportal-prod
     tier: db-custom-1-3840
     type: POSTGRES_15
     databases:
