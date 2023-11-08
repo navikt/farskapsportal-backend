@@ -28,7 +28,7 @@
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
-        <java.version>20</java.version>
+        <java.version>21</java.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.11.0</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
@@ -273,7 +273,7 @@
             <plugin>
                 <groupId>com.spotify.fmt</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
-                <version>2.20</version>
+                <version>2.21.1</version>
                 <executions>
                     <execution>
                         <goals>
