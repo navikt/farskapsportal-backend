@@ -666,7 +666,9 @@ public class FarskapsportalService {
           .setStatusSignering(dokumentStatusDto.getStatusSignering().toString());
       farskapserklaering.setDeaktivert(LocalDateTime.now());
 
-      log.warn("Deaktiverer farskapserklaering {id: } med signeringsstauts FEILET hos Posten.", farskapserklaering.getId());
+      log.warn(
+          "Deaktiverer farskapserklaering (id: {}) med signeringsstauts FEILET hos Posten.",
+          farskapserklaering.getId());
 
       if (rolle.equals(Rolle.FAR)) {
         farskapserklaering
