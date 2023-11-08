@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.4</version>
+        <version>3.1.5</version>
     </parent>
     <groupId>no.nav.farskapsportal.backend</groupId>
     <artifactId>farskapsportal-backend</artifactId>
@@ -40,7 +40,7 @@
         <google.errorprone.annotations.version>2.22.0</google.errorprone.annotations.version>
         <google.guava.version>32.1.3-jre</google.guava.version>
         <javassist.version>3.29.2-GA</javassist.version>
-        <jetty-client.version>12.0.1</jetty-client.version>
+        <jetty-client.version>12.0.3</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.12</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
