@@ -32,7 +32,7 @@
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.11.0</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <checker-qual.version>3.39.0</checker-qual.version>
+        <checker-qual.version>3.40.0</checker-qual.version>
         <commons-cli.version>1.6.0</commons-cli.version>
         <jackson-core.version>2.14.3</jackson-core.version>
         <modelmapper.version>3.1.1</modelmapper.version>
