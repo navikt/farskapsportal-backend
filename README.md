@@ -127,3 +127,8 @@ standard konstruktør, og gi feil "(no Creators, like default construct, exist)"
  
 ### Deploy
 NAIS_API_KEY hentes fra https://deploy.nais.io/apikeys
+
+### Rutiner
+
+Fornye virksomhetssertifikat for Posten og Skatt
+ - Meld fra til Slack-kanal: #SOC, e-post til soc@nav.no, eller opprett sak via Porten: https://jira.adeo.no/plugins/servlet/desk/portal/601/create/3702
