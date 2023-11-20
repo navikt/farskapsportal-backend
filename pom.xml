@@ -19,11 +19,11 @@
     </modules>
     <properties>
         <!-- navikt -->
-        <token-support.version>3.1.7</token-support.version>
+        <token-support.version>3.1.8</token-support.version>
         <bidrag-commons.version>20230612111733_79de014</bidrag-commons.version>
 
         <!-- other -->
-        <apache.commons-io.version>2.14.0</apache.commons-io.version>
+        <apache.commons-io.version>2.15.0</apache.commons-io.version>
         <apache.commons-lang.version>3.13.0</apache.commons-lang.version>
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
@@ -34,7 +34,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.40.0</checker-qual.version>
         <commons-cli.version>1.6.0</commons-cli.version>
-        <jackson-core.version>2.14.3</jackson-core.version>
+        <jackson-core.version>2.16.0</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.22.0</google.errorprone.annotations.version>
