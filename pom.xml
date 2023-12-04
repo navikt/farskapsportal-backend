@@ -24,7 +24,7 @@
 
         <!-- other -->
         <apache.commons-io.version>2.15.0</apache.commons-io.version>
-        <apache.commons-lang.version>3.13.0</apache.commons-lang.version>
+        <apache.commons-lang.version>3.14.0</apache.commons-lang.version>
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
