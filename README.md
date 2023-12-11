@@ -55,6 +55,9 @@ For kjøring med profilen "local" må et lokalt Docker-miljø være tilgjengelig
 
 før testappen FarskapsportalApplicationLocal startes.
 
+Kjøre fmt-maven-plugin:
+> mvn fmt:format
+
 ##### Brukernotifikasjon
 
 Brukernotifikasjoner kan skrus av ved å sette miljøvariabelen BRUKERNOTIFIKASJON_PAA til false.

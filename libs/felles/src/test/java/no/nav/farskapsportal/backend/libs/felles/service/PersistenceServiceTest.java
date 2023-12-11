@@ -641,6 +641,26 @@ public class PersistenceServiceTest {
 
       assertThat(farskapserklaeringMedSlettedeDokumenter.get().getDokumenterSlettet()).isNotNull();
     }
+
+    @Test
+    void uttrekkForSlettingSkalIkkeInneholdeAktiveErklæringer() {
+
+      // given
+      var lagretFarskapserklaering = lagreFarskapserklaering();
+      lagretFarskapserklaering.setSendtTilSkatt(LocalDateTime.now());
+
+      assert (lagretFarskapserklaering.getDeaktivert() == null);
+
+      farskapserklaeringDao.save(lagretFarskapserklaering);
+
+      // when
+      var idTilErklæringerSomSkalSlettes =
+          persistenceService.henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(
+              LocalDateTime.now());
+
+      // then
+      assertThat(idTilErklæringerSomSkalSlettes.size()).isEqualTo(0);
+    }
   }
 
   @Nested
