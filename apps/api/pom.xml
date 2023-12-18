@@ -15,7 +15,7 @@
         <!-- build -->
         <flyway-maven-plugin.version>9.22.3</flyway-maven-plugin.version>
         <maven.surefire.version>3.2.1</maven.surefire.version>
-        <build-helper-maven.version>3.4.0</build-helper-maven.version>
+        <build-helper-maven.version>3.5.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
