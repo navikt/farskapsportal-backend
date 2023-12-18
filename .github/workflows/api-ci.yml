@@ -45,6 +45,7 @@ jobs:
       - name: Maven clean install
         run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml clean install
       - uses: nais/docker-build-push@v0
+        if: ${{ github.actor != 'dependabot[bot]' }}
         id: docker-push
         with:
           team: farskapsportal
