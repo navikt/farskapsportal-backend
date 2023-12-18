@@ -94,7 +94,7 @@ public interface FarskapserklaeringDao extends CrudRepository<Farskapserklaering
       "select fe.id from Farskapserklaering fe "
           + "where fe.deaktivert is not null "
           + "and fe.deaktivert < :deaktivertFoer "
-          + "and (fe.dokument.blobIdGcp != null or fe.dokument.signeringsinformasjonFar.blobIdGcp != null or fe.dokument.signeringsinformasjonMor.blobIdGcp != null)"
+          + "and (fe.dokument.blobIdGcp is not null or fe.dokument.signeringsinformasjonFar.blobIdGcp is not null or fe.dokument.signeringsinformasjonMor.blobIdGcp is not null) "
           + "order by fe.dokument.signeringsinformasjonFar.signeringstidspunkt asc")
   Set<Integer> henteIdTilFarskapserklaeringerDokumenterSkalSlettesFor(LocalDateTime deaktivertFoer);
 }
