@@ -62,7 +62,7 @@ jobs:
           path: deploy
       - name: Deploy main to dev-gcp
         if: github.ref == 'refs/heads/main'
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
@@ -71,7 +71,7 @@ jobs:
           IMAGE: ${{ needs.build.outputs.image }}
       - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
