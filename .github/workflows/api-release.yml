@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: deploy
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
