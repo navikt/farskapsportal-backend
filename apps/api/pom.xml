@@ -13,8 +13,8 @@
 
     <properties>
         <!-- build -->
-        <flyway.version>10.4.0</flyway.version>
-        <maven.surefire.version>3.2.1</maven.surefire.version>
+        <flyway.version>10.4.1</flyway.version>
+        <maven.surefire.version>3.2.3</maven.surefire.version>
         <build-helper-maven.version>3.5.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -22,11 +22,11 @@
         <!-- other -->
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <google-cloud-libraries-bom.version>26.28.0</google-cloud-libraries-bom.version>
-        <jsoup.version>1.16.2</jsoup.version>
+        <jsoup.version>1.17.1</jsoup.version>
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
-        <springdoc-openapi-ui.version>2.2.0</springdoc-openapi-ui.version>
+        <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
         <jaxb-impl.version>2.3.8</jaxb-impl.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-core.version>4.0.4</jaxb-core.version>
