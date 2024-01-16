@@ -713,8 +713,8 @@ public class FarskapsportalService {
     var sivilstand = personopplysningService.henteSivilstand(foedselsnummer);
     switch (sivilstand.getType()) {
       case GIFT -> throw new ValideringException(Feilkode.MOR_SIVILSTAND_GIFT);
-      case REGISTRERT_PARTNER ->
-          throw new ValideringException(Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER);
+      case REGISTRERT_PARTNER -> throw new ValideringException(
+          Feilkode.MOR_SIVILSTAND_REGISTRERT_PARTNER);
       case UOPPGITT -> throw new ValideringException(Feilkode.MOR_SIVILSTAND_UOPPGITT);
     }
   }

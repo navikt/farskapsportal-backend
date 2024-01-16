@@ -28,13 +28,14 @@
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
+        <commons-compress.version>1.24.0</commons-compress.version>
         <java.version>21</java.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.12.1</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.42.0</checker-qual.version>
         <commons-cli.version>1.6.0</commons-cli.version>
-        <jackson-core.version>2.16.1</jackson-core.version>
+        <jackson-core.version>2.16.0</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.22.0</google.errorprone.annotations.version>
@@ -58,6 +59,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
             <dependency>
                 <groupId>no.nav.bidrag</groupId>
                 <artifactId>bidrag-commons</artifactId>
@@ -275,7 +281,7 @@
             <plugin>
                 <groupId>com.spotify.fmt</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
-                <version>2.22</version>
+                <version>2.21.1</version>
                 <executions>
                     <execution>
                         <goals>
