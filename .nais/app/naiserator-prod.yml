@@ -30,10 +30,10 @@ spec:
     path: /internal/actuator/prometheus
   resources:
     limits:
-      cpu: 1000m
+      cpu: 500
       memory: 2048Mi
     requests:
-      cpu: 500m
+      cpu: 250
       memory: 1024Mi
   secureLogs:
     enabled: true
