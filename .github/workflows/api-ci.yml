@@ -55,6 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
     needs: build
+    permissions:
+      contents: "read"
+      id-token: "write"
 
     steps:
       - uses: actions/checkout@v4
