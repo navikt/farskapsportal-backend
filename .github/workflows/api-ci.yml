@@ -55,6 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
     needs: build
+    permissions:
+      contents: "read"
+      id-token: "write"
 
     steps:
       - uses: actions/checkout@v4
@@ -62,18 +65,16 @@ jobs:
           path: deploy
       - name: Deploy main to dev-gcp
         if: github.ref == 'refs/heads/main'
-        uses: nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/app/naiserator-dev.yml
           VARS: deploy/.nais/app/main.yml
           IMAGE: ${{ needs.build.outputs.image }}
       - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'
-        uses: nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/app/naiserator-dev.yml
           VARS: deploy/.nais/app/feature.yml
