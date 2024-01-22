@@ -10,7 +10,6 @@ spec:
     - name: farskapsportal-varsler
       rules:
         - alert: Applikasjon nede
-          description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
           expr: kube_deployment_status_replicas_available{deployment=~"farskapsportal.+"} == 0
           for: 2m
           annotations:
@@ -28,7 +27,6 @@ spec:
             nav_status: down # Feilstatus down|issue
 
         - alert: Høy feilrate i logger
-          description: "App {{ $labels.log_app }} har høy feilrate i logger"
           expr: (100 * sum by (app, namespace) (rate(log_messages_errors{namespace="farskapsportal", level="Error"}[5m])) / sum by (app, namespace) (rate(log_messages_total{namespace="farskapsportal"}[5m]))) > 3
           for: 2m
           annotations:
@@ -46,10 +44,9 @@ spec:
 
         - alert: Høy andel HTTP serverfeil (5xx responser)
           expr: (100 * (sum by (service) (rate(nginx_ingress_controller_requests{status=~"^5\\d\\d", namespace="farskapsportal", service!="asynkron"}[3m])) / sum by (service) (rate(nginx_ingress_controller_requests{status=~"^5\\d\\d", namespace="farskapsportal"}[3m])))) > 3
-          description: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
-          action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
           for: 4m
           annotations:
+            action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
             consequence: "App {{ $labels.backend }} har høy andel HTTP serverfeil (5xx responser)"
             summary: |-
               Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP (5xx responser) feilresponser: https://logs.adeo.no/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h,to:now))&_a=(columns:!(message,envclass,level,application,host),filters:!(),index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'application:%20%22controller%22%20and%20response_code%20%3E%3D%20500%20and%20x_ingress_namespace:%20%22farskapsportal%22%20and%20not%20%22actuator%22%20and%20envclass:%20%22q%22'),sort:!(!('@timestamp',desc))) <-
