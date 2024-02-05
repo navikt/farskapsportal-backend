@@ -47,7 +47,7 @@
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>5.0.1</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.1.0</spring-cloud-starter.version>
-        <google-oauth-client.version>1.34.1</google-oauth-client.version>
+        <google-oauth-client.version>1.35.0</google-oauth-client.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <wiremock-jre8-standalone.version>2.35.1</wiremock-jre8-standalone.version>
         <spring-cloud-contract-wiremock.version>4.1.0</spring-cloud-contract-wiremock.version>
