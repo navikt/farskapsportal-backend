@@ -41,7 +41,7 @@
         <google.errorprone.annotations.version>2.22.0</google.errorprone.annotations.version>
         <google.guava.version>33.0.0-jre</google.guava.version>
         <javassist.version>3.30.2-GA</javassist.version>
-        <jetty-client.version>12.0.5</jetty-client.version>
+        <jetty-client.version>12.0.6</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.12</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
