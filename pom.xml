@@ -28,7 +28,7 @@
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
-        <commons-compress.version>1.25.0</commons-compress.version>
+        <commons-compress.version>1.26.0</commons-compress.version>
         <java.version>21</java.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.12.1</maven-compiler-plugin.version.version>
@@ -41,15 +41,15 @@
         <google.errorprone.annotations.version>2.22.0</google.errorprone.annotations.version>
         <google.guava.version>33.0.0-jre</google.guava.version>
         <javassist.version>3.30.2-GA</javassist.version>
-        <jetty-client.version>12.0.5</jetty-client.version>
+        <jetty-client.version>12.0.6</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
-        <scala.version>2.13.12</scala.version>
+        <scala.version>2.13.13</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>5.0.2</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.1.1</spring-cloud-starter.version>
         <google-oauth-client.version>1.35.0</google-oauth-client.version>
         <okhttp3.version>4.12.0</okhttp3.version>
-        <wiremock-jre8-standalone.version>2.35.1</wiremock-jre8-standalone.version>
+        <wiremock-jre8-standalone.version>2.35.2</wiremock-jre8-standalone.version>
         <spring-cloud-contract-wiremock.version>4.1.0</spring-cloud-contract-wiremock.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
