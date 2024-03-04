@@ -21,8 +21,6 @@
 
         <!-- other -->
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
-        <google-cloud-libraries-bom.version>26.33.0</google-cloud-libraries-bom.version>
-        <jsoup.version>1.17.1</jsoup.version>
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
@@ -102,13 +100,6 @@
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>libraries-bom</artifactId>
-                <version>${google-cloud-libraries-bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>
@@ -315,7 +306,6 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
         </dependency>
 
         <dependency>
