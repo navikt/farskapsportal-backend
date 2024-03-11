@@ -13,7 +13,7 @@
 
     <properties>
         <!-- build -->
-        <flyway.version>10.8.1</flyway.version>
+        <flyway.version>10.9.1</flyway.version>
         <maven.surefire.version>3.2.5</maven.surefire.version>
         <build-helper-maven.version>3.5.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +25,6 @@
         <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
         <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
-        <jaxb-impl.version>2.3.8</jaxb-impl.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-core.version>4.0.4</jaxb-core.version>
         <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
@@ -249,7 +248,6 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb-impl.version}</version>
         </dependency>
 
         <dependency>
