@@ -38,12 +38,14 @@
         <commons-cli.version>1.6.0</commons-cli.version>
         <jackson-core.version>2.16.0</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
+        <google-api-services-storage.version>v1-rev20240307-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
         <google.guava.version>33.0.0-jre</google.guava.version>
         <google-cloud-libraries-bom.version>26.33.0</google-cloud-libraries-bom.version>
         <javassist.version>3.30.2-GA</javassist.version>
-        <jetty-client.version>12.0.6</jetty-client.version>
+        <jaxb-impl.version>2.3.9</jaxb-impl.version>
+        <jetty-client.version>12.0.7</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.13</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
@@ -126,6 +128,16 @@
                 <version>${jackson-core.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb-impl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-storage</artifactId>
+                <version>${google-api-services-storage.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.oauth-client</groupId>
@@ -295,7 +307,7 @@
             <plugin>
                 <groupId>com.spotify.fmt</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
-                <version>2.22.1</version>
+                <version>2.23</version>
                 <executions>
                     <execution>
                         <goals>
