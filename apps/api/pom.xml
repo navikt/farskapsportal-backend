@@ -13,7 +13,6 @@
 
     <properties>
         <!-- build -->
-        <flyway.version>10.9.1</flyway.version>
         <maven.surefire.version>3.2.5</maven.surefire.version>
         <build-helper-maven.version>3.5.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,9 +24,6 @@
         <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
         <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
-        <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <jaxb-core.version>4.0.4</jaxb-core.version>
-        <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
 
         <!-- test -->
         <bidrag-commons-test.version>1.20230511093912_dc35d81</bidrag-commons-test.version>
@@ -177,28 +173,23 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway.version}</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator-parent</artifactId>
             <type>pom</type>
         </dependency>
-
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -242,7 +233,6 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>${jaxb-api.version}</version>
         </dependency>
 
         <dependency>
@@ -253,13 +243,11 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
-            <version>${jaxb-core.version}</version>
         </dependency>
 
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta.xml.bind-api.version}</version>
         </dependency>
         <dependency>
             <!-- ALWAYS required, usually included transitively. -->
