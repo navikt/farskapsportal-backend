@@ -36,7 +36,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.42.0</checker-qual.version>
         <commons-cli.version>1.6.0</commons-cli.version>
-        <jackson-core.version>2.16.0</jackson-core.version>
+        <jackson-core.version>2.17.0</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
         <google-api-services-storage.version>v1-rev20240307-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
