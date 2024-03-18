@@ -38,7 +38,7 @@
         <commons-cli.version>1.6.0</commons-cli.version>
         <jackson-core.version>2.16.0</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
-        <google-api-services-storage.version>v1-rev20240307-2.0.0</google-api-services-storage.version>
+        <google-api-services-storage.version>v1-rev20240311-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
         <google.guava.version>33.0.0-jre</google.guava.version>
