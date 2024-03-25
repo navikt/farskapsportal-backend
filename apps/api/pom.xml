@@ -19,7 +19,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- other -->
-        <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
+        <apache-pdfbox.version>3.0.2</apache-pdfbox.version>
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
