@@ -42,13 +42,13 @@
         <google-api-services-storage.version>v1-rev20240311-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
-        <google.guava.version>33.0.0-jre</google.guava.version>
+        <google.guava.version>33.1.0-jre</google.guava.version>
         <google-cloud-libraries-bom.version>26.33.0</google-cloud-libraries-bom.version>
         <javassist.version>3.30.2-GA</javassist.version>
         <jaxb-impl.version>2.3.9</jaxb-impl.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-core.version>4.0.5</jaxb-core.version>
-        <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <jetty-client.version>12.0.7</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.13</scala.version>
@@ -62,7 +62,7 @@
         <httpclient5.version>5.2.1</httpclient5.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
         <shedlock.version>5.12.0</shedlock.version>
-        <testcontainers.version>1.19.6</testcontainers.version>
+        <testcontainers.version>1.19.7</testcontainers.version>
     </properties>
 
     <dependencyManagement>
