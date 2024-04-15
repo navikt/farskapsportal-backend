@@ -23,7 +23,6 @@
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
-        <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
 
         <!-- test -->
         <bidrag-commons-test.version>1.20230511093912_dc35d81</bidrag-commons-test.version>
@@ -297,7 +296,6 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc-openapi-ui.version}</version>
         </dependency>
 
         <!-- test -->

@@ -54,14 +54,15 @@
         <scala.version>2.13.13</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>5.0.2</google-spring-cloud-gcp.version>
-        <spring-cloud-starter.version>4.1.1</spring-cloud-starter.version>
+        <spring-cloud-starter.version>4.1.2</spring-cloud-starter.version>
+        <springdoc-openapi-ui.version>2.5.0</springdoc-openapi-ui.version>
         <google-oauth-client.version>1.35.0</google-oauth-client.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <wiremock-jre8-standalone.version>2.35.2</wiremock-jre8-standalone.version>
         <spring-cloud-contract-wiremock.version>4.1.0</spring-cloud-contract-wiremock.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
-        <shedlock.version>5.12.0</shedlock.version>
+        <shedlock.version>5.13.0</shedlock.version>
         <testcontainers.version>1.19.7</testcontainers.version>
     </properties>
 
@@ -217,6 +218,11 @@
                 <version>${google-spring-cloud-gcp.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi-ui.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
