@@ -29,7 +29,7 @@
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
         <commons-compress.version>1.26.1</commons-compress.version>
-        <flyway.version>10.11.0</flyway.version>
+        <flyway.version>10.11.1</flyway.version>
         <java.version>21</java.version>
         <jsoup.version>1.17.2</jsoup.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
