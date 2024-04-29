@@ -28,15 +28,18 @@
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
+        <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
         <commons-compress.version>1.26.1</commons-compress.version>
-        <flyway.version>10.11.0</flyway.version>
+        <flyway.version>10.11.1</flyway.version>
         <java.version>21</java.version>
         <jsoup.version>1.17.2</jsoup.version>
+        <kafka-avro-serializer.version>7.5.0</kafka-avro-serializer.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.13.0</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.42.0</checker-qual.version>
         <commons-cli.version>1.7.0</commons-cli.version>
+        <hikaricp.version>5.1.0</hikaricp.version>
         <jackson-core.version>2.17.0</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
         <google-api-services-storage.version>v1-rev20240311-2.0.0</google-api-services-storage.version>
@@ -44,6 +47,8 @@
         <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
         <google.guava.version>33.1.0-jre</google.guava.version>
         <google-cloud-libraries-bom.version>26.37.0</google-cloud-libraries-bom.version>
+        <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
+        <google-tink.version>1.13.0</google-tink.version>
         <javassist.version>3.30.2-GA</javassist.version>
         <jaxb-impl.version>2.3.9</jaxb-impl.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
@@ -99,6 +104,11 @@
                 <version>${token-support.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.github.navikt</groupId>
+                <artifactId>brukernotifikasjon-schemas</artifactId>
+                <version>${brukernotifikasjon-schemas.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
             </dependency>
@@ -126,6 +136,16 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${apache.commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-avro-serializer</artifactId>
+                <version>${kafka-avro-serializer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${hikaricp.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
@@ -185,6 +205,16 @@
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
                 <version>${google.errorprone.annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.crypto.tink</groupId>
+                <artifactId>tink</artifactId>
+                <version>${google-tink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.crypto.tink</groupId>
+                <artifactId>tink-gcpkms</artifactId>
+                <version>${google-tink-gcpkms.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.javacrumbs.shedlock</groupId>
