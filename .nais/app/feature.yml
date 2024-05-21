@@ -30,7 +30,7 @@ env:
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN
     value: farskap-keystore-credentials-json
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
-    value: "2"
+    value: "3"
   - name: ESIGNERING_SUKSESS_URL
     value: https://farskapsportal-feature.ekstern.dev.nav.no/suksess
   - name: ESIGNERING_AVBRUTT_URL
