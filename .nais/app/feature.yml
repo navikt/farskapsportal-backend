@@ -24,13 +24,13 @@ env:
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN
     value: test-virksomhetssertifikat-felles-keystore-jceks_2018-2021
   - name: VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_VERSJON
-    value: "3"
+    value: "4"
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_PROSJEKT_ID
-    value: "627047445397"
+    value: "719909854975"
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_NAVN
-    value: farskap-keystore-credentials-json
+    value: test-keystore-credentials-json
   - name: VIRKSOMHETSSERTIFIKAT_PASSORD_HEMMELIGHET_VERSJON
-    value: "2"
+    value: "3"
   - name: ESIGNERING_SUKSESS_URL
     value: https://farskapsportal-feature.ekstern.dev.nav.no/suksess
   - name: ESIGNERING_AVBRUTT_URL

@@ -30,7 +30,7 @@
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
         <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
         <commons-compress.version>1.26.1</commons-compress.version>
-        <flyway.version>10.11.1</flyway.version>
+        <flyway.version>10.12.0</flyway.version>
         <java.version>21</java.version>
         <jsoup.version>1.17.2</jsoup.version>
         <kafka-avro-serializer.version>7.5.0</kafka-avro-serializer.version>
@@ -56,9 +56,9 @@
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <jetty-client.version>12.0.8</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
-        <scala.version>2.13.13</scala.version>
+        <scala.version>2.13.14</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
-        <google-spring-cloud-gcp.version>5.0.2</google-spring-cloud-gcp.version>
+        <google-spring-cloud-gcp.version>5.3.0</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.1.2</spring-cloud-starter.version>
         <springdoc-openapi-ui.version>2.5.0</springdoc-openapi-ui.version>
         <google-oauth-client.version>1.35.0</google-oauth-client.version>
