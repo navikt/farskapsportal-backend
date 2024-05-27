@@ -30,7 +30,7 @@
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
         <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
         <commons-compress.version>1.26.1</commons-compress.version>
-        <flyway.version>10.12.0</flyway.version>
+        <flyway.version>10.13.0</flyway.version>
         <java.version>21</java.version>
         <jsoup.version>1.17.2</jsoup.version>
         <kafka-avro-serializer.version>7.5.0</kafka-avro-serializer.version>
@@ -46,7 +46,7 @@
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
         <google.guava.version>33.1.0-jre</google.guava.version>
-        <google-cloud-libraries-bom.version>26.37.0</google-cloud-libraries-bom.version>
+        <google-cloud-libraries-bom.version>26.39.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
         <google-tink.version>1.13.0</google-tink.version>
         <javassist.version>3.30.2-GA</javassist.version>
@@ -54,7 +54,7 @@
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-core.version>4.0.5</jaxb-core.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
-        <jetty-client.version>12.0.8</jetty-client.version>
+        <jetty-client.version>12.0.9</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.14</scala.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>

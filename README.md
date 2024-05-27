@@ -133,5 +133,9 @@ NAIS_API_KEY hentes fra https://deploy.nais.io/apikeys
 
 ### Rutiner
 
-Fornye virksomhetssertifikat for Posten og Skatt
- - Meld fra til Slack-kanal: #SOC, e-post til soc@nav.no, eller opprett sak via Porten: https://jira.adeo.no/plugins/servlet/desk/portal/601/create/3702
+##### Virksomhetssertifkat
+ - Brukes i kommunikasjon med Posten og Skatt
+ - Fornye: Meld fra til Slack-kanal: #SOC, e-post til soc@nav.no, eller opprett sak via Porten: https://jira.adeo.no/plugins/servlet/desk/portal/601/create/3702
+ - Utløpsdato på gjeldende sertifikat i prod: lørdag 15. mai 2027 23:59:00
+
+
