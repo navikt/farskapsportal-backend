@@ -40,7 +40,7 @@
         <checker-qual.version>3.42.0</checker-qual.version>
         <commons-cli.version>1.7.0</commons-cli.version>
         <hikaricp.version>5.1.0</hikaricp.version>
-        <jackson-core.version>2.17.0</jackson-core.version>
+        <jackson-core.version>2.17.1</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
         <google-api-services-storage.version>v1-rev20240319-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
@@ -68,7 +68,8 @@
         <httpclient5.version>5.2.1</httpclient5.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
         <shedlock.version>5.13.0</shedlock.version>
-        <testcontainers.version>1.19.7</testcontainers.version>
+        <swagger.core.version>2.2.22</swagger.core.version>
+        <testcontainers.version>1.19.8</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -336,6 +337,12 @@
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp3.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>${swagger.core.version}</version>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>
