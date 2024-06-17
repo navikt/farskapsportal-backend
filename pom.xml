@@ -42,7 +42,7 @@
         <hikaricp.version>5.1.0</hikaricp.version>
         <jackson-core.version>2.17.1</jackson-core.version>
         <modelmapper.version>3.2.0</modelmapper.version>
-        <google-api-services-storage.version>v1-rev20240319-2.0.0</google-api-services-storage.version>
+        <google-api-services-storage.version>v1-rev20240524-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
         <google.guava.version>33.2.1-jre</google.guava.version>
