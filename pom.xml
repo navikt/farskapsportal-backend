@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.3.1</version>
     </parent>
     <groupId>no.nav.farskapsportal.backend</groupId>
     <artifactId>farskapsportal-backend</artifactId>
@@ -44,9 +44,9 @@
         <modelmapper.version>3.2.0</modelmapper.version>
         <google-api-services-storage.version>v1-rev20240524-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
-        <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
+        <google.errorprone.annotations.version>2.28.0</google.errorprone.annotations.version>
         <google.guava.version>33.2.1-jre</google.guava.version>
-        <google-cloud-libraries-bom.version>26.41.0</google-cloud-libraries-bom.version>
+        <google-cloud-libraries-bom.version>26.42.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
         <google-tink.version>1.13.0</google-tink.version>
         <javassist.version>3.30.2-GA</javassist.version>
@@ -57,7 +57,7 @@
         <jetty-client.version>12.0.10</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.14</scala.version>
-        <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+        <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>5.4.1</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.1.2</spring-cloud-starter.version>
         <springdoc-openapi-ui.version>2.5.0</springdoc-openapi-ui.version>
