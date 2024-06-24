@@ -57,7 +57,7 @@
         <jetty-client.version>12.0.10</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.14</scala.version>
-        <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+        <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>5.4.1</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.1.2</spring-cloud-starter.version>
         <springdoc-openapi-ui.version>2.5.0</springdoc-openapi-ui.version>
