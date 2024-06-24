@@ -46,7 +46,7 @@
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.25.0</google.errorprone.annotations.version>
         <google.guava.version>33.2.1-jre</google.guava.version>
-        <google-cloud-libraries-bom.version>26.41.0</google-cloud-libraries-bom.version>
+        <google-cloud-libraries-bom.version>26.42.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
         <google-tink.version>1.13.0</google-tink.version>
         <javassist.version>3.30.2-GA</javassist.version>
