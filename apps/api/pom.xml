@@ -13,13 +13,12 @@
 
     <properties>
         <!-- build -->
-        <maven.surefire.version>3.2.5</maven.surefire.version>
+        <maven.surefire.version>3.3.0</maven.surefire.version>
         <build-helper-maven.version>3.6.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- other -->
-        <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <openhtml.version>1.0.10</openhtml.version>
         <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
@@ -271,7 +270,6 @@
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>${apache-pdfbox.version}</version>
         </dependency>
 
         <dependency>

@@ -25,6 +25,7 @@
         <!-- other -->
         <apache.commons-io.version>2.16.1</apache.commons-io.version>
         <apache.commons-lang.version>3.14.0</apache.commons-lang.version>
+        <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
@@ -60,7 +61,7 @@
         <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>5.4.1</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.1.2</spring-cloud-starter.version>
-        <springdoc-openapi-ui.version>2.5.0</springdoc-openapi-ui.version>
+        <springdoc-openapi-ui.version>2.6.0</springdoc-openapi-ui.version>
         <google-oauth-client.version>1.36.0</google-oauth-client.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <wiremock-jre8-standalone.version>2.35.2</wiremock-jre8-standalone.version>
@@ -78,6 +79,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${apache-pdfbox.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.bidrag</groupId>
