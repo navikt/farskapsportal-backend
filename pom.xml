@@ -70,7 +70,7 @@
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
         <shedlock.version>5.13.0</shedlock.version>
         <swagger.core.version>2.2.22</swagger.core.version>
-        <testcontainers.version>1.19.8</testcontainers.version>
+        <testcontainers.version>1.20.0</testcontainers.version>
     </properties>
 
     <dependencyManagement>
