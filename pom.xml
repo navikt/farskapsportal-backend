@@ -25,7 +25,7 @@
         <!-- other -->
         <apache.commons-io.version>2.16.1</apache.commons-io.version>
         <apache.commons-lang.version>3.14.0</apache.commons-lang.version>
-        <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
+        <apache-pdfbox.version>3.0.3</apache-pdfbox.version>
         <asm.version>9.6</asm.version>
         <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
