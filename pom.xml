@@ -33,7 +33,7 @@
         <commons-compress.version>1.26.2</commons-compress.version>
         <flyway.version>10.17.0</flyway.version>
         <java.version>21</java.version>
-        <jsoup.version>1.17.2</jsoup.version>
+        <jsoup.version>1.18.1</jsoup.version>
         <kafka-avro-serializer.version>7.5.0</kafka-avro-serializer.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.13.0</maven-compiler-plugin.version.version>
