@@ -69,7 +69,7 @@
         <httpclient5.version>5.2.1</httpclient5.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
         <shedlock.version>5.16.0</shedlock.version>
-        <swagger.core.version>2.2.22</swagger.core.version>
+        <swagger.core.version>2.2.23</swagger.core.version>
         <testcontainers.version>1.20.1</testcontainers.version>
     </properties>
 
