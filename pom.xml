@@ -40,7 +40,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.48.0</checker-qual.version>
         <commons-cli.version>1.9.0</commons-cli.version>
-        <hikaricp.version>5.1.0</hikaricp.version>
+        <hikaricp.version>6.0.0</hikaricp.version>
         <jackson-core.version>2.18.0</jackson-core.version>
         <modelmapper.version>3.2.1</modelmapper.version>
         <google-api-services-storage.version>v1-rev20240924-2.0.0</google-api-services-storage.version>
