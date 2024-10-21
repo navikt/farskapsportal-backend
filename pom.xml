@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.1</version>
+        <version>3.3.4</version>
     </parent>
     <groupId>no.nav.farskapsportal.backend</groupId>
     <artifactId>farskapsportal-backend</artifactId>
@@ -31,7 +31,7 @@
         <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
         <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
         <commons-compress.version>1.27.1</commons-compress.version>
-        <flyway.version>10.19.0</flyway.version>
+        <flyway.version>10.20.0</flyway.version>
         <java.version>21</java.version>
         <jsoup.version>1.18.1</jsoup.version>
         <kafka-avro-serializer.version>7.5.0</kafka-avro-serializer.version>
@@ -70,7 +70,7 @@
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
         <shedlock.version>5.16.0</shedlock.version>
         <swagger.core.version>2.2.25</swagger.core.version>
-        <testcontainers.version>1.20.1</testcontainers.version>
+        <testcontainers.version>1.20.2</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -387,7 +387,7 @@
             <plugin>
                 <groupId>com.spotify.fmt</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
-                <version>2.24</version>
+                <version>2.25</version>
                 <executions>
                     <execution>
                         <goals>
