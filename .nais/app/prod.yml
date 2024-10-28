@@ -58,8 +58,6 @@ env:
     value: 30
   - name: DEAKTIVERINGSRATE
     value: "0 30 13 * * ?"
-  - name: DOKUMENTMIGRERINGSRATE
-    value: "0 15 12 * * ?"
   - name: DOKUMENTSLETTINGSRATE
     value: "0 30 8 * * ?"
   - name: OPPGAVEAPI_URL
