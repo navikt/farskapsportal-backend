@@ -38,16 +38,16 @@
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.13.0</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <checker-qual.version>3.48.0</checker-qual.version>
+        <checker-qual.version>3.48.2</checker-qual.version>
         <commons-cli.version>1.9.0</commons-cli.version>
         <hikaricp.version>6.0.0</hikaricp.version>
-        <jackson-core.version>2.18.0</jackson-core.version>
+        <jackson-core.version>2.18.1</jackson-core.version>
         <modelmapper.version>3.2.1</modelmapper.version>
         <google-api-services-storage.version>v1-rev20241008-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.33.0</google.errorprone.annotations.version>
         <google.guava.version>33.3.1-jre</google.guava.version>
-        <google-cloud-libraries-bom.version>26.48.0</google-cloud-libraries-bom.version>
+        <google-cloud-libraries-bom.version>26.50.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
         <google-tink.version>1.15.0</google-tink.version>
         <javassist.version>3.30.2-GA</javassist.version>
