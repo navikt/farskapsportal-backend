@@ -38,7 +38,7 @@
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.13.0</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <checker-qual.version>3.48.0</checker-qual.version>
+        <checker-qual.version>3.48.2</checker-qual.version>
         <commons-cli.version>1.9.0</commons-cli.version>
         <hikaricp.version>6.0.0</hikaricp.version>
         <jackson-core.version>2.18.1</jackson-core.version>
