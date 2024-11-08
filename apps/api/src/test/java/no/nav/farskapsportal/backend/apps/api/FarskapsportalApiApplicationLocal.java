@@ -148,7 +148,7 @@ public class FarskapsportalApiApplicationLocal {
   @AutoConfigureWireMock(port = 0)
   class MockOauthServerLocalConfig {
 
-    public MockOauthServerLocalConfig( @Autowired DifiESignaturStub difiESignaturStub) {
+    public MockOauthServerLocalConfig(@Autowired DifiESignaturStub difiESignaturStub) {
       difiESignaturStub.runGetSignedDocument(PADES);
       difiESignaturStub.runGetXades(XADES);
     }
@@ -165,6 +165,7 @@ public class FarskapsportalApiApplicationLocal {
             .withExposedPorts(4443)
             .withCreateContainerCmdModifier(
                 cmd -> cmd.withEntrypoint("/bin/fake-gcs-server", "-scheme", "http"));
+
     @Value("${APPNAVN}")
     private String appnavn;
 
