@@ -141,11 +141,9 @@ spring:
 ### H2 ###
 spring:
   config.activate.on-profile: test, local, skatt-ssl-test, scheduled-test
-  cloud.bootstrap.enabled: true
   flyway.enabled: false
   datasource:
     url: jdbc:h2:mem:default
-    datasource.type: com.zaxxer.hikari.HikariDataSource
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   data.jpa.repositories.bootstrap-mode: default

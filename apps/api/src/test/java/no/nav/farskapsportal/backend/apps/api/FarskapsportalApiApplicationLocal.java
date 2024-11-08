@@ -148,10 +148,7 @@ public class FarskapsportalApiApplicationLocal {
   @AutoConfigureWireMock(port = 0)
   class MockOauthServerLocalConfig {
 
-    @Autowired private DifiESignaturStub difiESignaturStub;
-
-    @Bean
-    public void runStubs() {
+    public MockOauthServerLocalConfig( @Autowired DifiESignaturStub difiESignaturStub) {
       difiESignaturStub.runGetSignedDocument(PADES);
       difiESignaturStub.runGetXades(XADES);
     }
@@ -162,15 +159,14 @@ public class FarskapsportalApiApplicationLocal {
   @Profile("!live")
   class LocalConfig {
 
-    @Value("${APPNAVN}")
-    private String appnavn;
-
     @Container
     static final GenericContainer<?> fakeGcs =
         new GenericContainer<>("fsouza/fake-gcs-server")
             .withExposedPorts(4443)
             .withCreateContainerCmdModifier(
                 cmd -> cmd.withEntrypoint("/bin/fake-gcs-server", "-scheme", "http"));
+    @Value("${APPNAVN}")
+    private String appnavn;
 
     private static void updateExternalUrlWithContainerUrl(String fakeGcsExternalUrl)
         throws Exception {

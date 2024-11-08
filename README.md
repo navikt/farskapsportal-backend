@@ -32,8 +32,9 @@ virksomhetssertifikat og passord, samt Postgres-bruker (e.g. kjør >kubectl -n f
 
 Endepunktene er dokumentert med Swagger, og kan testes lokalt og på GCP dev:
 
-- LOKALT: http://localhost:8080/swagger-ui.html
-- DEV: https://farskapsportal-api-feature.dev.nav.no/swagger-ui.html
+- LOKALT: http://localhost:8080/swagger-ui/index.html
+- DEV-feature: https://farskapsportal-api-feature.intern.dev.nav.no/swagger-ui/index.html
+- DEV: https://farskapsportal-api.intern.dev.nav.no/swagger-ui/index.html
 
 ### testpersoner
 Hent testpersoner fra Skatts Tenor testdata: https://www.skatteetaten.no/skjema/testdata/
@@ -57,6 +58,18 @@ før testappen FarskapsportalApplicationLocal startes.
 
 Kjøre fmt-maven-plugin:
 > mvn fmt:format
+
+Lokal-profilen bruker h2 (i-minnet-db). Admin-konsoll for h2 kan nås på 
+
+>http://localhost:8080/h2-console
+
+ - brukernavn: sa
+ - passord: 123
+
+![/readme/h2-pålogging.png](/readme/h2-pålogging.png)
+
+
+når lokal-profilen kjører.
 
 ##### Brukernotifikasjon
 
@@ -101,7 +114,7 @@ Ved lokal kjøring må Secret Manager være skrudd av. Dette gjøres i bootstrap
 gjelder alle profiler som ikke kjører på GCP (inkludert enhetstesting). For at dette skal fungere i Intellij, må active profiles settes i
 Run/Debug-konfigen som vist i bildet under:
 
-![img.png](img.png)
+![/readme/intellij-debug-config.png](/readme/intellij-debug-config.png)
 
 ##### Lokal kjøring mot Postgresdatabase på GCP
 Profilen remote-postgres kan brukes til å spinne opp en lokal instans av farskapsportal-api som benytter sentral postgres-instans på GCP. Denne krever 
