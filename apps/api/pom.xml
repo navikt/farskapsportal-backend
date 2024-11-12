@@ -20,7 +20,6 @@
 
         <!-- other -->
         <openhtml.version>1.0.10</openhtml.version>
-        <signature-api-client-java.version>7.0.3</signature-api-client-java.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
 
         <!-- test -->
@@ -225,7 +224,6 @@
         <dependency>
             <groupId>no.digipost.signature</groupId>
             <artifactId>signature-api-client-java</artifactId>
-            <version>${signature-api-client-java.version}</version>
         </dependency>
 
         <dependency>
