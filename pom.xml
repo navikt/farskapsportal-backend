@@ -23,7 +23,6 @@
         <bidrag-commons.version>20230612111733_79de014</bidrag-commons.version>
 
         <!-- other -->
-        <apache.commons-io.version>2.17.0</apache.commons-io.version>
         <apache.commons-lang.version>3.17.0</apache.commons-lang.version>
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <signature-api-client-bom.version>7.0.4</signature-api-client-bom.version>
@@ -142,7 +141,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>${apache.commons-io.version}</version>
+                <version>${commons-io.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.confluent</groupId>
@@ -376,12 +375,6 @@
                 <version>2.0.16</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.17.0</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
