@@ -41,7 +41,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.48.2</checker-qual.version>
         <commons-cli.version>1.9.0</commons-cli.version>
-        <hikaricp.version>6.1.0</hikaricp.version>
+        <hikaricp.version>6.2.0</hikaricp.version>
         <jackson-core.version>2.18.1</jackson-core.version>
         <modelmapper.version>3.2.1</modelmapper.version>
         <google-api-services-storage.version>v1-rev20241008-2.0.0</google-api-services-storage.version>
@@ -56,7 +56,7 @@
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-core.version>4.0.5</jaxb-core.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
-        <jetty-client.version>12.0.14</jetty-client.version>
+        <jetty-client.version>12.0.15</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.15</scala.version>
         <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
@@ -386,7 +386,7 @@
             <dependency>
                 <groupId>nl.jqno.equalsverifier</groupId>
                 <artifactId>equalsverifier</artifactId>
-                <version>3.17.1</version>
+                <version>3.17.3</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
