@@ -32,6 +32,7 @@
         <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
         <commons-compress.version>1.27.1</commons-compress.version>
         <commons-io.version>2.17.0</commons-io.version>
+        <equalsverifier.version>3.17.3</equalsverifier.version>
         <flyway.version>10.21.0</flyway.version>
         <java.version>21</java.version>
         <jsoup.version>1.18.1</jsoup.version>
@@ -41,8 +42,10 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.48.2</checker-qual.version>
         <commons-cli.version>1.9.0</commons-cli.version>
+        <hamcrest.version>3.0</hamcrest.version>
         <hikaricp.version>6.2.0</hikaricp.version>
         <jackson-core.version>2.18.2</jackson-core.version>
+        <junit-bom.version>5.11.3</junit-bom.version>
         <modelmapper.version>3.2.1</modelmapper.version>
         <google-api-services-storage.version>v1-rev20241008-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
@@ -59,6 +62,7 @@
         <jetty-client.version>12.0.15</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.15</scala.version>
+        <slf4j.version>2.0.16</slf4j.version>
         <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>5.8.0</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.1.4</spring-cloud-starter.version>
@@ -366,27 +370,27 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.11.3</version>
+                <version>${junit-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-bom</artifactId>
-                <version>2.0.16</version>
+                <version>${slf4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest</artifactId>
-                <version>3.0</version>
+                <version>${hamcrest.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>nl.jqno.equalsverifier</groupId>
                 <artifactId>equalsverifier</artifactId>
-                <version>3.17.3</version>
+                <version>${equalsverifier.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
