@@ -29,6 +29,7 @@ public class FarskapsportalFellesConfig {
 
   public static final String PROFILE_LIVE = "live";
   public static final String PROFILE_LOCAL = "local";
+  public static final String PROFILE_LOCAL_NAIS = "local-nais";
   public static final String PROFILE_INTEGRATION_TEST = "integration-test";
   public static final String PROFILE_TEST = "test";
   public static final String PROFILE_LOCAL_POSTGRES = "local-postgres";

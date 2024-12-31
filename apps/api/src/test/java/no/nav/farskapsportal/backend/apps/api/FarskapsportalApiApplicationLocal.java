@@ -80,13 +80,19 @@ public class FarskapsportalApiApplicationLocal {
     String profile = args.length < 1 ? PROFILE_LOCAL : args[0];
 
     SpringApplication app = new SpringApplication(FarskapsportalApiApplicationLocal.class);
-    app.setAdditionalProfiles(profile);
+    app.setAdditionalProfiles(profile, "local-nais");
     app.run(args);
   }
 
   @Bean
   @Primary
-  @Profile({PROFILE_TEST, PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
+  @Profile({
+    PROFILE_TEST,
+    PROFILE_LOCAL,
+    PROFILE_LOCAL_POSTGRES,
+    PROFILE_REMOTE_POSTGRES,
+    PROFILE_LOCAL_NAIS
+  })
   public ClientConfiguration clientConfiguration(
       KeyStoreConfig keyStoreConfig, @Value("${url.esignering}") String esigneringUrl)
       throws URISyntaxException {
@@ -156,7 +162,7 @@ public class FarskapsportalApiApplicationLocal {
 
   @Configuration
   @Testcontainers
-  @Profile("!live")
+  @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   class LocalConfig {
 
     @Container
@@ -226,6 +232,7 @@ public class FarskapsportalApiApplicationLocal {
   }
 
   @Component
+  @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   class FakeEncryption implements EncryptionProvider {
 
     @Override

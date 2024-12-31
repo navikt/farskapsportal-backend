@@ -108,7 +108,7 @@ no.nav.security.jwt:
 ---
 spring:
   cloud.gcp.secretmanager.project-id: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
-  config.activate.on-profile: live, integration-test
+  config.activate.on-profile: live, integration-test, local-nais
   cloud.gcp.sql.database-name: ${DB_DATABASE}
   cloud.gcp.sql.instance-connection-name: "${GCP_TEAM_PROJECT_ID}:europe-north1:${DB_USERNAME}"
   datasource:
@@ -304,7 +304,7 @@ wiremock.server:
   stubs: classpath:/mappings
 ---
 spring:
-  config.activate.on-profile: remote-postgres
+  config.activate.on-profile: remote-postgres, local-nais
   flyway:
     enabled: false
     locations: classpath:/db/migration
@@ -312,9 +312,9 @@ spring:
     username: ${REMOTE_POSTGRES_USER}
     url: jdbc:postgresql://127.0.0.1:5433/fpdb-feature
     password: ${REMOTE_POSTGRES_PWD}
-    databaseName: fpdb-feature
 
 APPNAVN: farskapsportal-api-feature
+server.port: 8080
 
 ---
 # Integrasjonstesting mot Posten
@@ -342,8 +342,10 @@ wiremock.server:
 spring:
   config.activate.on-profile: integration-test
 
+PROJECT_ID: farskapsportal-dev-169c
+GCP_TEAM_PROJECT_ID: ${PROJECT_ID}
 DB_DATABASE: fpdb-main
-POSTGRES_CONNECTION_NAME: farskapsportal-dev-169c:europe-north1:fp-main
+POSTGRES_CONNECTION_NAME: ${PROJECT_ID}:europe-north1:fp-main-15
 SKATT_URL: https://folkeregisteret-api-ekstern.sits.no
 WIREMOCK_URL: http://localhost
 

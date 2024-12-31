@@ -42,7 +42,8 @@ public class FarskapsportalApiTestConfig {
     PROFILE_LOCAL,
     PROFILE_LOCAL_POSTGRES,
     PROFILE_REMOTE_POSTGRES,
-    PROFILE_SCHEDULED_TEST
+    PROFILE_SCHEDULED_TEST,
+    PROFILE_LOCAL_NAIS
   })
   public KeyStoreConfig keyStoreConfig(@Autowired ResourceLoader resourceLoader)
       throws IOException {
@@ -63,7 +64,8 @@ public class FarskapsportalApiTestConfig {
     PROFILE_LOCAL,
     PROFILE_LOCAL_POSTGRES,
     PROFILE_REMOTE_POSTGRES,
-    PROFILE_SCHEDULED_TEST
+    PROFILE_SCHEDULED_TEST,
+    PROFILE_LOCAL_NAIS
   })
   public no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig keyStoreConfigSkatt(
       @Autowired ResourceLoader resourceLoader) throws IOException {
