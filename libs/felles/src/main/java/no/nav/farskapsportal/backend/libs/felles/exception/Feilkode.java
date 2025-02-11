@@ -89,7 +89,7 @@ public enum Feilkode {
   SKATT_OVERFOERING_FEILET("Overføring av farskapsmelding til Skatt feilet"),
   SKATT_MELDINGSFORMAT("Feil oppstod ved opprettelse av farskapsmelding til Skatt"),
   TERMINDATO_UGYLDIG("Oppgitt termindato er ikke innenfor godkjent intervall"),
-  UGYLDIG_FAR("Oppgitt far kan ikke benytte løsningen, ta kontakt med NAV."),
+  UGYLDIG_FAR("Oppgitt far kan ikke benytte løsningen, ta kontakt med Nav."),
   UKJENT_SIGNERINGSSTATUS("Ukjent signeringsstatus mottatt fra esigneringstjenesten"),
   XADESURL_FEILFORMATERT("XAdES-url mottatt fre Esigneringsløsningen var ikke formatert riktig"),
   XADES_MOR_UTEN_INNHOLD("Mors XAdES-dokument er uten innhold!"),

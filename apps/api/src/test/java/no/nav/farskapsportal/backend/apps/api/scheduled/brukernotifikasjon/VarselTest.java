@@ -52,7 +52,7 @@ public class VarselTest {
   private static final String BRUKERNOTIFIKASJON_TOPIC_BESKJED =
       "min-side.aapen-brukernotifikasjon-beskjed-v1";
   private static final String MELDING_OM_MANGLENDE_SIGNERING =
-      "Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med NAV ved problemer.";
+      "Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med Nav ved problemer.";
 
   private @Autowired BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private @Autowired PersistenceService persistenceService;
