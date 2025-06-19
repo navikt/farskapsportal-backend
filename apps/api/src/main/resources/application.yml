@@ -12,6 +12,9 @@ springdoc:
     path: /swagger-ui.html
     url: /v3/api-docs
 
+management.metrics.distribution.percentiles-histogram.http.server.requests: true
+management.metrics.distribution.percentiles-histogram.http.client.requests: true
+
 virksomhetssertifikat:
   prosjektid: ${VIRKSOMHETSSERTIFIKAT_PROSJEKT_ID}
   hemmelighetnavn: ${VIRKSOMHETSSERTIFIKAT_HEMMELIGHET_NAVN}
