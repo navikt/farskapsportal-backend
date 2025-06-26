@@ -2,7 +2,7 @@ name: release farskapsportal-api
 on:
   push:
     branches:
-      - release
+      - main
     paths:
       - 'pom.xml'
       - '.m2/**'
