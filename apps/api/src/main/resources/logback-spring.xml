@@ -13,6 +13,9 @@
         <arguments/>
         <stackTrace/>
       </providers>
+      <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+        <valueMasker class="no.nav.bidrag.commons.logging.SensitiveLogMasker"/>
+      </jsonGeneratorDecorator>
     </encoder>
   </appender>
 
@@ -35,7 +38,18 @@
       <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
         <maxFileSize>50MB</maxFileSize>
       </triggeringPolicy>
-      <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+  </springProfile>
+  <springProfile name="nais">
+    <appender name="team-logs" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+      <destination>team-logs.nais-system:5170</destination>
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <customFields>
+          {"google_cloud_project":"${GOOGLE_CLOUD_PROJECT}","nais_namespace_name":"${NAIS_NAMESPACE}","nais_pod_name":"${HOSTNAME}","nais_container_name":"${NAIS_APP_NAME}"}
+        </customFields>
+        <includeContext>false</includeContext>
+      </encoder>
     </appender>
   </springProfile>
 
@@ -51,10 +65,11 @@
 
   <root level="info">
     <appender-ref ref="stdout_json"/>
+    <appender-ref ref="team-logs"/>
   </root>
 
-  <logger name="secureLogger" level="INFO" additivity="false" >
-    <appender-ref ref="secureLog" />
+  <logger name="secureLogger" level="INFO" additivity="false">
+    <appender-ref ref="secureLog"/>
+    <appender-ref ref="team-logs"/>
   </logger>
-
 </configuration>

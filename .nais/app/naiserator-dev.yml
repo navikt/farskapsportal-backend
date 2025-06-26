@@ -98,6 +98,9 @@ spec:
           namespace: navdig
           cluster: dev-gcp
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: api.difitest.signering.posten.no
         - host: folkeregisteret-api-ekstern.sits.no
