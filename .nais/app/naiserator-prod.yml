@@ -6,6 +6,15 @@ metadata:
   labels:
     team: farskapsportal
 spec:
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+        - id: secure_logs
   azure:
     application:
       allowAllUsers: true
