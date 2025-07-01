@@ -1,6 +1,7 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
 import static no.digipost.signature.client.direct.DirectJobStatus.FAILED;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
 import java.io.IOException;
 import java.net.URI;
@@ -249,6 +250,7 @@ public class DifiESignaturConsumer {
             "Xades-lenke mangler!");
       }
     } catch (IllegalArgumentException iae) {
+      SIKKER_LOGG.warn("{} - {}: {} for referanse {}", Feilkode.ESIGNERING_MANGLENDE_DATA.getBeskrivelse(), iae.getMessage(), directJobStatusResponse, directJobStatusResponse.getReference());
       throw new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_DATA, iae);
     }
   }
