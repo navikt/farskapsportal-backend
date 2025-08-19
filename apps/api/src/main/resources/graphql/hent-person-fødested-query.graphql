@@ -1,0 +1,10 @@
+query($ident: ID!) {
+    hentPerson(ident: $ident) {
+        fødested {
+            fødested,
+            fødekommune,
+            fødeland,
+            metadata {opplysningsId, master}
+        }
+    }
+}

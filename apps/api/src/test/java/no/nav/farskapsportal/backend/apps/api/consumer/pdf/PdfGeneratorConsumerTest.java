@@ -60,10 +60,10 @@ public class PdfGeneratorConsumerTest {
 
     // given
     var skriftsspraak = Skriftspraak.BOKMAAL;
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -104,10 +104,10 @@ public class PdfGeneratorConsumerTest {
 
     // given
     var skriftsspraak = Skriftspraak.NYNORSK;
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -147,10 +147,10 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForUfoedt() throws IOException {
 
     // given
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -191,10 +191,10 @@ public class PdfGeneratorConsumerTest {
 
     // given
     var skriftspraak = Skriftspraak.BOKMAAL;
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -242,10 +242,10 @@ public class PdfGeneratorConsumerTest {
 
     // given
     var skriftsspraak = Skriftspraak.NYNORSK;
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -299,10 +299,10 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForNyfoedt() throws IOException {
 
     // given
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -349,10 +349,10 @@ public class PdfGeneratorConsumerTest {
 
     // given
     var skriftsspraak = Skriftspraak.BOKMAAL;
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -405,10 +405,10 @@ public class PdfGeneratorConsumerTest {
 
     // given
     var skriftsspraak = Skriftspraak.NYNORSK;
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 
@@ -460,10 +460,10 @@ public class PdfGeneratorConsumerTest {
   void skalGenererePdfPaaEngelskForForelderMedMellomnavn() throws IOException {
 
     // given
-    when(personopplysningServiceMock.henteFoedselsdato(MOR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(MOR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningServiceMock.henteNavn(MOR.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningServiceMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+    when(personopplysningServiceMock.henteFødselsdato(FAR.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
     when(personopplysningServiceMock.henteNavn(FAR.getFoedselsnummer())).thenReturn(NAVN_FAR);
 

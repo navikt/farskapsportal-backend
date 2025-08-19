@@ -1,0 +1,9 @@
+query($ident: ID!) {
+    hentPerson(ident: $ident) {
+        fødselsdato {
+            fødselsdato,
+            fødeår,
+            metadata {opplysningsId, master}
+        }
+    }
+}

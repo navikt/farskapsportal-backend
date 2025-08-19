@@ -20,6 +20,10 @@ public class PdlApiQuery {
       readGraphQLQueryFromFile("graphql/hent-person-doedsfall-query.graphql");
   public static final String HENT_PERSON_FOEDSEL =
       readGraphQLQueryFromFile("graphql/hent-person-foedsel-query.graphql");
+  public static final String HENT_PERSON_FØDSELSDATO =
+      readGraphQLQueryFromFile("graphql/hent-person-fødselsdato-query.graphql");
+  public static final String HENT_PERSON_FØDESTED =
+      readGraphQLQueryFromFile("graphql/hent-person-fødested-query.graphql");
   public static final String HENT_PERSON_FOLKEREGISTERIDENTIFIKATOR =
       readGraphQLQueryFromFile("graphql/hent-person-folkeregisteridentifikator-query.graphql");
   public static final String HENT_PERSON_FORELDER_BARN_RELASJON =

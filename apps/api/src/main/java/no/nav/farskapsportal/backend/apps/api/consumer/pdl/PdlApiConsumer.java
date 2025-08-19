@@ -22,6 +22,8 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FødestedDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FødselsdatoDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.PdlDto;
@@ -104,6 +106,40 @@ public class PdlApiConsumer {
     }
 
     return foedselDtosFraPdlEllerFreg.stream()
+        .findFirst()
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+  }
+
+  @Cacheable("fødselsdato")
+  public FødselsdatoDto henteFødselsdato(String fødselsnummer) {
+    var respons = hentePersondokument(fødselsnummer, PdlApiQuery.HENT_PERSON_FØDSELSDATO, false);
+    var fødselsdatoDtos = respons.getData().getHentPerson().getFødselsdato();
+
+    var fødselDtosFraPdlEllerFreg =
+        fødselsdatoDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (fødselDtosFraPdlEllerFreg.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
+    }
+
+    return fødselDtosFraPdlEllerFreg.stream()
+        .findFirst()
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+  }
+
+  @Cacheable("fødested")
+  public FødestedDto henteFødested(String fødselsnummer) {
+    var respons = hentePersondokument(fødselsnummer, PdlApiQuery.HENT_PERSON_FØDESTED, false);
+    var fødestedDtos = respons.getData().getHentPerson().getFødested();
+
+    var fødestedDtosFraPdlEllerFreg =
+        fødestedDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (fødestedDtosFraPdlEllerFreg.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
+    }
+
+    return fødestedDtosFraPdlEllerFreg.stream()
         .findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }

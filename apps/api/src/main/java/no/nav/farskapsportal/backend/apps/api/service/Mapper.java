@@ -34,7 +34,7 @@ public class Mapper {
   }
 
   public ForelderDto toDto(Forelder forelder) {
-    var foedselsdato = personopplysningService.henteFoedselsdato(forelder.getFoedselsnummer());
+    var foedselsdato = personopplysningService.henteFødselsdato(forelder.getFoedselsnummer());
     var navnDto =
         modelMapper(personopplysningService.henteNavn(forelder.getFoedselsnummer()), NavnDto.class);
     var forelderDto = modelMapper.map(forelder, ForelderDto.class);

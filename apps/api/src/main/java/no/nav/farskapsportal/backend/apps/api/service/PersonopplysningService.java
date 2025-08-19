@@ -68,7 +68,7 @@ public class PersonopplysningService {
             .collect(Collectors.toSet());
 
     for (String fnrBarn : registrerteBarn) {
-      var fd = henteFoedselsdato(fnrBarn);
+      var fd = henteFødselsdato(fnrBarn);
       if (fd.isAfter(
           LocalDate.now()
               .minusMonths(farskapsportalFellesEgenskaper.getMaksAntallMaanederEtterFoedsel()))) {
@@ -128,17 +128,17 @@ public class PersonopplysningService {
     return false;
   }
 
-  public String henteFoedested(String foedselsnummer) {
-    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedested();
+  public String henteFødested(String fødselsnummer) {
+    return pdlApiConsumer.henteFødested(fødselsnummer).getFødested();
   }
 
-  public LocalDate henteFoedselsdato(String foedselsnummer) {
-    SIKKER_LOGG.info("Henter fødselsdato for person med ident {}", foedselsnummer);
-    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedselsdato();
+  public LocalDate henteFødselsdato(String fødselsnummer) {
+    SIKKER_LOGG.info("Henter fødselsdato for person med ident {}", fødselsnummer);
+    return pdlApiConsumer.henteFødselsdato(fødselsnummer).getFødselsdato();
   }
 
-  public String henteFoedeland(String foedselsnummer) {
-    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedeland();
+  public String henteFødeland(String fødselsnummer) {
+    return pdlApiConsumer.henteFødested(fødselsnummer).getFødeland();
   }
 
   public boolean harVerge(String foedselsnummer) {
@@ -218,7 +218,7 @@ public class PersonopplysningService {
   }
 
   public boolean erOver18Aar(String foedselsnummer) {
-    var foedselsdato = henteFoedselsdato(foedselsnummer);
+    var foedselsdato = henteFødselsdato(foedselsnummer);
     if (LocalDate.now().minusYears(18).isBefore(foedselsdato)) {
       log.warn(
           "Forelder med fødselsdato {}, er ikke myndig",
@@ -285,10 +285,10 @@ public class PersonopplysningService {
 
   private Set<String> filtrereBortBarnFoedtUtenforNorge(Set<String> nyfoedteBarn) {
     return nyfoedteBarn.stream()
-        .filter(barn -> henteFoedeland(barn) != null)
+        .filter(barn -> henteFødeland(barn) != null)
         .filter(
             barn ->
-                henteFoedeland(barn).equalsIgnoreCase(FarskapsportalFellesConfig.KODE_LAND_NORGE))
+                henteFødeland(barn).equalsIgnoreCase(FarskapsportalFellesConfig.KODE_LAND_NORGE))
         .collect(Collectors.toSet());
   }
 }

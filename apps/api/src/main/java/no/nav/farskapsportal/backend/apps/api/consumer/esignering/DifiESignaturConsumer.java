@@ -250,7 +250,12 @@ public class DifiESignaturConsumer {
             "Xades-lenke mangler!");
       }
     } catch (IllegalArgumentException iae) {
-      SIKKER_LOGG.warn("{} - {}: {} for referanse {}", Feilkode.ESIGNERING_MANGLENDE_DATA.getBeskrivelse(), iae.getMessage(), directJobStatusResponse, directJobStatusResponse.getReference());
+      SIKKER_LOGG.warn(
+          "{} - {}: {} for referanse {}",
+          Feilkode.ESIGNERING_MANGLENDE_DATA.getBeskrivelse(),
+          iae.getMessage(),
+          directJobStatusResponse,
+          directJobStatusResponse.getReference());
       throw new EsigneringConsumerException(Feilkode.ESIGNERING_MANGLENDE_DATA, iae);
     }
   }
