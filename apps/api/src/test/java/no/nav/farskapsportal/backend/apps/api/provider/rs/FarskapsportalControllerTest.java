@@ -277,7 +277,7 @@ public class FarskapsportalControllerTest {
         List.of(
             new HentPersonKjoenn(KJOENNSHISTORIKK_FAR),
             new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
-            new HentPersonFoedested(FØDELAND_FAR, false),
+            new HentPersonFoedested(FOEDELAND_FAR, false),
             new HentPersonNavn(
                 mapper.modelMapper(
                     NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),

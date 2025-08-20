@@ -16,7 +16,7 @@ public class TestUtils {
       LocalDate.now().minusYears(35).minusMonths(2).minusDays(13);
   public static final LocalDate FOEDSELSDATO_MOR = FOEDSELSDATO_FAR.plusYears(4);
   public static final String FOEDELAND_MOR = KodeLand.NORGE.getKodeLand();
-  public static final String FØDELAND_FAR = KodeLand.NORGE.getKodeLand();
+  public static final String FOEDELAND_FAR = KodeLand.NORGE.getKodeLand();
   public static final Forelder FAR = henteForelder(Forelderrolle.FAR);
   public static final Forelder MOR = henteForelder(Forelderrolle.MOR);
   public static final LocalDate FOEDSELSDATO_NYFOEDT_BARN =
