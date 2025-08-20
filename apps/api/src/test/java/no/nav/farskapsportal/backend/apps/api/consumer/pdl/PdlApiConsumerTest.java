@@ -20,10 +20,10 @@ import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonDoedsfall;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFoedested;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFoedselsdato;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
-import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFødested;
-import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFødselsdato;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonKjoenn;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonNavn;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonSivilstand;
@@ -331,43 +331,43 @@ public class PdlApiConsumerTest {
 
   @Nested
   @DisplayName("Hente fødselsdato")
-  class Fødselsdato {
+  class Foedselsdato {
 
     @BeforeEach
     void clearCache() {
-      cacheManager.getCache("fødselsdato").clear();
+      cacheManager.getCache("foedselsdato").clear();
     }
 
     @Test
     @DisplayName("Skal hente fødselsdato for eksisterende person")
-    void skalHenteFødselsdatoForEksisterendePerson() {
-      var morsFødselsdato = LocalDate.of(1993, 4, 3);
+    void skalHenteFoedselsdatoForEksisterendePerson() {
+      var morsFoedselsdato = LocalDate.of(1993, 4, 3);
 
       // given
       var fnrMor = "030493240280";
       mockAccessToken();
       List<HentPersonSubResponse> subResponses =
-          List.of(new HentPersonFødselsdato(morsFødselsdato, false));
+          List.of(new HentPersonFoedselsdato(morsFoedselsdato, false));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var fødselsdatoDto = pdlApiConsumer.henteFødselsdato(fnrMor);
+      var fødselsdatoDto = pdlApiConsumer.henteFoedselsdato(fnrMor);
 
       // then
       assertEquals(
-          morsFødselsdato,
-          fødselsdatoDto.getFødselsdato(),
+          morsFoedselsdato,
+          fødselsdatoDto.getFoedselsdato(),
           "Mors fødselsdato skal være den samme som den returnerte datoen");
     }
   }
 
   @Nested
   @DisplayName("Hente fødested")
-  class Fødested {
+  class Foedested {
 
     @BeforeEach
     void clearCache() {
-      cacheManager.getCache("fødested").clear();
+      cacheManager.getCache("foedested").clear();
     }
 
     @Test
@@ -378,16 +378,16 @@ public class PdlApiConsumerTest {
       var fnrMor = "030493240280";
       mockAccessToken();
       List<HentPersonSubResponse> subResponses =
-          List.of(new HentPersonFødested(fnrMor, "Tana", false));
+          List.of(new HentPersonFoedested(fnrMor, "Tana", false));
       pdlApiStub.runPdlApiHentPersonStub(subResponses);
 
       // when
-      var fødestedDto = pdlApiConsumer.henteFødested(fnrMor);
+      var fødestedDto = pdlApiConsumer.henteFoedested(fnrMor);
 
       // then
       assertEquals(
           "Tana",
-          fødestedDto.getFødested(),
+          fødestedDto.getFoedested(),
           "Mors fødested skal være den samme som det registrerte fødestedet");
     }
   }

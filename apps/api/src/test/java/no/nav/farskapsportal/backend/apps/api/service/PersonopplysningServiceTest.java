@@ -26,11 +26,11 @@ import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.EndringDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.EndringDto.Type;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FoedestedDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselsdatoDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle.Sivilstandtype;
-import no.nav.farskapsportal.backend.libs.dto.pdl.FødestedDto;
-import no.nav.farskapsportal.backend.libs.dto.pdl.FødselsdatoDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.MetadataDto;
@@ -183,27 +183,27 @@ public class PersonopplysningServiceTest {
 
   @Nested
   @DisplayName("Tester henteFødeland")
-  class HenteFødeland {
+  class HenteFoedeland {
 
     @Test
-    void skalHenteFødelandForNyfødt() {
+    void skalHenteFoedelandForNyfoedt() {
 
-      var personnummerNyfødt = "12345";
-      var fødselsdatoNyfødt = LocalDate.now().minusMonths(2).minusDays(13);
-      var fødselsnummerNyfødt =
-          fødselsdatoNyfødt.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerNyfødt;
+      var personnummerNyfoedt = "12345";
+      var foedselsdatoNyfoedt = LocalDate.now().minusMonths(2).minusDays(13);
+      var foedselsnummerNyfoedt =
+          foedselsdatoNyfoedt.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerNyfoedt;
 
-      when(pdlApiConsumerMock.henteFødested(fødselsnummerNyfødt))
-          .thenReturn(FødestedDto.builder().fødeland(KODE_LAND_NORGE).build());
+      when(pdlApiConsumerMock.henteFoedested(foedselsnummerNyfoedt))
+          .thenReturn(FoedestedDto.builder().foedeland(KODE_LAND_NORGE).build());
 
-      when(pdlApiConsumerMock.henteFødselsdato(fødselsnummerNyfødt))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(fødselsdatoNyfødt).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(foedselsnummerNyfoedt))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(foedselsdatoNyfoedt).build());
 
-      when(pdlApiConsumerMock.henteFødested(fødselsnummerNyfødt))
-          .thenReturn(FødestedDto.builder().fødeland(KODE_LAND_NORGE).build());
+      when(pdlApiConsumerMock.henteFoedested(foedselsnummerNyfoedt))
+          .thenReturn(FoedestedDto.builder().foedeland(KODE_LAND_NORGE).build());
 
       // when
-      var foedeland = personopplysningService.henteFødeland(fødselsnummerNyfødt);
+      var foedeland = personopplysningService.henteFoedeland(foedselsnummerNyfoedt);
 
       // then
       assertThat(foedeland).isEqualTo(KODE_LAND_NORGE);
@@ -220,19 +220,19 @@ public class PersonopplysningServiceTest {
 
       // given
       var personnummerMor = "13130";
-      var fødselsdatoMor = LocalDate.now().minusYears(25).minusMonths(2).minusDays(13);
-      var fnrMor = fødselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor;
+      var foedselsdatoMor = LocalDate.now().minusYears(25).minusMonths(2).minusDays(13);
+      var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor;
 
-      when(pdlApiConsumerMock.henteFødselsdato(fnrMor))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(fødselsdatoMor).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(fnrMor))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(foedselsdatoMor).build());
 
       // when
-      var returnertFødselsdato = personopplysningService.henteFødselsdato(fnrMor);
+      var returnertFoedselsdato = personopplysningService.henteFoedselsdato(fnrMor);
 
       // then
       assertEquals(
-          fødselsdatoMor,
-          returnertFødselsdato,
+          foedselsdatoMor,
+          returnertFoedselsdato,
           "Returnert fødselsdato skal være lik mors fødselsdato");
     }
   }
@@ -379,8 +379,8 @@ public class PersonopplysningServiceTest {
     void skalReturnereSannForPersonOver18Aar() {
 
       // given
-      when(pdlApiConsumerMock.henteFødselsdato(FAR.getFoedselsnummer()))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(FOEDSELSDATO_FAR).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(FAR.getFoedselsnummer()))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(FOEDSELSDATO_FAR).build());
 
       // when
       var farErMyndig = personopplysningService.erOver18Aar(FAR.getFoedselsnummer());
@@ -393,8 +393,8 @@ public class PersonopplysningServiceTest {
     void skalReturnereUsannForPersonUnder18Aar() {
 
       // given
-      when(pdlApiConsumerMock.henteFødselsdato(NYDFOEDT_BARN.getFoedselsnummer()))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(FOEDSELSDATO_NYFOEDT).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(NYDFOEDT_BARN.getFoedselsnummer()))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(FOEDSELSDATO_NYFOEDT).build());
 
       // when
       var erMyndig = personopplysningService.erOver18Aar(NYDFOEDT_BARN.getFoedselsnummer());
@@ -651,11 +651,11 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor))
           .thenReturn(List.of(tvilling1, tvilling2));
 
-      when(pdlApiConsumerMock.henteFødselsdato(anyString()))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(foedselsdatoTvillinger).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(anyString()))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(foedselsdatoTvillinger).build());
 
-      when(pdlApiConsumerMock.henteFødested(anyString()))
-          .thenReturn(FødestedDto.builder().fødeland(KODE_LAND_NORGE).build());
+      when(pdlApiConsumerMock.henteFoedested(anyString()))
+          .thenReturn(FoedestedDto.builder().foedeland(KODE_LAND_NORGE).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar =
@@ -715,11 +715,11 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrSpedbarn))
           .thenReturn(List.of(spedbarnsRelasjonTilFar));
 
-      when(pdlApiConsumerMock.henteFødselsdato(fnrSpedbarn))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(foedselsdatoSpedbarn).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(fnrSpedbarn))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(foedselsdatoSpedbarn).build());
 
-      when(pdlApiConsumerMock.henteFødested(fnrSpedbarn))
-          .thenReturn(FødestedDto.builder().fødeland(KODE_LAND_NORGE).build());
+      when(pdlApiConsumerMock.henteFoedested(fnrSpedbarn))
+          .thenReturn(FoedestedDto.builder().foedeland(KODE_LAND_NORGE).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar =
@@ -757,11 +757,11 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor))
           .thenReturn(List.of(morsRelasjonTilSpedbarn));
 
-      when(pdlApiConsumerMock.henteFødselsdato(fnrSpedbarn))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(foedselsdatoSpedbarn).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(fnrSpedbarn))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(foedselsdatoSpedbarn).build());
 
-      when(pdlApiConsumerMock.henteFødested(fnrSpedbarn))
-          .thenReturn(FødestedDto.builder().fødeland(KODE_LAND_UGANDA).build());
+      when(pdlApiConsumerMock.henteFoedested(fnrSpedbarn))
+          .thenReturn(FoedestedDto.builder().foedeland(KODE_LAND_UGANDA).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar =
@@ -799,11 +799,11 @@ public class PersonopplysningServiceTest {
       when(pdlApiConsumerMock.henteForelderBarnRelasjon(fnrMor))
           .thenReturn(List.of(morsRelasjonTilSpedbarn));
 
-      when(pdlApiConsumerMock.henteFødselsdato(fnrSpedbarn))
-          .thenReturn(FødselsdatoDto.builder().fødselsdato(foedselsdatoSpedbarn).build());
+      when(pdlApiConsumerMock.henteFoedselsdato(fnrSpedbarn))
+          .thenReturn(FoedselsdatoDto.builder().foedselsdato(foedselsdatoSpedbarn).build());
 
-      when(pdlApiConsumerMock.henteFødested(fnrSpedbarn))
-          .thenReturn(FødestedDto.builder().fødeland(null).build());
+      when(pdlApiConsumerMock.henteFoedested(fnrSpedbarn))
+          .thenReturn(FoedestedDto.builder().foedeland(null).build());
 
       // when
       var nyligFoedteBarnUtenRegistrertFar =

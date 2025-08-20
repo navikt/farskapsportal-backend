@@ -6,10 +6,10 @@ import lombok.Value;
 
 @Builder
 @Value
-public class FødselsdatoDto implements PdlDto {
+public class FoedselsdatoDto implements PdlDto {
 
-  LocalDate fødselsdato;
-  LocalDate fødselsaar;
+  LocalDate foedselsdato;
+  LocalDate foedselsaar;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;
 }

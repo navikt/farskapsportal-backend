@@ -736,7 +736,7 @@ public class FarskapsportalService {
 
   private ForelderDto oppretteForelderDto(String foedseslnummer) {
     var navnDto = personopplysningService.henteNavn(foedseslnummer);
-    var foedselsdato = personopplysningService.henteFødselsdato(foedseslnummer);
+    var foedselsdato = personopplysningService.henteFoedselsdato(foedseslnummer);
     return ForelderDto.builder()
         .foedselsnummer(foedseslnummer)
         .foedselsdato(foedselsdato)
@@ -747,8 +747,8 @@ public class FarskapsportalService {
   private BarnDto oppretteBarnDto(OppretteFarskapserklaeringRequest request) {
     var foedselsnummer = request.getBarn().getFoedselsnummer();
     if (foedselsnummer != null && !foedselsnummer.isBlank()) {
-      var foedselsdato = personopplysningService.henteFødselsdato(foedselsnummer);
-      var foedested = personopplysningService.henteFødested(request.getBarn().getFoedselsnummer());
+      var foedselsdato = personopplysningService.henteFoedselsdato(foedselsnummer);
+      var foedested = personopplysningService.henteFoedested(request.getBarn().getFoedselsnummer());
       return BarnDto.builder()
           .foedested(foedested)
           .foedselsdato(foedselsdato)
@@ -928,11 +928,11 @@ public class FarskapsportalService {
 
   private void validereFoedelandNorge(String fnrNyfoedt) {
     try {
-      var foedeland = personopplysningService.henteFødeland(fnrNyfoedt);
+      var foedeland = personopplysningService.henteFoedeland(fnrNyfoedt);
       Validate.isTrue(
           foedeland != null
               && personopplysningService
-                  .henteFødeland(fnrNyfoedt)
+                  .henteFoedeland(fnrNyfoedt)
                   .equalsIgnoreCase(KODE_LAND_NORGE));
     } catch (IllegalArgumentException iae) {
       log.warn("Barn er født utenfor Norge!");
@@ -941,7 +941,7 @@ public class FarskapsportalService {
   }
 
   private void validereAlderNyfoedt(String fnrOppgittBarn) {
-    var foedselsdato = personopplysningService.henteFødselsdato(fnrOppgittBarn);
+    var foedselsdato = personopplysningService.henteFoedselsdato(fnrOppgittBarn);
     if (!LocalDate.now()
         .minusMonths(
             farskapsportalApiEgenskaper

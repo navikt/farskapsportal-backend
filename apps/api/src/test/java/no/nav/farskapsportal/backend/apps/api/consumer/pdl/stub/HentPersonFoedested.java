@@ -1,44 +1,43 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub;
 
-import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Value;
-import no.nav.farskapsportal.backend.libs.dto.KodeLand;
 
 @Value
 @Getter
-public class HentPersonFoedsel implements HentPersonSubResponse {
+public class HentPersonFoedested implements HentPersonSubResponse {
 
   String response;
 
-  public HentPersonFoedsel(LocalDate foedselsdato, boolean historisk) {
-    this.response =
-        buildResponse(foedselsdato, KodeLand.NORGE.getKodeLand(), "ASKIM", "123", historisk);
+  public HentPersonFoedested(
+      String foedeland, String foedested, String foedekommune, boolean historisk) {
+    this.response = buildResponse(foedeland, foedested, foedekommune, "123", historisk);
   }
 
-  public HentPersonFoedsel(LocalDate foedselsdato, String foedested, boolean historisk) {
-    this.response =
-        buildResponse(foedselsdato, KodeLand.NORGE.getKodeLand(), foedested, "123", historisk);
+  public HentPersonFoedested(String foedeland, String foedested, boolean historisk) {
+    this.response = buildResponse(foedeland, foedested, "0123", "123", historisk);
+  }
+
+  public HentPersonFoedested(String foedeland, boolean historisk) {
+    this.response = buildResponse(foedeland, "ASKIM", "0123", "123", historisk);
   }
 
   private String buildResponse(
-      LocalDate foedselsdato,
       String foedeland,
       String foedested,
+      String foedekommune,
       String opplysningsId,
       boolean historisk) {
-    if (foedselsdato == null) {
-      return String.join("\n", " \"foedsel\": [", "]");
+    if (foedeland == null) {
+      return String.join("\n", " \"foedested\": [", "]");
     } else {
-      var fd = foedselsdato.toString();
-
       return String.join(
           "\n",
-          " \"foedsel\": [",
+          " \"foedested\": [",
           " {",
-          " \"foedselsdato\": \"" + fd + "\",",
           " \"foedeland\": \"" + foedeland + "\",",
           " \"foedested\": \"" + foedested + "\",",
+          " \"foedekommune\": \"" + foedekommune + "\",",
           " \"metadata\": {",
           " \"opplysningsId\": \"" + opplysningsId + "\",",
           " \"master\": \"FREG\",",

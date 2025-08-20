@@ -92,11 +92,11 @@ public class MapperTest {
 
   private void standardPersonopplysningerMocks(Forelder far, Forelder mor) {
     when(personopplysningService.henteNavn(far.getFoedselsnummer())).thenReturn(NAVN_FAR);
-    when(personopplysningService.henteFødselsdato(far.getFoedselsnummer()))
+    when(personopplysningService.henteFoedselsdato(far.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_FAR);
 
     when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
-    when(personopplysningService.henteFødselsdato(mor.getFoedselsnummer()))
+    when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer()))
         .thenReturn(FOEDSELSDATO_MOR);
     when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer())).thenReturn(true);
   }
@@ -191,7 +191,7 @@ public class MapperTest {
       var forelder = Forelder.builder().foedselsnummer(fnrForelder).build();
 
       when(personopplysningService.henteNavn(fnrForelder)).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteFødselsdato(fnrForelder))
+      when(personopplysningService.henteFoedselsdato(fnrForelder))
           .thenReturn(MOR_DTO.getFoedselsdato());
 
       when(personopplysningService.harNorskBostedsadresse(fnrForelder)).thenReturn(true);
@@ -335,7 +335,7 @@ public class MapperTest {
               .build();
 
       when(personopplysningService.henteNavn(mor.getFoedselsnummer())).thenReturn(NAVN_MOR);
-      when(personopplysningService.henteFødselsdato(mor.getFoedselsnummer()))
+      when(personopplysningService.henteFoedselsdato(mor.getFoedselsnummer()))
           .thenReturn(MOR_DTO.getFoedselsdato());
       when(personopplysningService.harNorskBostedsadresse(mor.getFoedselsnummer()))
           .thenReturn(true);

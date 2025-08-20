@@ -5,11 +5,11 @@ import lombok.Value;
 
 @Builder
 @Value
-public class FødestedDto implements PdlDto {
+public class FoedestedDto implements PdlDto {
 
-  String fødested;
-  String fødekommune;
-  String fødeland;
+  String foedested;
+  String foedekommune;
+  String foedeland;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;
 }

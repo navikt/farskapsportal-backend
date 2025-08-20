@@ -19,10 +19,10 @@ import lombok.val;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FoedestedDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselsdatoDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
-import no.nav.farskapsportal.backend.libs.dto.pdl.FødestedDto;
-import no.nav.farskapsportal.backend.libs.dto.pdl.FødselsdatoDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.PdlDto;
@@ -92,36 +92,36 @@ public class PdlApiConsumer {
     }
   }
 
-  @Cacheable("fødselsdato")
-  public FødselsdatoDto henteFødselsdato(String fødselsnummer) {
-    var respons = hentePersondokument(fødselsnummer, PdlApiQuery.HENT_PERSON_FØDSELSDATO, false);
-    var fødselsdatoDtos = respons.getData().getHentPerson().getFødselsdato();
+  @Cacheable("foedselsdato")
+  public FoedselsdatoDto henteFoedselsdato(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSELSDATO, false);
+    var foedselsdatoDtos = respons.getData().getHentPerson().getFoedselsdato();
 
-    var fødselDtosFraPdlEllerFreg =
-        fødselsdatoDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+    var foedselDtosFraPdlEllerFreg =
+        foedselsdatoDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
-    if (fødselDtosFraPdlEllerFreg.isEmpty()) {
+    if (foedselDtosFraPdlEllerFreg.isEmpty()) {
       throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
     }
 
-    return fødselDtosFraPdlEllerFreg.stream()
+    return foedselDtosFraPdlEllerFreg.stream()
         .findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
-  @Cacheable("fødested")
-  public FødestedDto henteFødested(String fødselsnummer) {
-    var respons = hentePersondokument(fødselsnummer, PdlApiQuery.HENT_PERSON_FØDESTED, false);
-    var fødestedDtos = respons.getData().getHentPerson().getFødested();
+  @Cacheable("foedested")
+  public FoedestedDto henteFoedested(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDESTED, false);
+    var foedestedDtos = respons.getData().getHentPerson().getFoedested();
 
-    var fødestedDtosFraPdlEllerFreg =
-        fødestedDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+    var foedestedDtosFraPdlEllerFreg =
+        foedestedDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
-    if (fødestedDtosFraPdlEllerFreg.isEmpty()) {
+    if (foedestedDtosFraPdlEllerFreg.isEmpty()) {
       throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
     }
 
-    return fødestedDtosFraPdlEllerFreg.stream()
+    return foedestedDtosFraPdlEllerFreg.stream()
         .findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
