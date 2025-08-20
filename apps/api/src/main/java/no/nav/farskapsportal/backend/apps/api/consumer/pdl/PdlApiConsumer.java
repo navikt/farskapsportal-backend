@@ -19,7 +19,6 @@ import lombok.val;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
-import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FødestedDto;
@@ -91,23 +90,6 @@ public class PdlApiConsumer {
     } else {
       return doedsfallDto.get(0);
     }
-  }
-
-  @Cacheable("foedsel")
-  public FoedselDto henteFoedsel(String foedselsnummer) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
-    var foedselDtos = respons.getData().getHentPerson().getFoedsel();
-
-    var foedselDtosFraPdlEllerFreg =
-        foedselDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
-
-    if (foedselDtosFraPdlEllerFreg.isEmpty()) {
-      throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
-    }
-
-    return foedselDtosFraPdlEllerFreg.stream()
-        .findFirst()
-        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }
 
   @Cacheable("fødselsdato")
