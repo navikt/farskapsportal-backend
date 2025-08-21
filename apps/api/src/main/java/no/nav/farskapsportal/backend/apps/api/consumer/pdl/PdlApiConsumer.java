@@ -19,7 +19,8 @@ import lombok.val;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLRequest;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.graphql.GraphQLResponse;
 import no.nav.farskapsportal.backend.libs.dto.pdl.DoedsfallDto;
-import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FoedestedDto;
+import no.nav.farskapsportal.backend.libs.dto.pdl.FoedselsdatoDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.FolkeregisteridentifikatorDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
@@ -91,19 +92,36 @@ public class PdlApiConsumer {
     }
   }
 
-  @Cacheable("foedsel")
-  public FoedselDto henteFoedsel(String foedselsnummer) {
-    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSEL, false);
-    var foedselDtos = respons.getData().getHentPerson().getFoedsel();
+  @Cacheable("foedselsdato")
+  public FoedselsdatoDto henteFoedselsdato(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDSELSDATO, false);
+    var foedselsdatoDtos = respons.getData().getHentPerson().getFoedselsdato();
 
     var foedselDtosFraPdlEllerFreg =
-        foedselDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+        foedselsdatoDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
 
     if (foedselDtosFraPdlEllerFreg.isEmpty()) {
       throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
     }
 
     return foedselDtosFraPdlEllerFreg.stream()
+        .findFirst()
+        .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
+  }
+
+  @Cacheable("foedested")
+  public FoedestedDto henteFoedested(String foedselsnummer) {
+    var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_FOEDESTED, false);
+    var foedestedDtos = respons.getData().getHentPerson().getFoedested();
+
+    var foedestedDtosFraPdlEllerFreg =
+        foedestedDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+
+    if (foedestedDtosFraPdlEllerFreg.isEmpty()) {
+      throw new RessursIkkeFunnetException(Feilkode.PDL_FOEDSELSDATO_MANGLER);
+    }
+
+    return foedestedDtosFraPdlEllerFreg.stream()
         .findFirst()
         .orElseThrow(() -> new PdlApiException(Feilkode.PDL_FOEDSELSDATO_TEKNISK_FEIL));
   }

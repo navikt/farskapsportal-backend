@@ -3368,14 +3368,14 @@ public class FarskapsportalServiceTest {
           .navnekontroll(opplysningerOmFar.getNavn(), registrertNavnFar.sammensattNavn());
 
       // when
-      var tidspunktTestStart = LocalDateTime.now();
+      var tidspunktTestStart = LocalDateTime.now().minusSeconds(1);
       var feilNavnOppgittException =
           assertThrows(
               FeilNavnOppgittException.class,
               () ->
                   farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
-      var tidspunktTestSlutt = LocalDateTime.now();
+      var tidspunktTestSlutt = LocalDateTime.now().plusSeconds(1);
 
       // then
       assertAll(
@@ -3539,14 +3539,14 @@ public class FarskapsportalServiceTest {
           .thenReturn(registrertNavnMor);
 
       // when
-      var tidspunktTestStart = LocalDateTime.now();
+      var tidspunktTestStart = LocalDateTime.now().minusSeconds(1);
       var personIkkeFunnetException =
           assertThrows(
               PersonIkkeFunnetException.class,
               () ->
                   farskapsportalService.kontrollereFar(MOR.getFoedselsnummer(), opplysningerOmFar));
 
-      var tidspunktTestSlutt = LocalDateTime.now();
+      var tidspunktTestSlutt = LocalDateTime.now().plusSeconds(1);
 
       // then
       assertAll(

@@ -129,16 +129,16 @@ public class PersonopplysningService {
   }
 
   public String henteFoedested(String foedselsnummer) {
-    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedested();
+    return pdlApiConsumer.henteFoedested(foedselsnummer).getFoedested();
   }
 
   public LocalDate henteFoedselsdato(String foedselsnummer) {
     SIKKER_LOGG.info("Henter fødselsdato for person med ident {}", foedselsnummer);
-    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedselsdato();
+    return pdlApiConsumer.henteFoedselsdato(foedselsnummer).getFoedselsdato();
   }
 
   public String henteFoedeland(String foedselsnummer) {
-    return pdlApiConsumer.henteFoedsel(foedselsnummer).getFoedeland();
+    return pdlApiConsumer.henteFoedested(foedselsnummer).getFoedeland();
   }
 
   public boolean harVerge(String foedselsnummer) {

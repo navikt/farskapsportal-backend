@@ -2,6 +2,7 @@ package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.KODE_LAND_NORGE;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -38,7 +39,8 @@ import no.nav.farskapsportal.backend.apps.api.consumer.esignering.api.SignaturDt
 import no.nav.farskapsportal.backend.apps.api.consumer.pdf.PdfGeneratorConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonBostedsadresse;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonDoedsfall;
-import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFoedsel;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFoedested;
+import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFoedselsdato;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonFolkeregisteridentifikator;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonForelderBarnRelasjon;
 import no.nav.farskapsportal.backend.apps.api.consumer.pdl.stub.HentPersonKjoenn;
@@ -246,7 +248,8 @@ public class FarskapsportalControllerTest {
     pdlApiStub.runPdlApiHentPersonStub(
         List.of(
             new HentPersonKjoenn(KJOENNSHISTORIKK_MOR),
-            new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+            new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+            new HentPersonFoedested(FOEDELAND_MOR, false),
             new HentPersonSivilstand(sivilstandMor),
             new HentPersonBostedsadresse(BOSTEDSADRESSE),
             new HentPersonNavn(
@@ -273,7 +276,8 @@ public class FarskapsportalControllerTest {
     pdlApiStub.runPdlApiHentPersonStub(
         List.of(
             new HentPersonKjoenn(KJOENNSHISTORIKK_FAR),
-            new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+            new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+            new HentPersonFoedested(FOEDELAND_FAR, false),
             new HentPersonNavn(
                 mapper.modelMapper(
                     NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
@@ -394,6 +398,8 @@ public class FarskapsportalControllerTest {
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + "12340";
       loggePaaPerson(fnrMor);
 
+      var fødeland = KODE_LAND_NORGE;
+
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikk =
           getKjoennshistorikk(KjoennType.KVINNE);
 
@@ -414,7 +420,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(morsRelasjonTilBarn, "123"),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonKjoenn(kjoennshistorikk),
               new HentPersonNavn(
                   mapper.modelMapper(
@@ -439,7 +446,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(spedbarnetsRelasjonTilMor, "000"),
-              new HentPersonFoedsel(foedselsdatoSpedbarn, false)),
+              new HentPersonFoedselsdato(foedselsdatoSpedbarn, false),
+              new HentPersonFoedested(fødeland, false)),
           fnrSpedbarn);
 
       // when
@@ -497,7 +505,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_MOR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
@@ -521,7 +530,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -604,7 +614,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_MOR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
@@ -628,7 +639,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -701,7 +713,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonKjoenn(kjoennshistorikk),
               new HentPersonNavn(
                   mapper.modelMapper(
@@ -712,7 +725,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_MOR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -787,7 +801,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonKjoenn(kjoennshistorikk),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonNavn(
                   mapper.modelMapper(
@@ -846,7 +861,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonForelderBarnRelasjon(spedbarnetsRelasjonTilMor, "000"),
-              new HentPersonFoedsel(foedselsdatoSpedbarn, false)),
+              new HentPersonFoedselsdato(foedselsdatoSpedbarn, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false)),
           fnrSpedbarn);
 
       // when
@@ -880,7 +896,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_MOR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
@@ -903,7 +920,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -1003,7 +1021,8 @@ public class FarskapsportalControllerTest {
           List.of(
               new HentPersonForelderBarnRelasjon(null, null),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
-              new HentPersonFoedsel(foedselsdatoKvinneSomHarSkiftetKjoenn, false),
+              new HentPersonFoedselsdato(foedselsdatoKvinneSomHarSkiftetKjoenn, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_MOR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
@@ -1027,7 +1046,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -1035,7 +1055,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(enAnnenMorsFoedselsdato, false),
+              new HentPersonFoedselsdato(enAnnenMorsFoedselsdato, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       enAnnenMorsNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -1113,7 +1134,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkMor),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonBostedsadresse(
                   BostedsadresseDto.builder()
@@ -1139,7 +1161,8 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonDoedsfall(null),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder()
@@ -1191,7 +1214,8 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonDoedsfall(null),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder()
@@ -1203,7 +1227,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkMor),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonBostedsadresse(
                   BostedsadresseDto.builder()
@@ -1250,7 +1275,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonBostedsadresse(
                   BostedsadresseDto.builder()
@@ -1270,7 +1296,8 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(
                   mapper.modelMapper(
                       oppgittNavn, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonDoedsfall(null),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder()
@@ -1309,7 +1336,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(getKjoennshistorikk(KjoennType.KVINNE)),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
               new HentPersonBostedsadresse(
                   BostedsadresseDto.builder()
@@ -1372,7 +1400,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkMor),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
@@ -1389,7 +1418,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
@@ -1472,7 +1502,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkMor),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
@@ -1489,7 +1520,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder().status("I_BRUK").type("FNR").build()),
               new HentPersonSivilstand(Sivilstandtype.UGIFT),
@@ -1853,7 +1885,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_NYFOEDT_BARN, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_NYFOEDT_BARN, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonFolkeregisteridentifikator(
                   FolkeregisteridentifikatorDto.builder()
                       .status(PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK)
@@ -1890,7 +1923,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(KJOENNSHISTORIKK_MOR),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonSivilstand(sivilstandMor),
               new HentPersonNavn(
                   mapper.modelMapper(
@@ -1917,7 +1951,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(KJOENNSHISTORIKK_FAR),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
@@ -2034,7 +2069,8 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnMor, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false)),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false)),
           MOR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -2042,7 +2078,8 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnFar, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false)),
           FAR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
@@ -2140,7 +2177,8 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnFar, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false)),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false)),
           FAR.getFoedselsnummer());
 
       pdlApiStub.runPdlApiHentPersonStub(
@@ -2148,7 +2186,8 @@ public class FarskapsportalControllerTest {
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnMor, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class)),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false)),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false)),
           MOR.getFoedselsnummer());
 
       when(difiESignaturConsumer.henteStatus(any(), any(), any()))
@@ -2253,7 +2292,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnFar,
@@ -2262,7 +2302,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnMor,
@@ -2357,7 +2398,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkMor),
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnMor,
@@ -2450,7 +2492,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnFar,
@@ -2543,7 +2586,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnFar,
@@ -2638,7 +2682,8 @@ public class FarskapsportalControllerTest {
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
               new HentPersonKjoenn(kjoennshistorikkFar),
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnFar,
@@ -2647,7 +2692,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       registrertNavnMor,
@@ -2814,7 +2860,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_MOR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -2822,7 +2869,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -2867,7 +2915,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_MOR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),
@@ -2875,7 +2924,8 @@ public class FarskapsportalControllerTest {
 
       pdlApiStub.runPdlApiHentPersonStub(
           List.of(
-              new HentPersonFoedsel(FOEDSELSDATO_FAR, false),
+              new HentPersonFoedselsdato(FOEDSELSDATO_MOR, false),
+              new HentPersonFoedested(KODE_LAND_NORGE, false),
               new HentPersonNavn(
                   mapper.modelMapper(
                       NAVN_FAR, no.nav.farskapsportal.backend.libs.dto.pdl.NavnDto.class))),

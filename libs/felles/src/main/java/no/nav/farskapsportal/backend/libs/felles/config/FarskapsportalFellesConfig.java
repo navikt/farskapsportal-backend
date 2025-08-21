@@ -35,6 +35,7 @@ public class FarskapsportalFellesConfig {
   public static final String PROFILE_REMOTE_POSTGRES = "remote-postgres";
   public static final String PROFILE_SCHEDULED_TEST = "scheduled-test";
   public static String KODE_LAND_NORGE = "NOR";
+  public static String KODE_LAND_UGANDA = "UGANDA";
 
   @Bean
   public PersistenceService persistenceService(

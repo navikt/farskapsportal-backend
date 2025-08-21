@@ -1,9 +1,8 @@
 query($ident: ID!) {
     hentPerson(ident: $ident) {
-        foedsel {
+        foedselsdato {
             foedselsdato,
-            foedeland,
-            foedested,
+            foedselsaar,
             metadata {opplysningsId, master}
         }
     }

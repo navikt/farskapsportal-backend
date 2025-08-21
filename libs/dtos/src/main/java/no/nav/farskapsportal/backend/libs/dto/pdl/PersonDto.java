@@ -12,6 +12,8 @@ public class PersonDto {
   List<DoedsfallDto> doedsfall = new ArrayList<>();
   List<ForelderBarnRelasjonDto> forelderBarnRelasjon = new ArrayList<>();
   List<FoedselDto> foedsel = new ArrayList<>();
+  List<FoedselsdatoDto> foedselsdato = new ArrayList<>();
+  List<FoedestedDto> foedested = new ArrayList<>();
   List<FolkeregisteridentifikatorDto> folkeregisteridentifikator = new ArrayList<>();
   List<KjoennDto> kjoenn = new ArrayList<>();
   List<BostedsadresseDto> bostedsadresse = new ArrayList<>();

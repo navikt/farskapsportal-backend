@@ -365,7 +365,7 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullsettingAvForsoek = 1;
       var foerTidspunktForNullstilling =
-          LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
+          LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek).minusSeconds(1);
       persistenceService.oppdatereStatusKontrollereFar(
           MOR.getFoedselsnummer(),
           NAVN_FAR.sammensattNavn(),
@@ -379,7 +379,7 @@ public class PersistenceServiceTest {
 
       // then
       var etterTidspunktForNullstilling =
-          LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek);
+          LocalDateTime.now().plusDays(antallDagerTilNullsettingAvForsoek).plusSeconds(1);
 
       assertAll(
           () -> assertThat(hentetStatusLagreKontrollereFar).isPresent(),
@@ -680,7 +680,7 @@ public class PersistenceServiceTest {
       // given
       var antallDagerTilNullstilling = 1;
       var tidspunktForNullstillingFoerLogging =
-          LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).minusSeconds(1);
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
@@ -694,7 +694,7 @@ public class PersistenceServiceTest {
 
       // then
       var tidspunktForNullstillingEtterLogging =
-          LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).plusSeconds(1);
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
@@ -715,7 +715,8 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var foerTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).minusSeconds(1);
 
       // when
       var statusKontrollereFar =
@@ -727,7 +728,8 @@ public class PersistenceServiceTest {
               farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
-      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var etterTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).plusSeconds(1);
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
@@ -747,7 +749,8 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var foerTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).minusSeconds(1);
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
@@ -760,7 +763,8 @@ public class PersistenceServiceTest {
               farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
-      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var etterTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).plusSeconds(1);
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
@@ -780,7 +784,8 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var foerTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var foerTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).minusSeconds(1);
       forelderDao.save(Forelder.builder().foedselsnummer(MOR.getFoedselsnummer()).build());
 
       // when
@@ -809,7 +814,8 @@ public class PersistenceServiceTest {
               farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
-      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var etterTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).plusSeconds(1);
 
       assertAll(
           () ->
@@ -831,7 +837,8 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 1;
-      var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var tidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).minusSeconds(1);
       var eksisterendeStatusKontrollereFar =
           lagreStatusKontrollereFarMedMor(
               farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek() - 1,
@@ -847,7 +854,8 @@ public class PersistenceServiceTest {
               farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
-      var etterTidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var etterTidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).plusSeconds(1);
 
       assertAll(
           () ->
@@ -866,7 +874,8 @@ public class PersistenceServiceTest {
 
       // given
       var antallDagerTilNullstilling = 0;
-      var tidspunktForNullstilling = LocalDateTime.now().plusDays(antallDagerTilNullstilling);
+      var tidspunktForNullstilling =
+          LocalDateTime.now().plusDays(antallDagerTilNullstilling).minusSeconds(1);
       lagreStatusKontrollereFarMedMor(
           farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek() - 1,
           tidspunktForNullstilling);
@@ -881,7 +890,7 @@ public class PersistenceServiceTest {
               farskapsportalFellesEgenskaper.getKontrollFarMaksAntallForsoek());
 
       // then
-      var tidspunktEtterLogging = LocalDateTime.now();
+      var tidspunktEtterLogging = LocalDateTime.now().plusSeconds(1);
 
       assertAll(
           () -> assertThat(statusKontrollereFar.getAntallFeiledeForsoek()).isEqualTo(1),
