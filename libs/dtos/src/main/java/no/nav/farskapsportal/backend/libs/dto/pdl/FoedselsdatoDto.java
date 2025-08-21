@@ -9,7 +9,7 @@ import lombok.Value;
 public class FoedselsdatoDto implements PdlDto {
 
   LocalDate foedselsdato;
-  LocalDate foedselsaar;
+  Integer foedselsaar;
   FolkeregistermetadataDto folkeregistermetadata;
   MetadataDto metadata;
 }

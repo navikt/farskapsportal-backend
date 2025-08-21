@@ -212,11 +212,11 @@ public class PersonopplysningServiceTest {
 
   @Nested
   @DisplayName("Tester henteFødselsdato")
-  class HenteFødselsdato {
+  class HenteFoedselsdato {
 
     @DisplayName("Skal hente fødselsdato for person i PDL")
     @Test
-    void skalHenteFødselsdatoForPersonIPdl() {
+    void skalHenteFoedselsdatoForPersonIPdl() {
 
       // given
       var personnummerMor = "13130";
@@ -224,7 +224,11 @@ public class PersonopplysningServiceTest {
       var fnrMor = foedselsdatoMor.format(DateTimeFormatter.ofPattern("ddMMyy")) + personnummerMor;
 
       when(pdlApiConsumerMock.henteFoedselsdato(fnrMor))
-          .thenReturn(FoedselsdatoDto.builder().foedselsdato(foedselsdatoMor).build());
+          .thenReturn(
+              FoedselsdatoDto.builder()
+                  .foedselsdato(foedselsdatoMor)
+                  .foedselsaar(foedselsdatoMor.getYear())
+                  .build());
 
       // when
       var returnertFoedselsdato = personopplysningService.henteFoedselsdato(fnrMor);
