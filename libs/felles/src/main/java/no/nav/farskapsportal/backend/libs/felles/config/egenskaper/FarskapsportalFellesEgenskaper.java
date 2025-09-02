@@ -21,4 +21,16 @@ public class FarskapsportalFellesEgenskaper {
   private int kontrollFarMaksAntallForsoek;
   private String url;
   private Brukernotifikasjon brukernotifikasjon;
+
+  public String getCluster() {
+    return System.getenv().getOrDefault("NAIS_CLUSTER_NAME", "dev");
+  }
+
+  public String getNamespace() {
+    return System.getenv().getOrDefault("NAIS_NAMESPACE", "farskapsportal");
+  }
+
+  public String getAppnavn() {
+    return System.getenv().getOrDefault("NAIS_APP_NAME", appnavn);
+  }
 }

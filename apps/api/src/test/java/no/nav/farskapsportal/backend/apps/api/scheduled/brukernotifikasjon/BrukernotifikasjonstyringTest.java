@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon;
 
+import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
@@ -10,12 +11,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import no.nav.brukernotifikasjon.schemas.input.DoneInput;
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -31,6 +32,7 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
+import no.nav.tms.varsel.action.InaktiverVarsel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,8 +54,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class BrukernotifikasjonstyringTest {
 
-  private static final String BRUKERNOTIFIKASJON_TOPIC_FERDIG =
-      "min-side.aapen-brukernotifikasjon-done-v1";
+  private static final String BRUKERNOTIFIKASJON_TOPIC = "min-side.aapen-brukervarsel-v1";
   private static final String GRUPPERINGSID_FARSKAP = "farskap";
 
   private @Autowired BrukernotifikasjonConsumer brukernotifikasjonConsumer;
@@ -66,7 +67,7 @@ public class BrukernotifikasjonstyringTest {
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  @MockBean private KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
+  @MockBean private KafkaTemplate<String, String> ferdigkoe;
 
   private Brukernotifikasjonstyring brukernotifikasjonstyring;
 
@@ -93,7 +94,8 @@ public class BrukernotifikasjonstyringTest {
   }
 
   @Test
-  void skalSletteUtloeptOppgaveDersomFarskapserklaerinErDeaktivert() {
+  void skalSletteUtloeptOppgaveDersomFarskapserklaerinErDeaktivert()
+      throws JsonProcessingException {
 
     // given
     oppgavebestillingDao.deleteAll();
@@ -139,38 +141,33 @@ public class BrukernotifikasjonstyringTest {
             .opprettet(LocalDateTime.now())
             .build());
 
-    var ferdignoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
+    var ferdignoekkelfanger = ArgumentCaptor.forClass(String.class);
+    var ferdigfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     brukernotifikasjonstyring.rydddeISigneringsoppgaver();
 
     // then
     verify(ferdigkoe, times(1))
-        .send(
-            eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG),
-            ferdignoekkelfanger.capture(),
-            ferdigfanger.capture());
+        .send(eq(BRUKERNOTIFIKASJON_TOPIC), ferdignoekkelfanger.capture(), ferdigfanger.capture());
 
     var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
+
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var inaktivertVarsel = objectMapper.readValue(ferdig, InaktiverVarsel.class);
 
     var oppdatertOppgavebestilling =
         oppgavebestillingDao.henteAktiveOppgaver(
             farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
 
-    assertAll(
-        () -> assertThat(ferdignokkel.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
-        () ->
-            assertThat(ferdignokkel.getFodselsnummer())
-                .isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
-        () ->
-            assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
-        () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue());
+    assertAll(() -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue());
   }
 
   @Test
-  void skalSletteUtloeptOppgaveDersomFarHarSignert() {
+  void skalSletteUtloeptOppgaveDersomFarHarSignert() throws JsonProcessingException {
 
     // given
     oppgavebestillingDao.deleteAll();
@@ -220,34 +217,29 @@ public class BrukernotifikasjonstyringTest {
             .opprettet(LocalDateTime.now())
             .build());
 
-    var ferdignoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
+    var ferdignoekkelfanger = ArgumentCaptor.forClass(String.class);
+    var ferdigfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     brukernotifikasjonstyring.rydddeISigneringsoppgaver();
 
     // then
     verify(ferdigkoe, times(1))
-        .send(
-            eq(BRUKERNOTIFIKASJON_TOPIC_FERDIG),
-            ferdignoekkelfanger.capture(),
-            ferdigfanger.capture());
+        .send(eq(BRUKERNOTIFIKASJON_TOPIC), ferdignoekkelfanger.capture(), ferdigfanger.capture());
 
     var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
+
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var inaktivertVarsel = objectMapper.readValue(ferdig, InaktiverVarsel.class);
 
     var oppdatertOppgavebestilling =
         oppgavebestillingDao.henteAktiveOppgaver(
             farskapserklaering.getId(), farskapserklaering.getFar().getFoedselsnummer());
 
-    assertAll(
-        () -> assertThat(ferdignokkel.getGrupperingsId()).isEqualTo(GRUPPERINGSID_FARSKAP),
-        () ->
-            assertThat(ferdignokkel.getFodselsnummer())
-                .isEqualTo(farskapserklaering.getFar().getFoedselsnummer()),
-        () ->
-            assertThat(ferdig.getTidspunkt()).isGreaterThanOrEqualTo(tidspunktFoerTestIEpochMillis),
-        () -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue());
+    assertAll(() -> assertThat(oppdatertOppgavebestilling.isEmpty()).isTrue());
   }
 
   @Test

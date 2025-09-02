@@ -1,14 +1,11 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
-
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukernotifikasjon.schemas.builders.NokkelInputBuilder;
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
+import lombok.val;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
@@ -57,13 +54,15 @@ public class BrukernotifikasjonConsumer {
         MELDING_OM_SIGNERT_FARSKAPSERKLAERING,
         true,
         true,
-        oppretteNokkel(mor.getFoedselsnummer()));
+        UUID.randomUUID().toString(),
+        mor.getFoedselsnummer());
     beskjedprodusent.oppretteBeskjedTilBruker(
         far,
         MELDING_OM_SIGNERT_FARSKAPSERKLAERING,
         true,
         true,
-        oppretteNokkel(far.getFoedselsnummer()));
+        UUID.randomUUID().toString(),
+        far.getFoedselsnummer());
   }
 
   public void varsleForeldreOmManglendeSignering(
@@ -83,7 +82,8 @@ public class BrukernotifikasjonConsumer {
             opprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             tekstBarn),
         true,
-        oppretteNokkel(mor.getFoedselsnummer()));
+        UUID.randomUUID().toString(),
+        mor.getFoedselsnummer());
     beskjedprodusent.oppretteBeskjedTilBruker(
         far,
         String.format(
@@ -91,29 +91,41 @@ public class BrukernotifikasjonConsumer {
             opprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             tekstBarn),
         true,
-        oppretteNokkel(far.getFoedselsnummer()));
+        UUID.randomUUID().toString(),
+        far.getFoedselsnummer());
   }
 
   public void varsleMorOmUtgaattOppgaveForSignering(Forelder mor) {
     log.info("Sender varsel til mor om utgått signeringsoppgave");
-    var noekkel = oppretteNokkel(mor.getFoedselsnummer());
+    val varselId = UUID.randomUUID().toString();
     beskjedprodusent.oppretteBeskjedTilBruker(
-        mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, noekkel);
-    log.info("Ekstern melding med eventId: {}, ble sendt til mor", noekkel.getEventId());
+        mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, varselId, mor.getFoedselsnummer());
+    log.info("Ekstern melding med eventId: {}, ble sendt til mor", varselId);
   }
 
   public void varsleOmAvbruttSignering(Forelder mor, Forelder far) {
     log.info("Varsler brukere om avbrutt signering");
     beskjedprodusent.oppretteBeskjedTilBruker(
-        mor, MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING, true, oppretteNokkel(mor.getFoedselsnummer()));
+        mor,
+        MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING,
+        true,
+        UUID.randomUUID().toString(),
+        mor.getFoedselsnummer());
     beskjedprodusent.oppretteBeskjedTilBruker(
-        far, MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING, true, oppretteNokkel(far.getFoedselsnummer()));
+        far,
+        MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING,
+        true,
+        UUID.randomUUID().toString(),
+        far.getFoedselsnummer());
   }
 
   public void oppretteOppgaveTilFarOmSignering(int idFarskapserklaering, Forelder far) {
     try {
       oppgaveprodusent.oppretteOppgaveForSigneringAvFarskapserklaering(
-          idFarskapserklaering, far, MELDING_OM_VENTENDE_FARSKAPSERKLAERING, true);
+          idFarskapserklaering,
+          far,
+          MELDING_OM_VENTENDE_FARSKAPSERKLAERING,
+          UUID.randomUUID().toString());
     } catch (InternFeilException internFeilException) {
       log.error(
           "En feil inntraff ved opprettelse av oppgave til far for farskapserklæring med id {}",
@@ -121,30 +133,13 @@ public class BrukernotifikasjonConsumer {
     }
   }
 
-  public void sletteFarsSigneringsoppgave(String eventId, Forelder far) {
-    log.info("Sletter signeringsoppgave med eventId {}", eventId);
+  public void sletteFarsSigneringsoppgave(String varselId, Forelder far) {
+    log.info("Sletter signeringsoppgave med varselId {}", varselId);
     try {
-      ferdigprodusent.ferdigstilleFarsSigneringsoppgave(
-          far, oppretteNokkel(eventId, far.getFoedselsnummer()));
+      ferdigprodusent.ferdigstilleFarsSigneringsoppgave(far, varselId);
     } catch (InternFeilException internFeilException) {
       log.error(
-          "En feil oppstod ved sending av ferdigmelding for oppgave med eventId {}.", eventId);
+          "En feil oppstod ved sending av ferdigmelding for oppgave med varselId {}.", varselId);
     }
-  }
-
-  private NokkelInput oppretteNokkel(String foedselsnummer) {
-    var unikEventid = UUID.randomUUID().toString();
-    return oppretteNokkel(unikEventid, foedselsnummer);
-  }
-
-  private NokkelInput oppretteNokkel(String eventId, String foedselsnummer) {
-    return new NokkelInputBuilder()
-        .withEventId(eventId)
-        .withFodselsnummer(foedselsnummer)
-        .withGrupperingsId(
-            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
-        .withNamespace(NAMESPACE_FARSKAPSPORTAL)
-        .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
-        .build();
   }
 }

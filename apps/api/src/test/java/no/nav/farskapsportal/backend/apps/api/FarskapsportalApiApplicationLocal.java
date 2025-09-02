@@ -1,6 +1,9 @@
 package no.nav.farskapsportal.backend.apps.api;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL_POSTGRES;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_REMOTE_POSTGRES;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import com.google.cloud.NoCredentials;
@@ -37,7 +40,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.stereotype.Component;
 import org.testcontainers.containers.GenericContainer;
@@ -56,9 +63,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
     partitions = 1,
     brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"},
     topics = {
-      "aapen-brukernotifikasjon-nyBeskjed-v1",
-      "aapen-brukernotifikasjon-done-v1",
-      "aapen-brukernotifikasjon-nyOppgave-v1"
+      "aapen-brukervarsel-v1",
     })
 @EnableSecurityConfiguration
 @EnableJwtTokenValidation(

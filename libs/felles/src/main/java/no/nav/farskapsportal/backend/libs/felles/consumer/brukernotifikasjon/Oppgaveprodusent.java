@@ -1,22 +1,18 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.BrukernotifikasjonConfig.NAMESPACE_FARSKAPSPORTAL;
-
 import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukernotifikasjon.schemas.builders.NokkelInputBuilder;
-import no.nav.brukernotifikasjon.schemas.builders.OppgaveInputBuilder;
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
-import no.nav.brukernotifikasjon.schemas.input.OppgaveInput;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
+import no.nav.tms.varsel.action.Sensitivitet;
+import no.nav.tms.varsel.action.Varseltype;
+import no.nav.tms.varsel.builder.OpprettVarselBuilder;
 import org.springframework.kafka.core.KafkaTemplate;
 
 @Slf4j
@@ -29,18 +25,9 @@ public class Oppgaveprodusent {
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   public void oppretteOppgaveForSigneringAvFarskapserklaering(
-      int idFarskapserklaering, Forelder far, String oppgavetekst, boolean medEksternVarsling) {
+      int idFarskapserklaering, Forelder far, String oppgavetekst, String varselId) {
 
-    var nokkel =
-        new NokkelInputBuilder()
-            .withEventId(UUID.randomUUID().toString())
-            .withGrupperingsId(
-                farskapsportalFellesEgenskaper.getBrukernotifikasjon().getGrupperingsidFarskap())
-            .withFodselsnummer(far.getFoedselsnummer())
-            .withAppnavn(farskapsportalFellesEgenskaper.getAppnavn())
-            .withNamespace(NAMESPACE_FARSKAPSPORTAL)
-            .build();
-    var melding = oppretteOppgave(oppgavetekst, medEksternVarsling, farskapsportalUrl);
+    var melding = oppretteOppgave(oppgavetekst, farskapsportalUrl, far, varselId);
 
     var farsAktiveSigneringsoppgaver =
         persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(
@@ -50,17 +37,17 @@ public class Oppgaveprodusent {
       log.info(
           "Oppretter oppgave om signering til far i farskapserklæring med id {}",
           idFarskapserklaering);
-      oppretteOppgave(nokkel, melding);
+      oppretteOppgave(varselId, melding);
       log.info("Signeringsppgave opprettet for far med id {}.", far.getId());
-      persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, nokkel.getEventId());
+      persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, varselId);
     }
   }
 
-  private void oppretteOppgave(NokkelInput nokkel, OppgaveInput melding) {
+  private void oppretteOppgave(String varselId, String melding) {
     try {
       kafkaTemplate.send(
-          farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicOppgave(),
-          nokkel,
+          farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon(),
+          varselId,
           melding);
     } catch (Exception e) {
       e.printStackTrace();
@@ -68,23 +55,29 @@ public class Oppgaveprodusent {
     }
   }
 
-  private OppgaveInput oppretteOppgave(
-      String oppgavetekst, boolean medEksternVarsling, URL farskapsportalUrl) {
+  private String oppretteOppgave(
+      String oppgavetekst, URL farskapsportalUrl, Forelder far, String varselId) {
 
-    return new OppgaveInputBuilder()
-        .withTidspunkt(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime())
-        .withEksternVarsling(medEksternVarsling)
-        .withLink(farskapsportalUrl)
-        .withSikkerhetsnivaa(
-            farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave())
-        .withSynligFremTil(
+    return OpprettVarselBuilder.newInstance()
+        .withType(Varseltype.Oppgave)
+        .withVarselId(varselId)
+        .withSensitivitet(
+            Sensitivitet.valueOf(
+                farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave()))
+        .withIdent(far.getFoedselsnummer())
+        .withTekst("nb", oppgavetekst, true)
+        .withLink(farskapsportalUrl.toString())
+        .withAktivFremTil(
             ZonedDateTime.now(ZoneId.of("UTC"))
                 .plusDays(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
-                        .getLevetidOppgaveAntallDager())
-                .toLocalDateTime())
-        .withTekst(oppgavetekst)
+                        .getLevetidOppgaveAntallDager()))
+        //        .withEksternVarsling()
+        .withProdusent(
+            farskapsportalFellesEgenskaper.getCluster(),
+            farskapsportalFellesEgenskaper.getNamespace(),
+            farskapsportalFellesEgenskaper.getAppnavn())
         .build();
   }
 }
