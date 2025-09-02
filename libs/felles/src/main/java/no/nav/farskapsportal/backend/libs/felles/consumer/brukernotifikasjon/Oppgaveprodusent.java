@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -38,7 +40,8 @@ public class Oppgaveprodusent {
           "Oppretter oppgave om signering til far i farskapserklæring med id {}",
           idFarskapserklaering);
       oppretteOppgave(varselId, melding);
-      log.info("Signeringsppgave opprettet for far med id {}.", far.getId());
+      log.info("Signeringsppgave opprettet for far");
+      SIKKER_LOGG.info("Signeringsppgave opprettet for far med id {}.", far.getId());
       persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, varselId);
     }
   }

@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -49,12 +51,19 @@ public class Beskjedprodusent {
           varselId,
           beskjed);
     } catch (Exception e) {
-      log.error("Opprettelse av beskjed til forelder med id {} feilet!", forelder.getId(), e);
+      log.error("Opprettelse av beskjed {} til forelder feilet!", meldingTilBruker, e);
+      SIKKER_LOGG.error("Opprettelse av beskjed {} til forelder med id {} feilet!", meldingTilBruker, forelder.getId(), e);
     }
 
     var medEllerUten = medEksternVarsling ? "med" : "uten";
     log.info(
-        "Beskjed {} ekstern varsling og varselId {} er sendt til forelder (id {}).",
+        "Beskjed {}, {} ekstern varsling og varselId {} er sendt til forelder.",
+        meldingTilBruker,
+        medEllerUten,
+        varselId);
+    SIKKER_LOGG.info(
+        "Beskjed {}, {} ekstern varsling og varselId {} er sendt til forelder med personid {}.",
+        meldingTilBruker,
         medEllerUten,
         varselId,
         forelder.getId());

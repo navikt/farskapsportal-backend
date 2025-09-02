@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
@@ -40,6 +42,8 @@ public class Ferdigprodusent {
       persistenceService.setteOppgaveTilFerdigstilt(varselId);
     } else {
       log.warn(
+          "Fant ingen aktiv oppgavebestilling for varselId {}. Bestiller derfor ikke ferdigstilling.", varselId);
+      SIKKER_LOGG.warn(
           "Fant ingen aktiv oppgavebestilling for varselId {} (gjelder far med id: {}). Bestiller derfor ikke ferdigstilling.",
           varselId,
           far.getId());
