@@ -52,7 +52,11 @@ public class Beskjedprodusent {
           beskjed);
     } catch (Exception e) {
       log.error("Opprettelse av beskjed {} til forelder feilet!", meldingTilBruker, e);
-      SIKKER_LOGG.error("Opprettelse av beskjed {} til forelder med id {} feilet!", meldingTilBruker, forelder.getId(), e);
+      SIKKER_LOGG.error(
+          "Opprettelse av beskjed {} til forelder med id {} feilet!",
+          meldingTilBruker,
+          forelder.getId(),
+          e);
     }
 
     var medEllerUten = medEksternVarsling ? "med" : "uten";

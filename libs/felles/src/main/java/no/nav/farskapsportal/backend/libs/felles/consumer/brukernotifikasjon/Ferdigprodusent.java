@@ -42,7 +42,8 @@ public class Ferdigprodusent {
       persistenceService.setteOppgaveTilFerdigstilt(varselId);
     } else {
       log.warn(
-          "Fant ingen aktiv oppgavebestilling for varselId {}. Bestiller derfor ikke ferdigstilling.", varselId);
+          "Fant ingen aktiv oppgavebestilling for varselId {}. Bestiller derfor ikke ferdigstilling.",
+          varselId);
       SIKKER_LOGG.warn(
           "Fant ingen aktiv oppgavebestilling for varselId {} (gjelder far med id: {}). Bestiller derfor ikke ferdigstilling.",
           varselId,
