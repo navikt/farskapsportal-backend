@@ -92,7 +92,7 @@ public class Beskjedprodusent {
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSynlighetBeskjedAntallMaaneder()))
-        //        .withEksternVarsling()
+        .withEksternVarsling()
         .withProdusent(
             farskapsportalFellesEgenskaper.getCluster(),
             farskapsportalFellesEgenskaper.getNamespace(),

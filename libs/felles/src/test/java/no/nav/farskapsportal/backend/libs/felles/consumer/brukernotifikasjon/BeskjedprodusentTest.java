@@ -88,13 +88,13 @@ public class BeskjedprodusentTest {
         () -> assertThat(opprettetVarsel.getTekster().getFirst().getSpraakkode()).isEqualTo("nb"),
         () ->
             assertThat(opprettetVarsel.getTekster().getFirst().getTekst()).isEqualTo("Hei på deg"),
-        () -> assertThat(opprettetVarsel.getEksternVarsling()).isNull(),
         () ->
             assertThat(opprettetVarsel.getSensitivitet().name())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaBeskjed()),
+        () -> assertThat(opprettetVarsel.getEksternVarsling()).isNotNull(),
         () ->
             assertThat(opprettetVarsel.getProdusent().getCluster())
                 .isEqualTo(farskapsportalFellesEgenskaper.getCluster()),

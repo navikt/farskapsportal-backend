@@ -1,7 +1,7 @@
 # farskapsportal-backend
 
 Støttefunksjoner for farskapsportal. Gjør oppslag mot PDL for å hente nødvendige personopplysninger i forbindelse med erklæring av farskap. Inneholder
-også grenesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæringer.
+også grensesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæringer.
 
 ### brukernotifikasjoner
 

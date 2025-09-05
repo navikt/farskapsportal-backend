@@ -141,13 +141,13 @@ public class OppgaveprodusentTest {
         () -> assertThat(opprettetVarsel.getTekster().getFirst().getSpraakkode()).isEqualTo("nb"),
         () ->
             assertThat(opprettetVarsel.getTekster().getFirst().getTekst()).isEqualTo(oppgavetekst),
-        () -> assertThat(opprettetVarsel.getEksternVarsling()).isNull(),
         () ->
             assertThat(opprettetVarsel.getSensitivitet().name())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaOppgave()),
+        () -> assertThat(opprettetVarsel.getEksternVarsling()).isNotNull(),
         () ->
             assertThat(opprettetVarsel.getProdusent().getCluster())
                 .isEqualTo(farskapsportalFellesEgenskaper.getCluster()),

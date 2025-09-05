@@ -76,7 +76,7 @@ public class Oppgaveprodusent {
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getLevetidOppgaveAntallDager()))
-        //        .withEksternVarsling()
+        .withEksternVarsling()
         .withProdusent(
             farskapsportalFellesEgenskaper.getCluster(),
             farskapsportalFellesEgenskaper.getNamespace(),
