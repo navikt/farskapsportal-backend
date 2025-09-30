@@ -33,8 +33,8 @@
           <url>https://maven.pkg.github.com/navikt/maven-release</url>
         </repository>
         <repository>
-          <id>github-tms</id>
-          <url>https://maven.pkg.github.com/navikt/tms-varsel-authority</url>
+          <id>github-package-registry-mirror-navikt</id>
+          <url>https://github-package-registry-mirror.gc.nav.no/cached/maven-release</url>
         </repository>
         <repository>
           <id>jitpack.io</id>

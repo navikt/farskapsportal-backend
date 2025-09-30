@@ -22,38 +22,40 @@ public class Ferdigprodusent {
   OppgavebestillingDao oppgavebestillingDao;
   FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
-  public void ferdigstilleFarsSigneringsoppgave(Forelder far, String varselId) {
+  public void ferdigstilleFarsSigneringsoppgave(Forelder far, String eventId) {
 
-    var oppgaveSomSkalFerdigstilles = oppgavebestillingDao.henteOppgavebestilling(varselId);
+    var oppgaveSomSkalFerdigstilles = oppgavebestillingDao.henteOppgavebestilling(eventId);
 
     if (oppgaveSomSkalFerdigstilles.isPresent()
         && oppgaveSomSkalFerdigstilles.get().getFerdigstilt() == null) {
-      var melding = oppretteDone(varselId);
+      var melding = oppretteDone(eventId);
       try {
         kafkaTemplate.send(
             farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon(),
-            varselId,
+            eventId,
             melding);
       } catch (Exception e) {
         throw new InternFeilException(Feilkode.BRUKERNOTIFIKASJON_OPPRETTE_OPPGAVE, e);
       }
 
-      log.info("Ferdigmelding ble sendt for oppgave med varselId {}.", varselId);
-      persistenceService.setteOppgaveTilFerdigstilt(varselId);
+      log.info("Ferdigmelding ble sendt for oppgave med eventId {}.", eventId);
+      persistenceService.setteOppgaveTilFerdigstilt(eventId);
     } else {
       log.warn(
-          "Fant ingen aktiv oppgavebestilling for varselId {}. Bestiller derfor ikke ferdigstilling.",
-          varselId);
+          "Fant ingen aktiv oppgavebestilling for eventId {}. Bestiller derfor ikke ferdigstilling.",
+          eventId);
       SIKKER_LOGG.warn(
-          "Fant ingen aktiv oppgavebestilling for varselId {} (gjelder far med id: {}). Bestiller derfor ikke ferdigstilling.",
-          varselId,
+          "Fant ingen aktiv oppgavebestilling for eventId {} (gjelder far med id: {}). Bestiller derfor ikke ferdigstilling.",
+          eventId,
           far.getId());
     }
   }
 
-  private String oppretteDone(String varselId) {
+  private String oppretteDone(String eventId) {
+    log.info("Inaktiverer varsel med eventId {}", eventId);
+
     return InaktiverVarselBuilder.newInstance()
-        .withVarselId(varselId)
+        .withVarselId(eventId)
         .withProdusent(
             farskapsportalFellesEgenskaper.getCluster(),
             farskapsportalFellesEgenskaper.getNamespace(),

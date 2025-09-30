@@ -70,7 +70,7 @@ public class OppgaveprodusentTest {
     var far = Forelder.builder().foedselsnummer("11111122222").build();
     var oppgavetekst = "Vennligst signer farskapserklæringen";
     var farskapsportalUrl = new URL(farskapsportalFellesEgenskaper.getUrl());
-    var varselId = UUID.randomUUID().toString();
+    var eventId = UUID.randomUUID().toString();
 
     var farskapserklaeringSomVenterPaaFarsSignatur =
         henteFarskapserklaering(
@@ -86,7 +86,7 @@ public class OppgaveprodusentTest {
 
     // when
     oppgaveprodusent.oppretteOppgaveForSigneringAvFarskapserklaering(
-        lagretFarskapserklaering.getId(), far, oppgavetekst, varselId);
+        lagretFarskapserklaering.getId(), far, oppgavetekst, eventId);
 
     // then
     verify(oppgavekoe, times(1))
@@ -133,7 +133,7 @@ public class OppgaveprodusentTest {
     var opprettetVarsel = objectMapper.readValue(oppgave, OpprettVarsel.class);
 
     assertAll(
-        () -> assertThat(noekkel).isEqualTo(varselId),
+        () -> assertThat(noekkel).isEqualTo(eventId),
         () -> assertThat(opprettetVarsel.getType()).isEqualTo(Varseltype.Oppgave),
         () -> assertThat(opprettetVarsel.getVarselId()).isEqualTo(noekkel),
         () -> assertThat(opprettetVarsel.getIdent()).isEqualTo(far.getFoedselsnummer()),
@@ -167,7 +167,7 @@ public class OppgaveprodusentTest {
     farskapserklaeringDao.deleteAll();
 
     var oppgavetekst = "Vennligst signer farskapserklæringen";
-    var varselId = UUID.randomUUID().toString();
+    var eventId = UUID.randomUUID().toString();
 
     var farskapserklaeringSomVenterPaaFarsSignatur =
         henteFarskapserklaering(
@@ -186,10 +186,7 @@ public class OppgaveprodusentTest {
 
     // when
     oppgaveprodusent.oppretteOppgaveForSigneringAvFarskapserklaering(
-        lagretFarskapserklaering.getId(),
-        lagretFarskapserklaering.getFar(),
-        oppgavetekst,
-        varselId);
+        lagretFarskapserklaering.getId(), lagretFarskapserklaering.getFar(), oppgavetekst, eventId);
 
     // then
     verify(oppgavekoe, times(0)).send(anyString(), anyString(), anyString());

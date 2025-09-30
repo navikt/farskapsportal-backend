@@ -27,9 +27,9 @@ public class Oppgaveprodusent {
   private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   public void oppretteOppgaveForSigneringAvFarskapserklaering(
-      int idFarskapserklaering, Forelder far, String oppgavetekst, String varselId) {
+      int idFarskapserklaering, Forelder far, String oppgavetekst, String eventId) {
 
-    var melding = oppretteOppgave(oppgavetekst, farskapsportalUrl, far, varselId);
+    var melding = oppretteOppgave(oppgavetekst, farskapsportalUrl, far, eventId);
 
     var farsAktiveSigneringsoppgaver =
         persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(
@@ -39,31 +39,32 @@ public class Oppgaveprodusent {
       log.info(
           "Oppretter oppgave om signering til far i farskapserklæring med id {}",
           idFarskapserklaering);
-      oppretteOppgave(varselId, melding);
+      oppretteOppgave(eventId, melding);
       log.info("Signeringsppgave opprettet for far");
       SIKKER_LOGG.info("Signeringsppgave opprettet for far med id {}.", far.getId());
-      persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, varselId);
+      persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, eventId);
     }
   }
 
-  private void oppretteOppgave(String varselId, String melding) {
+  private void oppretteOppgave(String eventId, String melding) {
     try {
       kafkaTemplate.send(
           farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon(),
-          varselId,
+          eventId,
           melding);
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Opprettelse av oppgave {} til forelder feilet!", melding, e);
       throw new InternFeilException(Feilkode.BRUKERNOTIFIKASJON_OPPRETTE_OPPGAVE, e);
     }
   }
 
   private String oppretteOppgave(
-      String oppgavetekst, URL farskapsportalUrl, Forelder far, String varselId) {
+      String oppgavetekst, URL farskapsportalUrl, Forelder far, String eventId) {
+    log.info("Oppretter oppgave med eventId {} og melding {}", eventId, oppgavetekst);
 
     return OpprettVarselBuilder.newInstance()
         .withType(Varseltype.Oppgave)
-        .withVarselId(varselId)
+        .withVarselId(eventId)
         .withSensitivitet(
             Sensitivitet.valueOf(
                 farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaOppgave()))

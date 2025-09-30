@@ -27,10 +27,10 @@ public class Beskjedprodusent {
       Forelder forelder,
       String meldingTilBruker,
       boolean medEksternVarsling,
-      String varselId,
+      String eventId,
       String fodselsnummer) {
     oppretteBeskjedTilBruker(
-        forelder, meldingTilBruker, medEksternVarsling, false, varselId, fodselsnummer);
+        forelder, meldingTilBruker, medEksternVarsling, false, eventId, fodselsnummer);
   }
 
   public void oppretteBeskjedTilBruker(
@@ -38,17 +38,19 @@ public class Beskjedprodusent {
       String meldingTilBruker,
       boolean medEksternVarsling,
       boolean lenkeTilOversikt,
-      String varselId,
+      String eventId,
       String fodselsnummer) {
 
     var farskapsportalUrl = lenkeTilOversikt ? farskapsportalUrlOversikt : farskapsportalUrlForside;
 
-    var beskjed = oppretteBeskjed(meldingTilBruker, farskapsportalUrl, varselId, fodselsnummer);
+    var beskjed =
+        oppretteBeskjed(
+            meldingTilBruker, farskapsportalUrl, eventId, fodselsnummer, medEksternVarsling);
 
     try {
       kafkaTemplate.send(
           farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon(),
-          varselId,
+          eventId,
           beskjed);
     } catch (Exception e) {
       log.error("Opprettelse av beskjed {} til forelder feilet!", meldingTilBruker, e);
@@ -61,42 +63,54 @@ public class Beskjedprodusent {
 
     var medEllerUten = medEksternVarsling ? "med" : "uten";
     log.info(
-        "Beskjed {}, {} ekstern varsling og varselId {} er sendt til forelder.",
+        "Beskjed {}, {} ekstern varsling og vareventIdselId {} er sendt til forelder.",
         meldingTilBruker,
         medEllerUten,
-        varselId);
+        eventId);
     SIKKER_LOGG.info(
-        "Beskjed {}, {} ekstern varsling og varselId {} er sendt til forelder med personid {}.",
+        "Beskjed {}, {} ekstern varsling og eventId {} er sendt til forelder med personid {}.",
         meldingTilBruker,
         medEllerUten,
-        varselId,
+        eventId,
         forelder.getId());
   }
 
   private String oppretteBeskjed(
-      String meldingTilBruker, URL farskapsportalUrl, String varselId, String fodselsnummer) {
+      String meldingTilBruker,
+      URL farskapsportalUrl,
+      String eventId,
+      String fodselsnummer,
+      Boolean medEksternVarsling) {
+    log.info("Oppretter beskjed med eventId {} og melding {}", eventId, meldingTilBruker);
 
-    return OpprettVarselBuilder.newInstance()
-        .withType(Varseltype.Beskjed)
-        .withVarselId(varselId)
-        .withSensitivitet(
-            Sensitivitet.valueOf(
-                farskapsportalFellesEgenskaper.getBrukernotifikasjon().getSikkerhetsnivaaBeskjed()))
-        .withIdent(fodselsnummer)
-        .withTekst("nb", meldingTilBruker, true)
-        .withLink(farskapsportalUrl.toString())
-        .withAktivFremTil(
-            ZonedDateTime.now(ZoneId.of("UTC"))
-                .withHour(0)
-                .plusMonths(
+    OpprettVarselBuilder builder =
+        OpprettVarselBuilder.newInstance()
+            .withType(Varseltype.Beskjed)
+            .withVarselId(eventId)
+            .withSensitivitet(
+                Sensitivitet.valueOf(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
-                        .getSynlighetBeskjedAntallMaaneder()))
-        .withEksternVarsling()
-        .withProdusent(
-            farskapsportalFellesEgenskaper.getCluster(),
-            farskapsportalFellesEgenskaper.getNamespace(),
-            farskapsportalFellesEgenskaper.getAppnavn())
-        .build();
+                        .getSikkerhetsnivaaBeskjed()))
+            .withIdent(fodselsnummer)
+            .withTekst("nb", meldingTilBruker, true)
+            .withLink(farskapsportalUrl.toString())
+            .withAktivFremTil(
+                ZonedDateTime.now(ZoneId.of("UTC"))
+                    .withHour(0)
+                    .plusMonths(
+                        farskapsportalFellesEgenskaper
+                            .getBrukernotifikasjon()
+                            .getSynlighetBeskjedAntallMaaneder()))
+            .withProdusent(
+                farskapsportalFellesEgenskaper.getCluster(),
+                farskapsportalFellesEgenskaper.getNamespace(),
+                farskapsportalFellesEgenskaper.getAppnavn());
+
+    if (medEksternVarsling) {
+      builder = builder.withEksternVarsling();
+    }
+
+    return builder.build();
   }
 }

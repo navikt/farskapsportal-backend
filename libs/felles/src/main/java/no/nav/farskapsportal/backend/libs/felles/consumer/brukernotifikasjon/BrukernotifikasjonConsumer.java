@@ -1,5 +1,7 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
+
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -45,7 +47,8 @@ public class BrukernotifikasjonConsumer {
   }
 
   public void informereForeldreOmTilgjengeligFarskapserklaering(Forelder mor, Forelder far) {
-    log.info(
+    log.info("Informerer foreldre om ferdigstilt farskapserklæring.");
+    SIKKER_LOGG.info(
         "Informerer foreldre (mor: {}, far: {}) om ferdigstilt farskapserklæring.",
         mor.getId(),
         far.getId());
@@ -67,7 +70,8 @@ public class BrukernotifikasjonConsumer {
 
   public void varsleForeldreOmManglendeSignering(
       Forelder mor, Forelder far, Barn barn, LocalDate opprettetDato) {
-    log.info(
+    log.info("Informerer foreldre om ventende farskapserklæring.");
+    SIKKER_LOGG.info(
         "Informerer foreldre (mor: {}, far: {}) om ventende farskapserklæring.",
         mor.getId(),
         far.getId());
@@ -97,14 +101,17 @@ public class BrukernotifikasjonConsumer {
 
   public void varsleMorOmUtgaattOppgaveForSignering(Forelder mor) {
     log.info("Sender varsel til mor om utgått signeringsoppgave");
-    val varselId = UUID.randomUUID().toString();
+    SIKKER_LOGG.info("Sender varsel til mor med id {} om utgått signeringsoppgave", mor.getId());
+    val eventId = UUID.randomUUID().toString();
     beskjedprodusent.oppretteBeskjedTilBruker(
-        mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, varselId, mor.getFoedselsnummer());
-    log.info("Ekstern melding med eventId: {}, ble sendt til mor", varselId);
+        mor, MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE, true, eventId, mor.getFoedselsnummer());
+    log.info("Ekstern melding med eventId: {}, ble sendt til mor", eventId);
   }
 
   public void varsleOmAvbruttSignering(Forelder mor, Forelder far) {
-    log.info("Varsler brukere om avbrutt signering");
+    log.info("Informerer foreldre om avbrutt signering");
+    SIKKER_LOGG.info(
+        "Informerer foreldre (mor: {}, far: {}) om avbrutt signering", mor.getId(), far.getId());
     beskjedprodusent.oppretteBeskjedTilBruker(
         mor,
         MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING,
@@ -120,6 +127,9 @@ public class BrukernotifikasjonConsumer {
   }
 
   public void oppretteOppgaveTilFarOmSignering(int idFarskapserklaering, Forelder far) {
+    log.info("Oppretter signeringsoppgave med id {}", idFarskapserklaering);
+    SIKKER_LOGG.info(
+        "Oppretter signeringsoppgave for far {} med id {}", far.getId(), idFarskapserklaering);
     try {
       oppgaveprodusent.oppretteOppgaveForSigneringAvFarskapserklaering(
           idFarskapserklaering,
@@ -133,13 +143,14 @@ public class BrukernotifikasjonConsumer {
     }
   }
 
-  public void sletteFarsSigneringsoppgave(String varselId, Forelder far) {
-    log.info("Sletter signeringsoppgave med varselId {}", varselId);
+  public void sletteFarsSigneringsoppgave(String eventId, Forelder far) {
+    log.info("Sletter signeringsoppgave med eventId {}", eventId);
+    SIKKER_LOGG.info("Sletter signeringsoppgave for far {} med eventId {}", far.getId(), eventId);
     try {
-      ferdigprodusent.ferdigstilleFarsSigneringsoppgave(far, varselId);
+      ferdigprodusent.ferdigstilleFarsSigneringsoppgave(far, eventId);
     } catch (InternFeilException internFeilException) {
       log.error(
-          "En feil oppstod ved sending av ferdigmelding for oppgave med varselId {}.", varselId);
+          "En feil oppstod ved sending av ferdigmelding for oppgave med eventId {}.", eventId);
     }
   }
 }

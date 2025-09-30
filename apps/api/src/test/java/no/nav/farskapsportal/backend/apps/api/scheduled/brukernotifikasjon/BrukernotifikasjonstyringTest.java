@@ -55,7 +55,6 @@ import org.springframework.test.context.ActiveProfiles;
 public class BrukernotifikasjonstyringTest {
 
   private static final String BRUKERNOTIFIKASJON_TOPIC = "min-side.aapen-brukervarsel-v1";
-  private static final String GRUPPERINGSID_FARSKAP = "farskap";
 
   private @Autowired BrukernotifikasjonConsumer brukernotifikasjonConsumer;
   private @Autowired PersistenceService persistenceService;

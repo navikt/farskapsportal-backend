@@ -51,11 +51,11 @@ public class BeskjedprodusentTest {
 
     var far = Forelder.builder().foedselsnummer("11111122222").build();
     var farskapsportalUrl = new URL(farskapsportalFellesEgenskaper.getUrl());
-    var varselId = UUID.randomUUID().toString();
+    var eventId = UUID.randomUUID().toString();
 
     // when
     beskjedprodusent.oppretteBeskjedTilBruker(
-        far, "Hei på deg", eksternVarsling, varselId, far.getFoedselsnummer());
+        far, "Hei på deg", eksternVarsling, eventId, far.getFoedselsnummer());
 
     // then
     verify(ferdigkoe, times(1))
@@ -80,7 +80,7 @@ public class BeskjedprodusentTest {
     var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
 
     assertAll(
-        () -> assertThat(noekkel).isEqualTo(varselId),
+        () -> assertThat(noekkel).isEqualTo(eventId),
         () -> assertThat(opprettetVarsel.getType()).isEqualTo(Varseltype.Beskjed),
         () -> assertThat(opprettetVarsel.getVarselId()).isEqualTo(noekkel),
         () -> assertThat(opprettetVarsel.getIdent()).isEqualTo(far.getFoedselsnummer()),
