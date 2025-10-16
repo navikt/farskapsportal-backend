@@ -17,17 +17,17 @@ import no.nav.farskapsportal.backend.libs.felles.exception.InternFeilException;
 public class BrukernotifikasjonConsumer {
 
   private static final String MELDING_OM_SIGNERT_FARSKAPSERKLAERING =
-      "Du har mottatt en signert farskapserklæring som er tilgjengelig for nedlasting i en begrenset tidsperiode.";
+      "NY: Du har mottatt en signert farskapserklæring som er tilgjengelig for nedlasting i en begrenset tidsperiode.";
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING =
-      "Du har mottatt en farskapserklæring som venter på din signatur.";
+      "NY: Du har mottatt en farskapserklæring som venter på din signatur.";
   private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING =
-      "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
+      "NY: Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING =
-      "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
+      "NY: Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
   private static final String MELDING_OM_MANGLENDE_SIGNERING =
-      "Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med NAV ved problemer.";
+      "NY: Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med NAV ved problemer.";
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE =
-      "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
+      "NY: Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
 
   private final Beskjedprodusent beskjedprodusent;
   private final Ferdigprodusent ferdigprodusent;
