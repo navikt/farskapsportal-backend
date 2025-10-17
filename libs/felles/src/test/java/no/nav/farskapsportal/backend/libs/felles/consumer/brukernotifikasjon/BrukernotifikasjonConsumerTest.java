@@ -58,15 +58,15 @@ import org.springframework.test.context.ActiveProfiles;
 public class BrukernotifikasjonConsumerTest {
 
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING =
-      "NY: Du har mottatt en farskapserklæring som venter på din signatur.";
+      "Du har mottatt en farskapserklæring som venter på din signatur.";
   private static final String MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING =
-      "NY: Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
+      "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final String MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING =
-      "NY: Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
+      "Fars signering ble avbrutt, aktuell farskapserklæring måtte derfor slettes. Mor kan opprette ny hvis ønskelig.";
   private static final String MELDING_OM_MANGLENDE_SIGNERING =
-      "NY: Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med NAV ved problemer.";
+      "Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med NAV ved problemer.";
   private static final String MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE =
-      "NY: Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
+      "Far har ikke signert farskapserklæringen innen fristen. Farskapserklæringen er derfor slettet. Mor kan opprette ny hvis ønskelig. Trykk her for å opprette ny farskapserklæring.";
   private static final Barn BARN = TestUtils.henteBarnUtenFnr(5);
 
   private @Value("${wiremock.server.port}") String wiremockPort;
