@@ -83,28 +83,29 @@ public class Beskjedprodusent {
       Boolean medEksternVarsling) {
     log.info("Oppretter beskjed med eventId {} og melding {}", eventId, meldingTilBruker);
 
-    OpprettVarselBuilder builder = OpprettVarselBuilder.newInstance()
-        .withType(Varseltype.Beskjed)
-        .withVarselId(eventId)
-        .withSensitivitet(
-            Sensitivitet.valueOf(
-                farskapsportalFellesEgenskaper
-                    .getBrukernotifikasjon()
-                    .getSikkerhetsnivaaBeskjed()))
-        .withIdent(fodselsnummer)
-        .withTekst("nb", meldingTilBruker, true)
-        .withLink(farskapsportalUrl.toString())
-        .withAktivFremTil(
-            ZonedDateTime.now(ZoneId.of("UTC"))
-                .withHour(0)
-                .plusMonths(
+    OpprettVarselBuilder builder =
+        OpprettVarselBuilder.newInstance()
+            .withType(Varseltype.Beskjed)
+            .withVarselId(eventId)
+            .withSensitivitet(
+                Sensitivitet.valueOf(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
-                        .getSynlighetBeskjedAntallMaaneder()))
-        .withProdusent(
-            farskapsportalFellesEgenskaper.getCluster(),
-            farskapsportalFellesEgenskaper.getNamespace(),
-            farskapsportalFellesEgenskaper.getAppnavn());
+                        .getSikkerhetsnivaaBeskjed()))
+            .withIdent(fodselsnummer)
+            .withTekst("nb", meldingTilBruker, true)
+            .withLink(farskapsportalUrl.toString())
+            .withAktivFremTil(
+                ZonedDateTime.now(ZoneId.of("UTC"))
+                    .withHour(0)
+                    .plusMonths(
+                        farskapsportalFellesEgenskaper
+                            .getBrukernotifikasjon()
+                            .getSynlighetBeskjedAntallMaaneder()))
+            .withProdusent(
+                farskapsportalFellesEgenskaper.getCluster(),
+                farskapsportalFellesEgenskaper.getNamespace(),
+                farskapsportalFellesEgenskaper.getAppnavn());
 
     if (medEksternVarsling) {
       builder = builder.withEksternVarsling();
