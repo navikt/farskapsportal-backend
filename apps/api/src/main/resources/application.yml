@@ -47,7 +47,7 @@ farskapsportal:
       arkiveringsforsinkelse: ${ARKIVERINGSFORSINKELSE}
       deaktiveringsrate: ${DEAKTIVERINGSRATE}
       dokumentslettingsrate: ${DOKUMENTSLETTINGSRATE}
-      levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 0
+      levetid-ikke-ferdigstilte-signeringsoppdrag-i-dager: 40
       levetid-oversendte-farskapserklaeringer-i-dager: ${DEAKTIVERE_OVERSENDTE_ERKLAERINGER_ETTER_ANTALL_DAGER}
       levetid-erklaeringer-ikke-signert-av-mor-i-dager: 1
       maks-antall-feil-paa-rad: 3

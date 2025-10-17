@@ -63,12 +63,12 @@ public class Beskjedprodusent {
 
     var medEllerUten = medEksternVarsling ? "med" : "uten";
     log.info(
-        "Beskjed {}, {} ekstern varsling og vareventIdselId {} er sendt til forelder.",
+        "Beskjed {}, {} ekstern varsling og eventId {} er sendt til forelder.",
         meldingTilBruker,
         medEllerUten,
         eventId);
     SIKKER_LOGG.info(
-        "Beskjed {}, {} ekstern varsling og eventId {} er sendt til forelder med personid {}.",
+        "Beskjed {}, {} ekstern varsling og eventId {} er sendt til forelder med personId {}.",
         meldingTilBruker,
         medEllerUten,
         eventId,

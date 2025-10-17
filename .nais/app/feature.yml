@@ -75,7 +75,7 @@ env:
   - name: VARSLE_OM_MANGLENDE_SIGNERING_ETTER_ANTALL_DAGER
     value: 10
   - name: VARSLE_OM_UFERDIG_ERKLAERING_CRON
-    value: "0 0/15 * ? * *"
+    value: "0 0 11 ? * TUE"
   - name: VURDERE_OPPGAVE_INTERVALL
     value: "0 0/5 * * * ?"
 
