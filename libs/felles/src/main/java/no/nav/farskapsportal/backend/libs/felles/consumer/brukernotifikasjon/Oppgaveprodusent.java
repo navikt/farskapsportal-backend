@@ -30,6 +30,7 @@ public class Oppgaveprodusent {
       int idFarskapserklaering, Forelder far, String oppgavetekst, String eventId) {
 
     var melding = oppretteOppgave(oppgavetekst, farskapsportalUrl, far, eventId);
+    SIKKER_LOGG.info("Melding opprettet: {}", melding);
 
     var farsAktiveSigneringsoppgaver =
         persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(
@@ -40,8 +41,8 @@ public class Oppgaveprodusent {
           "Oppretter oppgave om signering til far i farskapserklæring med id {}",
           idFarskapserklaering);
       oppretteOppgave(eventId, melding);
-      log.info("Signeringsppgave opprettet for far");
-      SIKKER_LOGG.info("Signeringsppgave opprettet for far med id {}.", far.getId());
+      log.info("Signeringsoppgave opprettet for far");
+      SIKKER_LOGG.info("Signeringsoppgave opprettet for far med id {}.", far.getId());
       persistenceService.lagreNyOppgavebestilling(idFarskapserklaering, eventId);
     }
   }

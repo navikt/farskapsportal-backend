@@ -24,8 +24,10 @@ public class Varsel {
       zone = "Europe/Oslo")
   public void varsleOmManglendeSigneringsinfo() {
 
+//    var grensetidspunkt =
+//        LocalDateTime.now().minusDays(egenskaperBrukernotifikasjon.getOppgavestyringsforsinkelse());
     var grensetidspunkt =
-        LocalDateTime.now().minusDays(egenskaperBrukernotifikasjon.getOppgavestyringsforsinkelse());
+        LocalDateTime.now().minusHours(1);
 
     var ider =
         persistenceService.henteIdTilAktiveFarskapserklaeringerSomManglerSigneringsinfoFar(
