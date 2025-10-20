@@ -23,7 +23,7 @@
         <bidrag-commons.version>20230612111733_79de014</bidrag-commons.version>
 
         <!-- other -->
-        <apache.commons-lang.version>3.17.0</apache.commons-lang.version>
+        <apache.commons-lang.version>3.18.0</apache.commons-lang.version>
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <signature-api-client-bom.version>7.0.4</signature-api-client-bom.version>
         <asm.version>9.6</asm.version>
