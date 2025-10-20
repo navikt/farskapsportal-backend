@@ -1,7 +1,7 @@
 # farskapsportal-backend
 
 Støttefunksjoner for farskapsportal. Gjør oppslag mot PDL for å hente nødvendige personopplysninger i forbindelse med erklæring av farskap. Inneholder
-også grenesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæringer.
+også grensesnitt mot Skatt og Joark for lagring av ferdigstilte farskapserklæringer.
 
 ### brukernotifikasjoner
 
@@ -93,15 +93,13 @@ export JAVA_HOME=/usr/local/Cellar/openjdk@11/11.0.10
 confluent local services start
 
 ###### Kafka Apache
-farskapsportal-api sender meldinger til brukernotifkasjons kafka-topics. Ved lokal kjøring brukes lokal Kafkainstans. (Kafka kan installeres på Mac 
+farskapsportal-api sender meldinger til brukernotifkasjons kafka-topic. Ved lokal kjøring brukes lokal Kafkainstans. (Kafka kan installeres på Mac 
 med >brew install kafka). Her må aktuelle topics også defineres:
 
 Gå til kafka-installasjonsområdet (på iOS vha brew blir Kafka installert her: /usr/local/Cellar/kafka/2.8.0/libexec), kjør følgende kommandoer for å opprette topics 
 (ref [apache kafka quick-start](https://kafka.apache.org/quickstart) for info om oppstart av Kafka):
 
->./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyBeskjed-v1 --bootstrap-server localhost:9092 \
->./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyDone-v1 --bootstrap-server localhost:9092 \
->./bin/kafka-topics.sh --create --topic aapen-brukernotifikasjon-nyOppgave-v1 --bootstrap-server localhost:9092
+>./bin/kafka-topics.sh --create --topic aapen-brukervarsel-v1 --bootstrap-server localhost:9092 \
 
 ##### Lese secret fra GCP ved lokal kjøring
 

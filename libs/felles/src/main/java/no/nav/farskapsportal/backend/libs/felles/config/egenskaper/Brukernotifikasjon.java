@@ -16,13 +16,11 @@ import org.springframework.context.annotation.PropertySource;
     factory = YamlPropertySourceFactory.class)
 public class Brukernotifikasjon {
 
-  private String topicBeskjed;
-  private String topicFerdig;
-  private String topicOppgave;
+  private String topicBrukernotifikasjon;
   private String grupperingsidFarskap;
   private int synlighetBeskjedAntallMaaneder;
   private int levetidOppgaveAntallDager;
-  private int sikkerhetsnivaaBeskjed;
-  private int sikkerhetsnivaaOppgave;
+  private String sikkerhetsnivaaBeskjed;
+  private String sikkerhetsnivaaOppgave;
   private boolean skruddPaa;
 }

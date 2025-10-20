@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FAR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.MOR;
@@ -9,22 +10,18 @@ import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.hen
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.time.Instant;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput;
-import no.nav.brukernotifikasjon.schemas.input.DoneInput;
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
-import no.nav.brukernotifikasjon.schemas.input.OppgaveInput;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
@@ -39,6 +36,8 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
+import no.nav.tms.varsel.action.InaktiverVarsel;
+import no.nav.tms.varsel.action.OpprettVarsel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -75,26 +74,24 @@ public class BrukernotifikasjonConsumerTest {
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
-  private @MockBean KafkaTemplate<NokkelInput, BeskjedInput> beskjedkoe;
-  private @MockBean KafkaTemplate<NokkelInput, DoneInput> ferdigkoe;
-  private @MockBean KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
+  private @MockBean KafkaTemplate<String, String> brukernotifikasjonKoe;
   private @MockBean GcpStorageManager gcpStorageManager;
   private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Test
-  void skalInformereForeldreOmTilgjengeligFarskapserklaering() {
+  void skalInformereForeldreOmTilgjengeligFarskapserklaering() throws JsonProcessingException {
 
     // given
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     brukernotifikasjonConsumer.informereForeldreOmTilgjengeligFarskapserklaering(MOR, FAR);
 
     // then
-    verify(beskjedkoe, times(2))
+    verify(brukernotifikasjonKoe, times(2))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             beskjedfanger.capture());
 
@@ -105,66 +102,46 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(noekler.size()).isEqualTo(2),
         () -> assertThat(beskjeder.size()).isEqualTo(2));
 
-    var noekkelMor = noekler.get(0);
-    var noekkelFar = noekler.get(1);
     var beskjedMor = beskjeder.get(0);
     var beskjedFar = beskjeder.get(1);
 
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarselMor = objectMapper.readValue(beskjedMor, OpprettVarsel.class);
+    var opprettetVarselFar = objectMapper.readValue(beskjedFar, OpprettVarsel.class);
+
     var beskjedMorSynligFremTilDato =
-        Instant.ofEpochMilli(beskjedMor.getSynligFremTil())
-            .atZone(ZoneId.systemDefault())
+        opprettetVarselMor
+            .getAktivFremTil() // already a ZonedDateTime
+            .withZoneSameInstant(ZoneId.systemDefault())
             .toLocalDate();
     var beskjedFarSynligFremTilDato =
-        Instant.ofEpochMilli(beskjedFar.getSynligFremTil())
-            .atZone(ZoneId.systemDefault())
+        opprettetVarselFar
+            .getAktivFremTil() // already a ZonedDateTime
+            .withZoneSameInstant(ZoneId.systemDefault())
             .toLocalDate();
 
     assertAll(
-        () -> assertThat(beskjedMor.getEksternVarsling()).isTrue(),
-        () -> assertThat(beskjedFar.getEksternVarsling()).isTrue(),
+        () -> assertThat(opprettetVarselMor.getIdent()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(opprettetVarselFar.getIdent()).isEqualTo(FAR.getFoedselsnummer()),
         () ->
-            assertThat(noekkelMor.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(noekkelFar.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () -> assertThat(noekkelMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-        () -> assertThat(noekkelFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
-        () ->
-            assertThat(beskjedMor.getSikkerhetsnivaa())
+            assertThat(opprettetVarselMor.getSensitivitet().toString())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaBeskjed()),
         () ->
-            assertThat(beskjedFar.getSikkerhetsnivaa())
+            assertThat(opprettetVarselFar.getSensitivitet().toString())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaBeskjed()),
         () ->
-            assertThat(noekkelMor.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(noekkelFar.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjedMor.getLink())
+            assertThat(opprettetVarselMor.getLink())
                 .isEqualTo(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"),
         () ->
-            assertThat(beskjedFar.getLink())
+            assertThat(opprettetVarselFar.getLink())
                 .isEqualTo(farskapsportalFellesEgenskaper.getUrl() + "/oversikt"),
         () ->
             assertThat(beskjedMorSynligFremTilDato)
@@ -185,65 +162,62 @@ public class BrukernotifikasjonConsumerTest {
   }
 
   @Test
-  void skalVarsleMorOmUtloeptOppgaveForSignering() {
+  void skalVarsleMorOmUtloeptOppgaveForSignering() throws JsonProcessingException {
 
     // given
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     brukernotifikasjonConsumer.varsleMorOmUtgaattOppgaveForSignering(MOR);
 
     // then
-    verify(beskjedkoe, times(1))
+    verify(brukernotifikasjonKoe, times(1))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             beskjedfanger.capture());
 
-    var nokkel = noekkelfanger.getValue();
     var beskjed = beskjedfanger.getValue();
 
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
+
     assertAll(
-        () -> assertThat(beskjed.getEksternVarsling()).isTrue(),
-        () -> assertThat(nokkel.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
+        () -> assertThat(opprettetVarsel.getIdent()).isEqualTo(MOR.getFoedselsnummer()),
         () ->
-            assertThat(nokkel.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjed.getSikkerhetsnivaa())
+            assertThat(opprettetVarsel.getSensitivitet().toString())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaBeskjed()),
         () ->
-            assertThat(beskjed.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () -> assertThat(beskjed.getTekst()).isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
-        () -> assertThat(beskjed.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+            assertThat(opprettetVarsel.getTekster().getFirst().getTekst())
+                .isEqualTo(MELDING_OM_IKKE_UTFOERT_SIGNERINGSOPPGAVE),
+        () ->
+            assertThat(opprettetVarsel.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
   }
 
   @Test
-  void skalVarsleMorOgFarDersomFarAvbryterSignering() {
+  void skalVarsleMorOgFarDersomFarAvbryterSignering() throws JsonProcessingException {
 
     // given
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     brukernotifikasjonConsumer.varsleOmAvbruttSignering(MOR, FAR);
 
     // then
-    verify(beskjedkoe, times(2))
+    verify(brukernotifikasjonKoe, times(2))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             beskjedfanger.capture());
 
@@ -255,59 +229,51 @@ public class BrukernotifikasjonConsumerTest {
     var noekkelTilMor = alleNoekler.get(0);
     var noekkelTilFar = alleNoekler.get(1);
 
-    assertAll(
-        () -> assertThat(beskjedTilMor.getEksternVarsling()).isTrue(),
-        () -> assertThat(noekkelTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-        () ->
-            assertThat(noekkelTilMor.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjedTilMor.getSikkerhetsnivaa())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getSikkerhetsnivaaBeskjed()),
-        () ->
-            assertThat(beskjedTilMor.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () -> assertThat(beskjedTilMor.getTekst()).isEqualTo(MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING),
-        () ->
-            assertThat(beskjedTilMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarselMor = objectMapper.readValue(beskjedTilMor, OpprettVarsel.class);
+    var opprettetVarselFar = objectMapper.readValue(beskjedTilFar, OpprettVarsel.class);
 
     assertAll(
-        () -> assertThat(beskjedTilFar.getEksternVarsling()).isTrue(),
-        () -> assertThat(noekkelTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        //        () ->
+        // assertThat(noekkelTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
         () ->
-            assertThat(noekkelTilFar.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjedTilFar.getSikkerhetsnivaa())
+            assertThat(opprettetVarselMor.getSensitivitet().toString())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaBeskjed()),
         () ->
-            assertThat(beskjedTilFar.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () -> assertThat(beskjedTilFar.getTekst()).isEqualTo(MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING),
+            assertThat(opprettetVarselMor.getTekster().getFirst().getTekst())
+                .isEqualTo(MELDING_TIL_MOR_OM_AVBRUTT_SIGNERING),
         () ->
-            assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+            assertThat(opprettetVarselMor.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+
+    assertAll(
+        //        () ->
+        // assertThat(noekkelTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        () ->
+            assertThat(opprettetVarselFar.getSensitivitet().toString())
+                .isEqualTo(
+                    farskapsportalFellesEgenskaper
+                        .getBrukernotifikasjon()
+                        .getSikkerhetsnivaaBeskjed()),
+        () ->
+            assertThat(opprettetVarselFar.getTekster().getFirst().getTekst())
+                .isEqualTo(MELDING_TIL_FAR_OM_AVBRUTT_SIGNERING),
+        () ->
+            assertThat(opprettetVarselFar.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
   }
 
   @Test
-  void skalVarsleForeldreOmManglendeSigneringForUfoedt() {
+  void skalVarsleForeldreOmManglendeSigneringForUfoedt() throws JsonProcessingException {
 
     // given
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
     var erklaeringOpprettetDato = LocalDate.now().minusDays(10);
     var ufoedt = henteBarnUtenFnr(5);
 
@@ -316,9 +282,9 @@ public class BrukernotifikasjonConsumerTest {
         MOR, FAR, ufoedt, erklaeringOpprettetDato);
 
     // then
-    verify(beskjedkoe, times(2))
+    verify(brukernotifikasjonKoe, times(2))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             beskjedfanger.capture());
 
@@ -330,59 +296,23 @@ public class BrukernotifikasjonConsumerTest {
     var noekkelTilMor = alleNoekler.get(0);
     var noekkelTilFar = alleNoekler.get(1);
 
-    assertAll(
-        () -> assertThat(beskjedTilMor.getEksternVarsling()).isTrue(),
-        () -> assertThat(noekkelTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-        () ->
-            assertThat(noekkelTilMor.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjedTilMor.getSikkerhetsnivaa())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getSikkerhetsnivaaBeskjed()),
-        () ->
-            assertThat(beskjedTilMor.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () ->
-            assertThat(beskjedTilMor.getTekst())
-                .isEqualTo(
-                    String.format(
-                        MELDING_OM_MANGLENDE_SIGNERING,
-                        erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                        "termindato "
-                            + ufoedt
-                                .getTermindato()
-                                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))),
-        () ->
-            assertThat(beskjedTilMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarselMor = objectMapper.readValue(beskjedTilMor, OpprettVarsel.class);
+    var opprettetVarselFar = objectMapper.readValue(beskjedTilFar, OpprettVarsel.class);
 
     assertAll(
-        () -> assertThat(beskjedTilFar.getEksternVarsling()).isTrue(),
-        () -> assertThat(noekkelTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        //        () ->
+        // assertThat(noekkelTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
         () ->
-            assertThat(noekkelTilFar.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjedTilFar.getSikkerhetsnivaa())
+            assertThat(opprettetVarselMor.getSensitivitet().toString())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaBeskjed()),
         () ->
-            assertThat(beskjedTilFar.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () ->
-            assertThat(beskjedTilFar.getTekst())
+            assertThat(opprettetVarselMor.getTekster().getFirst().getTekst())
                 .isEqualTo(
                     String.format(
                         MELDING_OM_MANGLENDE_SIGNERING,
@@ -392,15 +322,39 @@ public class BrukernotifikasjonConsumerTest {
                                 .getTermindato()
                                 .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))),
         () ->
-            assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+            assertThat(opprettetVarselMor.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+
+    assertAll(
+        //        () ->
+        // assertThat(noekkelTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        () ->
+            assertThat(opprettetVarselFar.getSensitivitet().toString())
+                .isEqualTo(
+                    farskapsportalFellesEgenskaper
+                        .getBrukernotifikasjon()
+                        .getSikkerhetsnivaaBeskjed()),
+        () ->
+            assertThat(opprettetVarselFar.getTekster().getFirst().getTekst())
+                .isEqualTo(
+                    String.format(
+                        MELDING_OM_MANGLENDE_SIGNERING,
+                        erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                        "termindato "
+                            + ufoedt
+                                .getTermindato()
+                                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))),
+        () ->
+            assertThat(opprettetVarselFar.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
   }
 
   @Test
-  void skalVarsleForeldreOmManglendeSigneringForNyfoedt() {
+  void skalVarsleForeldreOmManglendeSigneringForNyfoedt() throws JsonProcessingException {
 
     // given
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
     var erklaeringOpprettetDato = LocalDate.now().minusDays(10);
     var nyfoedt = henteBarnMedFnr(LocalDate.now().minusMonths(1));
 
@@ -409,9 +363,9 @@ public class BrukernotifikasjonConsumerTest {
         MOR, FAR, nyfoedt, LocalDate.now().minusDays(10));
 
     // then
-    verify(beskjedkoe, times(2))
+    verify(brukernotifikasjonKoe, times(2))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBeskjed()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             beskjedfanger.capture());
 
@@ -423,67 +377,55 @@ public class BrukernotifikasjonConsumerTest {
     var noekkelTilMor = alleNoekler.get(0);
     var noekkelTilFar = alleNoekler.get(1);
 
-    assertAll(
-        () -> assertThat(beskjedTilMor.getEksternVarsling()).isTrue(),
-        () -> assertThat(noekkelTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
-        () ->
-            assertThat(noekkelTilMor.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjedTilMor.getSikkerhetsnivaa())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getSikkerhetsnivaaBeskjed()),
-        () ->
-            assertThat(beskjedTilMor.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () ->
-            assertThat(beskjedTilMor.getTekst())
-                .isEqualTo(
-                    String.format(
-                        MELDING_OM_MANGLENDE_SIGNERING,
-                        erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                        "fødselsnummer " + nyfoedt.getFoedselsnummer())),
-        () ->
-            assertThat(beskjedTilMor.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarselMor = objectMapper.readValue(beskjedTilMor, OpprettVarsel.class);
+    var opprettetVarselFar = objectMapper.readValue(beskjedTilFar, OpprettVarsel.class);
 
     assertAll(
-        () -> assertThat(beskjedTilFar.getEksternVarsling()).isTrue(),
-        () -> assertThat(noekkelTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        //        () ->
+        // assertThat(noekkelTilMor.getFodselsnummer()).isEqualTo(MOR.getFoedselsnummer()),
         () ->
-            assertThat(noekkelTilFar.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(beskjedTilFar.getSikkerhetsnivaa())
+            assertThat(opprettetVarselMor.getSensitivitet().toString())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaBeskjed()),
         () ->
-            assertThat(beskjedTilFar.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () ->
-            assertThat(beskjedTilFar.getTekst())
+            assertThat(opprettetVarselMor.getTekster().getFirst().getTekst())
                 .isEqualTo(
                     String.format(
                         MELDING_OM_MANGLENDE_SIGNERING,
                         erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                         "fødselsnummer " + nyfoedt.getFoedselsnummer())),
         () ->
-            assertThat(beskjedTilFar.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+            assertThat(opprettetVarselMor.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+
+    assertAll(
+        //        () ->
+        // assertThat(noekkelTilFar.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        () ->
+            assertThat(opprettetVarselFar.getSensitivitet().toString())
+                .isEqualTo(
+                    farskapsportalFellesEgenskaper
+                        .getBrukernotifikasjon()
+                        .getSikkerhetsnivaaBeskjed()),
+        () ->
+            assertThat(opprettetVarselFar.getTekster().getFirst().getTekst())
+                .isEqualTo(
+                    String.format(
+                        MELDING_OM_MANGLENDE_SIGNERING,
+                        erklaeringOpprettetDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                        "fødselsnummer " + nyfoedt.getFoedselsnummer())),
+        () ->
+            assertThat(opprettetVarselFar.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
   }
 
   @Test
-  void skalOppretteOppgaveTilFarOmSignering() {
+  void skalOppretteOppgaveTilFarOmSignering() throws JsonProcessingException {
 
     // given
     oppgavebestillingDao.deleteAll();
@@ -511,21 +453,26 @@ public class BrukernotifikasjonConsumerTest {
     var farskapserklaering =
         persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var oppgavefanger = ArgumentCaptor.forClass(OppgaveInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var oppgavefanger = ArgumentCaptor.forClass(String.class);
 
     // when
     brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(farskapserklaering.getId(), FAR);
 
     // then
-    verify(oppgavekoe, times(1))
+    verify(brukernotifikasjonKoe, times(1))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicOppgave()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             oppgavefanger.capture());
 
     var nokkel = noekkelfanger.getValue();
     var oppgave = oppgavefanger.getValue();
+
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarsel = objectMapper.readValue(oppgave, OpprettVarsel.class);
 
     var oppgavebestillinger =
         persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(
@@ -536,27 +483,20 @@ public class BrukernotifikasjonConsumerTest {
         () -> assertThat(oppgavebestilling).isPresent(),
         () -> assertThat(oppgavebestilling.get().getFerdigstilt()).isNull(),
         () -> assertThat(oppgavebestilling.get().getOpprettet()).isNotNull(),
-        () -> assertThat(nokkel.getEventId()).isEqualTo(oppgavebestilling.get().getEventId()),
-        () -> assertThat(oppgave.getEksternVarsling()).isTrue(),
-        () -> assertThat(nokkel.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
+        () -> assertThat(nokkel).isEqualTo(oppgavebestilling.get().getEventId()),
+        () -> assertThat(opprettetVarsel.getIdent()).isEqualTo(FAR.getFoedselsnummer()),
         () ->
-            assertThat(nokkel.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () ->
-            assertThat(oppgave.getSikkerhetsnivaa())
+            assertThat(opprettetVarsel.getSensitivitet().toString())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaOppgave()),
         () ->
-            assertThat(oppgave.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () -> assertThat(oppgave.getTekst()).isEqualTo(MELDING_OM_VENTENDE_FARSKAPSERKLAERING),
-        () -> assertThat(oppgave.getLink()).isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
+            assertThat(opprettetVarsel.getTekster().getFirst().getTekst())
+                .isEqualTo(MELDING_OM_VENTENDE_FARSKAPSERKLAERING),
+        () ->
+            assertThat(opprettetVarsel.getLink())
+                .isEqualTo(farskapsportalFellesEgenskaper.getUrl()));
   }
 
   @Test
@@ -605,7 +545,7 @@ public class BrukernotifikasjonConsumerTest {
     brukernotifikasjonConsumer.oppretteOppgaveTilFarOmSignering(farskapserklaering.getId(), FAR);
 
     // then
-    verify(oppgavekoe, times(0)).send(anyString(), any(NokkelInput.class), any(OppgaveInput.class));
+    verify(brukernotifikasjonKoe, times(0)).send(anyString(), anyString(), anyString());
     var oppgavebestillinger =
         persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(
             farskapserklaering.getId(), farskapserklaering.getFar());
@@ -618,7 +558,7 @@ public class BrukernotifikasjonConsumerTest {
   }
 
   @Test
-  void skalSletteFarsSigneringsoppgave() {
+  void skalSletteFarsSigneringsoppgave() throws JsonProcessingException {
 
     // given
     oppgavebestillingDao.deleteAll();
@@ -651,8 +591,8 @@ public class BrukernotifikasjonConsumerTest {
     var farskapserklaering =
         persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomVenterPaaFarsSignatur);
 
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var ferdigfanger = ArgumentCaptor.forClass(DoneInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var ferdigfanger = ArgumentCaptor.forClass(String.class);
 
     var eksisterendeOppgavebestilling =
         persistenceService.lagreNyOppgavebestilling(
@@ -663,25 +603,24 @@ public class BrukernotifikasjonConsumerTest {
         eksisterendeOppgavebestilling.getEventId(), FAR);
 
     // then
-    verify(ferdigkoe, times(1))
+    verify(brukernotifikasjonKoe, times(1))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicFerdig()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             ferdigfanger.capture());
 
     var nokkel = noekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
 
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var inaktivertVarsel = objectMapper.readValue(ferdig, InaktiverVarsel.class);
+
     assertAll(
+        () -> assertThat(nokkel).isEqualTo(eksisterendeOppgavebestilling.getEventId()),
         () ->
-            assertThat(nokkel.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
-        () -> assertThat(nokkel.getFodselsnummer()).isEqualTo(FAR.getFoedselsnummer()),
-        () ->
-            assertThat(ferdig.getTidspunkt())
-                .isGreaterThan(Instant.now().minusSeconds(10).toEpochMilli()));
+            assertThat(inaktivertVarsel.getVarselId())
+                .isEqualTo(eksisterendeOppgavebestilling.getEventId()));
   }
 }

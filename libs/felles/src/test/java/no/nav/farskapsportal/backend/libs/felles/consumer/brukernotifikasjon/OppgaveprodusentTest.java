@@ -1,21 +1,20 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
+import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.time.Instant;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
-import no.nav.brukernotifikasjon.schemas.input.OppgaveInput;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Dokument;
@@ -30,6 +29,8 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Farskapserklaer
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.OppgavebestillingDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils;
+import no.nav.tms.varsel.action.OpprettVarsel;
+import no.nav.tms.varsel.action.Varseltype;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,22 +54,23 @@ public class OppgaveprodusentTest {
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
-  private @MockBean KafkaTemplate<NokkelInput, OppgaveInput> oppgavekoe;
+  private @MockBean KafkaTemplate<String, String> oppgavekoe;
   private @MockBean GcpStorageManager gcpStorageManager;
 
   @Test
-  void skalOppretteOppgaveForSigneringAvFarskapserklaering() {
+  void skalOppretteOppgaveForSigneringAvFarskapserklaering() throws Exception {
 
     // given
     oppgavebestillingDao.deleteAll();
     farskapserklaeringDao.deleteAll();
 
-    var noekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var oppgavefanger = ArgumentCaptor.forClass(OppgaveInput.class);
+    var noekkelfanger = ArgumentCaptor.forClass(String.class);
+    var oppgavefanger = ArgumentCaptor.forClass(String.class);
 
     var far = Forelder.builder().foedselsnummer("11111122222").build();
     var oppgavetekst = "Vennligst signer farskapserklæringen";
-    var eksternVarsling = false;
+    var farskapsportalUrl = new URL(farskapsportalFellesEgenskaper.getUrl());
+    var eventId = UUID.randomUUID().toString();
 
     var farskapserklaeringSomVenterPaaFarsSignatur =
         henteFarskapserklaering(
@@ -84,17 +86,21 @@ public class OppgaveprodusentTest {
 
     // when
     oppgaveprodusent.oppretteOppgaveForSigneringAvFarskapserklaering(
-        lagretFarskapserklaering.getId(), far, oppgavetekst, eksternVarsling);
+        lagretFarskapserklaering.getId(), far, oppgavetekst, eventId);
 
     // then
     verify(oppgavekoe, times(1))
         .send(
-            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicOppgave()),
+            eq(farskapsportalFellesEgenskaper.getBrukernotifikasjon().getTopicBrukernotifikasjon()),
             noekkelfanger.capture(),
             oppgavefanger.capture());
 
     var noekler = noekkelfanger.getAllValues();
     var oppgaver = oppgavefanger.getAllValues();
+
+    assertAll(
+        () -> assertThat(noekler.size()).isEqualTo(1),
+        () -> assertThat(oppgaver.size()).isEqualTo(1));
 
     var oppgavebestilling =
         persistenceService
@@ -118,30 +124,39 @@ public class OppgaveprodusentTest {
         () -> assertThat(noekler.size()).isEqualTo(1),
         () -> assertThat(oppgaver.size()).isEqualTo(1));
 
-    var noekkel = noekler.get(0);
-    var oppgave = oppgaver.get(0);
+    var noekkel = noekler.getFirst();
+    var oppgave = oppgaver.getFirst();
+
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarsel = objectMapper.readValue(oppgave, OpprettVarsel.class);
 
     assertAll(
-        () -> assertThat(noekkel.getFodselsnummer()).isEqualTo(far.getFoedselsnummer()),
-        () -> assertThat(oppgave.getEksternVarsling()).isEqualTo(eksternVarsling),
-        () -> assertThat(oppgave.getTekst()).isEqualTo(oppgavetekst),
+        () -> assertThat(noekkel).isEqualTo(eventId),
+        () -> assertThat(opprettetVarsel.getType()).isEqualTo(Varseltype.Oppgave),
+        () -> assertThat(opprettetVarsel.getVarselId()).isEqualTo(noekkel),
+        () -> assertThat(opprettetVarsel.getIdent()).isEqualTo(far.getFoedselsnummer()),
+        () -> assertThat(opprettetVarsel.getLink()).isEqualTo(farskapsportalUrl.toString()),
+        () -> assertThat(opprettetVarsel.getTekster().getFirst().getSpraakkode()).isEqualTo("nb"),
         () ->
-            assertThat(noekkel.getGrupperingsId())
-                .isEqualTo(
-                    farskapsportalFellesEgenskaper
-                        .getBrukernotifikasjon()
-                        .getGrupperingsidFarskap()),
+            assertThat(opprettetVarsel.getTekster().getFirst().getTekst()).isEqualTo(oppgavetekst),
         () ->
-            assertThat(oppgave.getSikkerhetsnivaa())
+            assertThat(opprettetVarsel.getSensitivitet().name())
                 .isEqualTo(
                     farskapsportalFellesEgenskaper
                         .getBrukernotifikasjon()
                         .getSikkerhetsnivaaOppgave()),
+        () -> assertThat(opprettetVarsel.getEksternVarsling()).isNotNull(),
         () ->
-            assertThat(oppgave.getTidspunkt())
-                .isBetween(
-                    Instant.now().minusSeconds(5).toEpochMilli(), Instant.now().toEpochMilli()),
-        () -> assertThat(noekkel.getEventId()).isEqualTo(oppgavebestilling.get().getEventId()));
+            assertThat(opprettetVarsel.getProdusent().getCluster())
+                .isEqualTo(farskapsportalFellesEgenskaper.getCluster()),
+        () ->
+            assertThat(opprettetVarsel.getProdusent().getNamespace())
+                .isEqualTo(farskapsportalFellesEgenskaper.getNamespace()),
+        () ->
+            assertThat(opprettetVarsel.getProdusent().getAppnavn())
+                .isEqualTo(farskapsportalFellesEgenskaper.getAppnavn()));
   }
 
   @Test
@@ -152,7 +167,7 @@ public class OppgaveprodusentTest {
     farskapserklaeringDao.deleteAll();
 
     var oppgavetekst = "Vennligst signer farskapserklæringen";
-    var eksternVarsling = false;
+    var eventId = UUID.randomUUID().toString();
 
     var farskapserklaeringSomVenterPaaFarsSignatur =
         henteFarskapserklaering(
@@ -171,13 +186,10 @@ public class OppgaveprodusentTest {
 
     // when
     oppgaveprodusent.oppretteOppgaveForSigneringAvFarskapserklaering(
-        lagretFarskapserklaering.getId(),
-        lagretFarskapserklaering.getFar(),
-        oppgavetekst,
-        eksternVarsling);
+        lagretFarskapserklaering.getId(), lagretFarskapserklaering.getFar(), oppgavetekst, eventId);
 
     // then
-    verify(oppgavekoe, times(0)).send(anyString(), any(NokkelInput.class), any(OppgaveInput.class));
+    verify(oppgavekoe, times(0)).send(anyString(), anyString(), anyString());
   }
 
   private Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {

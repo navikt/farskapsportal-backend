@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon;
 
+import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
@@ -11,11 +12,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput;
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalAsynkronEgenskaper;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -29,6 +30,7 @@ import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManag
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.FarskapserklaeringDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
+import no.nav.tms.varsel.action.OpprettVarsel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,8 +51,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(PROFILE_TEST)
 public class VarselTest {
 
-  private static final String BRUKERNOTIFIKASJON_TOPIC_BESKJED =
-      "min-side.aapen-brukernotifikasjon-beskjed-v1";
+  private static final String BRUKERNOTIFIKASJON_TOPIC = "min-side.aapen-brukervarsel-v1";
   private static final String MELDING_OM_MANGLENDE_SIGNERING =
       "Aksjon kreves: Farskapserklæring opprettet den %s for barn med %s er ikke ferdigstilt. Våre systemer mangler informasjon om at far har signert. Far må logge inn på Farskapsportal og forsøke å signere eller oppdatere status på ny. Ta kontakt med NAV ved problemer.";
 
@@ -65,7 +66,7 @@ public class VarselTest {
 
   private Varsel varsel;
 
-  @MockBean private KafkaTemplate<NokkelInput, BeskjedInput> beskjedkoe;
+  @MockBean private KafkaTemplate<String, String> brukernotifikasjonkoe;
 
   @BeforeEach
   void setup() {
@@ -84,7 +85,8 @@ public class VarselTest {
 
   @Test
   void
-      skalSendeEksterntVarselTilBeggeForeldreneIErklaeringerDerFarHarOppdatertBorSammenInfoMenIkkeSignertErklaeringForUfoedt() {
+      skalSendeEksterntVarselTilBeggeForeldreneIErklaeringerDerFarHarOppdatertBorSammenInfoMenIkkeSignertErklaeringForUfoedt()
+          throws JsonProcessingException {
 
     // given
     farskapserklaeringDao.deleteAll();
@@ -127,21 +129,24 @@ public class VarselTest {
                         .getOppgavestyringsforsinkelse()));
     var farskapserklaering =
         persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();
 
     // then
-    verify(beskjedkoe, times(2))
+    verify(brukernotifikasjonkoe, times(2))
         .send(
-            eq(BRUKERNOTIFIKASJON_TOPIC_BESKJED),
-            beskjednoekkelfanger.capture(),
-            beskjedfanger.capture());
+            eq(BRUKERNOTIFIKASJON_TOPIC), beskjednoekkelfanger.capture(), beskjedfanger.capture());
 
     var beskjednoekkel = beskjednoekkelfanger.getAllValues().get(0);
     var beskjed = beskjedfanger.getAllValues().get(0);
+
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
 
     var meldingstekst =
         String.format(
@@ -159,13 +164,16 @@ public class VarselTest {
                     .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
 
     assertAll(
-        () -> assertThat(beskjednoekkel.getEventId()).isNotNull(),
-        () -> assertThat(beskjed.getTekst()).isEqualTo(meldingstekst));
+        () -> assertThat(beskjednoekkel).isNotNull(),
+        () ->
+            assertThat(opprettetVarsel.getTekster().getFirst().getTekst())
+                .isEqualTo(meldingstekst));
   }
 
   @Test
   void
-      skalSendeEksterntVarselTilBeggeForeldreneIErklaeringerDerFarHarOppdatertBorSammenInfoMenIkkeSignertErklaeringForNyfoedt() {
+      skalSendeEksterntVarselTilBeggeForeldreneIErklaeringerDerFarHarOppdatertBorSammenInfoMenIkkeSignertErklaeringForNyfoedt()
+          throws JsonProcessingException {
 
     // given
     farskapserklaeringDao.deleteAll();
@@ -208,21 +216,24 @@ public class VarselTest {
                         .getOppgavestyringsforsinkelse()));
     var farskapserklaering =
         persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();
 
     // then
-    verify(beskjedkoe, times(2))
+    verify(brukernotifikasjonkoe, times(2))
         .send(
-            eq(BRUKERNOTIFIKASJON_TOPIC_BESKJED),
-            beskjednoekkelfanger.capture(),
-            beskjedfanger.capture());
+            eq(BRUKERNOTIFIKASJON_TOPIC), beskjednoekkelfanger.capture(), beskjedfanger.capture());
 
     var beskjednoekkel = beskjednoekkelfanger.getAllValues().get(0);
     var beskjed = beskjedfanger.getAllValues().get(0);
+
+    // Deserialiserer JSON tilbake til OpprettVarsel
+    var objectMapper = jacksonObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
 
     var meldingstekst =
         String.format(
@@ -235,8 +246,10 @@ public class VarselTest {
                 .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             "fødselsnummer " + farskapserklaering.getBarn().getFoedselsnummer());
     assertAll(
-        () -> assertThat(beskjednoekkel.getEventId()).isNotNull(),
-        () -> assertThat(beskjed.getTekst()).isEqualTo(meldingstekst));
+        () -> assertThat(beskjednoekkel).isNotNull(),
+        () ->
+            assertThat(opprettetVarsel.getTekster().getFirst().getTekst())
+                .isEqualTo(meldingstekst));
   }
 
   @Test
@@ -273,18 +286,16 @@ public class VarselTest {
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(null);
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(null);
     persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();
 
     // then
-    verify(beskjedkoe, times(0))
+    verify(brukernotifikasjonkoe, times(0))
         .send(
-            eq(BRUKERNOTIFIKASJON_TOPIC_BESKJED),
-            beskjednoekkelfanger.capture(),
-            beskjedfanger.capture());
+            eq(BRUKERNOTIFIKASJON_TOPIC), beskjednoekkelfanger.capture(), beskjedfanger.capture());
   }
 
   @Test
@@ -321,18 +332,16 @@ public class VarselTest {
     farskapserklaeringSomManglerSigneringsstatus.setDeaktivert(LocalDateTime.now());
     farskapserklaeringSomManglerSigneringsstatus.setFarBorSammenMedMor(true);
     persistenceService.lagreNyFarskapserklaering(farskapserklaeringSomManglerSigneringsstatus);
-    var beskjednoekkelfanger = ArgumentCaptor.forClass(NokkelInput.class);
-    var beskjedfanger = ArgumentCaptor.forClass(BeskjedInput.class);
+    var beskjednoekkelfanger = ArgumentCaptor.forClass(String.class);
+    var beskjedfanger = ArgumentCaptor.forClass(String.class);
 
     // when
     varsel.varsleOmManglendeSigneringsinfo();
 
     // then
-    verify(beskjedkoe, times(0))
+    verify(brukernotifikasjonkoe, times(0))
         .send(
-            eq(BRUKERNOTIFIKASJON_TOPIC_BESKJED),
-            beskjednoekkelfanger.capture(),
-            beskjedfanger.capture());
+            eq(BRUKERNOTIFIKASJON_TOPIC), beskjednoekkelfanger.capture(), beskjedfanger.capture());
   }
 
   public Farskapserklaering henteFarskapserklaering(Forelder mor, Forelder far, Barn barn) {

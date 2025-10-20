@@ -6,13 +6,11 @@ farskapsportal.felles.egenskaper:
   brukernotifikasjon:
     grupperingsid-farskap: farskap
     skrudd-paa: ${BRUKERNOTIFIKASJON_PAA}
-    topic-beskjed: min-side.aapen-brukernotifikasjon-beskjed-v1
-    topic-ferdig: min-side.aapen-brukernotifikasjon-done-v1
-    topic-oppgave: min-side.aapen-brukernotifikasjon-oppgave-v1
+    topic-brukernotifikasjon: min-side.aapen-brukervarsel-v1
     synlighet-beskjed-antall-maaneder: 1
     levetid-oppgave-antall-dager: 40
-    sikkerhetsnivaa-beskjed: 3
-    sikkerhetsnivaa-oppgave: 3
+    sikkerhetsnivaa-beskjed: Substantial
+    sikkerhetsnivaa-oppgave: Substantial
   bucket:
     pades-name: ${APPNAVN}-pades
     xades-name: ${APPNAVN}-xades
