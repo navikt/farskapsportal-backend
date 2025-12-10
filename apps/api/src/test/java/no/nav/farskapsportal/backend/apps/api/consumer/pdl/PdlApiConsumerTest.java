@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
@@ -84,7 +85,7 @@ public class PdlApiConsumerTest {
 
   private void mockAccessToken() {
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
   }
 
   @Nested

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.5.4</version>
     </parent>
     <groupId>no.nav.farskapsportal.backend</groupId>
     <artifactId>farskapsportal-backend</artifactId>
@@ -19,16 +19,13 @@
     </modules>
     <properties>
         <!-- navikt -->
-        <token-support.version>3.2.0</token-support.version>
-        <bidrag-commons.version>20230612111733_79de014</bidrag-commons.version>
+        <token-support.version>5.0.37</token-support.version>
+        <bidrag-felles.version>2025.12.08.121505</bidrag-felles.version>
 
         <!-- other -->
         <apache.commons-lang.version>3.17.0</apache.commons-lang.version>
         <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
         <signature-api-client-bom.version>7.0.4</signature-api-client-bom.version>
-        <asm.version>9.6</asm.version>
-        <bidrag-commons.version>20230523132931_a602133</bidrag-commons.version>
-        <bidrag-tilgangskontroll-felles.version>1.11</bidrag-tilgangskontroll-felles.version>
         <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
         <commons-compress.version>1.27.1</commons-compress.version>
         <commons-io.version>2.17.0</commons-io.version>
@@ -37,7 +34,7 @@
         <java.version>21</java.version>
         <jsoup.version>1.18.1</jsoup.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
-        <maven-compiler-plugin.version.version>3.13.0</maven-compiler-plugin.version.version>
+        <maven-compiler-plugin.version.version>3.14.1</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <checker-qual.version>3.48.3</checker-qual.version>
         <commons-cli.version>1.9.0</commons-cli.version>
@@ -63,19 +60,32 @@
         <scala.version>2.13.15</scala.version>
         <slf4j.version>2.0.16</slf4j.version>
         <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
-        <google-spring-cloud-gcp.version>5.8.0</google-spring-cloud-gcp.version>
-        <spring-cloud-starter.version>4.1.4</spring-cloud-starter.version>
+        <google-spring-cloud-gcp.version>7.4.1</google-spring-cloud-gcp.version>
+        <spring-cloud-starter.version>4.3.0</spring-cloud-starter.version>
         <springdoc-openapi-ui.version>2.6.0</springdoc-openapi-ui.version>
         <google-oauth-client.version>1.36.0</google-oauth-client.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <wiremock-jre8-standalone.version>2.35.2</wiremock-jre8-standalone.version>
-        <spring-cloud-contract-wiremock.version>4.1.4</spring-cloud-contract-wiremock.version>
+        <spring-cloud-contract-wiremock.version>4.3.0</spring-cloud-contract-wiremock.version>
         <hibernate-validator.parent>8.0.0.Final</hibernate-validator.parent>
         <shedlock.version>6.0.1</shedlock.version>
         <swagger.core.version>2.2.25</swagger.core.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <tms-varsel.version>2.1.1</tms-varsel.version>
+        <xml-bind.version>4.0.4</xml-bind.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/navikt/bidrag-felles</url>
+        </repository>
+        <repository>
+            <id>confluent</id>
+            <name>Confluent kafka</name>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -91,13 +101,8 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.bidrag</groupId>
-                <artifactId>bidrag-commons</artifactId>
-                <version>${bidrag-commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.bidrag</groupId>
-                <artifactId>bidrag-tilgangskontroll-felles</artifactId>
-                <version>${bidrag-tilgangskontroll-felles.version}</version>
+                <artifactId>bidrag-commons-felles</artifactId>
+                <version>${bidrag-felles.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.security</groupId>
@@ -118,10 +123,6 @@
                 <groupId>com.github.navikt</groupId>
                 <artifactId>brukernotifikasjon-schemas</artifactId>
                 <version>${brukernotifikasjon-schemas.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
             </dependency>
             <dependency>
                 <groupId>org.checkerframework</groupId>
@@ -171,11 +172,6 @@
                 <artifactId>flyway-database-postgresql</artifactId>
                 <version>${flyway.version}</version>
                 <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
@@ -436,26 +432,22 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 
     <profiles>
         <profile>
-            <id>local</id>
+            <id>default</id>
             <activation>
-                <os>
-                    <name>Mac OS X</name>
-                </os>
+                <property>
+                    <name>profile.default.on</name>
+                    <value>true</value>
+                </property>
             </activation>
             <repositories>
                 <repository>
-                    <id>nexus-internal-release</id>
-                    <url>https://repo.adeo.no/repository/maven-release</url>
-                </repository>
-                <repository>
-                    <id>nexus-internal-mirror</id>
-                    <url>https://repo.adeo.no/repository/maven-public</url>
+                    <id>github</id>
+                    <url>https://maven.pkg.github.com/navikt/bidrag-felles</url>
                 </repository>
             </repositories>
         </profile>

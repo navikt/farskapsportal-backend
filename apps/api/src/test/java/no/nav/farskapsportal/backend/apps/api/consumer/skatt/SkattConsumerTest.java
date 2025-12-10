@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestApplication;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiTestConfig;
 import no.nav.farskapsportal.backend.apps.api.exception.SkattConsumerException;
@@ -87,7 +88,7 @@ public class SkattConsumerTest {
     when(bucketConsumer.getContentFromBucket(xadesFarBlob)).thenReturn(innholdXadesFar);
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
 
     // when
     var tidspunktForOverfoering = skattConsumer.registrereFarskap(farskapserklaering);

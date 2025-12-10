@@ -25,10 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
@@ -341,7 +338,9 @@ public class FarskapsportalControllerTest {
     httpHeaderTestRestTemplateApi.add(
         HttpHeaders.AUTHORIZATION, () -> generereTesttoken(personident));
 
-    var a = new OAuth2AccessTokenResponse(generereTesttoken(personident), 1000, 1000, null);
+    var a =
+        new OAuth2AccessTokenResponse(
+            generereTesttoken(personident), 1000, 1000, Collections.emptyMap());
     when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
   }
 
@@ -1491,7 +1490,7 @@ public class FarskapsportalControllerTest {
 
       var a =
           new OAuth2AccessTokenResponse(
-              generereTesttoken(MOR.getFoedselsnummer()), 1000, 1000, null);
+              generereTesttoken(MOR.getFoedselsnummer()), 1000, 1000, Collections.emptyMap());
       when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =

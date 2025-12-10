@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.RestTemplateConfig;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
@@ -46,7 +47,7 @@ public class OppgaveApiConsumerTest {
         new Oppgaveforespoersel().toBuilder().aktoerId("123").beskrivelse("testing 1-2").build();
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
 
     // when
     var oppgaveid = oppgaveApiConsumer.oppretteOppgave(oppgaveforespoersel);

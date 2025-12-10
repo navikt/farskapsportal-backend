@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
@@ -70,7 +71,7 @@ public class SkattConsumerSslTest {
     var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
     var farskapserklaering =
         henteFarskapserklaering(
             henteForelder(Forelderrolle.MOR),
@@ -111,7 +112,7 @@ public class SkattConsumerSslTest {
     var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
     var farskapserklaering =
         henteFarskapserklaering(
             henteForelder(Forelderrolle.MOR),
