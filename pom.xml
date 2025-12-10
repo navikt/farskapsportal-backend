@@ -36,7 +36,7 @@
         <hikaricp.version>7.0.2</hikaricp.version>
         <jackson-bom.version>2.20.1</jackson-bom.version>
         <junit-bom.version>6.0.1</junit-bom.version>
-        <modelmapper.version>3.2.2</modelmapper.version>
+        <modelmapper.version>3.2.6</modelmapper.version>
         <google-api-services-storage.version>v1-rev20241008-2.0.0</google-api-services-storage.version>
         <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
         <google.errorprone.annotations.version>2.36.0</google.errorprone.annotations.version>
