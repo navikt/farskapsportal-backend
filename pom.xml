@@ -46,7 +46,6 @@
         <google-spring-cloud-gcp.version>7.4.1</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>4.3.0</spring-cloud-starter.version>
         <springdoc-openapi-ui.version>2.8.14</springdoc-openapi-ui.version>
-        <google-oauth-client.version>1.36.0</google-oauth-client.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <wiremock-jre8-standalone.version>2.35.2</wiremock-jre8-standalone.version>
         <spring-cloud-contract-wiremock.version>4.3.0</spring-cloud-contract-wiremock.version>
@@ -140,11 +139,6 @@
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta.xml.bind-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.oauth-client</groupId>
-                <artifactId>google-oauth-client</artifactId>
-                <version>${google-oauth-client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
