@@ -34,7 +34,7 @@
         <maven-compiler-plugin.version.version>3.14.1</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <hikaricp.version>7.0.2</hikaricp.version>
-        <jackson-core.version>2.18.2</jackson-core.version>
+        <jackson-bom.version>2.20.1</jackson-bom.version>
         <junit-bom.version>6.0.1</junit-bom.version>
         <modelmapper.version>3.2.2</modelmapper.version>
         <google-api-services-storage.version>v1-rev20241008-2.0.0</google-api-services-storage.version>
@@ -131,7 +131,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>${jackson-core.version}</version>
+                <version>${jackson-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
