@@ -24,7 +24,7 @@
 
         <!-- other -->
         <apache.commons-lang.version>3.20.0</apache.commons-lang.version>
-        <apache-pdfbox.version>2.0.29</apache-pdfbox.version>
+        <apache-pdfbox.version>2.0.35</apache-pdfbox.version>
         <signature-api-client-bom.version>7.0.4</signature-api-client-bom.version>
         <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
         <commons-compress.version>1.27.1</commons-compress.version>
