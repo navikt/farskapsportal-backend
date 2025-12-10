@@ -33,7 +33,7 @@
         <jsoup.version>1.21.2</jsoup.version>
         <maven-compiler-plugin.version.version>3.14.1</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <hikaricp.version>6.2.0</hikaricp.version>
+        <hikaricp.version>7.0.2</hikaricp.version>
         <jackson-core.version>2.18.2</jackson-core.version>
         <junit-bom.version>5.11.3</junit-bom.version>
         <modelmapper.version>3.2.2</modelmapper.version>
