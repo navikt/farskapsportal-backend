@@ -25,10 +25,8 @@
         <!-- other -->
         <apache.commons-lang.version>3.20.0</apache.commons-lang.version>
         <apache-pdfbox.version>2.0.35</apache-pdfbox.version>
-        <signature-api-client-bom.version>7.0.4</signature-api-client-bom.version>
-        <brukernotifikasjon-schemas.version>v2.5.2</brukernotifikasjon-schemas.version>
-        <commons-compress.version>1.27.1</commons-compress.version>
-        <commons-io.version>2.17.0</commons-io.version>
+        <signature-api-client-bom.version>7.0.6</signature-api-client-bom.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <equalsverifier.version>3.17.3</equalsverifier.version>
         <flyway.version>10.21.0</flyway.version>
         <java.version>21</java.version>
@@ -90,11 +88,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-compress</artifactId>
-                <version>${commons-compress.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
                 <version>${apache-pdfbox.version}</version>
@@ -118,11 +111,6 @@
                 <groupId>no.nav.security</groupId>
                 <artifactId>token-validation-spring-test</artifactId>
                 <version>${token-support.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.navikt</groupId>
-                <artifactId>brukernotifikasjon-schemas</artifactId>
-                <version>${brukernotifikasjon-schemas.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.checkerframework</groupId>
