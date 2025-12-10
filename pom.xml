@@ -33,7 +33,6 @@
         <jsoup.version>1.21.2</jsoup.version>
         <maven-compiler-plugin.version.version>3.14.1</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <hamcrest.version>3.0</hamcrest.version>
         <hikaricp.version>6.2.0</hikaricp.version>
         <jackson-core.version>2.18.2</jackson-core.version>
         <junit-bom.version>5.11.3</junit-bom.version>
@@ -347,12 +346,6 @@
                 <version>${slf4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest</artifactId>
-                <version>${hamcrest.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
