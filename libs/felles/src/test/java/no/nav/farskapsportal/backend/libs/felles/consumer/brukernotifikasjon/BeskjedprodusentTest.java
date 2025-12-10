@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("Beskjedprodusent")
 @SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
@@ -37,9 +37,9 @@ public class BeskjedprodusentTest {
 
   @Autowired private FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
-  @MockBean private KafkaTemplate<String, String> ferdigkoe;
+  @MockitoBean private KafkaTemplate<String, String> ferdigkoe;
 
-  @MockBean private GcpStorageManager gcpStorageManager;
+  @MockitoBean private GcpStorageManager gcpStorageManager;
 
   @Test
   void skalOppretteBeskjedTilBruker() throws Exception {

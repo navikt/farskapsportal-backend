@@ -35,10 +35,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("Ferdigprodusent")
 @SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
@@ -55,8 +55,8 @@ public class FerdigprodusentTest {
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
 
-  private @MockBean KafkaTemplate<String, String> ferdigkoe;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean KafkaTemplate<String, String> ferdigkoe;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Test
   void skalFerdigstilleFarsSigneringsoppgave() throws Exception {

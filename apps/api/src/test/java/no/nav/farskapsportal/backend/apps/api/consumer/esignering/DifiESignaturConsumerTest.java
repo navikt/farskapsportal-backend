@@ -48,10 +48,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("DifiESignaturConsumer")
 @DirtiesContext
@@ -89,7 +89,7 @@ public class DifiESignaturConsumerTest {
   private @Autowired FarskapsportalApiEgenskaper farskapsportalApiEgenskaper;
   private @Autowired DifiESignaturConsumer difiESignaturConsumer;
   private @Autowired DifiESignaturStub difiESignaturStub;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Nested
   @DisplayName("Teste oppretteSigneringsjobb")

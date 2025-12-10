@@ -31,12 +31,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("SkattConsumer")
 @ActiveProfiles(PROFILE_TEST)
@@ -51,10 +51,10 @@ public class SkattConsumerTest {
 
   private @Autowired SkattConsumer skattConsumer;
   private @Autowired ServletWebServerApplicationContext webServerAppCtxt;
-  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
-  private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
-  private @MockBean BucketConsumer bucketConsumer;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockitoBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @MockitoBean BucketConsumer bucketConsumer;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Test
   void skalReturnereTidspunktForOverfoeringDersomRegistreringAvFarskapGaarIgjennomHosSkatt() {

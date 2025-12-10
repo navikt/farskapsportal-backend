@@ -41,10 +41,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DirtiesContext
 @EnableMockOAuth2Server
@@ -61,12 +61,12 @@ public class BrukernotifikasjonstyringTest {
   private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  @MockBean private KafkaTemplate<String, String> ferdigkoe;
+  @MockitoBean private KafkaTemplate<String, String> ferdigkoe;
 
   private Brukernotifikasjonstyring brukernotifikasjonstyring;
 

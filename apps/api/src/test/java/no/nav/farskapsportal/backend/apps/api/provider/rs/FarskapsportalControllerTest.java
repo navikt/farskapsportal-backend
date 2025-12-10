@@ -93,7 +93,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cache.CacheManager;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -104,6 +103,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @DisplayName("FarskapsportalController")
@@ -149,12 +149,12 @@ public class FarskapsportalControllerTest {
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
 
   private @Autowired PdlApiStub pdlApiStub;
-  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
-  private @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
-  private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
-  private @MockBean GcpStorageManager gcpStorageManager;
-  private @MockBean BucketConsumer bucketConsumer;
+  private @MockitoBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockitoBean PdfGeneratorConsumer pdfGeneratorConsumer;
+  private @MockitoBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @MockitoBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean BucketConsumer bucketConsumer;
   private @Autowired PersistenceService persistenceService;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;

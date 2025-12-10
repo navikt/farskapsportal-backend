@@ -15,14 +15,12 @@ import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenRespons
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.web.client.RestTemplate;
 
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
@@ -34,16 +32,14 @@ import org.springframework.web.client.RestTemplate;
 public class ArkivereFarskapserklaeringerSchedulingTest {
 
   // Deaktiverer diverse bønner
-  private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
-  private @MockBean no.digipost.signature.client.ClientConfiguration clientConfiguration;
-  private @MockBean no.digipost.signature.client.direct.DirectClient directClient;
-  private @MockBean PdlApiConsumer pdlApiConsumer;
-  private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
-  private @MockBean @Qualifier("oppgave") RestTemplate oppgaveRestTemplate;
-  private @MockBean @Qualifier("farskapsportal-api") RestTemplate farskapsportalApiRestTemplate;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @MockitoBean no.digipost.signature.client.ClientConfiguration clientConfiguration;
+  private @MockitoBean no.digipost.signature.client.direct.DirectClient directClient;
+  private @MockitoBean PdlApiConsumer pdlApiConsumer;
+  private @MockitoBean OppgaveApiConsumer oppgaveApiConsumer;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
-  private @MockBean PersistenceService persistenceService;
+  private @MockitoBean PersistenceService persistenceService;
   private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
 
   @Test

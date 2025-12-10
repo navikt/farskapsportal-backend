@@ -34,9 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DirtiesContext
 @EnableMockOAuth2Server
@@ -50,10 +50,10 @@ public class ArkivereFarskapserklaeringerTest {
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  private @MockBean BucketConsumer bucketConsumer;
-  private @MockBean SkattConsumer skattConsumerMock;
-  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean BucketConsumer bucketConsumer;
+  private @MockitoBean SkattConsumer skattConsumerMock;
+  private @MockitoBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired FarskapsportalService farskapsportalService;
   private @Autowired PersistenceService persistenceService;

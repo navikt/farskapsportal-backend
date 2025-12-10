@@ -36,10 +36,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
@@ -54,8 +54,8 @@ public class OppgaveprodusentTest {
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
-  private @MockBean KafkaTemplate<String, String> oppgavekoe;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean KafkaTemplate<String, String> oppgavekoe;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Test
   void skalOppretteOppgaveForSigneringAvFarskapserklaering() throws Exception {
