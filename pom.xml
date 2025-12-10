@@ -30,7 +30,7 @@
         <flyway.version>11.19.0</flyway.version>
         <java.version>25</java.version>
         <lombok.version>1.18.42</lombok.version>
-        <jsoup.version>1.18.1</jsoup.version>
+        <jsoup.version>1.21.2</jsoup.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.14.1</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
