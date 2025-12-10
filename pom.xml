@@ -27,8 +27,7 @@
         <apache-pdfbox.version>2.0.35</apache-pdfbox.version>
         <signature-api-client-bom.version>7.0.6</signature-api-client-bom.version>
         <commons-io.version>2.21.0</commons-io.version>
-        <equalsverifier.version>3.17.3</equalsverifier.version>
-        <flyway.version>10.21.0</flyway.version>
+        <flyway.version>11.19.0</flyway.version>
         <java.version>21</java.version>
         <jsoup.version>1.18.1</jsoup.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
@@ -364,12 +363,6 @@
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest</artifactId>
                 <version>${hamcrest.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>nl.jqno.equalsverifier</groupId>
-                <artifactId>equalsverifier</artifactId>
-                <version>${equalsverifier.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
