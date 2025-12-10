@@ -31,10 +31,8 @@
         <java.version>25</java.version>
         <lombok.version>1.18.42</lombok.version>
         <jsoup.version>1.21.2</jsoup.version>
-        <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven-compiler-plugin.version.version>3.14.1</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <checker-qual.version>3.48.3</checker-qual.version>
         <commons-cli.version>1.9.0</commons-cli.version>
         <hamcrest.version>3.0</hamcrest.version>
         <hikaricp.version>6.2.0</hikaricp.version>
@@ -111,11 +109,6 @@
                 <groupId>no.nav.security</groupId>
                 <artifactId>token-validation-spring-test</artifactId>
                 <version>${token-support.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.checkerframework</groupId>
-                <artifactId>checker-qual</artifactId>
-                <version>${checker-qual.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.modelmapper</groupId>
