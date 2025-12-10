@@ -37,10 +37,6 @@
         <jackson-bom.version>2.20.1</jackson-bom.version>
         <junit-bom.version>6.0.1</junit-bom.version>
         <modelmapper.version>3.2.6</modelmapper.version>
-        <google-api-services-storage.version>v1-rev20241008-2.0.0</google-api-services-storage.version>
-        <google.code.findbugs.jsr305.version>3.0.2</google.code.findbugs.jsr305.version>
-        <google.errorprone.annotations.version>2.36.0</google.errorprone.annotations.version>
-        <google.guava.version>33.3.1-jre</google.guava.version>
         <google-cloud-libraries-bom.version>26.72.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
         <google-tink.version>1.20.0</google-tink.version>
@@ -163,24 +159,9 @@
                 <version>${jakarta.xml.bind-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.apis</groupId>
-                <artifactId>google-api-services-storage</artifactId>
-                <version>${google-api-services-storage.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.oauth-client</groupId>
                 <artifactId>google-oauth-client</artifactId>
                 <version>${google-oauth-client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${google.code.findbugs.jsr305.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.errorprone</groupId>
-                <artifactId>error_prone_annotations</artifactId>
-                <version>${google.errorprone.annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
@@ -212,11 +193,6 @@
                 <artifactId>hibernate-validator-parent</artifactId>
                 <version>${hibernate-validator.version}</version>
                 <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${google.guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>

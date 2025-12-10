@@ -11,15 +11,6 @@
     <artifactId>felles</artifactId>
     <name>farskapsportal-backend :: libs :: felles</name>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.google.errorprone</groupId>
-                <artifactId>error_prone_annotations</artifactId>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!-- spring -->
         <dependency>
@@ -80,11 +71,6 @@
                     <artifactId>httpcore</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-storage</artifactId>
         </dependency>
 
         <dependency>
