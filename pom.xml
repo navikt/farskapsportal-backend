@@ -40,11 +40,7 @@
         <google-cloud-libraries-bom.version>26.72.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
         <google-tink.version>1.20.0</google-tink.version>
-        <javassist.version>3.30.2-GA</javassist.version>
-        <jaxb-impl.version>2.3.9</jaxb-impl.version>
-        <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <jaxb-core.version>4.0.5</jaxb-core.version>
-        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <jetty-client.version>12.0.15</jetty-client.version>
         <osgi.core.version>6.0.0</osgi.core.version>
         <scala.version>2.13.15</scala.version>
@@ -144,16 +140,6 @@
                 <scope>runtime</scope>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>${jaxb-impl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-core</artifactId>
-                <version>${jaxb-core.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta.xml.bind-api.version}</version>
@@ -251,11 +237,6 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-client</artifactId>
                 <version>${jetty-client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
