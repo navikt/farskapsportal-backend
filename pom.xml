@@ -31,7 +31,7 @@
         <java.version>25</java.version>
         <lombok.version>1.18.42</lombok.version>
         <jsoup.version>1.21.2</jsoup.version>
-        <maven-compiler-plugin.version.version>3.14.1</maven-compiler-plugin.version.version>
+        <maven-compiler-plugin.version.version>4.0.0-beta-3</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <hikaricp.version>7.0.2</hikaricp.version>
         <jackson-bom.version>2.20.1</jackson-bom.version>
