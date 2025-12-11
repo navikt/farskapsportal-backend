@@ -1,5 +1,6 @@
 name: Deploy api-alerts to prod-gcp
 on:
+  workflow_dispatch:
   push:
     branches:
       - release
