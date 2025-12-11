@@ -11,7 +11,6 @@ import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.Actuator
 import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.OperasjonellStatus;
 import no.nav.farskapsportal.backend.apps.api.provider.rs.status.domain.Status;
 import no.nav.security.token.support.core.api.Unprotected;
-import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Slf4j
 @Unprotected
@@ -31,7 +31,7 @@ public class StatusController {
 
   public StatusController() {
     var thisRestTemplate = new RestTemplate();
-    thisRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler("http://localhost:8080/"));
+    thisRestTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:8080/"));
     this.restTemplate = thisRestTemplate;
   }
 

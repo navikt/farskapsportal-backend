@@ -11,7 +11,6 @@ import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Slf4j
 @Configuration
@@ -57,7 +57,7 @@ public class RestTemplateConfig {
     restTemplate
         .getInterceptors()
         .add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(farskapsportalApiRootUrl));
+    restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(farskapsportalApiRootUrl));
 
     return restTemplate;
   }
@@ -83,7 +83,7 @@ public class RestTemplateConfig {
         .add(accessTokenInterceptor(clientProperties, oAuth2AccessTokenService));
 
     log.info("Oppretter oppgaveRestTemplate med baseurl {}", oppgaveRootUrl);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(oppgaveRootUrl));
+    restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(oppgaveRootUrl));
 
     return restTemplate;
   }

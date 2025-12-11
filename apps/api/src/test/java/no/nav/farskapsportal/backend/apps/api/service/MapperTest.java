@@ -34,9 +34,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("MapperTest")
 @EnableMockOAuth2Server
@@ -71,8 +71,8 @@ public class MapperTest {
   private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(2).minusDays(13);
 
   private @Autowired Mapper mapper;
-  private @MockBean PersonopplysningService personopplysningService;
-  private @MockBean GcpStorageManager gcp;
+  private @MockitoBean PersonopplysningService personopplysningService;
+  private @MockitoBean GcpStorageManager gcp;
 
   private static DokumentDto getDokumentDto() {
     try {

@@ -56,9 +56,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
@@ -75,8 +75,8 @@ public class PersonopplysningServiceTest {
   private static final Barn NYDFOEDT_BARN =
       TestUtils.henteBarnMedFnr(FOEDSELSDATO_NYFOEDT, "00000");
 
-  private @MockBean PdlApiConsumer pdlApiConsumerMock;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean PdlApiConsumer pdlApiConsumerMock;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   private @Autowired PersonopplysningService personopplysningService;
 

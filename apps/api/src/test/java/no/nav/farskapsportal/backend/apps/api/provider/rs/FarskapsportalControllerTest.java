@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.KODE_LAND_NORGE;
@@ -25,10 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
@@ -96,7 +94,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cache.CacheManager;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -107,6 +104,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @DisplayName("FarskapsportalController")
@@ -152,12 +150,12 @@ public class FarskapsportalControllerTest {
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
 
   private @Autowired PdlApiStub pdlApiStub;
-  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
-  private @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
-  private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
-  private @MockBean GcpStorageManager gcpStorageManager;
-  private @MockBean BucketConsumer bucketConsumer;
+  private @MockitoBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockitoBean PdfGeneratorConsumer pdfGeneratorConsumer;
+  private @MockitoBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @MockitoBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean BucketConsumer bucketConsumer;
   private @Autowired PersistenceService persistenceService;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
@@ -341,7 +339,9 @@ public class FarskapsportalControllerTest {
     httpHeaderTestRestTemplateApi.add(
         HttpHeaders.AUTHORIZATION, () -> generereTesttoken(personident));
 
-    var a = new OAuth2AccessTokenResponse(generereTesttoken(personident), 1000, 1000, null);
+    var a =
+        new OAuth2AccessTokenResponse(
+            generereTesttoken(personident), 1000, 1000, Collections.emptyMap());
     when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
   }
 
@@ -1110,7 +1110,7 @@ public class FarskapsportalControllerTest {
     void skalGiOkDersomNavnOgKjoennErRiktig() {
 
       // given
-      var fnrFar = "01057244444";
+      var fnrFar = genererFødselsnummer(null, null);
       var fornavnFar = "Borat";
       var etternavnFar = "Sagidiyev";
       var registrertNavn =
@@ -1491,7 +1491,7 @@ public class FarskapsportalControllerTest {
 
       var a =
           new OAuth2AccessTokenResponse(
-              generereTesttoken(MOR.getFoedselsnummer()), 1000, 1000, null);
+              generereTesttoken(MOR.getFoedselsnummer()), 1000, 1000, Collections.emptyMap());
       when(oAuth2AccessTokenService.getAccessToken(any(ClientProperties.class))).thenReturn(a);
 
       LinkedHashMap<LocalDateTime, KjoennType> kjoennshistorikkMor =

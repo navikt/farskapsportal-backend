@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.oppgave;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererAktørid;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
@@ -37,9 +38,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DirtiesContext
 @EnableMockOAuth2Server
@@ -57,10 +58,10 @@ public class OppgavestyringTest {
 
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
-  private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
-  private @MockBean Oppgave egenskaperOppgave;
-  private @MockBean PersonopplysningService personopplysningService;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean OppgaveApiConsumer oppgaveApiConsumer;
+  private @MockitoBean Oppgave egenskaperOppgave;
+  private @MockitoBean PersonopplysningService personopplysningService;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
   private Oppgavestyring oppgavestyring;
 
   @BeforeEach
@@ -82,7 +83,7 @@ public class OppgavestyringTest {
 
     // given
     var maksAntallErklaeringer = 2;
-    var mor1sAktoerid = "40506070809010";
+    var mor1sAktoerid = genererAktørid();
     var barn1 = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
     var farskapserklaering1 =
         henteFarskapserklaering(
@@ -93,7 +94,7 @@ public class OppgavestyringTest {
 
     var mor2Fnr =
         LocalDate.now().minusYears(23).format(DateTimeFormatter.ofPattern("ddMMyy")) + "60850";
-    var mor2sAktoerid = "99996070809015";
+    var mor2sAktoerid = genererAktørid();
     var barn2 = henteBarnUtenFnr(-3);
     var farskapserklaering2 =
         henteFarskapserklaering(
@@ -104,7 +105,7 @@ public class OppgavestyringTest {
 
     var mor3Fnr =
         LocalDate.now().minusYears(45).format(DateTimeFormatter.ofPattern("ddMMyy")) + "73102";
-    var mor3sAktoerid = "6481544698715";
+    var mor3sAktoerid = genererAktørid();
     var barn3 = henteBarnUtenFnr(-3);
     var farskapserklaering3 =
         henteFarskapserklaering(
@@ -153,7 +154,7 @@ public class OppgavestyringTest {
   void skalOppretteOppgaveForFarskapserklaeringSomGjelderNyfoedtBarnTilForeldreSomIkkeBorSammen() {
 
     // given
-    var morsAktoerid = "40506070809010";
+    var morsAktoerid = genererAktørid();
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
     var farskapserklaering =
         henteFarskapserklaering(
@@ -218,7 +219,7 @@ public class OppgavestyringTest {
   void skalOppretteOppgaveForFarskapserklaeringSomGjelderBarnMedTermindatoMerEnnToUkerbakITid() {
 
     // given
-    var morsAktoerid = "40506070809010";
+    var morsAktoerid = genererAktørid();
     var ufoedtBarn = henteBarnUtenFnr(-3);
     var farskapserklaering =
         henteFarskapserklaering(
@@ -290,7 +291,7 @@ public class OppgavestyringTest {
       skalIkkeOppretteOppgaveForFarskapserklaeringSomGjelderBarnMedTermindatoMindreEnnToUkerbakITid() {
 
     // given
-    var morsAktoerid = "40506070809010";
+    var morsAktoerid = genererAktørid();
     var ufoedtBarn = henteBarnUtenFnr(-1);
     var farskapserklaering =
         henteFarskapserklaering(
@@ -324,7 +325,7 @@ public class OppgavestyringTest {
   void skalIkkeOppretteOppgaveForFarskapserklaeringSomGjelderNyfoedtBarnTilForeldreSomBorSammen() {
 
     // given
-    var morsAktoerid = "40506070809010";
+    var morsAktoerid = genererAktørid();
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
     var farskapserklaering =
         henteFarskapserklaering(
@@ -358,7 +359,7 @@ public class OppgavestyringTest {
   void skalIkkeOppretteOppgaveForFarskapserklaeringSomDetAlleredeErOpprettetOppgaveFor() {
 
     // given
-    var morsAktoerid = "40506070809010";
+    var morsAktoerid = genererAktørid();
     var nyfoedtBarn = henteBarnMedFnr(LocalDate.now().minusDays(3), "12345");
     var farskapserklaering =
         henteFarskapserklaering(

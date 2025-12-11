@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumerEndpointName.PDL_API_GRAPHQL;
 import static no.nav.farskapsportal.backend.libs.felles.util.Utils.toSingletonOrThrow;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -213,8 +213,7 @@ public class PdlApiConsumer {
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_SIVILSTAND, false);
     var sivilstandDtos = respons.getData().getHentPerson().getSivilstand();
 
-    var sivilstandFraPdlEllerFreg =
-        sivilstandDtos.stream().filter(isMasterPdlOrFreg()).collect(toList());
+    var sivilstandFraPdlEllerFreg = sivilstandDtos.stream().filter(isMasterPdlOrFreg()).toList();
 
     if (sivilstandFraPdlEllerFreg.isEmpty()) {
       throw new RessursIkkeFunnetException(Feilkode.PDL_SIVILSTAND_IKKE_FUNNET);
@@ -242,7 +241,7 @@ public class PdlApiConsumer {
             .collect(Collectors.toList());
 
     if (vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg.isEmpty()
-        || !isMasterPdlOrFreg(vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg.get(0))) {
+        || !isMasterPdlOrFreg(vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg.getFirst())) {
       return new ArrayList<>();
     } else {
       return vergemaalEllerFremtidsfullmaktDtosFraPdlEllerFreg;

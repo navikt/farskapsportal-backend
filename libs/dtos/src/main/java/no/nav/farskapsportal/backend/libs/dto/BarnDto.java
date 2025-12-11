@@ -21,7 +21,7 @@ public class BarnDto {
   @Parameter(description = "Barnets fødselsdato", example = "2021-08-01")
   LocalDate foedselsdato;
 
-  @Parameter(description = "Barnets fødselsnummer hvis tilgjengelig", example = "01010112345")
+  @Parameter(description = "Barnets fødselsnummer hvis tilgjengelig")
   private String foedselsnummer;
 
   @Parameter(description = "Barnets fødested")

@@ -28,9 +28,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DirtiesContext
 @ActiveProfiles(PROFILE_TEST)
@@ -44,7 +44,7 @@ public class OppdatereSigneringsstatusTest {
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private @Mock FarskapsportalService farskapsportalService;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;

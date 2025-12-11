@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.RestTemplateConfig;
 import no.nav.farskapsportal.backend.libs.dto.oppgave.Oppgaveforespoersel;
@@ -16,11 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @ActiveProfiles(PROFILE_TEST)
 @DirtiesContext
@@ -33,9 +34,9 @@ import org.springframework.test.context.ContextConfiguration;
 public class OppgaveApiConsumerTest {
 
   private @Autowired OppgaveApiConsumer oppgaveApiConsumer;
-  private @MockBean GcpStorageManager gcpStorageManager;
-  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
-  private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockitoBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
 
   @Test
   void skalOppretteOppgave() {
@@ -46,7 +47,7 @@ public class OppgaveApiConsumerTest {
         new Oppgaveforespoersel().toBuilder().aktoerId("123").beskrivelse("testing 1-2").build();
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
 
     // when
     var oppgaveid = oppgaveApiConsumer.oppretteOppgave(oppgaveforespoersel);

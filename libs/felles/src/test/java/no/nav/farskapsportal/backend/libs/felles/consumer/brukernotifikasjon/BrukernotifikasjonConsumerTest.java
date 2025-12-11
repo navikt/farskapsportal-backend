@@ -44,10 +44,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("Teste BrukernotifikasjonConsumer")
 @SpringBootTest(
@@ -74,8 +74,8 @@ public class BrukernotifikasjonConsumerTest {
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
-  private @MockBean KafkaTemplate<String, String> brukernotifikasjonKoe;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean KafkaTemplate<String, String> brukernotifikasjonKoe;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
   private @Autowired FarskapsportalFellesEgenskaper farskapsportalFellesEgenskaper;
 
   @Test

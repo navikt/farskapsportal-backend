@@ -21,8 +21,8 @@ import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
+import no.nav.bidrag.commons.security.utils.TokenUtils;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.tilgangskontroll.felles.SecurityUtils;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.FarskapsportalApiEgenskaper;
 import no.nav.farskapsportal.backend.apps.api.consumer.esignering.DifiESignaturConsumer;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
@@ -50,7 +50,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -60,6 +59,7 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Slf4j
 @Configuration
@@ -95,7 +95,7 @@ public class FarskapsportalApiConfig {
       @Value("${url.pdl-api.graphql}") String pdlApiEndpoint,
       ConsumerEndpoint consumerEndpoint) {
     consumerEndpoint.addEndpoint(PdlApiConsumerEndpointName.PDL_API_GRAPHQL, pdlApiEndpoint);
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+    restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrl));
     log.info("Oppretter PdlApiConsumer med url {}", baseUrl);
     return PdlApiConsumer.builder()
         .restTemplate(restTemplate)
@@ -237,12 +237,7 @@ public class FarskapsportalApiConfig {
 
   @Bean
   public OidcTokenPersonalIdExtractor oidcTokenPersonalIdExtractor() {
-    return () -> henteIdentFraToken();
-  }
-
-  private String henteIdentFraToken() {
-    var ident = SecurityUtils.hentePid(oidcTokenManager.hentToken());
-    return erNumerisk(ident) ? ident : SecurityUtils.henteSubject(oidcTokenManager.hentToken());
+    return TokenUtils::hentBruker;
   }
 
   @FunctionalInterface

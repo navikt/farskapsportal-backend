@@ -85,9 +85,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("FarskapserklaeringService")
 @SpringBootTest(
@@ -101,12 +101,12 @@ public class FarskapsportalServiceTest {
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
-  private @MockBean PdfGeneratorConsumer pdfGeneratorConsumer;
-  private @MockBean DifiESignaturConsumer difiESignaturConsumer;
-  private @MockBean PersonopplysningService personopplysningService;
-  private @MockBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
-  private @MockBean BucketConsumer bucketConsumer;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean PdfGeneratorConsumer pdfGeneratorConsumer;
+  private @MockitoBean DifiESignaturConsumer difiESignaturConsumer;
+  private @MockitoBean PersonopplysningService personopplysningService;
+  private @MockitoBean BrukernotifikasjonConsumer brukernotifikasjonConsumer;
+  private @MockitoBean BucketConsumer bucketConsumer;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
   private @Autowired PersistenceService persistenceService;
   private @Autowired OppgavebestillingDao oppgavebestillingDao;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;

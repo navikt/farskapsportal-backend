@@ -1,8 +1,8 @@
 package no.nav.farskapsportal.backend.libs.dto.pdl;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
 

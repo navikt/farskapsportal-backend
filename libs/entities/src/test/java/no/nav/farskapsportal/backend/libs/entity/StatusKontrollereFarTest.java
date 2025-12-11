@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.libs.entity;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 public class StatusKontrollereFarTest {
 
-  private static final Forelder MOR = Forelder.builder().foedselsnummer("12345678910").build();
+  private static final Forelder MOR =
+      Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
   @Test
   @DisplayName(

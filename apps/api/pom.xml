@@ -13,7 +13,7 @@
 
     <properties>
         <!-- build -->
-        <maven.surefire.version>3.5.2</maven.surefire.version>
+        <maven.surefire.version>3.5.4</maven.surefire.version>
         <build-helper-maven.version>3.6.0</build-helper-maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -21,9 +21,6 @@
         <!-- other -->
         <openhtml.version>1.0.10</openhtml.version>
         <sun.istack-commons.version>4.2.0</sun.istack-commons.version>
-
-        <!-- test -->
-        <bidrag-commons-test.version>1.20230511093912_dc35d81</bidrag-commons-test.version>
 
     </properties>
     <build>
@@ -59,11 +56,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version.version}</version>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>${build-helper-maven.version}</version>
@@ -85,13 +77,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.4.0-b180830.0359</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.errorprone</groupId>
-                <artifactId>error_prone_annotations</artifactId>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${xml-bind.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>
@@ -147,23 +135,8 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.bidrag</groupId>
-            <artifactId>bidrag-tilgangskontroll-felles</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-validation-spring</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.tomcat.embed</groupId>
-                    <artifactId>tomcat-embed-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- datasource -->
@@ -176,11 +149,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator-parent</artifactId>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
@@ -224,21 +192,6 @@
         <dependency>
             <groupId>no.digipost.signature</groupId>
             <artifactId>signature-api-client-java</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
         </dependency>
 
         <dependency>
@@ -329,8 +282,8 @@
 
         <dependency>
             <groupId>no.nav.bidrag</groupId>
-            <artifactId>bidrag-commons-test</artifactId>
-            <version>${bidrag-commons-test.version}</version>
+            <artifactId>bidrag-commons-test-felles</artifactId>
+            <version>${bidrag-felles.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -361,18 +314,6 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>mockwebserver</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
             <scope>test</scope>
         </dependency>
 

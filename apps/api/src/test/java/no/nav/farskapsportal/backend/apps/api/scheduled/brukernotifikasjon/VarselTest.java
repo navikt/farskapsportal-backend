@@ -38,10 +38,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DirtiesContext
 @EnableMockOAuth2Server
@@ -59,14 +59,14 @@ public class VarselTest {
   private @Autowired PersistenceService persistenceService;
   private @Autowired FarskapsportalAsynkronEgenskaper farskapsportalAsynkronEgenskaper;
   private @Autowired FarskapserklaeringDao farskapserklaeringDao;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Value("${wiremock.server.port}")
   String wiremockPort;
 
   private Varsel varsel;
 
-  @MockBean private KafkaTemplate<String, String> brukernotifikasjonkoe;
+  @MockitoBean private KafkaTemplate<String, String> brukernotifikasjonkoe;
 
   @BeforeEach
   void setup() {

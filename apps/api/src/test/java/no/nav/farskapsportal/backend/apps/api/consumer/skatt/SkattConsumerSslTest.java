@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
 import no.nav.farskapsportal.backend.apps.api.config.FarskapsportalApiConfig;
 import no.nav.farskapsportal.backend.apps.api.consumer.oppgave.OppgaveApiConsumer;
@@ -30,9 +31,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DirtiesContext
 @EnableMockOAuth2Server
@@ -43,14 +44,14 @@ import org.springframework.test.context.ActiveProfiles;
     webEnvironment = WebEnvironment.DEFINED_PORT)
 public class SkattConsumerSslTest {
 
-  private @MockBean OAuth2AccessTokenService oAuth2AccessTokenService;
-  private @MockBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
-  private @MockBean no.digipost.signature.client.ClientConfiguration clientConfiguration;
-  private @MockBean no.digipost.signature.client.direct.DirectClient directClient;
-  private @MockBean PdlApiConsumer pdlApiConsumer;
-  private @MockBean OppgaveApiConsumer oppgaveApiConsumer;
-  private @MockBean BucketConsumer bucketConsumer;
-  private @MockBean GcpStorageManager gcpStorageManager;
+  private @MockitoBean OAuth2AccessTokenService oAuth2AccessTokenService;
+  private @MockitoBean OAuth2AccessTokenResponse oAuth2AccessTokenResponse;
+  private @MockitoBean no.digipost.signature.client.ClientConfiguration clientConfiguration;
+  private @MockitoBean no.digipost.signature.client.direct.DirectClient directClient;
+  private @MockitoBean PdlApiConsumer pdlApiConsumer;
+  private @MockitoBean OppgaveApiConsumer oppgaveApiConsumer;
+  private @MockitoBean BucketConsumer bucketConsumer;
+  private @MockitoBean GcpStorageManager gcpStorageManager;
 
   @Value("server.port")
   private String port;
@@ -70,7 +71,7 @@ public class SkattConsumerSslTest {
     var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
     var farskapserklaering =
         henteFarskapserklaering(
             henteForelder(Forelderrolle.MOR),
@@ -111,7 +112,7 @@ public class SkattConsumerSslTest {
     var innholdXadesMor = "Mors signatur".getBytes(StandardCharsets.UTF_8);
 
     when(oAuth2AccessTokenService.getAccessToken(any()))
-        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, null));
+        .thenReturn(new OAuth2AccessTokenResponse("123", 1, 1, Collections.emptyMap()));
     var farskapserklaering =
         henteFarskapserklaering(
             henteForelder(Forelderrolle.MOR),
