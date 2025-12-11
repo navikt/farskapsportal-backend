@@ -50,7 +50,7 @@
         <spring-cloud-contract-wiremock.version>4.3.0</spring-cloud-contract-wiremock.version>
         <shedlock.version>6.10.0</shedlock.version>
         <swagger.core.version>2.2.41</swagger.core.version>
-        <testcontainers.version>1.20.4</testcontainers.version>
+        <testcontainers.version>1.21.3</testcontainers.version>
         <tms-varsel.version>2.1.1</tms-varsel.version>
         <xml-bind.version>4.0.4</xml-bind.version>
     </properties>
