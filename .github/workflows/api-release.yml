@@ -1,5 +1,6 @@
 name: release farskapsportal-api
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
