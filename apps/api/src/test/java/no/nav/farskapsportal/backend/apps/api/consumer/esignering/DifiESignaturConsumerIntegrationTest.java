@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.esignering;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal.PADES;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
@@ -31,13 +32,13 @@ public class DifiESignaturConsumerIntegrationTest {
 
   private static final ForelderDto MOR =
       ForelderDto.builder()
-          .foedselsnummer("11029000478")
+          .foedselsnummer(genererFødselsnummer(null, null))
           .navn(NavnDto.builder().fornavn("Rakrygget").etternavn("Veggpryd").build())
           .build();
 
   private static final ForelderDto FAR =
       ForelderDto.builder()
-          .foedselsnummer("11029400522")
+          .foedselsnummer(genererFødselsnummer(null, null))
           .navn(NavnDto.builder().fornavn("Treig").etternavn("Tranflaske").build())
           .build();
 

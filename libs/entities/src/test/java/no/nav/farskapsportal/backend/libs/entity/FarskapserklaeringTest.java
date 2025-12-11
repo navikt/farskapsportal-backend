@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.libs.entity;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -22,8 +23,8 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor = Forelder.builder().foedselsnummer("01019012345").build();
-    var far = Forelder.builder().foedselsnummer("01018832145").build();
+    var mor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
+    var far = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
@@ -42,7 +43,7 @@ public class FarskapserklaeringTest {
         Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(etDokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
-    var enAnnenMor = Forelder.builder().foedselsnummer("31019123450").build();
+    var enAnnenMor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
     var etAnnetDokument =
         Dokument.builder()
             .signeringsinformasjonMor(
@@ -69,8 +70,8 @@ public class FarskapserklaeringTest {
   @DisplayName("Skal gi like hashkoder dersom to farskapserklæringer gjelder samme parter")
   void skalGiLikeHashkoderDersomToFarskapserklaeringerGjelderSammeParter() {
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor = Forelder.builder().foedselsnummer("01019012345").build();
-    var far = Forelder.builder().foedselsnummer("01038832140").build();
+    var mor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
+    var far = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
@@ -110,8 +111,8 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor = Forelder.builder().foedselsnummer("01019012345").build();
-    var far = Forelder.builder().foedselsnummer("01018832145").build();
+    var mor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
+    var far = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 
@@ -129,7 +130,7 @@ public class FarskapserklaeringTest {
         Farskapserklaering.builder().barn(barn).mor(mor).far(far).dokument(dokument).build();
 
     var etAnnetBarn = Barn.builder().termindato(barn.getTermindato()).build();
-    var enAnnenMor = Forelder.builder().foedselsnummer("31019123450").build();
+    var enAnnenMor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var enAnnenFarskapserklaering =
         Farskapserklaering.builder()
@@ -149,8 +150,8 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor = Forelder.builder().foedselsnummer("01019012345").build();
-    var far = Forelder.builder().foedselsnummer("01038832140").build();
+    var mor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
+    var far = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
@@ -190,8 +191,8 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor = Forelder.builder().foedselsnummer("01019012345").build();
-    var far = Forelder.builder().foedselsnummer("01038832140").build();
+    var mor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
+    var far = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
@@ -227,8 +228,8 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor = Forelder.builder().foedselsnummer("01019012345").build();
-    var far = Forelder.builder().foedselsnummer("01038832140").build();
+    var mor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
+    var far = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
@@ -270,8 +271,8 @@ public class FarskapserklaeringTest {
 
     // given
     var barn = Barn.builder().termindato(LocalDate.now().plusMonths(6)).build();
-    var mor = Forelder.builder().foedselsnummer("01019012345").build();
-    var far = Forelder.builder().foedselsnummer("01038832140").build();
+    var mor = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
+    var far = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
     var redirectUrlMor = "https://redirect-mor";
     var redirectUrlFar = "https://redirect-far";
 

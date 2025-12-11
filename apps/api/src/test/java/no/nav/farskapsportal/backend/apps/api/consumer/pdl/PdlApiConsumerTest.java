@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.pdl;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
@@ -101,7 +102,7 @@ public class PdlApiConsumerTest {
     public void skalHenteKjoennMedSyntetiskIdent() {
 
       // given
-      var fnrMor = "03827297045";
+      var fnrMor = genererFødselsnummer(null, null);
       mockAccessToken();
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
       kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
@@ -121,7 +122,7 @@ public class PdlApiConsumerTest {
     public void skalHenteKjoennHvisPersonEksisterer() {
 
       // given
-      var fnrMor = "111222240280";
+      var fnrMor = genererFødselsnummer(null, null);
       mockAccessToken();
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
       kjoennshistorikk.put(LocalDateTime.now().minusYears(30), KjoennType.KVINNE);
@@ -141,7 +142,7 @@ public class PdlApiConsumerTest {
     void skalKastePersonIkkeFunnetExceptionHvisPersonIkkeEksisterer() {
 
       // given
-      var fnrMor = "111222240280";
+      var fnrMor = genererFødselsnummer(null, null);
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
       mockAccessToken();
 
@@ -169,7 +170,7 @@ public class PdlApiConsumerTest {
     void skalHenteKjoennshistorikkForEksisterendePerson() {
 
       // given
-      var fnrMor = "111222240280";
+      var fnrMor = genererFødselsnummer(null, null);
       mockAccessToken();
 
       var kjoennshistorikk = new LinkedHashMap<LocalDateTime, KjoennType>();
@@ -211,7 +212,7 @@ public class PdlApiConsumerTest {
     void skalKastePersonIkkeFunnetExceptionHvisPersonMedKjoennshistorikkIkkeEksisterer() {
 
       // given
-      var fnrMor = "111222240289";
+      var fnrMor = genererFødselsnummer(null, null);
       mockAccessToken();
       pdlApiStub.runPdlApiHentPersonFantIkkePersonenStub();
 
@@ -235,7 +236,7 @@ public class PdlApiConsumerTest {
     public void skalReturnereNavnTilPersonDersomFnrEksisterer() {
 
       // given
-      var fnrOppgittFar = "01018512345";
+      var fnrOppgittFar = genererFødselsnummer(null, null);
       var registrertNavn =
           NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
@@ -263,7 +264,7 @@ public class PdlApiConsumerTest {
     public void skalKasteNullpointerExceptionDersomFornavnManglerIReturFraPdl() {
 
       // given
-      var fnrOppgittFar = "01018512345";
+      var fnrOppgittFar = genererFødselsnummer(null, null);
       var registrertNavn = NavnDto.builder().mellomnavn("Parafin").etternavn("Olsen").build();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
       mockAccessToken();
@@ -279,7 +280,7 @@ public class PdlApiConsumerTest {
     public void skalKasteNullpointerExceptionDersomEtternavnManglerIReturFraPdl() {
 
       // given
-      var fnrOppgittFar = "01018512345";
+      var fnrOppgittFar = genererFødselsnummer(null, null);
       var registrertNavn = NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").build();
       mockAccessToken();
       List<HentPersonSubResponse> subResponses = List.of(new HentPersonNavn(registrertNavn));
@@ -376,7 +377,7 @@ public class PdlApiConsumerTest {
       var morsFødselsdato = LocalDate.of(1993, 4, 3);
 
       // given
-      var fnrMor = "030493240280";
+      var fnrMor = genererFødselsnummer(null, null);
       mockAccessToken();
       List<HentPersonSubResponse> subResponses =
           List.of(new HentPersonFoedested(fnrMor, "Tana", false));
@@ -408,7 +409,7 @@ public class PdlApiConsumerTest {
     void skalIkkeFeileDersomMorIkkeHarForelderBarnRelasjonFoerFoedsel() {
 
       // given
-      var fnrMor = "13108411110";
+      var fnrMor = genererFødselsnummer(null, null);
       mockAccessToken();
       List<HentPersonSubResponse> subResponses =
           List.of(new HentPersonForelderBarnRelasjon(null, "1234"));
@@ -427,8 +428,8 @@ public class PdlApiConsumerTest {
     void skalHenteForelderBarnRelasjonForFar() {
 
       // given
-      var fnrFar = "13108411111";
-      var fnrBarn = "01112009091";
+      var fnrFar = genererFødselsnummer(null, null);
+      var fnrBarn = genererFødselsnummer(null, null);
       mockAccessToken();
       var forelderBarnRelasjonDto =
           ForelderBarnRelasjonDto.builder()
@@ -483,7 +484,7 @@ public class PdlApiConsumerTest {
     void skalHenteSivilstandForFar() {
 
       // given
-      var fnrFar = "13108411111";
+      var fnrFar = genererFødselsnummer(null, null);
       mockAccessToken();
       List<HentPersonSubResponse> subResponses =
           List.of(new HentPersonSivilstand(Sivilstandtype.UGIFT));
@@ -501,7 +502,7 @@ public class PdlApiConsumerTest {
     void skalHenteSivilstandGiftDersomPersonErGift() {
 
       // given
-      var fnr = "1310841511";
+      var fnr = genererFødselsnummer(null, null);
       mockAccessToken();
       List<HentPersonSubResponse> subResponses =
           List.of(new HentPersonSivilstand(Sivilstandtype.GIFT));
@@ -518,7 +519,7 @@ public class PdlApiConsumerTest {
     @DisplayName("Skal hente sivilstand uoppgitt dersom sivilstand ikke er registrert")
     void skalHenteSivilstandUoppgittDersomSivilstandIkkeErRegistrert() {
       // given
-      var fnr = "13108411311";
+      var fnr = genererFødselsnummer(null, null);
       mockAccessToken();
       List<HentPersonSubResponse> subResponses =
           List.of(new HentPersonSivilstand(Sivilstandtype.UOPPGITT));

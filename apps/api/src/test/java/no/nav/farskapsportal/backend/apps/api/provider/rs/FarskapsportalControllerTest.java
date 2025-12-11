@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_STATUS_I_BRUK;
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.KODE_LAND_NORGE;
@@ -1109,7 +1110,7 @@ public class FarskapsportalControllerTest {
     void skalGiOkDersomNavnOgKjoennErRiktig() {
 
       // given
-      var fnrFar = "01057244444";
+      var fnrFar = genererFødselsnummer(null, null);
       var fornavnFar = "Borat";
       var etternavnFar = "Sagidiyev";
       var registrertNavn =

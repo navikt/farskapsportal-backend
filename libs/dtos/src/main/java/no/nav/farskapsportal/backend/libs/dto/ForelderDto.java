@@ -24,7 +24,7 @@ public class ForelderDto {
   @Parameter(description = "Fødselsdato", example = "01.01.1990")
   private LocalDate foedselsdato;
 
-  @Parameter(description = "Forelderens fødselsnummer", example = "11111122222")
+  @Parameter(description = "Forelderens fødselsnummer")
   private @NonNull String foedselsnummer;
 
   @Parameter(description = "Forelderens navn")

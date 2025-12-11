@@ -41,8 +41,6 @@ public class BrukerinformasjonResponse {
   @Parameter(description = "Farskapserklæringer som avventer registrering hos Skatt")
   Set<FarskapserklaeringDto> avventerRegistrering;
 
-  @Parameter(
-      description = "Mors nyfødte barn som ikke har registrert farskap",
-      example = "{01010112345}")
+  @Parameter(description = "Mors nyfødte barn som ikke har registrert farskap")
   Set<String> fnrNyligFoedteBarnUtenRegistrertFar;
 }

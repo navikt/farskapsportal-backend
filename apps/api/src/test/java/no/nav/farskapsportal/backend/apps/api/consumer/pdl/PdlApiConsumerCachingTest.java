@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.pdl;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -29,10 +30,10 @@ import org.springframework.test.util.AopTestUtils;
 @ExtendWith(SpringExtension.class)
 public class PdlApiConsumerCachingTest {
 
-  private static final String FNR_OPPGITT_FAR = "01018512345";
+  private static final String FNR_OPPGITT_FAR = genererFødselsnummer(null, null);
   private static final NavnDto REGISTRERT_NAVN_FAR =
       NavnDto.builder().fornavn("Pelle").mellomnavn("Parafin").etternavn("Olsen").build();
-  private static final String FNR_OPPGITT_MOR = "01018512245";
+  private static final String FNR_OPPGITT_MOR = genererFødselsnummer(null, null);
   private static final NavnDto REGISTRERT_NAVN_MOR =
       NavnDto.builder().fornavn("Kari").etternavn("Nordmann").build();
 

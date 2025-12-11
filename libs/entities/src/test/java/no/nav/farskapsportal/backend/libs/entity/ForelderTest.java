@@ -1,5 +1,6 @@
 package no.nav.farskapsportal.backend.libs.entity;
 
+import static no.nav.bidrag.generer.testdata.person.PersonidentGeneratorKt.genererFødselsnummer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -18,7 +19,8 @@ public class ForelderTest {
   void toObjekterMedSammeFoedselsnummerSkalGiSammeHashkode() {
 
     // given
-    var etForeldreobjekt = Forelder.builder().foedselsnummer("01019232145").build();
+    var etForeldreobjekt =
+        Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
     var etAnnetForeldreobjektForSammePerson =
         Forelder.builder().foedselsnummer(etForeldreobjekt.getFoedselsnummer()).build();
 
@@ -31,10 +33,11 @@ public class ForelderTest {
   void toObjekterMedUlikeFoedselsnummreSkalGiUlikeHashkoder() {
 
     // given
-    var etForeldreobjekt = Forelder.builder().foedselsnummer("01019232145").build();
+    var etForeldreobjekt =
+        Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var etAnnetForeldreobjektForEnAnnenPerson =
-        Forelder.builder().foedselsnummer("01018945612").build();
+        Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     // when, then
     assertNotEquals(etForeldreobjekt.hashCode(), etAnnetForeldreobjektForEnAnnenPerson.hashCode());
@@ -44,9 +47,10 @@ public class ForelderTest {
   @DisplayName("To foreldreobjekter beskriver ikke samme person dersom de har ulike fødselsnummer")
   void toForeldreErUlikeDersomDeHarForskjelligeFoedselsnumre() {
 
-    var enForelder = Forelder.builder().foedselsnummer("01015787654").build();
+    var enForelder = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
-    var enAnnenForelder = Forelder.builder().foedselsnummer("02025812345").build();
+    var enAnnenForelder =
+        Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     // when, then
     assertNotEquals(
@@ -60,7 +64,7 @@ public class ForelderTest {
   void toForeldreErLikeDersomDeHarSammeFoedselsnummer() {
 
     // given
-    var enForelder = Forelder.builder().foedselsnummer("01015787654").build();
+    var enForelder = Forelder.builder().foedselsnummer(genererFødselsnummer(null, null)).build();
 
     var enAnnenForelder = Forelder.builder().foedselsnummer(enForelder.getFoedselsnummer()).build();
 
