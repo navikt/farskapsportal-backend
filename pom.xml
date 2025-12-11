@@ -40,7 +40,7 @@
         <google-cloud-libraries-bom.version>26.72.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
         <google-tink.version>1.20.0</google-tink.version>
-        <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
+        <google-api-services-storage.version>v1-rev20241008-2.0.0</google-api-services-storage.version>        <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <slf4j.version>2.0.17</slf4j.version>
         <jakarta.servlet-api.version>6.2.0-M1</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>7.4.1</google-spring-cloud-gcp.version>
@@ -147,6 +147,11 @@
                 <groupId>com.google.crypto.tink</groupId>
                 <artifactId>tink-gcpkms</artifactId>
                 <version>${google-tink-gcpkms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-storage</artifactId>
+                <version>${google-api-services-storage.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.javacrumbs.shedlock</groupId>
