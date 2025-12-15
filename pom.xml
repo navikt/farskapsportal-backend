@@ -19,7 +19,7 @@
     </modules>
     <properties>
         <!-- navikt -->
-        <token-support.version>5.0.37</token-support.version>
+        <token-support.version>6.0.0</token-support.version>
         <bidrag-felles.version>2025.12.08.121505</bidrag-felles.version>
 
         <!-- other -->
