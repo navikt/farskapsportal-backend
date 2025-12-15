@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS locales
+FROM ubuntu:24.04 AS locales
 RUN apt-get update && apt-get install -y locales
 RUN locale-gen nb_NO.UTF-8 && \
     update-locale LANG=nb_NO.UTF-8 LANGUAGE="nb_NO:nb" LC_ALL=nb_NO.UTF-8
