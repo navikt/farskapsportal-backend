@@ -24,7 +24,7 @@
 
         <!-- other -->
         <apache.commons-lang.version>3.20.0</apache.commons-lang.version>
-        <apache-pdfbox.version>2.0.35</apache-pdfbox.version>
+        <apache-pdfbox.version>3.0.6</apache-pdfbox.version>
         <signature-api-client-bom.version>7.0.6</signature-api-client-bom.version>
         <commons-io.version>2.21.0</commons-io.version>
         <flyway.version>11.19.0</flyway.version>
