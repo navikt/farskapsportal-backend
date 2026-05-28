@@ -14,7 +14,6 @@ spec:
       destinations:
         - id: loki
         - id: elastic
-        - id: secure_logs
   azure:
     application:
       allowAllUsers: true
@@ -44,8 +43,6 @@ spec:
     requests:
       cpu: 500m
       memory: 1024Mi
-  secureLogs:
-    enabled: true
   ingresses:
     - {{ ingress }}
   env:
