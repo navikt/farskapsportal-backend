@@ -20,6 +20,8 @@ public class RestTemplateTestConfig {
 
   @Autowired private MockOAuth2Server mockOAuth2Server;
 
+  @Autowired private RestTemplateBuilder restTemplateBuilder;
+
   private String generateTestToken(Farskapsportalapp farskapsportalapp) {
 
     var issuerid = farskapsportalapp.equals(Farskapsportalapp.API) ? "tokenx" : "aad";
@@ -30,7 +32,7 @@ public class RestTemplateTestConfig {
 
   @Bean("api")
   HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi() {
-    TestRestTemplate testRestTemplate = new TestRestTemplate(new RestTemplateBuilder());
+    TestRestTemplate testRestTemplate = new TestRestTemplate(restTemplateBuilder);
     HttpHeaderTestRestTemplate httpHeaderTestRestTemplate =
         new HttpHeaderTestRestTemplate(testRestTemplate);
     httpHeaderTestRestTemplate.add(
