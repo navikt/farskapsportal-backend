@@ -56,33 +56,34 @@ import org.wiremock.spring.EnableWireMock;
 
 @SpringBootApplication(
     exclude = {
-        SecurityAutoConfiguration.class,
-        ManagementWebSecurityAutoConfiguration.class,
-        UserDetailsServiceAutoConfiguration.class,
-        ServletWebSecurityAutoConfiguration.class,
-    }
-)
+      SecurityAutoConfiguration.class,
+      ManagementWebSecurityAutoConfiguration.class,
+      UserDetailsServiceAutoConfiguration.class,
+      ServletWebSecurityAutoConfiguration.class,
+    })
 @ComponentScan(
     excludeFilters = {
-        @ComponentScan.Filter(
-            type = ASSIGNABLE_TYPE,
-            value = {FarskapsportalApiApplication.class})
+      @ComponentScan.Filter(
+          type = ASSIGNABLE_TYPE,
+          value = {FarskapsportalApiApplication.class})
     })
 @EmbeddedKafka(
     partitions = 1,
-    brokerProperties = {"listeners=EXTERNAL://localhost:0,CONTROLLER://localhost:0",
-        "listener.security.protocol.map=EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT",
-        "controller.listener.names=CONTROLLER",
-        "inter.broker.listener.name=EXTERNAL"},
+    brokerProperties = {
+      "listeners=EXTERNAL://localhost:0,CONTROLLER://localhost:0",
+      "listener.security.protocol.map=EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT",
+      "controller.listener.names=CONTROLLER",
+      "inter.broker.listener.name=EXTERNAL"
+    },
     topics = {
-        "aapen-brukervarsel-v1",
+      "aapen-brukervarsel-v1",
     })
 @EnableSecurityConfiguration
 @EnableJwtTokenValidation(
     ignore = {
-        "org.springdoc.webmvc.ui.SwaggerConfigResource",
-        "org.springframework.boot.webmvc.autoconfigure.error.BasicErrorController",
-        "org.springdoc.webmvc.api.OpenApiWebMvcResource"
+      "org.springdoc.webmvc.ui.SwaggerConfigResource",
+      "org.springframework.boot.webmvc.autoconfigure.error.BasicErrorController",
+      "org.springdoc.webmvc.api.OpenApiWebMvcResource"
     })
 @Slf4j
 @EntityScan("no.nav.farskapsportal.backend.libs.entity")
@@ -122,16 +123,16 @@ public class FarskapsportalApiApplicationLocal {
 
   enum Certificates implements ProvidesCertificateResourcePaths {
     TEST(
-        new String[]{
-            "test/Buypass_Class_3_Test4_CA_3.cer",
-            "test/Buypass_Class_3_Test4_Root_CA.cer",
-            "test/BPCl3CaG2HTBS.cer",
-            "test/BPCl3CaG2STBS.cer",
-            "test/BPCl3RootCaG2HT.cer",
-            "test/BPCl3RootCaG2ST.cer",
-            "test/commfides_test_ca.cer",
-            "test/commfides_test_root_ca.cer",
-            "test/digipost_test_root_ca.cert.pem"
+        new String[] {
+          "test/Buypass_Class_3_Test4_CA_3.cer",
+          "test/Buypass_Class_3_Test4_Root_CA.cer",
+          "test/BPCl3CaG2HTBS.cer",
+          "test/BPCl3CaG2STBS.cer",
+          "test/BPCl3RootCaG2HT.cer",
+          "test/BPCl3RootCaG2ST.cer",
+          "test/commfides_test_ca.cer",
+          "test/commfides_test_root_ca.cer",
+          "test/digipost_test_root_ca.cert.pem"
         });
 
     final List<String> certificatePaths;

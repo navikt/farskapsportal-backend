@@ -52,10 +52,7 @@ public class StatusController {
 
     var helsesjekk =
         restTemplate.exchange(
-            "/internal/actuator/health",
-            HttpMethod.GET,
-            HttpEntity.EMPTY,
-            ActuatorHealth.class);
+            "/internal/actuator/health", HttpMethod.GET, HttpEntity.EMPTY, ActuatorHealth.class);
 
     var actuatorHealth = helsesjekk.getBody();
 

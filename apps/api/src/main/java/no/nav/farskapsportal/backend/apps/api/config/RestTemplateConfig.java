@@ -26,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-
 @Slf4j
 @Configuration
 @ComponentScan("no.nav.farskapsportal")
