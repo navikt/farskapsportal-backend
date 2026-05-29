@@ -81,7 +81,7 @@ import org.wiremock.spring.EnableWireMock;
 @EnableJwtTokenValidation(
     ignore = {
         "org.springdoc.webmvc.ui.SwaggerConfigResource",
-        "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
+        "org.springframework.boot.webmvc.autoconfigure.error.BasicErrorController",
         "org.springdoc.webmvc.api.OpenApiWebMvcResource"
     })
 @Slf4j
