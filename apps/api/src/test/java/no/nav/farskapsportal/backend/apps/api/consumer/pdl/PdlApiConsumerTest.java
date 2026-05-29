@@ -58,17 +58,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)
 @DirtiesContext
 @DisplayName("PdlApiConsumer")
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 @SpringBootTest(
     classes = FarskapsportalApiApplicationLocal.class,
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

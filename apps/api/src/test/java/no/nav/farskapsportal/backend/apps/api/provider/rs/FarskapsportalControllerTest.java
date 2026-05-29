@@ -5,7 +5,17 @@ import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer
 import static no.nav.farskapsportal.backend.apps.api.consumer.pdl.PdlApiConsumer.PDL_FOLKEREGISTERIDENTIFIKATOR_TYPE_FNR;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.KODE_LAND_NORGE;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
-import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.*;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDELAND_FAR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDELAND_MOR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_FAR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_MOR;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FOEDSELSDATO_NYFOEDT_BARN;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteNyligFoedtBarn;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUri;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
+import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.tilUri;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -26,7 +36,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.UUID;
 import lombok.SneakyThrows;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.farskapsportal.backend.apps.api.FarskapsportalApiApplicationLocal;
@@ -67,7 +81,13 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.BostedsadresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.UtenlandskAdresseDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.bostedsadresse.VegadresseDto;
-import no.nav.farskapsportal.backend.libs.entity.*;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
+import no.nav.farskapsportal.backend.libs.entity.Dokument;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
@@ -96,7 +116,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cache.CacheManager;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -106,13 +125,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("FarskapsportalController")
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = FarskapsportalApiApplicationLocal.class)
 @ActiveProfiles(PROFILE_TEST)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 @EnableMockOAuth2Server
 public class FarskapsportalControllerTest {
 
@@ -745,7 +766,7 @@ public class FarskapsportalControllerTest {
 
       // then
       assertAll(
-          () -> assertEquals(HttpStatus.OK.value(), respons.getStatusCodeValue()),
+          () -> assertEquals(HttpStatus.OK.value(), respons.getStatusCode().value()),
           () ->
               assertEquals(
                   Forelderrolle.FAR,
@@ -1692,7 +1713,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
 
       // cleanup db
       farskapserklaeringDao.delete(eksisterendeFarskapserklaering);
@@ -1725,7 +1746,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
     }
 
     @Test
@@ -1759,7 +1780,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
     }
 
     @Test
@@ -1797,7 +1818,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
     }
 
     @Test
@@ -1835,7 +1856,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
     }
 
     @Test
@@ -1873,7 +1894,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
     }
 
     @Test
@@ -1907,7 +1928,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
     }
 
     @Test
@@ -2026,7 +2047,7 @@ public class FarskapsportalControllerTest {
               OppretteFarskapserklaeringResponse.class);
 
       // then
-      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), respons.getStatusCode().value());
     }
   }
 
@@ -2105,7 +2126,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              UriComponentsBuilder.fromUriString(initHenteDokumentEtterRedirect())
                   .queryParam("id_farskapserklaering", farskapserklaeringUtenSignaturer.getId())
                   .queryParam("status_query_token", "Sjalalala-lala")
                   .build()
@@ -2213,7 +2234,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              UriComponentsBuilder.fromUriString(initHenteDokumentEtterRedirect())
                   .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId())
                   .queryParam("status_query_token", "Sjalalala-lala")
                   .build()
@@ -2333,7 +2354,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              UriComponentsBuilder.fromUriString(initHenteDokumentEtterRedirect())
                   .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId())
                   .queryParam("status_query_token", "Sjalalala-lala")
                   .build()
@@ -2427,7 +2448,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              UriComponentsBuilder.fromUriString(initHenteDokumentEtterRedirect())
                   .queryParam("id_farskapserklaering", farskapserklaering.getId())
                   .queryParam("status_query_token", "Sjalalala-lala")
                   .build()
@@ -2521,7 +2542,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              UriComponentsBuilder.fromUriString(initHenteDokumentEtterRedirect())
                   .queryParam("id_farskapserklaering", farskapserklaeringSignertAvMor.getId())
                   .queryParam("status_query_token", "Sjalalala-lala")
                   .build()
@@ -2600,7 +2621,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              UriComponentsBuilder.fromUriString(initHenteDokumentEtterRedirect())
                   .queryParam("id_farskapserklaering", 1)
                   .queryParam("status_query_token", "Sjalalala-lala")
                   .build()
@@ -2709,7 +2730,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteDokumentEtterRedirect())
+              UriComponentsBuilder.fromUriString(initHenteDokumentEtterRedirect())
                   .queryParam("id_farskapserklaering", lagretFarskapserklaeringSignertAvMor.getId())
                   .queryParam("status_query_token", "Sjalalala-lala")
                   .build()
@@ -2758,7 +2779,7 @@ public class FarskapsportalControllerTest {
       // when
       var respons =
           httpHeaderTestRestTemplateApi.exchange(
-              UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl())
+              UriComponentsBuilder.fromUriString(initHenteNyRedirectUrl())
                   .queryParam("id_farskapserklaering", lagretFarskapserklaering.getId())
                   .build()
                   .encode()
@@ -2803,7 +2824,7 @@ public class FarskapsportalControllerTest {
       try {
         respons =
             httpHeaderTestRestTemplateApi.exchange(
-                UriComponentsBuilder.fromHttpUrl(initHenteNyRedirectUrl())
+                UriComponentsBuilder.fromUriString(initHenteNyRedirectUrl())
                     .queryParam("id_farskapserklaering", lagretFarskapserklaering.getId() + 1)
                     .build()
                     .encode()

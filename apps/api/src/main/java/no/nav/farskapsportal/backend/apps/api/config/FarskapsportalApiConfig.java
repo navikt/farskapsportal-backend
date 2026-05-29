@@ -1,8 +1,10 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.*;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
+import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LOCAL_POSTGRES;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.StorageOptions;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -40,7 +42,10 @@ import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.Farskapsporta
 import no.nav.farskapsportal.backend.libs.felles.config.tls.KeyStoreConfig;
 import no.nav.farskapsportal.backend.libs.felles.consumer.ConsumerEndpoint;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
-import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.*;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.EncryptionProvider;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpCloudKms;
+import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.AccessSecretVersion;
 import no.nav.farskapsportal.backend.libs.felles.secretmanager.FarskapKeystoreCredentials;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
@@ -175,9 +180,8 @@ public class FarskapsportalApiConfig {
             .getData()
             .toStringUtf8();
 
-    var objectMapper = new ObjectMapper();
     var farskapKeystoreCredentials =
-        objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
+        getCommonObjectmapper().readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
 
     log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
 

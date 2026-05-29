@@ -27,20 +27,22 @@ import no.nav.farskapsportal.backend.libs.entity.Barn;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("PdfGeneratorConsumerTest")
 @ActiveProfiles(PROFILE_TEST)
 @EnableMockOAuth2Server
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 @SpringBootTest(classes = FarskapsportalApiApplicationLocal.class)
 public class PdfGeneratorConsumerTest {
 
@@ -82,7 +84,7 @@ public class PdfGeneratorConsumerTest {
       skriveUtPdfForInspeksjon(pdfstroem);
     }
 
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -126,7 +128,7 @@ public class PdfGeneratorConsumerTest {
       skriveUtPdfForInspeksjon(pdfstroem);
     }
 
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -169,7 +171,7 @@ public class PdfGeneratorConsumerTest {
       skriveUtPdfForInspeksjon(pdfstroem);
     }
 
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -216,7 +218,7 @@ public class PdfGeneratorConsumerTest {
       skriveUtPdfForInspeksjon(pdfstroem);
     }
 
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -267,7 +269,7 @@ public class PdfGeneratorConsumerTest {
       skriveUtPdfForInspeksjon(pdfstroem);
     }
 
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -323,7 +325,7 @@ public class PdfGeneratorConsumerTest {
       skriveUtPdfForInspeksjon(pdfstroem);
     }
 
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -375,7 +377,7 @@ public class PdfGeneratorConsumerTest {
         pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, farMedMellomnavn, skriftsspraak);
 
     // then
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -431,7 +433,7 @@ public class PdfGeneratorConsumerTest {
         pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, farMedMellomnavn, skriftsspraak);
 
     // then
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 
@@ -486,7 +488,7 @@ public class PdfGeneratorConsumerTest {
         pdfGeneratorConsumer.genererePdf(nyfoedtBarn, mor, farMedMellomnavn, Skriftspraak.ENGELSK);
 
     // then
-    PDDocument doc = PDDocument.load(pdfstroem);
+    PDDocument doc = Loader.loadPDF(pdfstroem);
     PDFTextStripper pdfTextStripper = new PDFTextStripper();
     String dokumenttekst = pdfTextStripper.getText(doc);
 

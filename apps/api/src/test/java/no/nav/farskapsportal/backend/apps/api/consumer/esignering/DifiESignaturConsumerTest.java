@@ -48,10 +48,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("DifiESignaturConsumer")
 @DirtiesContext
@@ -60,7 +61,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @SpringBootTest(
     classes = {FarskapsportalApiTestConfig.class},
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 @EnableMockOAuth2Server
 public class DifiESignaturConsumerTest {
 

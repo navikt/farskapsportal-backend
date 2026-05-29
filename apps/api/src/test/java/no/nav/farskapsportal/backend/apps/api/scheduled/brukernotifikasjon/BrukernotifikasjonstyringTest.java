@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon;
 
-import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
@@ -12,7 +12,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -150,13 +149,10 @@ public class BrukernotifikasjonstyringTest {
     verify(ferdigkoe, times(1))
         .send(eq(BRUKERNOTIFIKASJON_TOPIC), ferdignoekkelfanger.capture(), ferdigfanger.capture());
 
-    var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var inaktivertVarsel = objectMapper.readValue(ferdig, InaktiverVarsel.class);
+    var inaktivertVarsel = getCommonObjectmapper().readValue(ferdig, InaktiverVarsel.class);
 
     var oppdatertOppgavebestilling =
         oppgavebestillingDao.henteAktiveOppgaver(
@@ -226,13 +222,10 @@ public class BrukernotifikasjonstyringTest {
     verify(ferdigkoe, times(1))
         .send(eq(BRUKERNOTIFIKASJON_TOPIC), ferdignoekkelfanger.capture(), ferdigfanger.capture());
 
-    var ferdignokkel = ferdignoekkelfanger.getAllValues().get(0);
     var ferdig = ferdigfanger.getAllValues().get(0);
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var inaktivertVarsel = objectMapper.readValue(ferdig, InaktiverVarsel.class);
+    var inaktivertVarsel = getCommonObjectmapper().readValue(ferdig, InaktiverVarsel.class);
 
     var oppdatertOppgavebestilling =
         oppgavebestillingDao.henteAktiveOppgaver(

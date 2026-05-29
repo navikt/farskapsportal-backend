@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.lageUrl;
@@ -11,7 +11,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -36,14 +35,15 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 public class OppgaveprodusentTest {
 
   @Value("${wiremock.server.port}")
@@ -128,9 +128,7 @@ public class OppgaveprodusentTest {
     var oppgave = oppgaver.getFirst();
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarsel = objectMapper.readValue(oppgave, OpprettVarsel.class);
+    var opprettetVarsel = getCommonObjectmapper().readValue(oppgave, OpprettVarsel.class);
 
     assertAll(
         () -> assertThat(noekkel).isEqualTo(eventId),

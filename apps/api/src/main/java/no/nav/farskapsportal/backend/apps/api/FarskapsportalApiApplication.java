@@ -4,18 +4,28 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 @Slf4j
 @SpringBootApplication(
-    exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
+    exclude = {
+        SecurityAutoConfiguration.class,
+        ManagementWebSecurityAutoConfiguration.class,
+        UserDetailsServiceAutoConfiguration.class,
+        ServletWebSecurityAutoConfiguration.class,
+    }
+)
+
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.api.config.egenskaper")
 @ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
 public class FarskapsportalApiApplication {
+
   public static final String ISSUER_TOKENX = "tokenx";
   public static final String ISSUER_AZURE_AD = "aad";
 

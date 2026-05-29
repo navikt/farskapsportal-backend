@@ -1,8 +1,11 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
+
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.security.service.SecurityTokenService;
+import no.nav.bidrag.commons.util.CustomJacksonHttpMessageConverter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.security.token.support.client.core.ClientProperties;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
@@ -18,13 +21,17 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.converter.HttpMessageConverters;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+
 
 @Slf4j
 @Configuration
 @ComponentScan("no.nav.farskapsportal")
-public class RestTemplateConfig {
+public class RestTemplateConfig implements WebMvcConfigurer {
+
   private static final String BEHANDLINGSNUMMER = "Behandlingsnummer";
   private static final String BEHANDLINGSNUMMER_FARSKAP = "B145";
   private static final String TEMA_FAR = "FAR";
@@ -111,5 +118,10 @@ public class RestTemplateConfig {
       request.getHeaders().setBearerAuth(response.getAccessToken());
       return execution.execute(request, body);
     };
+  }
+
+  @Override
+  public void configureMessageConverters(HttpMessageConverters.ServerBuilder converters) {
+    converters.addCustomConverter(new CustomJacksonHttpMessageConverter(getCommonObjectmapper()));
   }
 }

@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.apps.api.scheduled.brukernotifikasjon;
 
-import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnMedFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
@@ -13,7 +13,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -144,9 +143,7 @@ public class VarselTest {
     var beskjed = beskjedfanger.getAllValues().get(0);
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
+    var opprettetVarsel = getCommonObjectmapper().readValue(beskjed, OpprettVarsel.class);
 
     var meldingstekst =
         String.format(
@@ -231,9 +228,7 @@ public class VarselTest {
     var beskjed = beskjedfanger.getAllValues().get(0);
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
+    var opprettetVarsel = getCommonObjectmapper().readValue(beskjed, OpprettVarsel.class);
 
     var meldingstekst =
         String.format(

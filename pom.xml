@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <version>4.0.6</version>
     </parent>
     <groupId>no.nav.farskapsportal.backend</groupId>
     <artifactId>farskapsportal-backend</artifactId>
@@ -19,40 +19,38 @@
     </modules>
     <properties>
         <!-- navikt -->
-        <token-support.version>5.0.37</token-support.version>
-        <bidrag-felles.version>2025.12.08.121505</bidrag-felles.version>
+        <token-support.version>6.0.8</token-support.version>
+        <bidrag-felles.version>2026.05.20.125928-SB4</bidrag-felles.version>
 
         <!-- other -->
         <apache.commons-lang.version>3.20.0</apache.commons-lang.version>
-        <apache-pdfbox.version>2.0.35</apache-pdfbox.version>
-        <signature-api-client-bom.version>7.0.6</signature-api-client-bom.version>
-        <commons-io.version>2.21.0</commons-io.version>
-        <flyway.version>11.19.0</flyway.version>
-        <java.version>25</java.version>
+        <apache-pdfbox.version>3.0.7</apache-pdfbox.version>
+        <signature-api-client-bom.version>7.0.7</signature-api-client-bom.version>
+        <commons-io.version>2.22.0</commons-io.version>
+        <java.version>21</java.version>
         <lombok.version>1.18.42</lombok.version>
-        <jsoup.version>1.21.2</jsoup.version>
+        <jsoup.version>1.22.2</jsoup.version>
         <maven-compiler-plugin.version.version>4.0.0-beta-3</maven-compiler-plugin.version.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <hikaricp.version>7.0.2</hikaricp.version>
-        <jackson-bom.version>2.20.1</jackson-bom.version>
-        <junit-bom.version>6.0.1</junit-bom.version>
+        <junit-bom.version>6.0.3</junit-bom.version>
         <modelmapper.version>3.2.6</modelmapper.version>
-        <google-cloud-libraries-bom.version>26.72.0</google-cloud-libraries-bom.version>
+        <google-cloud-libraries-bom.version>26.83.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.10.0</google-tink-gcpkms.version>
-        <google-tink.version>1.20.0</google-tink.version>
-        <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
-        <slf4j.version>2.0.17</slf4j.version>
-        <jakarta.servlet-api.version>6.2.0-M1</jakarta.servlet-api.version>
-        <google-spring-cloud-gcp.version>7.4.1</google-spring-cloud-gcp.version>
-        <spring-cloud-starter.version>4.3.0</spring-cloud-starter.version>
-        <springdoc-openapi-ui.version>2.8.14</springdoc-openapi-ui.version>
-        <wiremock-jre8-standalone.version>2.35.2</wiremock-jre8-standalone.version>
-        <spring-cloud-contract-wiremock.version>4.3.0</spring-cloud-contract-wiremock.version>
-        <shedlock.version>6.10.0</shedlock.version>
-        <swagger.core.version>2.2.41</swagger.core.version>
-        <testcontainers.version>1.21.3</testcontainers.version>
+        <google-tink.version>1.21.0</google-tink.version>
+        <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
+        <slf4j.version>2.0.18</slf4j.version>
+        <jakarta.servlet-api.version>6.2.0-M2</jakarta.servlet-api.version>
+        <google-spring-cloud-gcp.version>8.0.2</google-spring-cloud-gcp.version>
+        <spring-cloud-starter.version>5.0.1</spring-cloud-starter.version>
+        <springdoc-openapi-ui.version>3.0.3</springdoc-openapi-ui.version>
+        <wiremock.version>3.0.1</wiremock.version>
+        <shedlock.version>7.7.0</shedlock.version>
+        <swagger.core.version>2.2.50</swagger.core.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <tms-varsel.version>2.1.1</tms-varsel.version>
-        <xml-bind.version>4.0.4</xml-bind.version>
+        <xml-bind.version>4.0.5</xml-bind.version>
+        <flyway.version>11.19.0</flyway.version>
     </properties>
 
     <repositories>
@@ -115,28 +113,31 @@
                 <version>${hikaricp.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${jackson-bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-core</artifactId>
-                <version>${flyway.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-flyway</artifactId>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>${flyway.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta.xml.bind-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${xml-bind.version}</version>
+            </dependency>
+            <dependency>
+                <!-- Force jaxb-impl to 2.x which still contains com.sun.xml.bind.v2.JAXBContextFactory,
+                     needed by the Digipost signature client. Version 4.x removed this class. -->
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.3.9</version>
             </dependency>
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
@@ -190,17 +191,16 @@
             <dependency>
                 <groupId>org.apache.httpcomponents.core5</groupId>
                 <artifactId>httpcore5</artifactId>
-                <version>5.3.1</version>
+                <version>5.4.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
-                <version>5.4.1</version>
+                <version>5.6.1</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-contract-wiremock</artifactId>
-                <version>${spring-cloud-contract-wiremock.version}</version>
+                <groupId>org.wiremock.integrations</groupId>
+                <artifactId>wiremock-spring-boot</artifactId>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -231,7 +231,7 @@
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock-jre8-standalone</artifactId>
-                <version>${wiremock-jre8-standalone.version}</version>
+                <version>${wiremock.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

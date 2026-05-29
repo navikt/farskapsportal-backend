@@ -49,8 +49,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
         </dependency>
 
         <dependency>
@@ -185,8 +185,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-contract-wiremock</artifactId>
+            <groupId>org.wiremock.integrations</groupId>
+            <artifactId>wiremock-spring-boot</artifactId>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
 

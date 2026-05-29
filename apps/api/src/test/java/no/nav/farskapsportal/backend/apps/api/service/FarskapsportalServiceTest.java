@@ -64,7 +64,13 @@ import no.nav.farskapsportal.backend.libs.dto.pdl.ForelderBarnRelasjonRolle.Sivi
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennDto;
 import no.nav.farskapsportal.backend.libs.dto.pdl.KjoennType;
 import no.nav.farskapsportal.backend.libs.dto.pdl.SivilstandDto;
-import no.nav.farskapsportal.backend.libs.entity.*;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
+import no.nav.farskapsportal.backend.libs.entity.Dokument;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.Oppgavebestilling;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
 import no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon.BrukernotifikasjonConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.BucketConsumer;
 import no.nav.farskapsportal.backend.libs.felles.consumer.bucket.GcpStorageManager;
@@ -80,20 +86,25 @@ import no.nav.farskapsportal.backend.libs.felles.persistence.dao.Oppgavebestilli
 import no.nav.farskapsportal.backend.libs.felles.persistence.dao.StatusKontrollereFarDao;
 import no.nav.farskapsportal.backend.libs.felles.service.PersistenceService;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("FarskapserklaeringService")
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = {FarskapsportalApiApplicationLocal.class, FarskapsportalApiTestConfig.class})
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 @EnableMockOAuth2Server
 @ActiveProfiles(PROFILE_TEST)
 public class FarskapsportalServiceTest {

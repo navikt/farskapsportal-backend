@@ -35,11 +35,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -50,27 +51,38 @@ import org.springframework.stereotype.Component;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @SpringBootApplication(
-    exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
+    exclude = {
+        SecurityAutoConfiguration.class,
+        ManagementWebSecurityAutoConfiguration.class,
+        UserDetailsServiceAutoConfiguration.class,
+        ServletWebSecurityAutoConfiguration.class,
+    }
+)
 @ComponentScan(
     excludeFilters = {
-      @ComponentScan.Filter(
-          type = ASSIGNABLE_TYPE,
-          value = {FarskapsportalApiApplication.class})
+        @ComponentScan.Filter(
+            type = ASSIGNABLE_TYPE,
+            value = {FarskapsportalApiApplication.class})
     })
 @EmbeddedKafka(
     partitions = 1,
-    brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"},
+    brokerProperties = {"listeners=EXTERNAL://localhost:0,CONTROLLER://localhost:0",
+        "listener.security.protocol.map=EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT",
+        "controller.listener.names=CONTROLLER",
+        "inter.broker.listener.name=EXTERNAL"},
     topics = {
-      "aapen-brukervarsel-v1",
+        "aapen-brukervarsel-v1",
     })
 @EnableSecurityConfiguration
 @EnableJwtTokenValidation(
     ignore = {
-      "org.springdoc.webmvc.ui.SwaggerConfigResource",
-      "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
-      "org.springdoc.webmvc.api.OpenApiWebMvcResource"
+        "org.springdoc.webmvc.ui.SwaggerConfigResource",
+        "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
+        "org.springdoc.webmvc.api.OpenApiWebMvcResource"
     })
 @Slf4j
 @EntityScan("no.nav.farskapsportal.backend.libs.entity")
@@ -110,16 +122,16 @@ public class FarskapsportalApiApplicationLocal {
 
   enum Certificates implements ProvidesCertificateResourcePaths {
     TEST(
-        new String[] {
-          "test/Buypass_Class_3_Test4_CA_3.cer",
-          "test/Buypass_Class_3_Test4_Root_CA.cer",
-          "test/BPCl3CaG2HTBS.cer",
-          "test/BPCl3CaG2STBS.cer",
-          "test/BPCl3RootCaG2HT.cer",
-          "test/BPCl3RootCaG2ST.cer",
-          "test/commfides_test_ca.cer",
-          "test/commfides_test_root_ca.cer",
-          "test/digipost_test_root_ca.cert.pem"
+        new String[]{
+            "test/Buypass_Class_3_Test4_CA_3.cer",
+            "test/Buypass_Class_3_Test4_Root_CA.cer",
+            "test/BPCl3CaG2HTBS.cer",
+            "test/BPCl3CaG2STBS.cer",
+            "test/BPCl3RootCaG2HT.cer",
+            "test/BPCl3RootCaG2ST.cer",
+            "test/commfides_test_ca.cer",
+            "test/commfides_test_root_ca.cer",
+            "test/digipost_test_root_ca.cert.pem"
         });
 
     final List<String> certificatePaths;
@@ -150,7 +162,7 @@ public class FarskapsportalApiApplicationLocal {
   @Configuration
   @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   @EnableMockOAuth2Server
-  @AutoConfigureWireMock(port = 0)
+  @EnableWireMock(@ConfigureWireMock())
   class MockOauthServerLocalConfig {
 
     public MockOauthServerLocalConfig(@Autowired DifiESignaturStub difiESignaturStub) {
