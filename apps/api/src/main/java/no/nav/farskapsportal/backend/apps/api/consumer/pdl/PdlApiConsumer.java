@@ -305,10 +305,10 @@ public class PdlApiConsumer {
               List<PdlApiError> errors =
                   errorJsonNodes.stream()
                       .map(
-                          jsonNode ->
+                          graphQLError ->
                               PdlApiError.builder()
-                                  .message(jsonNode.get("message").toString())
-                                  .code(jsonNode.path("extensions").path("code").toString())
+                                  .message(graphQLError.getMessage())
+                                  .code(graphQLError.getCode())
                                   .build())
                       .collect(toList());
 
