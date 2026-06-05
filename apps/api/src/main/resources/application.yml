@@ -252,7 +252,7 @@ farskapsportal-api.disable-esignering: false
 
 url.esignering: ${WIREMOCK_URL}
 
-spring.kafka.bootstrap-servers: ${spring.embedded.kafka.brokers}
+spring.kafka.bootstrap-servers: ${spring.embedded.kafka.brokers:localhost:9092}
 spring.kafka.properties:
     security.protocol: PLAINTEXT
 spring.kafka.consumer.group-id: farskapsportal
