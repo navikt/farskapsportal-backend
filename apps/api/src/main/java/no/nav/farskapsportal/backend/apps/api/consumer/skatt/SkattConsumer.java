@@ -41,6 +41,7 @@ import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -117,9 +118,14 @@ public class SkattConsumer {
           post,
           response -> {
             if (HttpStatus.ACCEPTED.value() != response.getCode()) {
+              var responsBody =
+                  response.getEntity() != null
+                      ? EntityUtils.toString(response.getEntity())
+                      : "<ingen responsbody>";
               log.error(
-                  "Mottok Http-kode {}, ved overføring av farskapserklæring med meldingsid {} til Skatt",
+                  "Mottok Http-kode {}, responsbody '{}' ved overføring av farskapserklæring med meldingsid {} til Skatt",
                   response.getCode(),
+                  responsBody,
                   farskapserklaering.getMeldingsidSkatt());
               throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
             }
@@ -133,7 +139,7 @@ public class SkattConsumer {
               .getDateTime());
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET, e);
     }
   }
