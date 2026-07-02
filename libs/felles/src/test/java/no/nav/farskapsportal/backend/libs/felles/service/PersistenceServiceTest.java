@@ -17,7 +17,13 @@ import java.time.temporal.ChronoField;
 import no.nav.farskapsportal.backend.libs.dto.BarnDto;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
 import no.nav.farskapsportal.backend.libs.dto.NavnDto;
-import no.nav.farskapsportal.backend.libs.entity.*;
+import no.nav.farskapsportal.backend.libs.entity.Barn;
+import no.nav.farskapsportal.backend.libs.entity.BlobIdGcp;
+import no.nav.farskapsportal.backend.libs.entity.Dokument;
+import no.nav.farskapsportal.backend.libs.entity.Farskapserklaering;
+import no.nav.farskapsportal.backend.libs.entity.Forelder;
+import no.nav.farskapsportal.backend.libs.entity.Signeringsinformasjon;
+import no.nav.farskapsportal.backend.libs.entity.StatusKontrollereFar;
 import no.nav.farskapsportal.backend.libs.felles.FarskapsportalFellesTestConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig;
 import no.nav.farskapsportal.backend.libs.felles.config.egenskaper.FarskapsportalFellesEgenskaper;
@@ -41,21 +47,18 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("PersistenceServiceTest")
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(FarskapsportalFellesConfig.PROFILE_TEST)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 public class PersistenceServiceTest {
 
   private static final Forelder MOR = TestUtils.henteForelder(Forelderrolle.MOR);
@@ -98,8 +101,6 @@ public class PersistenceServiceTest {
 
   @Nested
   @DisplayName("Lagre")
-  @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-  @AutoConfigureTestDatabase(replace = Replace.ANY)
   class Lagre {
 
     @BeforeEach

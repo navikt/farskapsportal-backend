@@ -136,6 +136,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc.lob.non_contextual_creation: true
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
 
 ---
 ### H2 ###
@@ -249,7 +252,9 @@ farskapsportal-api.disable-esignering: false
 
 url.esignering: ${WIREMOCK_URL}
 
-spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.bootstrap-servers: ${spring.embedded.kafka.brokers:localhost:9092}
+spring.kafka.properties:
+    security.protocol: PLAINTEXT
 spring.kafka.consumer.group-id: farskapsportal
 spring.kafka.consumer.auto-offset-reset: earliest
 

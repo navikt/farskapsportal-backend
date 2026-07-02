@@ -22,7 +22,7 @@ public class FarskapsportalAsynkronEgenskaper {
 
   private int oppdatereSigneringsstatusMinAntallTimerEtterFarBleSendtTilSignering;
 
-  private Arkiv arkiv;
-  private Brukernotifikasjon brukernotifikasjon;
-  private Oppgave oppgave;
+  private Arkiv arkiv = new Arkiv();
+  private Brukernotifikasjon brukernotifikasjon = new Brukernotifikasjon();
+  private Oppgave oppgave = new Oppgave();
 }

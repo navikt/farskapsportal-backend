@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.net.URL;
 import java.util.UUID;
 import no.nav.farskapsportal.backend.libs.entity.Forelder;
@@ -22,15 +21,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("Beskjedprodusent")
 @SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(PROFILE_TEST)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 public class BeskjedprodusentTest {
 
   @Autowired private Beskjedprodusent beskjedprodusent;
@@ -75,9 +75,7 @@ public class BeskjedprodusentTest {
     var beskjed = beskjeder.getFirst();
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
+    var opprettetVarsel = getCommonObjectmapper().readValue(beskjed, OpprettVarsel.class);
 
     assertAll(
         () -> assertThat(noekkel).isEqualTo(eventId),

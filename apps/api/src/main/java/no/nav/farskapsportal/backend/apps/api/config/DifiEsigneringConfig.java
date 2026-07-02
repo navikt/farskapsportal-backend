@@ -1,10 +1,10 @@
 package no.nav.farskapsportal.backend.apps.api.config;
 
 import static java.time.Duration.ofMillis;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -69,9 +69,8 @@ public class DifiEsigneringConfig {
             .getData()
             .toStringUtf8();
 
-    var objectMapper = new ObjectMapper();
     var farskapKeystoreCredentials =
-        objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
+        getCommonObjectmapper().readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
 
     log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
 

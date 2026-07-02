@@ -3,7 +3,9 @@ package no.nav.farskapsportal.backend.apps.api.scheduled.arkiv;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_SCHEDULED_TEST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import no.nav.farskapsportal.backend.apps.api.config.egenskaper.Arkiv;
@@ -14,14 +16,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("RyddejobbTest")
 @ActiveProfiles(PROFILE_SCHEDULED_TEST)
 @SpringBootTest(classes = {Ryddejobb.class, Arkiv.class, FarskapsportalAsynkronEgenskaper.class})
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 public class RyddejobbTest {
 
   private @MockitoBean PersistenceService persistenceService;

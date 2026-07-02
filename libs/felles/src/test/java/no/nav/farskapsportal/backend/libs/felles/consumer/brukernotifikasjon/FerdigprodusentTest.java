@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteBarnUtenFnr;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.henteForelder;
@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import no.nav.farskapsportal.backend.libs.dto.Forelderrolle;
@@ -35,15 +34,16 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("Ferdigprodusent")
 @SpringBootTest(classes = FarskapsportalFellesTestConfig.class)
 @ActiveProfiles(PROFILE_TEST)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 public class FerdigprodusentTest {
 
   @Value("${wiremock.server.port}")
@@ -112,9 +112,7 @@ public class FerdigprodusentTest {
     var ferdigmelding = ferdigmeldinger.get(0);
 
     // Deserilaiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var inaktivertVarsel = objectMapper.readValue(ferdigmelding, InaktiverVarsel.class);
+    var inaktivertVarsel = getCommonObjectmapper().readValue(ferdigmelding, InaktiverVarsel.class);
 
     assertAll(
         () -> assertThat(noekkel).isEqualTo(oppgavebestilling.getEventId()),

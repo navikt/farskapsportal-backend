@@ -1,6 +1,6 @@
 package no.nav.farskapsportal.backend.libs.felles.consumer.brukernotifikasjon;
 
-import static com.fasterxml.jackson.module.kotlin.ExtensionsKt.jacksonObjectMapper;
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.FAR;
 import static no.nav.farskapsportal.backend.libs.felles.test.utils.TestUtils.MOR;
@@ -16,7 +16,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,17 +43,18 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 @DisplayName("Teste BrukernotifikasjonConsumer")
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = {FarskapsportalFellesTestConfig.class, BrukernotifikasjonConfig.class})
 @ActiveProfiles(PROFILE_TEST)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(@ConfigureWireMock())
 public class BrukernotifikasjonConsumerTest {
 
   private static final String MELDING_OM_VENTENDE_FARSKAPSERKLAERING =
@@ -106,10 +106,8 @@ public class BrukernotifikasjonConsumerTest {
     var beskjedFar = beskjeder.get(1);
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarselMor = objectMapper.readValue(beskjedMor, OpprettVarsel.class);
-    var opprettetVarselFar = objectMapper.readValue(beskjedFar, OpprettVarsel.class);
+    var opprettetVarselMor = getCommonObjectmapper().readValue(beskjedMor, OpprettVarsel.class);
+    var opprettetVarselFar = getCommonObjectmapper().readValue(beskjedFar, OpprettVarsel.class);
 
     var beskjedMorSynligFremTilDato =
         opprettetVarselMor
@@ -184,9 +182,7 @@ public class BrukernotifikasjonConsumerTest {
     var beskjed = beskjedfanger.getValue();
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarsel = objectMapper.readValue(beskjed, OpprettVarsel.class);
+    var opprettetVarsel = getCommonObjectmapper().readValue(beskjed, OpprettVarsel.class);
 
     assertAll(
         () -> assertThat(opprettetVarsel.getIdent()).isEqualTo(MOR.getFoedselsnummer()),
@@ -225,15 +221,9 @@ public class BrukernotifikasjonConsumerTest {
     var beskjedTilMor = alleBeskjeder.get(0);
     var beskjedTilFar = alleBeskjeder.get(1);
 
-    var alleNoekler = noekkelfanger.getAllValues();
-    var noekkelTilMor = alleNoekler.get(0);
-    var noekkelTilFar = alleNoekler.get(1);
-
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarselMor = objectMapper.readValue(beskjedTilMor, OpprettVarsel.class);
-    var opprettetVarselFar = objectMapper.readValue(beskjedTilFar, OpprettVarsel.class);
+    var opprettetVarselMor = getCommonObjectmapper().readValue(beskjedTilMor, OpprettVarsel.class);
+    var opprettetVarselFar = getCommonObjectmapper().readValue(beskjedTilFar, OpprettVarsel.class);
 
     assertAll(
         //        () ->
@@ -292,15 +282,9 @@ public class BrukernotifikasjonConsumerTest {
     var beskjedTilMor = alleBeskjeder.get(0);
     var beskjedTilFar = alleBeskjeder.get(1);
 
-    var alleNoekler = noekkelfanger.getAllValues();
-    var noekkelTilMor = alleNoekler.get(0);
-    var noekkelTilFar = alleNoekler.get(1);
-
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarselMor = objectMapper.readValue(beskjedTilMor, OpprettVarsel.class);
-    var opprettetVarselFar = objectMapper.readValue(beskjedTilFar, OpprettVarsel.class);
+    var opprettetVarselMor = getCommonObjectmapper().readValue(beskjedTilMor, OpprettVarsel.class);
+    var opprettetVarselFar = getCommonObjectmapper().readValue(beskjedTilFar, OpprettVarsel.class);
 
     assertAll(
         //        () ->
@@ -373,15 +357,9 @@ public class BrukernotifikasjonConsumerTest {
     var beskjedTilMor = alleBeskjeder.get(0);
     var beskjedTilFar = alleBeskjeder.get(1);
 
-    var alleNoekler = noekkelfanger.getAllValues();
-    var noekkelTilMor = alleNoekler.get(0);
-    var noekkelTilFar = alleNoekler.get(1);
-
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarselMor = objectMapper.readValue(beskjedTilMor, OpprettVarsel.class);
-    var opprettetVarselFar = objectMapper.readValue(beskjedTilFar, OpprettVarsel.class);
+    var opprettetVarselMor = getCommonObjectmapper().readValue(beskjedTilMor, OpprettVarsel.class);
+    var opprettetVarselFar = getCommonObjectmapper().readValue(beskjedTilFar, OpprettVarsel.class);
 
     assertAll(
         //        () ->
@@ -470,9 +448,7 @@ public class BrukernotifikasjonConsumerTest {
     var oppgave = oppgavefanger.getValue();
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var opprettetVarsel = objectMapper.readValue(oppgave, OpprettVarsel.class);
+    var opprettetVarsel = getCommonObjectmapper().readValue(oppgave, OpprettVarsel.class);
 
     var oppgavebestillinger =
         persistenceService.henteAktiveOppgaverTilForelderIFarskapserklaering(
@@ -613,9 +589,7 @@ public class BrukernotifikasjonConsumerTest {
     var ferdig = ferdigfanger.getAllValues().get(0);
 
     // Deserialiserer JSON tilbake til OpprettVarsel
-    var objectMapper = jacksonObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    var inaktivertVarsel = objectMapper.readValue(ferdig, InaktiverVarsel.class);
+    var inaktivertVarsel = getCommonObjectmapper().readValue(ferdig, InaktiverVarsel.class);
 
     assertAll(
         () -> assertThat(nokkel).isEqualTo(eksisterendeOppgavebestilling.getEventId()),

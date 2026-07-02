@@ -1,8 +1,8 @@
 package no.nav.farskapsportal.backend.apps.api.consumer.skatt;
 
+import static no.nav.bidrag.transport.felles.JsonUtilsKt.getCommonObjectmapper;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_INTEGRATION_TEST;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -102,9 +102,8 @@ class Config {
             .getData()
             .toStringUtf8();
 
-    var objectMapper = new ObjectMapper();
     var farskapKeystoreCredentials =
-        objectMapper.readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
+        getCommonObjectmapper().readValue(sertifikatpassord, FarskapKeystoreCredentials.class);
 
     log.info("lengde sertifikatpassord {}", farskapKeystoreCredentials.getPassword().length());
 

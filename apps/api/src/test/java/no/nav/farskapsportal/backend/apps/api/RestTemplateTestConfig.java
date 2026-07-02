@@ -8,8 +8,8 @@ import com.google.common.net.HttpHeaders;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -19,6 +19,8 @@ import org.springframework.context.annotation.Profile;
 public class RestTemplateTestConfig {
 
   @Autowired private MockOAuth2Server mockOAuth2Server;
+
+  @Autowired private RestTemplateBuilder restTemplateBuilder;
 
   private String generateTestToken(Farskapsportalapp farskapsportalapp) {
 
@@ -30,7 +32,7 @@ public class RestTemplateTestConfig {
 
   @Bean("api")
   HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi() {
-    TestRestTemplate testRestTemplate = new TestRestTemplate(new RestTemplateBuilder());
+    TestRestTemplate testRestTemplate = new TestRestTemplate(restTemplateBuilder);
     HttpHeaderTestRestTemplate httpHeaderTestRestTemplate =
         new HttpHeaderTestRestTemplate(testRestTemplate);
     httpHeaderTestRestTemplate.add(

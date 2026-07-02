@@ -27,18 +27,20 @@ BRUKERNOTIFIKASJON_PAA: true
 BUCKET_NAME_PADES: pades
 BUCKET_NAME_XADES: xades
 FARSKAPSPORTAL_URL: "https://farskapsportal.dev.nav.no"
-KAFKA_TRUSTSTORE_PATH: classpath:cert/server-selfsigned.jks
-KAFKA_CREDSTORE_PASSWORD: qwer1234
+KAFKA_TRUSTSTORE_PATH: ""
+KAFKA_CREDSTORE_PASSWORD: ""
 KAFKA_SCHEMA_REGISTRY_USER: user
 KAFKA_SCHEMA_REGISTRY_PASSWORD: secret
-KAFKA_KEYSTORE_PATH: /var/test
+KAFKA_KEYSTORE_PATH: ""
 NAIS_CLUSTER_NAME: dev
 
 ### kafka
 KAFKA_BROKERS: 127.0.0.1:9092
 KAFKA_SCHEMA_REGISTRY: http://localhost:8081
 
-spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.bootstrap-servers: ${spring.embedded.kafka.brokers}
+spring.kafka.properties:
+  security.protocol: PLAINTEXT
 spring.kafka.consumer.group-id: farskapsportal
 spring.kafka.consumer.auto-offset-reset: earliest
 

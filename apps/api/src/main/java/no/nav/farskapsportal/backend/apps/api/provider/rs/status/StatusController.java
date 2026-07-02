@@ -52,15 +52,14 @@ public class StatusController {
 
     var helsesjekk =
         restTemplate.exchange(
-            "/internal/actuator/health",
-            HttpMethod.GET,
-            new HttpEntity<>(null, null),
-            ActuatorHealth.class);
+            "/internal/actuator/health", HttpMethod.GET, HttpEntity.EMPTY, ActuatorHealth.class);
 
     var actuatorHealth = helsesjekk.getBody();
 
     var operasjonellStatus =
-        actuatorHealth.getStatus().equals(Status.UP) ? Systemstatus.OK : Systemstatus.ERROR;
+        actuatorHealth != null && Status.UP.equals(actuatorHealth.getStatus())
+            ? Systemstatus.OK
+            : Systemstatus.ERROR;
 
     return new ResponseEntity<>(
         OperasjonellStatus.builder()
