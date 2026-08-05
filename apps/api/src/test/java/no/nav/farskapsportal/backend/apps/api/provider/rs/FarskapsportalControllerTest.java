@@ -1343,7 +1343,7 @@ public class FarskapsportalControllerTest {
       assertAll(
           () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
           () -> assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.UGYLDIG_FAR),
-          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty(),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isNull(),
           () -> assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek()).isNull());
     }
 
@@ -1395,7 +1395,7 @@ public class FarskapsportalControllerTest {
           () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
           () ->
               assertThat(respons.getBody().getFeilkode()).isEqualTo(Feilkode.PDL_NAVN_IKKE_FUNNET),
-          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEmpty(),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isNull(),
           () -> assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek()).isNull());
     }
 
@@ -1475,8 +1475,8 @@ public class FarskapsportalControllerTest {
           () ->
               assertThat(respons.getBody().getFeilkode())
                   .isEqualTo(Feilkode.NAVN_STEMMER_IKKE_MED_REGISTER),
-          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isPresent(),
-          () -> assertThat(respons.getBody().getAntallResterendeForsoek().get()).isEqualTo(2),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isNotNull(),
+          () -> assertThat(respons.getBody().getAntallResterendeForsoek()).isEqualTo(2),
           () -> assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek()).isNotNull(),
           () ->
               assertThat(respons.getBody().getTidspunktForNullstillingAvForsoek())
@@ -1580,7 +1580,7 @@ public class FarskapsportalControllerTest {
         assertAll(
             () -> assertThat(respons.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
             () ->
-                assertThat(respons.getBody().getAntallResterendeForsoek().get())
+                assertThat(respons.getBody().getAntallResterendeForsoek())
                     .isEqualTo(
                         farskapsportalApiEgenskaper
                                 .getFarskapsportalFellesEgenskaper()
@@ -1610,11 +1610,7 @@ public class FarskapsportalControllerTest {
               assertThat(resultatEtterOppbruktAntallForsoek.getStatusCode())
                   .isEqualTo(HttpStatus.BAD_REQUEST),
           () ->
-              assertThat(
-                      resultatEtterOppbruktAntallForsoek
-                          .getBody()
-                          .getAntallResterendeForsoek()
-                          .get())
+              assertThat(resultatEtterOppbruktAntallForsoek.getBody().getAntallResterendeForsoek())
                   .isEqualTo(0),
           () ->
               assertThat(resultatEtterOppbruktAntallForsoek.getBody().getFeilkode())
@@ -2848,7 +2844,7 @@ public class FarskapsportalControllerTest {
           () ->
               assertThat(Feilkode.FANT_IKKE_FARSKAPSERKLAERING.getBeskrivelse())
                   .isEqualTo(farskapserklaeringFeilResponse.getFeilkodebeskrivelse()),
-          () -> assertThat(finalRespons.getBody().getAntallResterendeForsoek()).isEmpty());
+          () -> assertThat(finalRespons.getBody().getAntallResterendeForsoek()).isNull());
     }
   }
 
