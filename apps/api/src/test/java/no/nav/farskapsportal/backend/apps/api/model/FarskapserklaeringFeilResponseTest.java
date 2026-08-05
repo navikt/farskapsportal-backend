@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import no.nav.farskapsportal.backend.libs.felles.exception.Feilkode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,8 +52,7 @@ class FarskapserklaeringFeilResponseTest {
   }
 
   @Test
-  @DisplayName(
-      "Skal feile på serialisering når det er en Optional som inputverdi.")
+  @DisplayName("Skal feile på serialisering når det er en Optional som inputverdi.")
   void skalFeileNårDetBenyttesOptional() {
     var respons = new TestOptionalDeserialisering(Optional.of(1));
 
@@ -66,7 +64,7 @@ class FarskapserklaeringFeilResponseTest {
     Optional<Integer> antallResterendeForsoek;
 
     public TestOptionalDeserialisering(Optional<Integer> integer) {
-        this.antallResterendeForsoek = integer;
+      this.antallResterendeForsoek = integer;
     }
   }
 }

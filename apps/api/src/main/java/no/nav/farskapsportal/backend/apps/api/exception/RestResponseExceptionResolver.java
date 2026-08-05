@@ -186,8 +186,7 @@ public class RestResponseExceptionResolver {
                 .build()
             : FarskapserklaeringFeilResponse.builder()
                 .feilkode(feilkode)
-                .antallResterendeForsoek(
-                    statusKontrollereFarDto.get().getAntallResterendeForsoek())
+                .antallResterendeForsoek(statusKontrollereFarDto.get().getAntallResterendeForsoek())
                 .tidspunktForNullstillingAvForsoek(
                     statusKontrollereFarDto.get().getTidspunktForNullstilling())
                 .feilkodebeskrivelse(feilkode.getBeskrivelse())

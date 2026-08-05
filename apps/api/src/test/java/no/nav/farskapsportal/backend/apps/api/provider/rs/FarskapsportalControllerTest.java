@@ -1610,10 +1610,7 @@ public class FarskapsportalControllerTest {
               assertThat(resultatEtterOppbruktAntallForsoek.getStatusCode())
                   .isEqualTo(HttpStatus.BAD_REQUEST),
           () ->
-              assertThat(
-                      resultatEtterOppbruktAntallForsoek
-                          .getBody()
-                          .getAntallResterendeForsoek())
+              assertThat(resultatEtterOppbruktAntallForsoek.getBody().getAntallResterendeForsoek())
                   .isEqualTo(0),
           () ->
               assertThat(resultatEtterOppbruktAntallForsoek.getBody().getFeilkode())
