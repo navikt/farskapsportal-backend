@@ -1,6 +1,5 @@
 package no.nav.farskapsportal.backend.apps.api.provider.rs;
 
-import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.SIKKER_LOGG;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
