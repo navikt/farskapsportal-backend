@@ -183,7 +183,6 @@ public class PdlApiConsumer {
   @NotNull
   @Cacheable("navn")
   public NavnDto hentNavnTilPerson(String foedselsnummer) {
-    log.info("Henter navn til person");
     var respons = hentePersondokument(foedselsnummer, PdlApiQuery.HENT_PERSON_NAVN, false);
     var navnDtos = respons.getData().getHentPerson().getNavn();
 

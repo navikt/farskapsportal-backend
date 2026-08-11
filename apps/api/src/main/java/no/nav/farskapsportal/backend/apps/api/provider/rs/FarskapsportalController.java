@@ -63,9 +63,7 @@ public class FarskapsportalController {
         @ApiResponse(responseCode = "503", description = "Tjeneste utilgjengelig")
       })
   public ResponseEntity<BrukerinformasjonResponse> henteBrukerinformasjon() {
-    log.info("Henter brukerinformasjon");
     var personident = oidcTokenPersonalIdExtractor.hentPaaloggetPerson();
-    SIKKER_LOGG.info("Henter brukerinformasjon for person med ident {}", personident);
     var brukerinformasjon = farskapsportalService.henteBrukerinformasjon(personident);
     return new ResponseEntity<>(brukerinformasjon, HttpStatus.OK);
   }
