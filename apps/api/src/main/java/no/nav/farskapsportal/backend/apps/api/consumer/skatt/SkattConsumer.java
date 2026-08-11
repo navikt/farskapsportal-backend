@@ -129,6 +129,9 @@ public class SkattConsumer {
                   farskapserklaering.getMeldingsidSkatt());
               throw new SkattConsumerException(Feilkode.SKATT_OVERFOERING_FEILET);
             }
+            log.info(
+                "Overføring av farskapserklæring med meldingsid {} til Skatt ble akseptert (HTTP-kode 202).",
+                farskapserklaering.getMeldingsidSkatt());
             return null;
           });
 
