@@ -86,6 +86,12 @@ spec:
         flags:
           - name: autovacuum
             value: "on"
+          - name: "cloudsql.enable_pgaudit"
+            value: "off"
+          - name: "pgaudit.log"
+            value: "write,role,ddl"
+          - name: "pgaudit.log_parameter"
+            value: "on"
   accessPolicy:
     inbound:
       rules:
