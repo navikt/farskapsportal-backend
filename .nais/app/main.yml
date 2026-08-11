@@ -12,6 +12,13 @@ gcp:
       users:
         asynkron:
           name: asynkron_main
+    flags:
+      - name: "cloudsql.enable_pgaudit"
+        value: "off"
+      - name: "pgaudit.log"
+        value: "write,ddl,role"
+      - name: "pgaudit.log_parameter"
+        value: "on"
 env:
   - name: JAVA_TOOL_OPTIONS
     value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
