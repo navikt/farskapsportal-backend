@@ -288,7 +288,7 @@
 
         <dependency>
             <groupId>no.nav.bidrag</groupId>
-            <artifactId>bidrag-commons-test-felles</artifactId>
+            <artifactId>bidrag-backend-commons-test</artifactId>
             <version>${bidrag-felles.version}</version>
             <scope>test</scope>
         </dependency>

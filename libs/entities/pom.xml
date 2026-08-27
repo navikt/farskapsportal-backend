@@ -19,7 +19,7 @@
 
       <dependency>
           <groupId>no.nav.bidrag</groupId>
-          <artifactId>bidrag-generer-testdata-felles</artifactId>
+          <artifactId>bidrag-backend-generer-testdata</artifactId>
           <version>${bidrag-felles.version}</version>
           <scope>test</scope>
       </dependency>
