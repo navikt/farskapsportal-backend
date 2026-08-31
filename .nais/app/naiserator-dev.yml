@@ -102,7 +102,7 @@ spec:
           cluster: dev-gcp
         - application: tokenx-token-generator
           namespace: nais
-          cluster: nav-dev
+          cluster: dev-gcp
     outbound:
       rules:
         - application: logging
