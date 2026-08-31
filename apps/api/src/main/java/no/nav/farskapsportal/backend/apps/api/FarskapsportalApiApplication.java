@@ -3,6 +3,7 @@ package no.nav.farskapsportal.backend.apps.api;
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_LIVE;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.ComponentScan;
     })
 @ConfigurationPropertiesScan("no.nav.farskapsportal.backend.apps.api.config.egenskaper")
 @ComponentScan({"no.nav.farskapsportal.backend.apps.api", "no.nav.farskapsportal.backend.libs"})
+@EnableJwtTokenValidation(ignore = {"org.springframework", "org.springdoc"})
 public class FarskapsportalApiApplication {
 
   public static final String ISSUER_TOKENX = "tokenx";
