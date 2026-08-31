@@ -26,7 +26,7 @@
         </repository>
         <repository>
           <id>github</id>
-          <url>https://maven.pkg.github.com/navikt/bidrag-commons</url>
+          <url>https://maven.pkg.github.com/navikt/bidrag-backend</url>
         </repository>
         <repository>
           <id>github-package-registry-navikt</id>
