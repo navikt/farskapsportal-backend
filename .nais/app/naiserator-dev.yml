@@ -100,6 +100,9 @@ spec:
         - application: statuspoll
           namespace: navdig
           cluster: dev-gcp
+        - application: tokenx-token-generator
+          namespace: nais
+          cluster: nav-dev
     outbound:
       rules:
         - application: logging
