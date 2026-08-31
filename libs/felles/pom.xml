@@ -111,7 +111,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.bidrag</groupId>
-            <artifactId>bidrag-commons-felles</artifactId>
+            <artifactId>bidrag-backend-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.farskapsportal.backend.libs</groupId>

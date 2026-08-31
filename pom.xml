@@ -20,7 +20,7 @@
     <properties>
         <!-- navikt -->
         <token-support.version>6.0.8</token-support.version>
-        <bidrag-felles.version>2026.05.20.125928-SB4</bidrag-felles.version>
+        <bidrag-felles.version>2026.08.31.152529</bidrag-felles.version>
 
         <!-- other -->
         <apache.commons-lang.version>3.20.0</apache.commons-lang.version>
@@ -43,7 +43,7 @@
         <jakarta.servlet-api.version>6.2.0-M2</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>8.0.2</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>5.0.1</spring-cloud-starter.version>
-        <springdoc-openapi-ui.version>3.0.3</springdoc-openapi-ui.version>
+        <springdoc-openapi-ui.version>3.1.0</springdoc-openapi-ui.version>
         <wiremock.version>3.0.1</wiremock.version>
         <shedlock.version>7.7.0</shedlock.version>
         <swagger.core.version>2.2.50</swagger.core.version>
@@ -56,7 +56,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/navikt/bidrag-felles</url>
+            <url>https://maven.pkg.github.com/navikt/bidrag-backend</url>
         </repository>
         <repository>
             <id>confluent</id>
@@ -74,7 +74,7 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.bidrag</groupId>
-                <artifactId>bidrag-commons-felles</artifactId>
+                <artifactId>bidrag-backend-commons</artifactId>
                 <version>${bidrag-felles.version}</version>
             </dependency>
             <dependency>
@@ -333,7 +333,7 @@
             <repositories>
                 <repository>
                     <id>github</id>
-                    <url>https://maven.pkg.github.com/navikt/bidrag-felles</url>
+                    <url>https://maven.pkg.github.com/navikt/bidrag-backend</url>
                 </repository>
             </repositories>
         </profile>
