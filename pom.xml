@@ -43,7 +43,7 @@
         <jakarta.servlet-api.version>6.2.0-M2</jakarta.servlet-api.version>
         <google-spring-cloud-gcp.version>8.0.2</google-spring-cloud-gcp.version>
         <spring-cloud-starter.version>5.0.1</spring-cloud-starter.version>
-        <springdoc-openapi-ui.version>3.0.3</springdoc-openapi-ui.version>
+        <springdoc-openapi-ui.version>3.1.0</springdoc-openapi-ui.version>
         <wiremock.version>3.0.1</wiremock.version>
         <shedlock.version>7.7.0</shedlock.version>
         <swagger.core.version>2.2.50</swagger.core.version>
