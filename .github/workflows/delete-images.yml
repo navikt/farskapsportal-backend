@@ -1,0 +1,29 @@
+name: 'Delete GHCR images'
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  delete-images:
+    name: 'Delete old GHCR images job except 50 most recent'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/delete-package-versions@v5
+        with: {
+          package-name: 'farskapsportal-ui/farskapsportal-ui',
+          package-type: 'container',
+          registry-url: 'https://ghcr.io',
+          org-name: "navikt",
+          min-versions-to-keep: 300
+        }
