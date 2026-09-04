@@ -38,4 +38,6 @@ build/
 
 *.pdf
 test_VS_decrypt_*
-*.pdf
+
+### Genererte NAIS-secrets (initEnv.sh) - skal aldri committes ###
+application-lokal-nais-secrets.properties

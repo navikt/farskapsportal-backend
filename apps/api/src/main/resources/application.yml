@@ -167,13 +167,16 @@ DB_USERNAME: sa
 ### POSTGRES ###
 spring:
   config.activate.on-profile: local-postgres
-  # Oppsett for flyway med hikari og postgres
+  # Oppsett for flyway med hikari og postgres. Kjør `docker compose up -d` i repo-roten for å
+  # starte en lokal postgres-instans med matchende database/brukernavn/passord.
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/p2
     databaseName: p2
     portNumber: 5432
     serverName: localhost
+    username: cloudsqliamuser
+    password: cloudsqliamuser
     hikari:
       idle-timeout: 10001
       max-lifetime: 30001
@@ -371,3 +374,11 @@ no.nav:
   security.jwt.issuer.tokenx:
     discoveryurl: https://navtestb2c.b2clogin.com/navtestb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
     accepted_audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+
+---
+# Import av NAIS-secrets/miljøparametere hentet med ./initEnv.sh.
+# Fila finnes ikke i git og lastes kun inn dersom den er generert lokalt, se initEnv.sh.
+# Legges sist slik at ekte verdier fra dev-gcp/farskapsportal overstyrer wiremock/mock-oauth2-server-defaultene over.
+spring:
+  config.activate.on-profile: local
+  config.import: optional:classpath:application-lokal-nais-secrets.properties
