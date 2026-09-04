@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: farskapsportal-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: p2
+      POSTGRES_USER: cloudsqliamuser
+      POSTGRES_PASSWORD: cloudsqliamuser
+    ports:
+      - "5432:5432"
+    volumes:
+      - farskapsportal-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudsqliamuser -d p2"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  farskapsportal-postgres-data:
