@@ -109,6 +109,6 @@ spec:
           namespace: nais-system
       external:
         - host: api.difitest.signering.posten.no
-        - host: folkeregisteret-api-ekstern.sits.no
+        - host: folkeregisteret-api-produsent.sits.no
         - host: secretmanager.googleapis.com
         - host: oppgave.dev-fss-pub.nais.io
