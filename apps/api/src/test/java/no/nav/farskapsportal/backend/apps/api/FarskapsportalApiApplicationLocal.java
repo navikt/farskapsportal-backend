@@ -6,9 +6,15 @@ import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFel
 import static no.nav.farskapsportal.backend.libs.felles.config.FarskapsportalFellesConfig.PROFILE_TEST;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -51,8 +57,6 @@ import org.springframework.stereotype.Component;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.wiremock.spring.ConfigureWireMock;
-import org.wiremock.spring.EnableWireMock;
 
 @SpringBootApplication(
     exclude = {
@@ -97,9 +101,30 @@ public class FarskapsportalApiApplicationLocal {
 
     String profile = args.length < 1 ? PROFILE_LOCAL : args[0];
 
+    // @EnableWireMock (org.wiremock.spring) kobler seg på JUnits Spring TestContext-rammeverk
+    // (ContextCustomizerFactory) og starter derfor ALDRI wiremock-serveren når appen kjøres
+    // som en vanlig SpringApplication via main() (kun når konteksten lastes via en
+    // @SpringBootTest).
+    // Vi reserverer derfor selv en ledig port her, tidlig, slik at ${wiremock.server.port} er
+    // korrekt satt i Environment før andre beans (PdlApiConsumer, OppgaveApiConsumer, m.fl.)
+    // leser den via WIREMOCK_URL. Samme mønster som mock-oauth2-server-biblioteket bruker selv.
+    ensureWiremockPortIsReserved();
+
     SpringApplication app = new SpringApplication(FarskapsportalApiApplicationLocal.class);
     app.setAdditionalProfiles(profile);
     app.run(args);
+  }
+
+  private static void ensureWiremockPortIsReserved() {
+    if (System.getProperty("wiremock.server.port") != null) {
+      return;
+    }
+    try (ServerSocket ledigPort = new ServerSocket(0)) {
+      System.setProperty("wiremock.server.port", String.valueOf(ledigPort.getLocalPort()));
+    } catch (IOException e) {
+      throw new UncheckedIOException(
+          "Kunne ikke reservere ledig port for lokal WireMock-server", e);
+    }
   }
 
   @Bean
@@ -156,17 +181,36 @@ public class FarskapsportalApiApplicationLocal {
     @Autowired
     public FlywayConfiguration(@Qualifier("dataSource") DataSource dataSource) {
 
-      Flyway.configure().baselineOnMigrate(true).dataSource(dataSource).load().migrate();
+      // V11_3_0 bruker placeholderen ${user_asynkron}.
+      // Siden vi her kjører Flyway manuelt, må vi sette den selv. Lokalt finnes det ingen egen
+      // asynkron-bruker,
+      // så vi peker den til den lokale databasebrukeren.
+      Flyway.configure()
+          .baselineOnMigrate(true)
+          .dataSource(dataSource)
+          .placeholders(java.util.Map.of("user_asynkron", "cloudsqliamuser"))
+          .load()
+          .migrate();
     }
   }
 
   @Configuration
   @Profile({PROFILE_LOCAL, PROFILE_LOCAL_POSTGRES, PROFILE_REMOTE_POSTGRES})
   @EnableMockOAuth2Server
-  @EnableWireMock(@ConfigureWireMock())
   class MockOauthServerLocalConfig {
 
-    public MockOauthServerLocalConfig(@Autowired DifiESignaturStub difiESignaturStub) {
+    @Bean(destroyMethod = "stop")
+    public static WireMockServer wireMockServer(
+        @Value("${wiremock.server.port}") int wiremockPort) {
+      WireMockServer wireMockServer =
+          new WireMockServer(WireMockConfiguration.options().port(wiremockPort));
+      wireMockServer.start();
+      WireMock.configureFor("localhost", wiremockPort);
+      return wireMockServer;
+    }
+
+    public MockOauthServerLocalConfig(
+        @Autowired DifiESignaturStub difiESignaturStub, @Autowired WireMockServer wireMockServer) {
       difiESignaturStub.runGetSignedDocument(PADES);
       difiESignaturStub.runGetXades(XADES);
     }

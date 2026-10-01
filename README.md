@@ -41,9 +41,16 @@ Hent testpersoner fra Skatts Tenor testdata: https://www.skatteetaten.no/skjema/
 
 ### lokal kjøring
 
-Ved lokal kjøring brukes Spring-boot-instansen FarskapsportalApplicationLocal. Denne er satt opp med token-supports test-token, og kjøres som standard
-med Spring-profilen local (se application.yml). Local-profilen benytter Wiremock for eksterne avhengigheter (security-token-service, pdl-api, Skatt,
-og Joark). Data til Wiremock-stubbene leses inn fra test/resources/stubs-mappa.
+Ved lokal kjøring brukes Spring-boot-instansen `FarskapsportalApiApplicationLocal` (i `src/test/java`).
+
+- Default: Profil `local` settes automatisk og benytter H2 i-minne-database, ingen eksterne avhengigheter kreves. Wiremock, mock-oauth2-server og en
+  fake-gcs-server (Testcontainers) startes automatisk i appen. Token-support er satt opp med test-token.
+- Profil `local-postgres`: ekte Postgres i stedet for H2. Drar også inn `local`. Krever at Docker kjører, og at du har startet databasen
+  med `docker compose up -d` i repo-roten *før* du starter appen. Flyway kjører migreringene automatisk mot denne databasen.
+
+Ved behov for ekte secrets (f.eks. reelle PDL-/Skatt-URL-er) kan `./initEnv.sh` kjøres for å hente miljøvariabler fra feature-miljøet
+og skriver dem til `apps/api/src/test/resources/application-lokal-nais-secrets.properties`. Denne filen leses automatisk inn når
+profilen `local` kjører, og er lagt til i `.gitignore` — den skal aldri committes.
 
 Kjør følgende GET for å lage cookie med test-token til lokal kjøring (fra token-support): http://localhost:8080/local/cookie?issuerId=tokenx&audience=aud-localhost.
 CURLs kan etter dette kjøres direkte fra Swagger uten eksplisitt å legge inn Bearer-token.
