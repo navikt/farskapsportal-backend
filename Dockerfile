@@ -7,8 +7,8 @@ FROM gcr.io/distroless/java25
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
-COPY --from=busybox:1.35.0-glibc /bin/sh /bin/sh
-COPY --from=busybox:1.35.0-glibc /bin/printenv /bin/printenv
+COPY --from=busybox:1.37.0-glibc /bin/sh /bin/sh
+COPY --from=busybox:1.37.0-glibc /bin/printenv /bin/printenv
 
 ENV JAVA_OPTS=$JAVA_OPTS
 COPY apps/api/target/app.jar app.jar
