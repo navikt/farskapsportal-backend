@@ -349,7 +349,7 @@ spring:
 
 DB_DATABASE: fpdb-main
 POSTGRES_CONNECTION_NAME: farskapsportal-dev-169c:europe-north1:fp-main
-SKATT_URL: https://folkeregisteret-api-ekstern.sits.no
+SKATT_URL: https://folkeregisteret-api-produsent.sits.no
 WIREMOCK_URL: http://localhost
 
 farskapsportal.asynkron.egenskaper.arkiv.arkiveringsintervall: 6000000
