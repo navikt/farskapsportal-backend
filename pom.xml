@@ -38,6 +38,7 @@
         <google-cloud-libraries-bom.version>26.90.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.12.0</google-tink-gcpkms.version>
         <google-tink.version>1.23.0</google-tink.version>
+        <protobuf.version>4.33.6</protobuf.version>
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <slf4j.version>2.0.20</slf4j.version>
         <jakarta.servlet-api.version>6.2.0-M2</jakarta.servlet-api.version>
@@ -149,6 +150,17 @@
                 <groupId>com.google.crypto.tink</groupId>
                 <artifactId>tink-gcpkms</artifactId>
                 <version>${google-tink-gcpkms.version}</version>
+            </dependency>
+            <!-- Tink 1.23.0 requires Protobuf 4.33.6; the Google Cloud BOM selects 4.33.2. -->
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java-util</artifactId>
+                <version>${protobuf.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.javacrumbs.shedlock</groupId>
