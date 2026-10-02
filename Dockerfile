@@ -1,20 +1,23 @@
-FROM ubuntu:22.04 AS locales
-RUN apt-get update && apt-get install -y locales
-RUN locale-gen nb_NO.UTF-8 && \
-    update-locale LANG=nb_NO.UTF-8 LANGUAGE="nb_NO:nb" LC_ALL=nb_NO.UTF-8
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-26-dev AS tools
+USER root
+RUN apk add --no-cache glibc-locale-nb
 
-FROM gcr.io/distroless/java25
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-26
 LABEL maintainer="Team Farskapsportal" \
       email="nav.ikt.prosjekt.og.forvaltning.farskapsportal@nav.no"
 
-COPY --from=busybox:1.35.0-glibc /bin/sh /bin/sh
-COPY --from=busybox:1.35.0-glibc /bin/printenv /bin/printenv
+COPY --from=tools /bin/busybox /bin/sh
+COPY --from=tools /bin/busybox /bin/printenv
+# The dev image's BusyBox needs libcrypt, which is absent from the minimal runtime.
+COPY --from=tools /usr/lib/libcrypt.so.1.1.0 /usr/lib/libcrypt.so.1.1.0
+COPY --from=tools /usr/lib/libcrypt.so.1 /usr/lib/libcrypt.so.1
+COPY --from=tools /usr/lib/locale/ /usr/lib/locale/
 
-ENV JAVA_OPTS=$JAVA_OPTS
+WORKDIR /app
 COPY apps/api/target/app.jar app.jar
 EXPOSE 8080
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
 ENV LANG=nb_NO.UTF-8 LANGUAGE='nb_NO:nb' LC_ALL=nb_NO.UTF-8 TZ="Europe/Oslo"
 
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar"]
 CMD ["app.jar"]
