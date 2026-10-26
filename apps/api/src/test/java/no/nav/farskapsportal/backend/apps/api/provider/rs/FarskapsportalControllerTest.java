@@ -113,6 +113,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cache.CacheManager;
@@ -169,6 +170,8 @@ public class FarskapsportalControllerTest {
   @Autowired
   @Qualifier("api")
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplateApi;
+
+  private final TestRestTemplate testRestTemplate = new TestRestTemplate();
 
   private @Autowired PdlApiStub pdlApiStub;
   private @MockitoBean OAuth2AccessTokenService oAuth2AccessTokenService;
@@ -388,6 +391,44 @@ public class FarskapsportalControllerTest {
     CustomHeader(String headerName, String headerValue) {
       this.headerName = headerName;
       this.headerValue = headerValue;
+    }
+  }
+
+  @Nested
+  @DisplayName("Tilgang til beskyttede endepunkter")
+  class Tilgangskontroll {
+
+    @Test
+    void avviserForespoerselUtenToken() {
+      var response = testRestTemplate.getForEntity(initHenteBrukerinformasjon(), String.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void avviserTokenFraFeilUtsteder() {
+      var token = mockOAuth2Server.issueToken("aad", "testbruker", "aud-localhost");
+
+      var response = henteBrukerinformasjonMedToken(token.serialize());
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void avviserTokenMedFeilAudience() {
+      var token = mockOAuth2Server.issueToken("tokenx", "testbruker", "feil-audience");
+
+      var response = henteBrukerinformasjonMedToken(token.serialize());
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    private ResponseEntity<String> henteBrukerinformasjonMedToken(String token) {
+      var headers = new HttpHeaders();
+      headers.setBearerAuth(token);
+
+      return testRestTemplate.exchange(
+          initHenteBrukerinformasjon(), HttpMethod.GET, new HttpEntity<>(headers), String.class);
     }
   }
 
