@@ -11,8 +11,6 @@
   <name>farskapsportal-backend :: libs :: stubs</name>
 
   <properties>
-    <maven.compiler.source>16</maven.compiler.source>
-    <maven.compiler.target>16</maven.compiler.target>
     <springframework-cloud.version>2.2.3.RELEASE</springframework-cloud.version>
   </properties>
 
@@ -31,8 +29,8 @@
       <artifactId>token-validation-spring</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8-standalone</artifactId>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-standalone</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
