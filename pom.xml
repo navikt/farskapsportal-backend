@@ -50,7 +50,7 @@
         <shedlock.version>7.10.1</shedlock.version>
         <swagger.core.version>2.2.55</swagger.core.version>
         <testcontainers.version>1.21.4</testcontainers.version>
-        <tms-varsel.version>2.1.1</tms-varsel.version>
+        <tms-varsel.version>2.2.0</tms-varsel.version>
         <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
         <flyway.version>11.20.3</flyway.version>
     </properties>
