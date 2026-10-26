@@ -26,7 +26,7 @@
 
         <!-- other -->
         <apache.commons-lang.version>3.21.0</apache.commons-lang.version>
-        <apache-pdfbox.version>2.0.37</apache-pdfbox.version>
+        <apache-pdfbox.version>3.0.8</apache-pdfbox.version>
         <signature-api-client-bom.version>7.0.9</signature-api-client-bom.version>
         <commons-io.version>2.22.0</commons-io.version>
         <java.version>25</java.version>
