@@ -21,7 +21,7 @@
         <jackson-2-bom.version>2.21.8</jackson-2-bom.version>
         <jackson-bom.version>3.1.8</jackson-bom.version>
         <!-- navikt -->
-        <token-support.version>7.0.0</token-support.version>
+        <token-support.version>7.0.1</token-support.version>
         <bidrag-felles.version>2026.10.26.112241</bidrag-felles.version>
 
         <!-- other -->
