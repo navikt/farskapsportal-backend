@@ -69,8 +69,7 @@ spec:
           numNewerVersions: 1
           withState: ANY
     sqlInstances:
-      - diskSize: {{ gcp.sql-instances.diskSize }}
-        name: {{ gcp.sql-instances.name }}
+      - name: {{ gcp.sql-instances.name }}
         tier: {{ gcp.sql-instances.tier }}
         type: {{ gcp.sql-instances.type }}
         databases:
