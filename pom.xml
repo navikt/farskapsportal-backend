@@ -39,7 +39,7 @@
         <google-cloud-libraries-bom.version>26.90.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.12.0</google-tink-gcpkms.version>
         <google-tink.version>1.24.0</google-tink.version>
-        <protobuf.version>4.33.6</protobuf.version>
+        <protobuf.version>4.36.2</protobuf.version>
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <slf4j.version>2.0.20</slf4j.version>
         <google-spring-cloud-gcp.version>8.2.4</google-spring-cloud-gcp.version>
