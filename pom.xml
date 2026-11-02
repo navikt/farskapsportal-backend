@@ -22,7 +22,7 @@
         <jackson-bom.version>3.1.8</jackson-bom.version>
         <!-- navikt -->
         <token-support.version>7.0.1</token-support.version>
-        <bidrag-felles.version>2026.10.26.112241</bidrag-felles.version>
+        <bidrag-felles.version>2026.10.30.081920</bidrag-felles.version>
 
         <!-- other -->
         <apache.commons-lang.version>3.21.0</apache.commons-lang.version>
