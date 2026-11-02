@@ -52,7 +52,7 @@
         <testcontainers.version>1.21.4</testcontainers.version>
         <tms-varsel.version>2.1.1</tms-varsel.version>
         <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
-        <flyway.version>11.20.3</flyway.version>
+        <flyway.version>13.11.1</flyway.version>
     </properties>
 
     <repositories>
