@@ -50,7 +50,7 @@ env:
   - name: PDL_URL
     value: https://pdl-api.dev-fss-pub.nais.io
   - name: SKATT_URL
-    value: https://folkeregisteret-api-ekstern.sits.no
+    value: https://folkeregisteret-api-produsent.sits.no
 # Fra gammel asynkron app
   - name: ARKIVERINGSINTERVALL
     value: 1800000
@@ -67,7 +67,7 @@ env:
   - name: OPPGAVE_SCOPE
     value: dev-fss.oppgavehandtering.oppgave
   - name: SKATT_URL
-    value: https://folkeregisteret-api-ekstern.sits.no
+    value: https://folkeregisteret-api-produsent.sits.no
   - name: OPPGAVESTYRINGSINTERVALL
     value: "0 0 7 * * ?"
   - name: OPPGAVESTYRINGSFORSINKELSE
