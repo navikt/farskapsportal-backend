@@ -47,7 +47,7 @@
         <springdoc-openapi-ui.version>3.2.0</springdoc-openapi-ui.version>
         <wiremock.version>3.13.2</wiremock.version>
         <wiremock-spring-boot.version>4.4.3</wiremock-spring-boot.version>
-        <shedlock.version>7.10.1</shedlock.version>
+        <shedlock.version>7.11.0</shedlock.version>
         <swagger.core.version>2.2.55</swagger.core.version>
         <testcontainers.version>1.21.4</testcontainers.version>
         <tms-varsel.version>2.2.0</tms-varsel.version>
