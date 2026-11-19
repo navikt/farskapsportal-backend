@@ -43,7 +43,7 @@
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <slf4j.version>2.0.20</slf4j.version>
         <google-spring-cloud-gcp.version>8.2.4</google-spring-cloud-gcp.version>
-        <spring-cloud-starter.version>5.0.3</spring-cloud-starter.version>
+        <spring-cloud-starter.version>5.0.4</spring-cloud-starter.version>
         <springdoc-openapi-ui.version>3.2.0</springdoc-openapi-ui.version>
         <wiremock.version>3.13.2</wiremock.version>
         <wiremock-spring-boot.version>4.4.3</wiremock-spring-boot.version>
