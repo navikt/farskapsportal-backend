@@ -36,7 +36,7 @@
         <hikaricp.version>7.1.0</hikaricp.version>
         <junit-bom.version>6.1.3</junit-bom.version>
         <modelmapper.version>3.2.8</modelmapper.version>
-        <google-cloud-libraries-bom.version>26.90.0</google-cloud-libraries-bom.version>
+        <google-cloud-libraries-bom.version>26.93.0</google-cloud-libraries-bom.version>
         <google-tink-gcpkms.version>1.12.0</google-tink-gcpkms.version>
         <google-tink.version>1.24.0</google-tink.version>
         <protobuf.version>4.36.2</protobuf.version>
