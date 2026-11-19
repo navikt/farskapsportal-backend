@@ -2,30 +2,34 @@ version: 2
 updates:
   - package-ecosystem: "maven"
     directory: "/"
+    open-pull-requests-limit: 15
     cooldown:
       default-days: 7
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:00"
+      interval: "daily"
+      time: "05:00"
       timezone: "Europe/Oslo"
     commit-message:
       prefix: "[dependency] "
   - package-ecosystem: "docker"
     directory: "/"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:00"
+      interval: "daily"
+      time: "05:00"
       timezone: "Europe/Oslo"
     commit-message:
       prefix: "[docker] "
   - package-ecosystem: "github-actions"
     directory: "/"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:00"
+      interval: "daily"
+      time: "05:00"
       timezone: "Europe/Oslo"
     commit-message:
       prefix: "[github-actions] "
