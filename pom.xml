@@ -139,7 +139,7 @@
                      needed by the Digipost signature client. Version 4.x removed this class. -->
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.3.9</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
