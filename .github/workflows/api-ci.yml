@@ -46,7 +46,7 @@ jobs:
         run: mvn fmt:check --settings .m2/maven-settings.xml
       - name: Maven clean install
         run: mvn -B -e --no-transfer-progress package --settings .m2/maven-settings.xml --file pom.xml clean install
-      - uses: nais/docker-build-push@dd7421d5068057a020ca46ead966c26190c516b1 # v0
+      - uses: nais/docker-build-push@bfbdd06e303c63a7d697da6f391ffc6b81f60db2 # v0
         if: ${{ github.actor != 'dependabot[bot]' }}
         id: docker-push
         with:
